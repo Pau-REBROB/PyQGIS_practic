@@ -3,7 +3,7 @@ Aquest repositori pretén posar en pràctica PyQGIS en la manipulació de dades,
 
 Els scripts es van actualitzant a mesura que s'aconsegueix millorar el codi.
 
-Dades extretes de Barcelona Open Data.
+Dades extretes d'Open Data BCN sota llicència CC-BY 4.0 (https://opendata-ajuntament.barcelona.cat/ca/condicions-us).
 
 
 
