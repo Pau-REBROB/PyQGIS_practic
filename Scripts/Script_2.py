@@ -14,9 +14,9 @@ root = project.layerTreeRoot()
 
 # Capes al projecte
 capes = {
-    "Barris": "d:/47994558K/OneDrive - Generalitat de Catalunya/QGIS_TESTS/BARCELONA/Limits_Administratius/BCN_UNITATS_ADM_SHP/0301040100_Barris_UNITATS_ADM.shp",
-    "Districtes": "d:/47994558K/OneDrive - Generalitat de Catalunya/QGIS_TESTS/BARCELONA/Limits_Administratius/BCN_UNITATS_ADM_SHP/0301040100_Districtes_UNITATS_ADM.shp",
-    "TermeMunicipal": "d:/47994558K/OneDrive - Generalitat de Catalunya/QGIS_TESTS/BARCELONA/Limits_Administratius/BCN_UNITATS_ADM_SHP/0301040100_TermeMunicipal_UNITATS_ADM.shp"
+    "Barris": "d:/BCN_UNITATS_ADM_SHP/0301040100_Barris_UNITATS_ADM.shp",
+    "Districtes": "d:/BCN_UNITATS_ADM_SHP/0301040100_Districtes_UNITATS_ADM.shp",
+    "TermeMunicipal": "d:/Limits_Administratius/BCN_UNITATS_ADM_SHP/0301040100_TermeMunicipal_UNITATS_ADM.shp"
 }
 layers = {}
 indexs = {}
