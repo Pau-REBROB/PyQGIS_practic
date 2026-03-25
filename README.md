@@ -3,6 +3,8 @@ Aquest repositori pretén posar en pràctica PyQGIS en la manipulació de dades,
 
 Els scripts es van actualitzant a mesura que s'aconsegueix millorar el codi.
 
+Dades extretes de Barcelona Open Data.
+
 
 
 Tots els scripts estan escrits sobre la base que s'utilitzen a la consola Python de QGIS, de manera que no s'indica la importació de mòduls i classes. 
