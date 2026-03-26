@@ -10,3 +10,5 @@ Modificació de la simbologia per defecte a una simbologia més adequada
 ---
 
 ### Script 2
+Addició del graf viari i aplicació de simbologia
+![Resultats script 2](Resultat_script_2.png)
