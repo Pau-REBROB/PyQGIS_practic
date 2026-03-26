@@ -61,7 +61,3 @@ BcnTerme.triggerRepaint()
 iface.layerTreeView().refreshLayerSymbology(BcnTerme.id())
 
 
-# Modificació de la simbologia CATEGÒRICA de les capes
-## Capa de barris
-print(BcnBarris.fields().names())
-atribut = 'DISTRICTE'
