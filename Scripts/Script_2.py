@@ -14,13 +14,13 @@ root = project.layerTreeRoot()
 
 # Capes al projecte
 capes_lim_adm = {
-    "Barris": "d:/Limits_Administratius/BCN_UNITATS_ADM_SHP/0301040100_Barris_UNITATS_ADM.shp",
-    "Districtes": "d:/Limits_Administratius/BCN_UNITATS_ADM_SHP/0301040100_Districtes_UNITATS_ADM.shp",
-    "TermeMunicipal": "d:/Limits_Administratius/BCN_UNITATS_ADM_SHP/0301040100_TermeMunicipal_UNITATS_ADM.shp"
+    "Barris": "C:/PyQGIS_practic/Limits_administratius_BCN/0301040100_Barris_UNITATS_ADM.shp",
+    "Districtes": "C:/PyQGIS_practic/Limits_administratius_BCN/0301040100_Districtes_UNITATS_ADM.shp",
+    "TermeMunicipal": "C:/PyQGIS_practic/Limits_administratius_BCN/0301040100_TermeMunicipal_UNITATS_ADM.shp"
 }
 capes_graf_viari = {
-    "Graf_trams": "d:/Graf_viari/BCN_GrafVial_Trams_ETRS89_SHP.shp",
-    #"Graf_nodes": "d:/Graf_viari/BCN_GrafVial_Nodes_ETRS89_SHP.shp"
+    "Graf_trams": "C:/PyQGIS_practic/Graf_viari/BCN_GrafVial_Trams_ETRS89_SHP.shp",
+    #"Graf_nodes": "C:/PyQGIS_practic/Graf_viari/BCN_GrafVial_Nodes_ETRS89_SHP.shp"
 }
 layers = {
     "Limits_administratius": {},
