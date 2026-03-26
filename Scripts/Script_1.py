@@ -10,7 +10,7 @@ root = project.layerTreeRoot()
 # Carregar capes al projecte
 # Generar índex espacial sobre les geometries de cada capa
 ## Límits administratius: Barris
-BcnBarris = QgsVectorLayer("d:/BCN_UNITATS_ADM_SHP/0301040100_Barris_UNITATS_ADM.shp", 'BCN_Barris', "ogr")
+BcnBarris = QgsVectorLayer("C:/PyQGIS_practic/Limits_administratius_BCN/0301040100_Barris_UNITATS_ADM.shp", 'BCN_Barris', "ogr")
 if BcnBarris.isValid():
     root.insertLayer(0, BcnBarris)
     BcnBarrisIndex = QgsSpatialIndex(BcnBarris.getFeatures())
@@ -18,7 +18,7 @@ else:
     print("Error al carregar la capa!")
 
 ## Límits administratius: Districtes
-BcnDistrictes = QgsVectorLayer("d:/BCN_UNITATS_ADM_SHP/0301040100_Districtes_UNITATS_ADM.shp", 'BCN_Districtes', "ogr")
+BcnDistrictes = QgsVectorLayer("C:/PyQGIS_practic/Limits_administratius_BCN/0301040100_Districtes_UNITATS_ADM.shp", 'BCN_Districtes', "ogr")
 if BcnDistrictes.isValid():
     root.insertLayer(1, BcnDistrictes)
     BcnDistrictesIndex = QgsSpatialIndex(BcnDistrictes.getFeatures())
@@ -26,7 +26,7 @@ else:
     print("Error al carregar la capa!")
 
 ## Límits administratius: Terme municipal
-BcnTerme = QgsVectorLayer("d:/BCN_UNITATS_ADM_SHP/0301040100_TermeMunicipal_UNITATS_ADM.shp", 'BCN_Terme_Municipal', "ogr")
+BcnTerme = QgsVectorLayer("C:/PyQGIS_practic/Limits_administratius_BCN/0301040100_TermeMunicipal_UNITATS_ADM.shp", 'BCN_Terme_Municipal', "ogr")
 if BcnTerme.isValid():
     root.insertLayer(2, BcnTerme)
     BcnTermeIndex = QgsSpatialIndex(BcnTerme.getFeatures())
