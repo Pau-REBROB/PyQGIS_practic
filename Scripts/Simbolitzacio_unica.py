@@ -122,8 +122,8 @@ def simbologia_unica_linia(layer, fill_color, width, outline_color, outline_widt
     group = root.findGroup("Simbologia_única")
     if not group:
         group = root.addGroup("Simbologia_única")
-    # Addició de la capa al grup, a la primera posició
-    group.insertLayer(0, layer_clone)
+    # Addició de la capa al grup, a l'última posició
+    group.insertLayer(-1, layer_clone)
     # Activar la visibilitat del grup i les capes
     root.setItemVisibilityChecked(True)
     group.setItemVisibilityChecked(True)
