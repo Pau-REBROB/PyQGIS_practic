@@ -12,10 +12,7 @@ Inicialització del projecte i importació de les capes
 ### Simbolització
 #### Simbologia única
 Modificació de la simbologia per defecte a una simbologia més adequada, amb símbol únic
-![Resultats script 1](Resultat_script_1.png)
+![Simbologia única límits administratius](Simbologia_unic_limitsAdm.png)
 
----
-
-### Script 2
-Addició del graf viari i aplicació de simbologia
-![Resultats script 2](Resultat_script_2.png)
+Addició del graf viari amb aplicació de simbologia
+![Simbologia única límits i graf](Simbologia_unic.png)
