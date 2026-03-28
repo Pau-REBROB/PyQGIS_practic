@@ -55,6 +55,11 @@ def simbologia_unica(layer, fill_color, outline_width, stroke_color):
         group = root.addGroup("Simbologia_única")
     # Addició de la capa al grup
     group.addLayer(layer_clone)
+    # Activar la visibilitat del grup i les capes
+    group.setItemVisibilityChecked(True)
+    node = group.findLayer(layer_clone.id())
+    if node:
+        node.setItemVisibilityChecked(True)
 
     # Creació de l'objecte símbol
     symbol = QgsFillSymbol()
@@ -117,6 +122,11 @@ def simbologia_unica_linia(layer, fill_color, width, outline_color, outline_widt
         group = root.addGroup("Simbologia_única")
     # Addició de la capa al grup, a la primera posició
     group.insertLayer(0, layer_clone)
+    # Activar la visibilitat del grup i les capes
+    group.setItemVisibilityChecked(True)
+    node = group.findLayer(layer_clone.id())
+    if node:
+        node.setItemVisibilityChecked(True)
 
     # Creació de l'objecte símbol
     symbol = QgsLineSymbol()
