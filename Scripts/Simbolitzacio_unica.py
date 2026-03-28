@@ -56,6 +56,7 @@ def simbologia_unica(layer, fill_color, outline_width, stroke_color):
     # Addició de la capa al grup
     group.addLayer(layer_clone)
     # Activar la visibilitat del grup i les capes
+    root.setItemVisibilityChecked(True)
     group.setItemVisibilityChecked(True)
     node = root.findLayer(layer_clone.id())
     if node:
@@ -124,6 +125,7 @@ def simbologia_unica_linia(layer, fill_color, width, outline_color, outline_widt
     # Addició de la capa al grup, a la primera posició
     group.insertLayer(0, layer_clone)
     # Activar la visibilitat del grup i les capes
+    root.setItemVisibilityChecked(True)
     group.setItemVisibilityChecked(True)
     node = root.findLayer(layer_clone.id())
     if node:
