@@ -41,8 +41,15 @@ def simbologia_unica(layer, fill_color, outline_width, stroke_color):
     """
     # Clonació de la capa d'entrada
     layer_clone = layer.clone()
+    # Assignació d'un nou nom
+    layer_clone.setName(f"{layer.name()}_simbUnica")
     # Addició de la capa al projecte
-    project.addMapLayer(layer_clone)
+    project.addMapLayer(layer_clone, False)
+    # Creació d'un grup de capes de simbologia única, si no existeix
+    if not group:
+        group = root.addGroup("Simbologia_única")
+    # Addició de la capa al grup
+    group.addLayer(layer_clone)
 
     # Creació de l'objecte símbol
     symbol = QgsFillSymbol()
@@ -64,16 +71,16 @@ def simbologia_unica(layer, fill_color, outline_width, stroke_color):
 # Aplicar la simbologia única a les capes
 ## Definició dels paràmetres de cada capa
 params_limAdm = {
-    'Barris': {"fill_color": (0,0,0,0), "outline_width": 0.2, "stroke_color": "black"},
-    'Districtes': {"fill_color": (0,0,0,0), "outline_width": 0.4, "stroke_color": "black"},
-    'TermeMunicipal': {"fill_color": (227,241,249,150), "outline_width": 0.6, "stroke_color": "black"}
+    'Barris': {"fill_color": (0,0,0,0), "outline_width": 0.2, "stroke_color": (0,0,0,255)},
+    'Districtes': {"fill_color": (0,0,0,0), "outline_width": 0.4, "stroke_color": (0,0,0,255)},
+    'TermeMunicipal': {"fill_color": (227,241,249,150), "outline_width": 0.6, "stroke_color": (0,0,0,255)}
 }
 ## Aplicar la funció
 for layer in layers["Limits_administratius"].values():
     # Comprovació que la capa existeix en el diccionari de paràmetres
     if layer.name() in params_limAdm:
         p_layer = params_limAdm[layer.name()]
-        aplicar_simb_unica(layer, p_layer["fill_color"], p_layer["outline_width"], p_layer["stroke_color"])
+        simbologia_unica(layer, p_layer["fill_color"], p_layer["outline_width"], p_layer["stroke_color"])
     else:
         print(f"El diccionari de paràmetres no recull la capa {layer.name()}! Cal revisar-lo")
 
