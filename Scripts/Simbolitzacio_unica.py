@@ -135,11 +135,11 @@ def simbologia_unica_linia(layer, fill_color, width, outline_color, outline_widt
     symbol.appendSymbolLayer(linia_base)
 
     # S'estableix el renderer de la capa i se li assigna el símbol creat
-    layer.renderer().setSymbol(symbol)
+    layer_clone.renderer().setSymbol(symbol)
     # Actualització del llenç
-    layer.triggerRepaint()
+    layer_clone.triggerRepaint()
     # Actualització del panell de capes
-    iface.layerTreeView().refreshLayerSymbology(layer.id())
+    iface.layerTreeView().refreshLayerSymbology(layer_clone.id())
 
 # Aplicar la simbologia única a la capa
 simbologia_unica_linia(
