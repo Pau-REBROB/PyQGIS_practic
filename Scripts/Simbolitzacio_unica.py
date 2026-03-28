@@ -167,7 +167,3 @@ simbologia_unica_linia(
     (200,200,200,180),
     0.3
 )
-
-# S'activa la visibilitat del grup creat de simbologia única
-node = root.findGroup("Simbologia_única")
-node.setItemVisibilityChecked(True)
