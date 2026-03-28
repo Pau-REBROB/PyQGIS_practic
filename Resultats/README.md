@@ -9,8 +9,9 @@ Inicialització del projecte i importació de les capes
 
 ---
 
-### Script 1
-Modificació de la simbologia per defecte a una simbologia més adequada
+### Simbolització
+#### Simbologia única
+Modificació de la simbologia per defecte a una simbologia més adequada, amb símbol únic
 ![Resultats script 1](Resultat_script_1.png)
 
 ---
