@@ -57,7 +57,7 @@ def simbologia_unica(layer, fill_color, outline_width, stroke_color):
     group.addLayer(layer_clone)
     # Activar la visibilitat del grup i les capes
     group.setItemVisibilityChecked(True)
-    node = group.findLayer(layer_clone.id())
+    node = root.findLayer(layer_clone.id())
     if node:
         node.setItemVisibilityChecked(True)
 
@@ -75,6 +75,7 @@ def simbologia_unica(layer, fill_color, outline_width, stroke_color):
     layer_clone.renderer().setSymbol(symbol)
     # Actualització del llenç
     layer_clone.triggerRepaint()
+    iface.mapCanvas().refresh()
     # Actualització del panell de capes
     iface.layerTreeView().refreshLayerSymbology(layer_clone.id())
 
@@ -124,7 +125,7 @@ def simbologia_unica_linia(layer, fill_color, width, outline_color, outline_widt
     group.insertLayer(0, layer_clone)
     # Activar la visibilitat del grup i les capes
     group.setItemVisibilityChecked(True)
-    node = group.findLayer(layer_clone.id())
+    node = root.findLayer(layer_clone.id())
     if node:
         node.setItemVisibilityChecked(True)
 
@@ -152,6 +153,7 @@ def simbologia_unica_linia(layer, fill_color, width, outline_color, outline_widt
     layer_clone.renderer().setSymbol(symbol)
     # Actualització del llenç
     layer_clone.triggerRepaint()
+    iface.mapCanvas().refresh()
     # Actualització del panell de capes
     iface.layerTreeView().refreshLayerSymbology(layer_clone.id())
 
