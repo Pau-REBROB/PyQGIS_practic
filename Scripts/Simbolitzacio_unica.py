@@ -78,50 +78,74 @@ params_limAdm = {
 }
 ## Aplicar la funció
 for layer in layers["Limits_administratius"].values():
-    # Comprovació que la capa existeix en el diccionari de paràmetres
+    # Comprovació que la capa del diccionari de capes existeix en el diccionari de paràmetres
     if layer.name() in params_limAdm:
+        # Assingació del conjunt de paràmetres de la capa a una nova variable més manejable
         p_layer = params_limAdm[layer.name()]
+        # Crida de la funció
         simbologia_unica(layer, p_layer["fill_color"], p_layer["outline_width"], p_layer["stroke_color"])
     else:
-        print(f"El diccionari de paràmetres no recull la capa {layer.name()}! Cal revisar-lo")
+        print(f"El diccionari de paràmetres no recull la capa cridada {layer.name()}!")
+
 
 ## GRAF VIARI
 # Creació d'una funció per a aplicar simbologia única
-def aplicar_simb_unica_linia(layer, fill_color, width, outline_color, outline_width):
+def simbologia_unica_linia(layer, fill_color, width, outline_color, outline_width):
     """
-    Aplica una simbologia única a una capa linial existent
+    Aplica una simbologia de símbol únic a una capa linial existent
     
     Paràmetres de la funció:
-        fill_color : color del farcit passat com a (R,G,B,Alpha)
+        layer : capa vectorial de tipus lineal sobre la que aplicar la simbologia
+        fill_color : color del farcit, passat com a (R,G,B,Alpha)
         width : gruix de la línia base (0.26 per defecte)
-        outline_color : color del contorn de la línia passat com a (R,G,B,Alpha)
-        outline_width : gruix de la línia (0.26 per defecte)
+        outline_color : color del contorn de la línia, passat com a (R,G,B,Alpha)
+        outline_width : gruix de la línia externa (0.26 per defecte)
     """
-    #layer_clone = layer.clone()
+    # Clonació de la capa d'entrada
+    layer_clone = layer.clone()
+    # Assignació d'un nou nom
+    layer_clone.setName(f"{layer.name()}_simbUnica")
+    # Addició de la capa al projecte
+    project.addMapLayer(layer_clone, False)
+    # Creació d'un grup de capes de simbologia única, si no existeix
+    group = root.findGroup("Simbologia_única")
+    if not group:
+        group = root.addGroup("Simbologia_única")
+    # Addició de la capa al grup, a la primera posició
+    group.insertLayer(0, layer_clone)
+
+    # Creació de l'objecte símbol
     symbol = QgsLineSymbol()
     
-    # Línia base
+    # Creació de la línia base
     linia_base = QgsSimpleLineSymbolLayer()
+    # S'estableix el seu color i gruix
     linia_base.setColor(QColor(*fill_color))
     linia_base.setWidth(width)
     
-    # Línia exterior
+    # Creació de la línia exterior
     linia_ext = QgsSimpleLineSymbolLayer()
+    # S'estableix el seu color i gruix
     linia_ext.setColor(QColor(*outline_color))
     linia_ext.setWidth(outline_width)
-    
+
+    # S'estableix la línia exterior com a símbol
     symbol.changeSymbolLayer(0, linia_ext)
+    # S'afegeix al símbol la línia base per sobre
     symbol.appendSymbolLayer(linia_base)
-    
+
+    # S'estableix el renderer de la capa i se li assigna el símbol creat
     layer.renderer().setSymbol(symbol)
+    # Actualització del llenç
     layer.triggerRepaint()
+    # Actualització del panell de capes
     iface.layerTreeView().refreshLayerSymbology(layer.id())
 
 # Aplicar la simbologia única a la capa
-aplicar_simb_unica_linia(
+simbologia_unica_linia(
     layers["Graf"]["Graf_trams"],
-    (0,0,255,200),
+    (0,0,255,180),
     0.10,
-    (200,200,200,200),
+    (200,200,200,180),
     0.3
 )
