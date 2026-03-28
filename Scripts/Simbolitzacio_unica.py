@@ -46,6 +46,7 @@ def simbologia_unica(layer, fill_color, outline_width, stroke_color):
     # Addició de la capa al projecte
     project.addMapLayer(layer_clone, False)
     # Creació d'un grup de capes de simbologia única, si no existeix
+    group = root.findGroup("Simbologia_única")
     if not group:
         group = root.addGroup("Simbologia_única")
     # Addició de la capa al grup
