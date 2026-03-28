@@ -27,6 +27,10 @@ print(QColor.colorNames())
 
 
 # SÍMBOL ÚNIC
+
+# Desactivar la visibilitat de totes les capes importades
+root.setItemVisibilityCheckedRecursive(False)
+
 ## LÍMITS ADMINISTRATIUS
 # Creació d'una funció per a aplicar simbologia única
 def simbologia_unica(layer, fill_color, outline_width, stroke_color):
