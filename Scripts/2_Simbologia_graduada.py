@@ -2,6 +2,9 @@
 
 # SIMBOLOGIA GRADUADA
 
+# Desactivar la visibilitat de totes les capes importades
+root.setItemVisibilityCheckedRecursive(False)
+
 ## LÍMITS ADMINISTRATIUS
 # Creació d'una funció per a aplicar simbologia graduada
 # No es defineixen els rangs, sinó que s'utilitza un mètode de classificació propi de QGIS
