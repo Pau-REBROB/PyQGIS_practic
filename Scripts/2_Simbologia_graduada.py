@@ -7,13 +7,15 @@
 # No es defineixen els rangs, sinó que s'utilitza un mètode de classificació propi de QGIS
 def simbologia_graduada_1(layer, atribut, num_classes, color_ramp, mode):
     """
-    Aplica simbologia graduada amb estètica per defecte a una capa poligonal existent
+    Aplica simbologia graduada a una capa poligonal existent
+    Utilitza un mètode de classificació i una rampa de colors propis de QGIS
     
     Paràmetres de la funció:
+        layer : capa de tipus poligonal sobre la que aplicar la simbologia
         atribut : camp a representar
-        num_classes : número de classes de l'atribut
+        num_classes : número de classes amb què es divideix el valor de l'atribut
         color_ramp : rampa de color d'estil QGIS
-        mode : mètode de classificació
+        mode : mètode de classificació de QGIS
     """
     
     mode_map = {
