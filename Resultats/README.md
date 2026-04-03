@@ -19,3 +19,10 @@ Addició del graf viari amb aplicació de simbologia
 
 Actualització del panell de capes (TOC)
 ![Simbologia única amb TOC](Simbologia_unica_TOC.png)
+
+#### Simbologia categòrica
+Aplicació de simbologia categòrica a la capa de Barris, segons el districte al qual pertanyen
+![Simbologia categòrica Barris](Simbologia_cat_barris.png)
+
+Aplicació de simbologia categòrica a la capa de Districtes, segons el nom/codi
+![Simbologia categòrica Districtes](Simbologia_cat_districtes.png)
