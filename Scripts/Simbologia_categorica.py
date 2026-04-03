@@ -42,23 +42,35 @@ def simbologia_categorica(layer, atribut, colors, outline_width, stroke_color):
 
     # Llistat de cada categoria de la classe QgsRendererCategory, com a (value, symbol, label)
     categories = []
-    
+
+    # Creació de la categoria per cada valor d'atribut
     for valor, color in zip(valors_atribut, colors):
+        # Creació d'una variable tipus QColor a partir del nom del color introduït com a argument
         col = QColor(color)
+        # Creació de l'objecte símbol
         symbol = QgsFillSymbol()
+        S'estableix el color del farcit
         symbol.setColor(QColor(col))
+        # Accés a la capa més interna del símbol
         symbol_layer_0 = symbol.symbolLayer(0)
+        # S'estableix el gruix i el color de la línia de contorn
         symbol_layer_0.setStrokeWidth(outline_width)
         symbol_layer_0.setStrokeColor(QColor(stroke_color))
-          
+
+        # Creació de la categoria
         cat = QgsRendererCategory(valor, symbol, str(valor))
+        # Inserció de l'objecte de categoria a la llista de categories
         categories.append(cat)
-    
+
+    # S'estableix el renderer categòric de la capa i se li assinga l'atribut categòric i el llistat de categories 
     renderer = QgsCategorizedSymbolRenderer(atribut, categories)
-    layer.setRenderer(renderer)
-    
-    layer.triggerRepaint()
-    iface.layerTreeView().refreshLayerSymbology(layer.id())
+    # S'aplica a la capa el renderer creat
+    layer_clone.setRenderer(renderer)
+    # Actualització del llenç
+    layer_clone.triggerRepaint()
+    iface.mapCanvas().refresh()
+    # Actualització del panell de capes
+    iface.layerTreeView().refreshLayerSymbology(layer_clone.id())
 
 
 # Aplicar la simbologia categòrica a les capes
@@ -77,6 +89,6 @@ for layer in layers["Limits_administratius"].values():
     # Comprovació que la capa existeix en el diccionari de paràmetres
     if layer.name() in params_limAdm_cat:
         p_layer = params_limAdm_cat[layer.name()]
-        aplicar_simb_categ(layer, p_layer["atribut"], p_layer["colors"], p_layer["outline_width"], p_layer["stroke_color"])
+        simbologia_categorica(layer, p_layer["atribut"], p_layer["colors"], p_layer["outline_width"], p_layer["stroke_color"])
     else:
-        print(f"El diccionari de paràmetres no recull la capa {layer.name()}! Cal revisar-lo")
+        print(f"El diccionari de paràmetres no recull la capa {layer.name()}!")
