@@ -5,10 +5,11 @@
 ## LÍMITS ADMINISTRATIUS
 # Creació d'una funció per a aplicar simbologia graduada
 # No es defineixen els rangs, sinó que s'utilitza un mètode de classificació propi de QGIS
-def simbologia_graduada_1(layer, atribut, num_classes, color_ramp, mode):
+def simbologia_graduada_QGIS(layer, atribut, num_classes, color_ramp, mode):
     """
     Aplica simbologia graduada a una capa poligonal existent
     Utilitza un mètode de classificació i una rampa de colors propis de QGIS
+    No es modifica la simbologia dels polígons
     
     Paràmetres de la funció:
         layer : capa de tipus poligonal sobre la que aplicar la simbologia
@@ -45,17 +46,38 @@ def simbologia_graduada_1(layer, atribut, num_classes, color_ramp, mode):
         "Pretty": QgsGraduatedSymbolRenderer.Pretty
     }
 
-    # Creació del renderer graduat, amb els paràmetres entrats en la crida de la funció
+    # S'estableix el renderer graduat de la capa, amb els paràmetres entrats en la crida de la funció
     renderer = QgsGraduatedSymbolRenderer.createRenderer(
-        layer,
+        layer_clone,
         atribut,
         num_classes,
         mode_map[mode],
         QgsFillSymbol(),
         QgsStyle().defaultStyle().colorRamp(color_ramp)
     )
-    # Aplicació del renderer a la capa
-    layer.setRenderer(renderer)
+    # S'aplica a la capa el renderer creat
+    layer_clone.setRenderer(renderer)
+    # Actualització del llenç
+    layer_clone.triggerRepaint()
+    iface.mapCanvas().refresh()
+    # Actualització del panell de capes
+    iface.layerTreeView().refreshLayerSymbology(layer_clone.id())
+
+
+# Aplicar la simbologia graduada a les capes
+## Definició dels paràmetres de cada capa
+params_limAdm_grad = {
+    'Barris': {"atribut": 'AREA', "num_classes": 5, "color_ramp": "Viridis", "mode": "Jenks"},
+    'Districtes': {"atribut": 'AREA', "num_classes": 5, "color_ramp": "Blues", "mode": "EqualInterval"},
+}
+
+## Aplicar la funció
+for layer in layers["Limits_administratius"].values():
+    # Comprovació que la capa existeix en el diccionari de paràmetres
+    if layer.name() in params_limAdm_grad:
+        p_layer = params_limAdm_grad[layer.name()]
+        simbologia_graduada_QGIS(layer, p_layer["atribut"], p_layer["num_classes"], p_layer["color_ramp"], p_layer["mode"])
+    else:
+        print(f"El diccionari de paràmetres no recull la capa {layer.name()}!")
     
-    layer.triggerRepaint()
-    iface.layerTreeView().refreshLayerSymbology(layer.id())
+
