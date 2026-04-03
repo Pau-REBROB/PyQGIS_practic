@@ -2,21 +2,45 @@
 
 # SIMBOLOGIA CATEGÒRICA
 
+# Desactivar la visibilitat de totes les capes importades
+root.setItemVisibilityCheckedRecursive(False)
+
 ## LÍMITS ADMINISTRATIUS
 # Creació d'una funció per a aplicar simbologia categòrica 
-def aplicar_simb_categ(layer, atribut, colors, outline_width, stroke_color):
+def simbologia_categorica(layer, atribut, colors, outline_width, stroke_color):
     """
-    Aplica simbologia categòrica a una capa poligonal existent
+    Aplica una simbologia categòrica a una capa poligonal existent
     
     Paràmetres de la funció:
+        layer : capa vectorial de tipus poligonal sobre la que aplicar la simbologia
         atribut : camp a representar
         colors : llista de colors - passats com a string - que tindran les categories ## Es podria establir com a aleatori
-        outline_width : gruix de la línia (0.26 per defecte)
-        stroke_color : color de la línia de contorn passat com a string
+        outline_width : gruix de la línia de contorn (0.26 per defecte)
+        stroke_color : color de la línia de contorn, passat com a string
     """
+    # Clonació de la capa d'entrada
+    layer_clone = layer.clone()
+    # Assignació d'un nou nom
+    layer_clone.setName(f"{layer.name()}_simbCat")
+    # Addició de la capa al projecte
+    project.addMapLayer(layer_clone, False)
+    # Creació d'un grup de capes de simbologia categòrica, si no existeix
+    group = root.findGroup("Simbologia_categorica")
+    if not group:
+        group = root.addGroup("Simbologia_categorica")
+    # Addició de la capa al grup
+    group.addLayer(layer_clone)
+    # Activar la visibilitat del grup i de les capes
+    root.setItemVisibilityChecked(True)
+    group.setItemVisibilityChecked(True)
+    node = root.findLayer(layer_clone.id())
+    if node:
+        node.setItemVisibilityChecked(True)
     
+    # Obtenció dels valors únics de l'atribut categòric, ordenats
     valors_atribut = sorted(set([feat[atribut] for feat in layer.getFeatures()]))
-    
+
+    # Llistat de cada categoria de la classe QgsRendererCategory, com a (value, symbol, label)
     categories = []
     
     for valor, color in zip(valors_atribut, colors):
@@ -36,6 +60,7 @@ def aplicar_simb_categ(layer, atribut, colors, outline_width, stroke_color):
     layer.triggerRepaint()
     iface.layerTreeView().refreshLayerSymbology(layer.id())
 
+
 # Aplicar la simbologia categòrica a les capes
 ## Definició dels paràmetres de cada capa
 params_limAdm_cat = {
@@ -46,6 +71,7 @@ params_limAdm_cat = {
                    "colors": ['mediumaquamarine', 'mediumblue', 'mediumorchid', 'mediumpurple', 'mediumseagreen', 'mediumslateblue', 'mediumspringgreen', 'mediumturquoise', 'mediumvioletred', 'midnightblue'],
                    "outline_width": 0.4, "stroke_color": "black"},
 }
+
 ## Aplicar la funció
 for layer in layers["Limits_administratius"].values():
     # Comprovació que la capa existeix en el diccionari de paràmetres
