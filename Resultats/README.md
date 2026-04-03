@@ -26,3 +26,6 @@ Aplicació de simbologia categòrica a la capa de Barris, segons el districte al
 
 Aplicació de simbologia categòrica a la capa de Districtes, segons el nom/codi
 ![Simbologia categòrica Districtes](Simbologia_cat_districtes.png)
+
+Actualització del panell de capes (TOC)
+![Simbologia categòrica amb TOC](Simbologia_categorica_TOC.png)
