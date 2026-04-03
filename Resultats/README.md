@@ -29,3 +29,14 @@ Aplicació de simbologia categòrica a la capa de Districtes, segons el nom/codi
 
 Actualització del panell de capes (TOC)
 ![Simbologia categòrica amb TOC](Simbologia_categorica_TOC.png)
+
+#### Simbologia graduada
+##### Mètodes i Rampa de colors propis de QGIS
+Aplicació de simbologia graduada a la capa de Barris en funció de la seva àrea
+![Simbologia graduada QGIS Barris](Simbologia_grad_QGIS_barris.png)
+
+Aplicació de simbologia graduada a la capa de Districtes en funció de la seva àrea
+![Simbologia graduada QGIS Districtes](Simbologia_grad_QGIS_districtes.png)
+
+Actualització del panell de capes (TOC)
+![Simbologia graduada QGIS amb TOC](Simbologia_graduada_QGIS_TOC.png)
