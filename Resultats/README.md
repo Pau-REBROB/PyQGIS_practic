@@ -40,3 +40,10 @@ Aplicació de simbologia graduada a la capa de Districtes en funció de la seva 
 
 Actualització del panell de capes (TOC)
 ![Simbologia graduada QGIS amb TOC](Simbologia_graduada_QGIS_TOC.png)
+
+##### Rangs manuals i colors interpolats de rampes de QGIS
+Aplicació de simbologia graduada a la capa de Barris en funció de la seva àrea
+![Simbologia graduada manual Barris](Simbologia_grad_manual_barris.png)
+
+Aplicació de simbologia graduada a la capa de Districtes en funció de la seva àrea
+![Simbologia graduada manual Districtes](Simbologia_grad_manual_districtes.png)
