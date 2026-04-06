@@ -8,6 +8,7 @@ root.setItemVisibilityCheckedRecursive(False)
 ## LÍMITS ADMINISTRATIUS
 # Creació d'una funció per a aplicar simbologia graduada
 # No es defineixen els rangs, sinó que s'utilitza un mètode de classificació propi de QGIS
+# S'utilitzen les rampes de colors pròpies de QGIS
 def simbologia_graduada_QGIS(layer, atribut, num_classes, color_ramp, mode):
     """
     Aplica simbologia graduada a una capa poligonal existent
