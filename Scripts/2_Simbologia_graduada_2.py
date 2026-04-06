@@ -84,7 +84,7 @@ params_limAdm_grad2 = {
 for layer in layers["Limits_administratius"].values():
     # Comprovació que la capa existeix en el diccionari de paràmetres
     if layer.name() in params_limAdm_grad2:
-        p_layer = params_limAdm_grad[2layer.name()]
+        p_layer = params_limAdm_grad2[layer.name()]
         simbologia_graduada_manual(layer, p_layer["atribut"], p_layer["breaks"], p_layer["color_ramp"])
     else:
       print(f"El diccionari de paràmetres no recull la capa {layer.name()}!")
