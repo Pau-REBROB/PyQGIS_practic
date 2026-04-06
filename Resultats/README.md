@@ -47,3 +47,6 @@ Aplicació de simbologia graduada a la capa de Barris en funció de la seva àre
 
 Aplicació de simbologia graduada a la capa de Districtes en funció de la seva àrea
 ![Simbologia graduada manual Districtes](Simbologia_grad_manual_districtes.png)
+
+Actualització del panell de capes (TOC)
+![Simbologia graduada QGIS amb TOC](Simbologia_graduada_manual_TOC.png)
