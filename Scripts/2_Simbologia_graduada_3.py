@@ -21,8 +21,8 @@ def simbologia_graduada_QGIS_2(layer, atribut, num_classes, color_ramp, mode, st
         num_classes : número de classes amb què es divideix el valor de l'atribut
         color_ramp : rampa de color d'estil QGIS
         mode : mètode de classificació de QGIS
-        stroke_color : color..
-        stroke_width : gruix...
+        stroke_color : color de la línia de contorn, passat com a string
+        stroke_width : gruix de la línia de contorn (0.26 per defecte)
     """
     # Clonació de la capa d'entrada
     layer_clone = layer.clone()
