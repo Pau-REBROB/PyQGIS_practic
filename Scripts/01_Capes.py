@@ -20,6 +20,21 @@ vlayer = QgsVectorLayer("Projecte/Dades/dades.gpkg|layername=Aeroports", "Aeropo
 
 """Capes ràster"""
 
+# En el supòsit que no es treballi a la consola Python de QGIS
+import os
+from qgis.core import QgsRasterLayer
+
+# Per importar i afegir al projecte una capa vectorial cal crear una instància de la classe `QgsRasterLayer`
+# Cal especificar:
+## Ruta on es troba la capa (*source*)
+## Nom que es desitja donar (*layer name*) com a identificador en el panell de capes
+## Proveïdor de dades raster
+vlayer = QgsRasterLayer("Filepath_capa", "Nom_capa", "Proveïdor")
+
+# De nou, GDAL és el proveïdor que suporta la majoria de formats
+rlayer = QgsRasterLayer("Projecte/Dades/dades.gpkg|layername=dem", "DEM", "gdal")
+
+# Altres proveïdors disponibles permeten establir connexions WMS ("wms") o carregar capes des d'un servidor PostgreSQL ("postgresraster")
 
 
 """Addició de capes al llenç"""
