@@ -45,6 +45,7 @@ project.addMapLayer(vlayer)
 # Aquest mètode, declarant la capa amb una instància QgsVectorLayer/QgsRasterLayer + utilitzant la instància del projecte, és el mètode més indicat per a importar capes
 # De manera més ràpida i alternativa, es pot fer ús del mètode `addVectorLayer()` o `addRasterLayer()` de la classe `QgsInterface` per a carregar i visualitzar una capa
 vlayer = iface.addVectorLayer()
+rlayer = iface.addRasterLayer()
 # Igual que amb la classe QgsVectorLayer o QgsRasterLayer, cal especificar 
 ## Ruta on es troba la capa (*source*)
 ## Nom que es desitja donar (*layer name*) com a identificador en el panell de capes
