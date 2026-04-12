@@ -58,3 +58,13 @@ rlayer = iface.addRasterLayer()
 # Si al mètode `.addMapLayer()` s'afegeix el paràmetre *False* en segona posició - corresponent a l'argument *addToLegend* -, la capa s'afegeix al projecte, però no al llenç del mapa
 project.addMapLayer(vlayer, False)
 # La capa segueix activa dins del projecte, tal i com reflectirà l'arbre de capes (*layer tree*)
+
+
+"""Manipulació de capes"""
+
+# Les capes que s'importen a un projecte son declarades com a variables utilitzant la classe `QgsVectorLayer` o `QgsRasterLayer`
+# A l'existir com a variables, es poden aplicar sobre el nom de la variable els mètodes propis de les classes vectorials i ràster
+
+# Què passa quan s'obra un projecte que ja conté totes les capes necessàries carregades?
+## En aquest cas, no es pot accedir a l'objecte que representa cada capa vectorial perquè no ha estat creat
+## Tampoc es pot accedir a les capes a través del nom que consta en el panell de capes, al ser el nom simplement una propietat més de l'objecte que no està creat
