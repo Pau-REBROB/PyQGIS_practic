@@ -64,7 +64,34 @@ project.addMapLayer(vlayer, False)
 
 # Les capes que s'importen a un projecte son declarades com a variables utilitzant la classe `QgsVectorLayer` o `QgsRasterLayer`
 # A l'existir com a variables, es poden aplicar sobre el nom de la variable els mètodes propis de les classes vectorials i ràster
+layer.name()
+layer.id()
+layer.source()  # etcètera
 
 # Què passa quan s'obra un projecte que ja conté totes les capes necessàries carregades?
 ## En aquest cas, no es pot accedir a l'objecte que representa cada capa vectorial perquè no ha estat creat
 ## Tampoc es pot accedir a les capes a través del nom que consta en el panell de capes, al ser el nom simplement una propietat més de l'objecte que no està creat
+# Així doncs, en aquests casos convé crear un objecte per cada capa continguda en el projecte
+
+# El mètode `mapLayers()` retorna un diccionari de les capes presents al projecte 
+project.mapLayers()
+## Les claus (*keys*) del diccionari son els identificadors únics de les capes `layer.id()`
+project.mapLayers().keys()
+## Els valors (*values*) del diccionari son la informació referent a la capa: classe, nom i proveïdor - <QgsVectorLayer: 'name' (ogr)>
+project.mapLayers().values()
+# Així, es pot accedir al nom d'una capa present al panell de capes aplicant el mètode `.name()` en el llistat de valors
+# Per fer-ho, no es pot aplicar el mètode directament sobre el diccionari de capes, sinó que cal iterar per cada capa
+for layer in project.mapLayers().values():
+  print(layer.name())
+
+# Modificant aquesta iteració es pot generar un diccionari de capes amb la clau sent el nom de la capa i el valor sent la pròpia capa de classe QgsVectorLayer o QgsRasterLayer
+layers = project.mapLayers().values()
+layers_dict = {layer.name(): layer for layer in layers}
+# Accedir a una capa és equivalent a accedir a un element d'un diccionari
+layers_dict['Nom_capa']
+# D'aquesta manera, es millora la comprensió i legibilitat del projecte i l'accés a les capes
+
+# Es pot accedir a les capes de manera directa consultant el panell de capes utilitzant el nom de la capa que hi figura
+# Per fer-ho, s'utilitza el mètode `.mapLayersByName('Nom_capa')[0]`, on l'índex [0] especifica la selecció del primer element que tingui aquest nom
+project.mapLayersByName('Nom_capa')[0]
+# El resultat és el mateix que el valor del diccionari de capes que s'obté amb `.mapLayers().values()`
