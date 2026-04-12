@@ -36,8 +36,21 @@ project.mapLayers()  # El mètode NO reconeix les capes afegides a través de `r
 
 """Grups de capes"""
 
+# A través de l'arbre de capes es poden crear grups de capes
+group = root.addGroup("Nom_grup")
+
+# Creat un grup, es poden afegir o inserir capes en el seu interior
+group.addLayer(layer)
+# En aquest cas, la capa afegida grup es situa a la posició més alta, PER SOBRE de les capes ja existents
+group.insertLayer(i, layer)
+
+# El mètode `findGroup` permet cercar un grup de capes per nom a l'arbre de capes
+root.findGroup("Nom_grup")
 
 
 """Panell de capes"""
 
-# Existeix una relació directa entre l'arbre de capes d'un projecte i el panell de capes TOC
+# Existeix una relació directa entre l'arbre de capes d'un projecte (*layer tree*) i el panell de capes de la GUI (*table of contents*, TOC)
+# Totes les capes que s'afegeixen a un projecte a través de la seva instància - `project.addMapLayer()` - son afegides a l'arbre de capes i al panell de capes
+## Si s'especifica el segon paràmetre com a *False*, la capa està inclosa a l'arbre de capes, però NO queda reflectida en el panell de capes
+# Quan una capa s'afegeix al projecte directament des de `root`, la capa queda afegida al panell de capes però NO consta a l'arbre de capes com una capa del projecte
