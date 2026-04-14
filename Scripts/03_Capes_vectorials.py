@@ -62,9 +62,18 @@ for feature in features:
   print(f"Àrea de l'element: {area}; Perímetre de l'element: {perim}")
 
 
-"""Índex"""
+"""Índex espacials"""
+
+# És sabuda la importància dels índex espacials en els processos d'anàlisi i manipulació de geometries
+# Existeixen dues maneres de generar índex espacials
+## Es poden guardar en memòria en un objecte manipulable, que haurà de ser cridat en les operacions espacials en el lloc de la pròpia capa vectorial
+index = QgsSpatialIndex(vlayer.getFeatures())
+## Es poden modificar les dades originals generant-hi un índex espacial, que és persistent
+vlayer.dataProvider().createSpatialIndex()
 
 
 """Modificació de capes vectorials"""
 
-#
+# Es poden conèixer les possibilitats de manipulació d'una capa vectorial amb el mètode `.capabilitiesString()`
+vlayer.dataProvider().capabilitiesString()
+
