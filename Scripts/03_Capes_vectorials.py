@@ -1,4 +1,4 @@
-"""Manipulació de capes vectorials"""
+"""Elements de capes vectorials"""
 
 # En el supòsit que no es treballi a la consola Python de QGIS
 import os
@@ -43,18 +43,26 @@ vlayer.setDisplayField('"FIELD"')
 feature['nom']
 # Alternativament, s'hi pot accedir a través de l'índex del camp
 feature[i]
+# Per accedir al llistat d'atributs d'un element s'utilitza el mètode `.attributes()`
+feature.attributes()
+# Totes les maneres per a accedir als atributs d'un element es realitzen en els propis features, NO sobre la capa vectorial
 
 # És molt important remarcar l'ús de la iteració sobre els elements (*features*) de les capes vectorials per tal d'accedir i manipular les dades
 
 
-"""Geometries vectorials"""
+"""Accés a geometries vectorials"""
 
-# Iterant sobre els elements d'una capa vectorial es pot accedir a les geometries d'aquests elements
+# Iterant sobre els elements d'una capa vectorial es pot accedir a les geometries d'aquests elements amb el mètode `.geometry()`
+# Amb les geometries disponibles, es poden aplicar predicats - intersects, within, equals, etc. - i operacions espacials - unió, envolvent, àrea, buffer, etc. - sobre elles
 features = vlayer.getFeatures()
 for feature in features:
-  geom = feature.geometry()  
+  geom = feature.geometry()
+  area = geom.area()
+  perim = geom.length()
+  print(f"Àrea de l'element: {area}; Perímetre de l'element: {perim}")
 
-# 
+
+"""Índex"""
 
 
 """Modificació de capes vectorials"""
