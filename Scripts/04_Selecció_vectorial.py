@@ -1,7 +1,9 @@
 """Selecció i filtre d'elements"""
 
 
+# En el supòsit que no es treballi a la consola Python de QGIS
 from qgis.core import (
+    QgsVectorLayer,
     QgsFeatureRequest,
     QgsExpression,
     QgsExpressionContext,
