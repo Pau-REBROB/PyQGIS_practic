@@ -1,6 +1,5 @@
 """Selecció i filtre d'elements"""
 
-
 # En el supòsit que no es treballi a la consola Python de QGIS
 from qgis.core import (
     QgsVectorLayer,
@@ -9,7 +8,6 @@ from qgis.core import (
     QgsExpressionContext,
     QgsExpressionContextUtils
 )
-
 
 # Si es treballa en la GUI de QGIS, la selecció és sempre sobre la capa activa del projecte
 # Al treballar amb la GUI, s'ha de fer ús de `iface`
@@ -64,5 +62,28 @@ layer.removeSelection()
 """Càlculs sobre seleccions"""
 
 # És habitual voler realitzar càlculs que involucren un o més camps d'una capa sobre un conjunt concret d'elements d'aquesta - o sobre tots
-QgsExpression()
-QgsExpressionContext()
+# Realitzat el filtratge d'elements amb un request de `QgsFeatureRequest()`, es poden seguir utilitzant expressions per a avaluar els diferents elements
+# Amb la classe `QgsExpression()` es poden crear expressions d'avaluació seguint la mateixa lògica que els *requests*
+expr = QgsExpression('"FIELD" > 500')
+
+# Perquè les expressions funcionin necessiten d'un context d'avaluació, que es crea amb un objecte de la classe `QgsExpressionContext()`
+# El context global - variables globals, variables del projecte, variables de la capa, SRC, etc. - es carrega al context
+context = QgsExpressionContext()
+context.appendScopes(QgsExpressionContextUtils.globalProjectLayerScopes(layer))
+
+# Amb l'expressió i el context, es poden avaluar els elements d'una capa vectorial
+for feature in layer.getFeatures():
+    context.setFeature(feature)
+    if expr.evaluate(context):
+        # Operacions sobre els features
+
+# Les diferències entre utilitzar una `QgsExpression()` i un request `QgsFeatureRequest().setFilterExpression()` son diverses
+## `QgsExpression` fa una avaluació manual feature a feature, client-side - agafa totes les dades del servidor i, en local, retorna les que compleixen les condicions
+## `QgsFeatureRequest().setFilterExpression()` fa un filtrat server-side - filtra les dades del servidor i retorna les que compleixen les condicions
+# La manera més eficient de treballar és amb un patró híbrid: primer filtrar i després avaluar
+request = QgsFeatureRequest().setFilterExpression('"population" > 5000')
+expr = QgsExpression('"area" / "population")
+for feat in layer.getFeatures(request):
+    context.setFeature(feat)
+    val = expr.evaluate(context)
+    #print(feat.id(), val)
