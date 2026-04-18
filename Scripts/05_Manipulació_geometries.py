@@ -79,17 +79,18 @@ geom.asPolygon()
 """Geometries multipart"""
 
 # Generar una geometria multipart implica l'ús dels mètodes específics per a aquest tipus de geometria
-## Multipunt
+## A partir de coordenades
+### Multipunt
 pt1 = QgsPointXY(1,3)
 pt2 = QgsPointXY(2,6)
 geom = QgsGeometry.fromMultiPointXY(pt)
 
-## Multilínia
+### Multilínia
 pts1 = [QgsPointXY(1,3), QgsPointXY(2,6)]
 pts2 = [QgsPointXY(0,1), QgsPointXY(2,2)]
 geom = QgsGeometry.fromMultiPolylineXY([pts1, pts2])
 
-## Multipolígon
-ring1 = [[QgsPointXY(1,3), QgsPointXY(2,4), QgsPointXY(1,1)]]
-ring2 = [[QgsPointXY(1,3), QgsPointXY(2,4), QgsPointXY(1,1)]]
-geom = QgsGeometry.fromMultiPolygonXY(ring)
+### Multipolígon
+ring1 = [[QgsPointXY(1,3), QgsPointXY(2,6), QgsPointXY(3,1)]]
+ring2 = [[QgsPointXY(0,1), QgsPointXY(2,2), QgsPointXY(5,4)]]
+geom = QgsGeometry.fromMultiPolygonXY([ring1, ring2])
