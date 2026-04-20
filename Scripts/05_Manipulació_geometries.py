@@ -1,6 +1,6 @@
 """Creació de geometries vectorials"""
 
-#ff
+# En el supòsit que no es treballi a la consola Python de QGIS
 from qgis.core import (
   QgsVectorLayer  
   QgsGeometry,
@@ -86,14 +86,20 @@ pt2 = QgsPointXY(2,6)
 geom = QgsGeometry.fromMultiPointXY([pt1, pt2])
 
 ### Multilínia
-pts1 = [QgsPointXY(1,3), QgsPointXY(2,6)]
+pts1 = [QgsPointXY(1,3), QgsPointXY(2,4)]
 pts2 = [QgsPointXY(0,1), QgsPointXY(2,2)]
 geom = QgsGeometry.fromMultiPolylineXY([pts1, pts2])
 
 ### Multipolígon
-ring1 = [[QgsPointXY(1,3), QgsPointXY(2,6), QgsPointXY(3,1)]]
+ring1 = [[QgsPointXY(1,3), QgsPointXY(2,4), QgsPointXY(1,1)]]
 ring2 = [[QgsPointXY(0,1), QgsPointXY(2,2), QgsPointXY(5,4)]]
 geom = QgsGeometry.fromMultiPolygonXY([ring1, ring2])
+
+## A partir de WKT
+geom = QgsGeometry.fromWKT("MULTIPOINT (1 3, 2 4)")
+geom = QgsGeometry.fromWKT("MULTILINESTRING ((1 3, 2 4), (0 1, 2 2))")
+geom = QgsGeometry.fromWKT("MULTIPOLYGON (((1 3, 2 4, 1 1, 1 3)), ((0 1, 2 2, 5 4, 0 1)))")  # En aquest cas, cal tancar explícitament el polígon
+
 
 # El mètode `.wkbType()` retorna 4 per multi-punts, 5 per multi-línies i 6 per multi-polígons
 geom.wkbType()
@@ -111,8 +117,8 @@ QgsWkbTypes.displayString(geom.wkbType())
 
 # També existeixen els mètodes `.asX()` per conèixer el valor dels diferents vèrtex d'una geometria multipart
 geom.asMultiPoint()
-# [<QgsPointXY: POINT(1 3)>, <QgsPointXY: POINT(2 6)>]
+# [<QgsPointXY: POINT(1 3)>, <QgsPointXY: POINT(2 4)>]
 geom.asMultiPolyline()
-# [[<QgsPointXY: POINT(1 3)>, <QgsPointXY: POINT(2 6)>], [<QgsPointXY: POINT(0 1)>, <QgsPointXY: POINT(2 2)>]]
+# [[<QgsPointXY: POINT(1 3)>, <QgsPointXY: POINT(2 4)>], [<QgsPointXY: POINT(0 1)>, <QgsPointXY: POINT(2 2)>]]
 geom.asMultiPolygon()
-# [[[<QgsPointXY: POINT(1 3)>, <QgsPointXY: POINT(2 6)>, <QgsPointXY: POINT(3 1)>, <QgsPointXY: POINT(1 3)>]], [[<QgsPointXY: POINT(0 1)>, <QgsPointXY: POINT(2 2)>, <QgsPointXY: POINT(5 4)>, <QgsPointXY: POINT(0 1)>]]]
+# [[[<QgsPointXY: POINT(1 3)>, <QgsPointXY: POINT(2 4)>, <QgsPointXY: POINT(1 1)>, <QgsPointXY: POINT(1 3)>]], [[<QgsPointXY: POINT(0 1)>, <QgsPointXY: POINT(2 2)>, <QgsPointXY: POINT(5 4)>, <QgsPointXY: POINT(0 1)>]]]
