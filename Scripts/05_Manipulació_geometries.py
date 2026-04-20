@@ -7,6 +7,7 @@ from qgis.core import (
   QgsGeometryCollection,
   QgsPoint,
   QgsPointXY,
+  QgsLineString,
   QgsWkbTypes,
   QgsUnitTypes,
 )
@@ -125,3 +126,25 @@ geom.asMultiPolyline()
 # [[<QgsPointXY: POINT(1 3)>, <QgsPointXY: POINT(2 4)>], [<QgsPointXY: POINT(0 1)>, <QgsPointXY: POINT(2 2)>]]
 geom.asMultiPolygon()
 # [[[<QgsPointXY: POINT(1 3)>, <QgsPointXY: POINT(2 4)>, <QgsPointXY: POINT(1 1)>, <QgsPointXY: POINT(1 3)>]], [[<QgsPointXY: POINT(0 1)>, <QgsPointXY: POINT(2 2)>, <QgsPointXY: POINT(5 4)>, <QgsPointXY: POINT(0 1)>]]]
+
+
+"""Col·leccions de geometries"""
+
+# Una col·lecció de geometries - o *geometry collection* - és un objecte on es barregen dos o més tipus de geometries bàsiques o multipart
+# A QGIS existeix la classe `QgsGeometryCollection`, que permet afegir geometries amb el mètode `.addGeometry()`
+## El mètode treballa amb geometries de baix nivell, de manera que s'han de declarar objectes de classe `QgsPoint`, `QgsLineString` o `QgsPolygon`
+collection = QgsGeometryCollection()
+collection.addGeometry(QgsPointXY(1,3))
+collection.addGeometry(QgsLineString([QgsPointXY(0,1), QgsPointXY(2,2)]))
+### Amb polígons cal definir l'anell exterior com a *linestring*
+ring = QgsLineString([QgsPointXY(2,3), QgsPointXY(2,6), QgsPointXY(3,1), QgsPointXY(2,3)])
+polygon = QgsPolygon()
+polygon.setExteriorRing(ring)
+collection.addGeometry(polygon)
+geom = QgsGeometry(collection)
+
+# La forma més senzilla i directa de generar una col·lecció és declarant-la com a WKT i utilitzar la classe `QgsGeometry`
+wkt = "GEOMETRYCOLLECTION(POINT(1 3), LINESTRING(0 1, 2 2), POLYGON((2 3, 2 6, 3 1, 2 3)))"
+geom = QgsGeometry.fromWkt(wkt)
+# QGIS reconeix internament que es tracte d'una col·lecció de geometries encara que no s'utilitzi la seva classe
+# <QgsGeometry: GeometryCollection (Point (1 1),LineString (0 0, 2 2))>
