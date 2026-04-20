@@ -83,7 +83,7 @@ geom.asPolygon()
 ### Multipunt
 pt1 = QgsPointXY(1,3)
 pt2 = QgsPointXY(2,6)
-geom = QgsGeometry.fromMultiPointXY(pt)
+geom = QgsGeometry.fromMultiPointXY([pt1, pt2])
 
 ### Multilínia
 pts1 = [QgsPointXY(1,3), QgsPointXY(2,6)]
@@ -94,3 +94,25 @@ geom = QgsGeometry.fromMultiPolylineXY([pts1, pts2])
 ring1 = [[QgsPointXY(1,3), QgsPointXY(2,6), QgsPointXY(3,1)]]
 ring2 = [[QgsPointXY(0,1), QgsPointXY(2,2), QgsPointXY(5,4)]]
 geom = QgsGeometry.fromMultiPolygonXY([ring1, ring2])
+
+# El mètode `.wkbType()` retorna 4 per multi-punts, 5 per multi-línies i 6 per multi-polígons
+geom.wkbType()
+# <WkbType.MultiPoint: 4>
+# <WkbType.MultiLineString: 5>
+# <WkbType.MultiPolygon: 6>
+
+# El mètode `.type()`, en canvi, retorna el mateix resultat que per a les geometries simples: point, line, polygon
+
+## El mètode `.displayString` de la classe `QgsWkbTypes` retorna una geometria en format llegible per humans
+QgsWkbTypes.displayString(geom.wkbType())
+# 'MultiPoint'
+# 'MultiLineString'
+# 'MultiPolygon'
+
+# També existeixen els mètodes `.asX()` per conèixer el valor dels diferents vèrtex d'una geometria multipart
+geom.asMultiPoint()
+# [<QgsPointXY: POINT(1 3)>, <QgsPointXY: POINT(2 6)>]
+geom.asMultiPolyline()
+# [[<QgsPointXY: POINT(1 3)>, <QgsPointXY: POINT(2 6)>], [<QgsPointXY: POINT(0 1)>, <QgsPointXY: POINT(2 2)>]]
+geom.asMultiPolygon()
+# [[[<QgsPointXY: POINT(1 3)>, <QgsPointXY: POINT(2 6)>, <QgsPointXY: POINT(3 1)>, <QgsPointXY: POINT(1 3)>]], [[<QgsPointXY: POINT(0 1)>, <QgsPointXY: POINT(2 2)>, <QgsPointXY: POINT(5 4)>, <QgsPointXY: POINT(0 1)>]]]
