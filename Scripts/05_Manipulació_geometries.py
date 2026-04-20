@@ -147,4 +147,4 @@ geom = QgsGeometry(collection)
 wkt = "GEOMETRYCOLLECTION(POINT(1 3), LINESTRING(0 1, 2 2), POLYGON((2 3, 2 6, 3 1, 2 3)))"
 geom = QgsGeometry.fromWkt(wkt)
 # QGIS reconeix internament que es tracte d'una col·lecció de geometries encara que no s'utilitzi la seva classe
-# <QgsGeometry: GeometryCollection (Point (1 1),LineString (0 0, 2 2))>
+# <QgsGeometry: GeometryCollection (Point (1 1),LineString (0 0, 2 2),Polygon ((2 3, 2 6, 3 1, 2 3)))>
