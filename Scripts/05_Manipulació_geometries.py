@@ -78,6 +78,9 @@ geom.asPolygon()
 
 """Geometries multipart"""
 
+# Per saber si una geometria és de tipus multipart es pot utilitzar el mètode `.isMultipart()`, que retorna True o False
+geom.isMultipart()
+
 # Generar una geometria multipart implica l'ús dels mètodes específics per a aquest tipus de geometria
 ## A partir de coordenades
 ### Multipunt
