@@ -76,4 +76,38 @@ vlayer.dataProvider().createSpatialIndex()
 
 # Es poden conèixer les possibilitats de manipulació d'una capa vectorial amb el mètode `.capabilitiesString()`
 vlayer.dataProvider().capabilitiesString()
+## 'Afegeix objectes
+## Suprimeix objectes
+## Canvia els valors dels atributs
+## Afegeix atributs
+## Suprimeix els atributs
+## Canvia els noms dels atributs
+## Fast Access to Features at ID
+## Canvia geometries'
 
+# Ja s'ha vist que per llegir els *features* d'una capa cal recórrer a un *for loop* sobre vlayer.getFeatures()
+
+# Per crear, actualitzar o suprimir elements en una capa vectorial cal inicialitzar el mode edició de la capa
+with edit(vlayer):
+  # create
+  # update
+  # delete
+
+# Per CREAR un nou element
+with edit(layer):
+    feat = QgsFeature(layer.fields())
+    feat.setGeometry(geom)
+    feat["nom"] = "A"
+    layer.addFeature(feat)
+
+# MODIFICAR
+with edit(layer):
+    for f in layer.getFeatures():
+        if f.id() == 10:
+            f["nom"] = "B"
+            layer.updateFeature(f)
+
+
+#ELIMINAR
+with edit(layer):
+    layer.deleteFeature(10)
