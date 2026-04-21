@@ -104,13 +104,15 @@ with edit(vlayer):
     feat["FIELD"] = "value"
     vlayer.addFeature(feat)
 
-# MODIFICAR
-with edit(layer):
-    for f in layer.getFeatures():
-        if f.id() == 10:
-            f["nom"] = "B"
-            layer.updateFeature(f)
-
+# Per MODIFICAR un element existent d'una capa vectorial primer cal llegir-ne els seus elements amb un *for loop*
+# Es busca l'element d'interès a partir del seu id - o de qualsevol atribut identificatiu únic - afegint un condicional
+# Trobat l'element, es modifica l'atribut desitjat del camp desitjat
+# Finalment, es fan permanents els canvis amb el mètode `.updateFeature()`
+with edit(vlayer):
+    for feat in vlayer.getFeatures():
+        if feat.id() == "value":
+            feat["FIELD"] = "other value"
+            vlayer.updateFeature(feat)
 
 #ELIMINAR
 with edit(layer):
