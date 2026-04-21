@@ -84,6 +84,9 @@ vlayer.dataProvider().capabilitiesString()
 ## Canvia els noms dels atributs
 ## Fast Access to Features at ID
 ## Canvia geometries'
+## etc.
+
+# Existeixen diferents maneres de modificar els *features* d'una capa vectorial, que es veuran en un altre script
 
 # Ja s'ha vist que per llegir els *features* d'una capa cal recórrer a un *for loop* sobre vlayer.getFeatures()
 
