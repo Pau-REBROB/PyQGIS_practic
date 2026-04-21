@@ -114,6 +114,15 @@ with edit(vlayer):
             feat["FIELD"] = "other value"
             vlayer.updateFeature(feat)
 
+# Una manera més eficient de buscar l'element que es vol modificar és realitzant una selecció vectorial - que es veurà més endavant
+# D'aquesta manera, s'evita recórrer tots els *features* de la capa
+expr = QgsExpression('"codi" = \'12345\'')
+request = QgsFeatureRequest(expr)
+with edit(vlayer):
+  for feat in vlayer.getFeatures(request):
+    feat["FIELD"] = "other value"
+    vlayer.updateFeature(feat)
+
 #ELIMINAR
 with edit(layer):
     layer.deleteFeature(10)
