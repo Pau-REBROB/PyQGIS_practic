@@ -1,3 +1,7 @@
+# 
+from qgis.PyQt.QtCore import QVariant
+
+
 """Modificació de capes vectorials"""
 
 # Existeixen diferents metodologies per a modificar els *features* d'una capa vectorial
@@ -66,6 +70,8 @@ with edit(vlayer):
 with edit(vlayer):
     vlayer.deleteSelectedFeatures()
 
+# Per AFEGIR un nou camp
+#########
 
 # El mètode `with edit()` és realment un *wrapper* del cicle complet del buffer d'edició de QGIS
 # El buffer és l'espai temporal on es realitzen les modificacions abans de sobreescriure la font de dades
@@ -94,11 +100,39 @@ feat = QgsFeature(vlayer.fields())
 feat.setGeometry(geom)
 feat["FIELD"] = "value" / feat.setAttributes(["FIELD", "value"])
 # Per afegir el nou element a la capa s'utilitza el mètode `.addFeatures()` (en plural, pel que necessita d'una llista de *features*)
-# És necessari actualitzar manualment l'extensió de la capa vectorial per a visualitzar els canvis
 provider.addFeatures([feat])
-vlayer.updateExtents()
 
-# Per MODIFICAR
+# Per MODIFICAR els atributs dels elements continguts a la capa vectorial es fa ús del mètode `.changeAttributeValues()`
+## Aquesta funció necessita d'un diccionari del tipus {FID: {field_index: value}}
+## Per cada *feature*, especificat pel seu id (FID), s'indica amb un diccionari quins camps es volen modificar, especificats pel seu índex (field_index), i quin és el nou valor
+## La funció, doncs, NO treballa amb noms ni objectes de la classe `QgsFeature`
+# Per obtenir l'índex dels camps:
+for i, field in enumerate(vlayer.fields()):
+    print(i, field.name())
+changes = {
+  FID1: {idx1: "value", idx2: "value"},
+  FID2: {idx1: "value", idx2: "value"}
+}
+provider.changeAttributeValues(changes)
+
+# Aquesta mateixa metodologia s'utilitza per a modificar les geometries dels elements, no només els seus atributs
+# En aquest cas, cal utilitzar el mètode `.changeGeometryValues()`
+geom_changes = {
+  FID: "new_geom"
+}
+provider.changeGeometryValues(geom_changes)
 
 # Per ELIMINAR un element existent s'utilitza el mètode `.delteFeatures()`, especificant els ids dels elements desitjats
 provider.deleteFeatures([fid])
+
+# Per AFEGIR camps
+provider.addAttributes([
+    QgsField("nou_camp", QVariant.String)
+])
+
+vlayer.updateFields()
+
+
+# És necessari actualitzar manualment l'extensió de la capa vectorial per a visualitzar els canvis que s'hagin fet
+vlayer.updateExtents()
+vlayer.triggerRepaint()
