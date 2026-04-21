@@ -68,3 +68,29 @@ with edit(vlayer):
 
 
 # El mètode `with edit()` és realment un *wrapper* del cicle complet del buffer d'edició de QGIS
+# El buffer és l'espai temporal on es realitzen les modificacions abans de sobreescriure la font de dades
+# Necessita d'explicitar quan s'inicia l'edició de la capa i quan es volen aprovar els canvis com a definitius
+vlayer.startEditing()
+  # create
+  # update
+  # delete
+vlayer.commitChanges()
+# També permet desfer els canvis que s'hagin fet
+vlayer.rollBack()
+
+# Amb `with edit()` s'activa el buffer d'edició, s'executen les operacions que hi contingui i fa commit automàtic si tot va bé o rollback si surt un error
+
+
+"""Modificacions de baix nivell"""
+
+# Les modificacions d'una capa vectorial poden realitzar-se directament sobre la font de dades, sense necessitat de passar pel buffer d'edició de QGIS
+# En aquest cas, cal cridar al proveïdor de dades (*data provider*), el connector amb els diferents formats de dades
+provider = vlayer.dataProvider()
+
+# El proveïdor de dades permet una edició massiva, directa i més eficient
+
+# Per CREAR
+
+# Per MODIFICAR
+
+# Per ELIMINAR
