@@ -123,6 +123,20 @@ with edit(vlayer):
     feat["FIELD"] = "other value"
     vlayer.updateFeature(feat)
 
-#ELIMINAR
-with edit(layer):
-    layer.deleteFeature(10)
+# Per ELIMINAR un element existent en una capa vectorial s'utilitza el mètode `.delteFeature()`, especificant el id de l'element desitjat
+with edit(vlayer):
+    vlayer.deleteFeature(fid)
+# Si es desitja eliminar més d'un element, cal passar una llista dels seus identificadors en el mètode `.deleteFeatures()`
+with edit(vlayer):
+    vlayer.deleteFeatures([fid1, fid2])
+
+# De nou, treballar amb ids pot ser poc pràctic i, de nou, és millor pràctica realitzar una selecció segons atributs dels elements que es volen eliminar
+expr = QgsExpression('"codi" = \'12345\'')
+request = QgsFeatureRequest(expr)
+with edit(vlayer):
+  for feat in vlayer.getFeatures(request):
+    vlayer.updateFeature(feat.id())
+
+# Si ja hi ha un element seleccionat en el canvas, es pot utilitzar fàcilment el mètode `.deleteSelectedFeatures()`
+with edit(vlayer):
+    vlayer.deleteSelectedFeatures()
