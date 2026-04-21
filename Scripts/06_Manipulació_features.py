@@ -26,7 +26,7 @@ with edit(vlayer):
 with edit(vlayer):
     feat = QgsFeature(vlayer.fields())
     feat.setGeometry(geom)
-    feat["FIELD"] = "value"
+    feat["FIELD"] = "value" / feat.setAttributes(["FIELD", "value"])
     vlayer.addFeature(feat)
 
 # Per MODIFICAR un element existent d'una capa vectorial primer cal llegir-ne els seus elements amb un *for loop*
@@ -89,8 +89,16 @@ provider = vlayer.dataProvider()
 
 # El proveïdor de dades permet una edició massiva, directa i més eficient
 
-# Per CREAR
+# Per CREAR nous elements, cal crear una instància de la classe `QgsFeature` i omplir-la de contingut (igual que amb el buffer d'edició)
+feat = QgsFeature(vlayer.fields())
+feat.setGeometry(geom)
+feat["FIELD"] = "value" / feat.setAttributes(["FIELD", "value"])
+# Per afegir el nou element a la capa s'utilitza el mètode `.addFeatures()` (en plural, pel que necessita d'una llista de *features*)
+# És necessari actualitzar manualment l'extensió de la capa vectorial per a visualitzar els canvis
+provider.addFeatures([feat])
+vlayer.updateExtents()
 
 # Per MODIFICAR
 
-# Per ELIMINAR
+# Per ELIMINAR un element existent s'utilitza el mètode `.delteFeatures()`, especificant els ids dels elements desitjats
+provider.deleteFeatures([fid])
