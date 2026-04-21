@@ -93,12 +93,16 @@ with edit(vlayer):
   # update
   # delete
 
-# Per CREAR un nou element
-with edit(layer):
-    feat = QgsFeature(layer.fields())
+# Per CREAR un nou element, cal crear una instància de la classe `QgsFeature`
+# Per donar context a l'element, aquesta instància ha de recopil·lar els camps (*fields*) ja presents a la capa vectorial; La manera més ràpida de fer-ho és amb el mètode `.fields()`
+# S'assigna una geometria a l'element amb el mètode `.setGeometry()`
+# S'assignen atributs als diferents camps segons convingui
+# S'afegeix el *feature* a la capa vectorial amb el mètode `.addFeature()`
+with edit(vlayer):
+    feat = QgsFeature(vlayer.fields())
     feat.setGeometry(geom)
-    feat["nom"] = "A"
-    layer.addFeature(feat)
+    feat["FIELD"] = "value"
+    vlayer.addFeature(feat)
 
 # MODIFICAR
 with edit(layer):
