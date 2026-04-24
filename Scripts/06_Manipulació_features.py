@@ -1,4 +1,4 @@
-# 
+# En el supòsit que no es treballi a la consola Python de QGIS
 from qgis.core import (
     QgsApplication,
     QgsVectorLayer,
