@@ -73,11 +73,21 @@ with edit(vlayer):
 # Per AFEGIR camps s'utilitza el mètode `.addAttributes()`
 with edit(vlayer):
   vlayer.addAttributes([QgsField("nou_camp", QVariant.String)])
-  vlayer.updateFields()
-# Per ELIMINAR camps s'utilitza el mètode `.deleteAttributes()`, especificant el camp a eliminar pel seu índex
+# Per ELIMINAR camps s'utilitza el mètode `.deleteAttribute()`, especificant el camp a eliminar pel seu índex (només un)
 with edit(vlayer):
-  vlayer.deleteAttributes([fid])
-  vlayer.updateFields()
+  vlayer.deleteAttribute(fid)
+## Com que pot no ser pràctic conèixer els índex dels diferents camps, és més pràctic treballar amb els seus noms
+## Si es crea una llista dels noms dels camps que es volen eliminar, s'utilitza el mètode `.indexFromName()` per trobar-ne l'índex
+fields_names_to_delete = ['a', 'b', 'c']
+index_to_delete = [vlayer.fields().indexFromName(name) for name in fields_names_to_delete]
+## Per aconseguir el contrari, és a dir, voler eliminar tots els camps menys uns en concret, cal generar una llista dels camps a mantenir
+## Amb un condicional dins d'una iteració sobre tots els camps de la capa, s'aconsegueix la llista dels índex dels camps a mantenir
+fields_names_to_keep = ['d', 'e']
+index_to_delete = [
+  i for i, field in enumerate(vlayer.fields())
+  if field.name() not in fields_names_to_keep
+]
+
 
 # El mètode `with edit()` és realment un *wrapper* del cicle complet del buffer d'edició de QGIS
 # El buffer és l'espai temporal on es realitzen les modificacions abans de sobreescriure la font de dades
@@ -131,6 +141,7 @@ provider.changeGeometryValues(geom_changes)
 # Per ELIMINAR un element existent s'utilitza el mètode `.delteFeatures()`, especificant els ids dels elements desitjats
 provider.deleteFeatures([fid])
 
+# Per afegir o eliminar camps, s'utilitzen els mateixos mètodes que amb la metodologia d'alt nivell
 # Per AFEGIR camps s'utilitza el mètode `.addAttributes()`
 provider.addAttributes([QgsField("nou_camp", QVariant.String)])
 vlayer.updateFields()
