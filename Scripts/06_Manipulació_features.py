@@ -70,8 +70,14 @@ with edit(vlayer):
 with edit(vlayer):
     vlayer.deleteSelectedFeatures()
 
-# Per AFEGIR un nou camp
-#########
+# Per AFEGIR camps s'utilitza el mètode `.addAttributes()`
+with edit(vlayer):
+  vlayer.addAttributes([QgsField("nou_camp", QVariant.String)])
+  vlayer.updateFields()
+# Per ELIMINAR camps s'utilitza el mètode `.deleteAttributes()`, especificant el camp a eliminar pel seu índex
+with edit(vlayer):
+  vlayer.deleteAttributes([fid])
+  vlayer.updateFields()
 
 # El mètode `with edit()` és realment un *wrapper* del cicle complet del buffer d'edició de QGIS
 # El buffer és l'espai temporal on es realitzen les modificacions abans de sobreescriure la font de dades
@@ -125,11 +131,11 @@ provider.changeGeometryValues(geom_changes)
 # Per ELIMINAR un element existent s'utilitza el mètode `.delteFeatures()`, especificant els ids dels elements desitjats
 provider.deleteFeatures([fid])
 
-# Per AFEGIR camps
-provider.addAttributes([
-    QgsField("nou_camp", QVariant.String)
-])
-
+# Per AFEGIR camps s'utilitza el mètode `.addAttributes()`
+provider.addAttributes([QgsField("nou_camp", QVariant.String)])
+vlayer.updateFields()
+# Per ELIMINAR camps s'utilitza el mètode `.deleteAttributes()`, especificant el camp a eliminar pel seu índex
+provider.deleteAttributes([fid])
 vlayer.updateFields()
 
 
