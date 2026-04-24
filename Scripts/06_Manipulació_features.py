@@ -1,4 +1,14 @@
 # 
+from qgis.core import (
+    QgsApplication,
+    QgsVectorLayer,
+    QgsFeature,
+    QgsGeometry,
+    QgsField,
+    QgsFeatureRequest,
+    QgsExpression,
+    edit
+)
 from qgis.PyQt.QtCore import QVariant
 
 
