@@ -5,7 +5,7 @@ from qgis.core import (
 )
 
 
-"""Sistemes de referència de coordenades"""
+"""Creació de sistemes de referència de coordenades"""
 
 # Els sistemes de referència de coordenades es troben inscrits dins la classe `QgsCoordinateReferenceSystem`
 
@@ -25,3 +25,26 @@ crs = QgsCoordinateReferenceSystem()
 crs.createFromProj('')
 crs.createFromWkt('')
 crs.createFromParameters('')
+
+# Sigui quin sigui el mètode, és bona pràctica comprobar la correcta creació de SRC
+print(crs.isValid())
+
+
+"""Informació dels sistemes de referència de coordenades"""
+
+# Existeixen un seguit de mètodes per a extreure informació sobre una instància de SRC
+crs.authid()    # 'EPSG:25831'
+crs.description()    # 'ETRS89 / UTM zone 31N'
+crs.isGeographic()    # False
+crs.toWkt()    # 'PROJCS["ETRS89 / UTM zone 31N",GEOGCS["ETRS89",DATUM["European_Terrestrial_Reference_System_1989",SPHEROID["GRS 1980",6378137,298.257222101,AUTHORITY["EPSG","7019"]],AUTHORITY["EPSG","6258"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["degree",0.0174532925199433,AUTHORITY["EPSG","9122"]],AUTHORITY["EPSG","4258"]],PROJECTION["Transverse_Mercator"],PARAMETER["latitude_of_origin",0],PARAMETER["central_meridian",3],PARAMETER["scale_factor",0.9996],PARAMETER["false_easting",500000],PARAMETER["false_northing",0],UNIT["metre",1,AUTHORITY["EPSG","9001"]],AXIS["Easting",EAST],AXIS["Northing",NORTH],AUTHORITY["EPSG","25831"]]'
+QgsUnitTypes.toString(crs.mapUnits())    # metres
+
+# Per conèixer el sistema de referència associat a una capa s'utilitza el mètode `.crs()`
+layer.crs()    # <QgsCoordinateReferenceSystem: EPSG:25831>
+# Per obtenir-lo en un format més llegible es pot utilitzar el mètode `.authid()`
+layer.crs().authid()    # 'EPSG:25831'
+
+
+"""Transformacions entre sistemes de referència"""
+
+#
