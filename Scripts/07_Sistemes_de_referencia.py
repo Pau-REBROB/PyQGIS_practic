@@ -47,4 +47,16 @@ layer.crs().authid()    # 'EPSG:25831'
 
 """Transformacions entre sistemes de referència"""
 
-#
+# Per a transformar una capa en un altre sistema de referència cal, primer, crear una instància del SRC d'origen i de destí
+crs_origen = QgsCoordinateReferenceSystem('EPSG:25831')
+crs_desti = QgsCoordinateReferenceSystem('EPSG:4326')
+
+# A partir d'aquí, caldrà fer ús de la classe `QgsCoordinateTransform` i el mètode `.transform()`, però es pot procedir de dues maneres
+## Amb el mètode més robust, es crea un context de transformació de manera explícita
+transform_context = project.transformContext()
+xform = QgsCoordinateTransform(crs_origen, crs_desti, transform_context)
+geom = xform.transform(old_geom) / geom = old_geom.transform(xform)
+
+## Amb el mètode més ràpid, s'utilitza la instància del projecte per a proporcionar el context de transformació
+transform = QgsCoordinateTransform(crs_origen, crs_desti, project)
+geom.transform(transform)
