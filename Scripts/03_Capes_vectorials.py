@@ -90,6 +90,12 @@ vlayer = QgsVectorLayer("Polygon?crs=epsg:25831&field=id:integer(10)&field=barri
 
 """Modificació de capes vectorials"""
 
+# Tot i que es poden crear capes vectorials des de zero amb tots els camps desitjats amb el proveïdor de memòria, la pràctica habitual és crear una capa amb la informació mínima
+vlayer = QgsVectorLayer("Polygon?crs=epsg:25831", "layer_name", "memory")
+
+# Un cop creada, és més flexible modificar la capa i afegir els camps i les geometries fent ús del *provider*
+provider = vlayer.dataProvider()
+
 # Es poden conèixer les possibilitats de manipulació d'una capa vectorial amb el mètode `.capabilitiesString()`
 vlayer.dataProvider().capabilitiesString()
 ## 'Afegeix objectes
