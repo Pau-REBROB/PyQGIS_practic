@@ -1,7 +1,7 @@
 # En el supòsit que no es treballi a la consola Python de QGIS
 from qgis.core import (
     QgsCoordinateReferenceSystem,
-    QgsCoordinateTransform,
+    QgsCoordinateTransform
 )
 
 
@@ -41,7 +41,7 @@ QgsUnitTypes.toString(crs.mapUnits())    # metres
 
 # Per conèixer el sistema de referència associat a una capa s'utilitza el mètode `.crs()`
 layer.crs()    # <QgsCoordinateReferenceSystem: EPSG:25831>
-# Per obtenir-lo en un format més llegible es pot utilitzar el mètode `.authid()`
+# Per obtenir-lo en un format més llegible es pot afegir el mètode `.authid()`
 layer.crs().authid()    # 'EPSG:25831'
 
 
@@ -59,4 +59,4 @@ geom = xform.transform(old_geom) / geom = old_geom.transform(xform)
 
 ## Amb el mètode més ràpid, s'utilitza la instància del projecte per a proporcionar el context de transformació
 transform = QgsCoordinateTransform(crs_origen, crs_desti, project)
-geom.transform(transform)
+geom = old_geom.transform(transform)
