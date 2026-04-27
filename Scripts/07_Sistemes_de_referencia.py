@@ -69,7 +69,7 @@ crs_desti = QgsCoordinateReferenceSystem('EPSG:4326')
 coords_25831 = QgsPointXY(429482.6,4584386.8)
 transform_context = project.transformContext()
 xform = QgsCoordinateTransform(crs_origen, crs_desti, transform_context)
-coords_4326 = xform.transform(coords)
+coords_4326 = xform.transform(coords_25831)
 # <QgsPointXY: POINT(2.15630120301015449 41.40793551458637012)>
 
 # Per a transformar les geometries d'una capa sencera cal recórrer els seus *features* individuals
@@ -82,6 +82,7 @@ for feature in layer.getFeatures():
     layer.changeGeometry(feature.id(), geom)
 
 layer.commitChanges()
+# És necessari reassignar el sistema de coordenades a la capa transformada
 layer.setCrs(crs_desti)
 
 # L'alternativa més ràpida i optimitzada és utilitzar el mètode de reprojecció propi de QGIS, fent ús de *processing*
