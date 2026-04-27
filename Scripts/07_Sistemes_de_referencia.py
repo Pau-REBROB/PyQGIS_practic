@@ -1,9 +1,10 @@
 # En el supòsit que no es treballi a la consola Python de QGIS
 from qgis.core import (
     QgsCoordinateReferenceSystem,
-    QgsCoordinateTransform
-)
-
+    QgsCoordinateTransform,
+    QgsUnitTypes
+) 
+import processing
 
 """Creació de sistemes de referència de coordenades"""
 
@@ -47,7 +48,7 @@ layer.crs().authid()    # 'EPSG:25831'
 
 """Transformacions entre sistemes de referència"""
 
-# Per a transformar una capa en un altre sistema de referència cal, primer, crear una instància del SRC d'origen i de destí
+# Per a transformar una geometria en un altre sistema de referència cal, primer, crear una instància del SRC d'origen i de destí
 crs_origen = QgsCoordinateReferenceSystem('EPSG:25831')
 crs_desti = QgsCoordinateReferenceSystem('EPSG:4326')
 
@@ -60,3 +61,34 @@ geom = xform.transform(old_geom) / geom = old_geom.transform(xform)
 ## Amb el mètode més ràpid, s'utilitza la instància del projecte per a proporcionar el context de transformació
 transform = QgsCoordinateTransform(crs_origen, crs_desti, project)
 geom = old_geom.transform(transform)
+
+# Aquest procediment, tal i com està escrit, és vàlid per a transformar coordenades
+# Les variables `geom` no son objectes de classe QgsGeometry, sinó coordenades de la forma QgsPointXY
+crs_origen = QgsCoordinateReferenceSystem('EPSG:25831')
+crs_desti = QgsCoordinateReferenceSystem('EPSG:4326')
+coords_25831 = QgsPointXY(429482.6,4584386.8)
+transform_context = project.transformContext()
+xform = QgsCoordinateTransform(crs_origen, crs_desti, transform_context)
+coords_4326 = xform.transform(coords)
+# <QgsPointXY: POINT(2.15630120301015449 41.40793551458637012)>
+
+# Per a transformar les geometries d'una capa sencera cal recórrer els seus *features* individuals
+# Per tal de guardar els canvis a la capa, cal inicialitzar el mode edició
+layer.startEditing()
+
+for feature in layer.getFeatures():
+    geom = feature.geometry()
+    geom.transform(transform)
+    layer.changeGeometry(feature.id(), geom)
+
+layer.commitChanges()
+layer.setCrs(crs_desti)
+
+# L'alternativa més ràpida i optimitzada és utilitzar el mètode de reprojecció propi de QGIS, fent ús de *processing*
+result= processing.run("native:reprojectlayer", {
+    'INPUT': layer,
+    'TARGET_CRS': crs_desti,
+    'OUTPUT': 'memory:'
+})
+reprojected = result['OUTPUT']
+project.addMapLayer(reprojected)
