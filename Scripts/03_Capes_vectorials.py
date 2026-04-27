@@ -72,6 +72,22 @@ index = QgsSpatialIndex(vlayer.getFeatures())
 vlayer.dataProvider().createSpatialIndex()
 
 
+"""Creació de capes vectorials"""
+
+# La manera de crear una capa vectorial més habitual és utilitzant, de nou, una instància de `QgsVectorLayer`
+vlayer = QgsVectorLayer("Geometry_type?crs&field1&field2&index", "layer_name", "memory")
+
+# El provider *memory* és l'únic que permet crear capes vectorials des de zero
+# La resta de proveïdors necessiten que les dades estiguin físicament guardades en algun lloc
+
+# La definició de la capa ha d'incorporar, en un URI
+## Tipus de geometria: "Point","LineString","Polygon","MultiPoint","MultiLineString","MultiPolygon" o "None"
+## SRC definit de qualsevol de les maneres acceptades per QgsCoordinateReferenceSystem.createFromString(): crs=epsg:25831
+## Camps, que han de tenir un nom i, opcionalment, el tipus de dada que suporta - string, integer, double - amb la seva longitud i precisió: field=id:integer(10)
+## Índex, per especificar si es crearan índex espacials: index=yes
+vlayer = QgsVectorLayer("Polygon?crs=epsg:25831&field=id:integer(10)&field=barri:string(50)&index=yes", "temporary_polygons", "memory")
+
+
 """Modificació de capes vectorials"""
 
 # Es poden conèixer les possibilitats de manipulació d'una capa vectorial amb el mètode `.capabilitiesString()`
@@ -86,4 +102,4 @@ vlayer.dataProvider().capabilitiesString()
 ## Canvia geometries'
 ## etc.
 
-# Existeixen diferents maneres de modificar els *features* d'una capa vectorial, que es veuran en un altre script
+# Un cop creada o importada una capa vectorial, existeixen diferents maneres de modificar els *features*, que es veuran en un altre script
