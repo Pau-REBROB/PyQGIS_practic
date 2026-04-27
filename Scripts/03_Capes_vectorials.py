@@ -2,7 +2,10 @@
 
 # En el supòsit que no es treballi a la consola Python de QGIS
 import os
-from qgis.core import QgsVectorLayer
+from qgis.core import (
+  QgsVectorLayer,
+  QgsVectorFileWriter
+)
 
 # Les capes vectorials son una instància de la classe `QgsVectorLayer`
 # Per a la seva importació, cal especificar:
@@ -77,7 +80,7 @@ vlayer.dataProvider().createSpatialIndex()
 # La manera de crear una capa vectorial més habitual és utilitzant, de nou, una instància de `QgsVectorLayer`
 vlayer = QgsVectorLayer("Geometry_type?crs&field1&field2&index", "layer_name", "memory")
 
-# El provider *memory* és l'únic que permet crear capes vectorials des de zero
+# El provider *memory*, que emmagatzema la capa temporalment a la RAM, és l'únic que permet crear capes vectorials des de zero
 # La resta de proveïdors necessiten que les dades estiguin físicament guardades en algun lloc
 
 # La definició de la capa ha d'incorporar, en un URI
@@ -93,8 +96,7 @@ vlayer = QgsVectorLayer("Polygon?crs=epsg:25831&field=id:integer(10)&field=barri
 # Tot i que es poden crear capes vectorials des de zero amb tots els camps desitjats amb el proveïdor de memòria, la pràctica habitual és crear una capa amb la informació mínima
 vlayer = QgsVectorLayer("Polygon?crs=epsg:25831", "layer_name", "memory")
 
-# Un cop creada, és més flexible modificar la capa i afegir els camps i les geometries fent ús del *provider*
-provider = vlayer.dataProvider()
+# Un cop creada, és més flexible modificar la capa i afegir els camps i les geometries fent ús del *provider* o amb el mode edició de la capa, tal i com es veurà en un altre script
 
 # Es poden conèixer les possibilitats de manipulació d'una capa vectorial amb el mètode `.capabilitiesString()`
 vlayer.dataProvider().capabilitiesString()
@@ -108,4 +110,23 @@ vlayer.dataProvider().capabilitiesString()
 ## Canvia geometries'
 ## etc.
 
-# Un cop creada o importada una capa vectorial, existeixen diferents maneres de modificar els *features*, que es veuran en un altre script
+
+"""Exportació de capes vectorials"""
+
+# La classe `QgsVectorFileWriter` permet escriure arxius vectorials en el disc fent ús de `.writeAsVectorFormatV3()`
+# La classe suporta tots els formats vectorials que suporta GDAL
+# El mètode necessita d'un context de transformació i unes opcions de guardat
+QgsVectorFileWriter.writeAsVectorFormatV3(vlayer, "file_path/file_name", transform_context, save_options)
+
+# El context de transformació es pot extreure directament del projecte
+transform_context = project.transformContext()
+# Amb el context, QGIS aplica automàticament l'encoding, les geometries o el SRC
+# Si es necessita d'un control més extens de les opcions de guardat, es poden definir totes les que es necessiti
+save_options = QgsVectorFileWriter.SaveVectorOptions()
+## Per exemple
+save_options.driverName = "ESRI Shapefile"
+save_options.fileEncoding = "UTF-8"
+save_options.layerName = 'my_new_layer_name'
+save_options.actionOnExistingFile = QgsVectorFileWriter.CreateOrOverwriteLayer
+
+# Amb l'extensió de sortida de l'arxiu, QGIS inferiex el driver que ha d'utilitzar
