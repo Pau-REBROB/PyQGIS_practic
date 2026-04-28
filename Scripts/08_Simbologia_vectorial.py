@@ -12,6 +12,9 @@ print(QgsApplication.rendererRegistry().renderersList())
 
 # Per comprovar el renderer vigent d'entre els anteriors possibles en una capa vectorial s'utilitza el mètode `.type()`
 vlayer.renderer().type()
+#  Amb el mètode `.dump()` es pot conèixer de manera més extensa el tipus de renderitzat d'una capa
+vlayer.renderer().dump()
+# 'SINGLE: FILL SYMBOL (1 layers) color 141,90,153,255,rgb:0.55294117647058827,0.35294117647058826,0.59999999999999998,1'
 
 # És bon costum guardar el renderitzador en una variable independent
 renderer = vlayer.renderer()
@@ -21,13 +24,23 @@ renderer = vlayer.renderer()
 # Els símbols tenen diferents classes, segons el tipus de simbologia
 # La classe utilitzada, que acostuma a guardar-se en la variable `symbol`, s'ha d'entendre com un contenidor de capes de simbologia que es poden anar afegint per a fer la simbologia més rica
 
+## Utilitzant el renderer es pot extreure la simbologia existent d'una capa
+symbol = vlayer.renderer().symbol()
+
 
 """Simbologia única"""
 
-## Amb el mètode `.defaultSymbol` es crea un objecte de símbol en funció del tipus de geometria de la capa vectorial
+# És aquella que no depèn de cap variable
+
+# Amb el mètode `.defaultSymbol` es crea un objecte de símbol en funció del tipus de geometria de la capa vectorial
 symbol = QgsSymbol.defaultSymbol(vlayer.geometryType())
-## Utilitzant el renderer es pot extreure la simbologia existent d'una capa
-symbol = vlayer.renderer().symbol()
+
+# Si ja es coneix el tipus de geometria que conté la capa, es pot utilitzar una classe específica per a aquella geometria
+## `QgsMarkerSymbol` per punts
+## `QgsLineSymbol` per a línies
+## `QgsFillSymbol` per a polígons
+
+# Cada una de les classes conté mètodes específics per a modificar diferents aspectes de la simbologia
 
 
 
