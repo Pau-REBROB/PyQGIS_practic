@@ -32,19 +32,20 @@ symbol = vlayer.renderer().symbol()
 
 # És aquella que no depèn de cap variable
 
-# Amb el mètode `.defaultSymbol` es crea un objecte de símbol en funció del tipus de geometria de la capa vectorial
-symbol = QgsSymbol.defaultSymbol(vlayer.geometryType())
-
-# Si ja es coneix el tipus de geometria que conté la capa, es pot utilitzar una classe específica per a aquella geometria
+# Es pot utilitzar una classe específica per a cada geometria per a crear un objecte símbol totalment buit
 ## `QgsMarkerSymbol` per punts
 ## `QgsLineSymbol` per a línies
 ## `QgsFillSymbol` per a polígons
+
+# Amb el mètode `.defaultSymbol` es crea un objecte de símbol en funció del tipus de geometria de la capa vectorial
+symbol = QgsSymbol.defaultSymbol(vlayer.geometryType())
+# És recomenable utilitzar aquest constructor i no crear-ne un de totalment buit, ja que així queda garantida la compatibilitat amb el renderer i ja té unes propietats assignades per defecte, entre altres coses
 
 # Un cop creat l'objecte símbol, es pot modificar al gust
 # Cada una de les classes conté mètodes específics per a modificar diferents aspectes de la simbologia
 
 ## Capes PUNTUALS
-symbol = QgsMarkerSymbol()
+symbol = QgsSymbol.defaultSymbol(point_layer.geometryType())
 # Color de fons (*fill color*)
 symbol.setColor(QColor("red"))  # nom
 symbol.setColor(QColor(255,0,0,150))  # RGBA
@@ -52,7 +53,7 @@ symbol.setColor(QColor(255,0,0,150))  # RGBA
 symbol.setSize(5) # size 2 per defecte
 
 ## Capes LINEALS
-symbol = QgsLineSymbol()
+symbol = QgsSymbol.defaultSymbol(linestring_layer.geometryType())
 # Color (*fill color*)
 symbol.setColor(QColor("green"))  # nom
 symbol.setColor(QColor(0,255,0,150))  # RGBA
