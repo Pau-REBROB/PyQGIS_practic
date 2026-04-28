@@ -16,9 +16,14 @@ vlayer.renderer().type()
 # És bon costum guardar el renderitzador en una variable independent
 renderer = vlayer.renderer()
 
+# Totes les capes afegides al projecte, tant si estan al canvas com si no, presenten per defecte una simbologia de símbol únic: 'singleSymbol'
 
 # Els símbols tenen diferents classes, segons el tipus de simbologia
 # La classe utilitzada, que acostuma a guardar-se en la variable `symbol`, s'ha d'entendre com un contenidor de capes de simbologia que es poden anar afegint per a fer la simbologia més rica
+
+
+"""Simbologia única"""
+
 ## Amb el mètode `.defaultSymbol` es crea un objecte de símbol en funció del tipus de geometria de la capa vectorial
 symbol = QgsSymbol.defaultSymbol(vlayer.geometryType())
 ## Utilitzant el renderer es pot extreure la simbologia existent d'una capa
