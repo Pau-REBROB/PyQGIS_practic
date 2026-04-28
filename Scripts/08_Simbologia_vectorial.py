@@ -58,9 +58,17 @@ symbol = QgsSymbol.defaultSymbol(linestring_layer.geometryType())
 symbol.setColor(QColor("green"))  # nom
 symbol.setColor(QColor(0,255,0,150))  # RGBA
 # Gruix (*width*)
-symbol.setWidth(0.5) # width 0.26 píxels per defecte
+symbol.setWidth(1.5) # width 0.26 píxels per defecte
 
-
+## Capes POLIGONALS
+symbol = QgsSymbol.defaultSymbol(polygon_layer.geometryType())
+# Color de farcit (*fill color*)
+symbol.setColor(QColor("blue"))  # nom
+symbol.setColor(QColor(0,0,255,150))  # RGBA
+# Color de contorn (*outline color*)
+symbol.setStrokeColor(QColor())
+# Gruix de contorn (*outline width*)
+symbol.setStrokeWidth(0.5) # width 0.26 píxels per defecte
 
 
 
