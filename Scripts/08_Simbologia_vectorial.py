@@ -40,7 +40,16 @@ symbol = QgsSymbol.defaultSymbol(vlayer.geometryType())
 ## `QgsLineSymbol` per a línies
 ## `QgsFillSymbol` per a polígons
 
+# Un cop creat l'objecte símbol, es pot modificar al gust
 # Cada una de les classes conté mètodes específics per a modificar diferents aspectes de la simbologia
+
+## Capes PUNTUALS
+symbol = QgsMarkerSymbol()
+# Color de fons (*fill color*)
+symbol.setColor(QColor("red"))  # nom
+symbol.setColor(QColor(255,0,0,150))  # RGBA
+# Mida (*size*)
+symbol.setSize(5) # size 2 per defecte
 
 
 
