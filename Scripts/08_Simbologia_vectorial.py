@@ -42,7 +42,7 @@ symbol = QgsSymbol.defaultSymbol(vlayer.geometryType())
 # És recomenable utilitzar aquest constructor i no crear-ne un de totalment buit, ja que així queda garantida la compatibilitat amb el renderer i ja té unes propietats assignades per defecte, entre altres coses
 
 # Un cop creat l'objecte símbol, es pot modificar al gust
-# Cada una de les classes conté mètodes específics per a modificar diferents aspectes de la simbologia
+# Cada una de les classes conté mètodes específics per a modificar diferents aspectes de la simbologia --> sembla que no pas
 
 ## Capes PUNTUALS
 symbol = QgsSymbol.defaultSymbol(point_layer.geometryType())
@@ -65,6 +65,9 @@ symbol = QgsSymbol.defaultSymbol(polygon_layer.geometryType())
 # Color de farcit (*fill color*)
 symbol.setColor(QColor("blue"))  # nom
 symbol.setColor(QColor(0,0,255,150))  # RGBA
+### comprovar, no fa pinta
+# Gruix (*width*)
+symbol.setWidth(1.5) # width 0.26 píxels per defecte
 # Color de contorn (*outline color*)
 symbol.setStrokeColor(QColor())
 # Gruix de contorn (*outline width*)
@@ -72,5 +75,13 @@ symbol.setStrokeWidth(0.5) # width 0.26 píxels per defecte
 
 
 
+# Els canvis de simbologia aplicats al constructor del símbol han de ser assignats a la capa vectorial a través del renderer
+vlayer.renderer().setSymbol(symbol)
+# Finalment, cal refrescar el renderitzat perquè els canvis siguin visibles al canvas
+vlayer.triggerRepaint()
 
+# Simplificació
+QgsXSymbol.createSimple({})
 
+# Capa base
+symbol.symbolLayer(0)
