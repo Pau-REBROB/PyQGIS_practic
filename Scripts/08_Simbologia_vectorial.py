@@ -51,6 +51,14 @@ symbol.setColor(QColor(255,0,0,150))  # RGBA
 # Mida (*size*)
 symbol.setSize(5) # size 2 per defecte
 
+## Capes LINEALS
+symbol = QgsLineSymbol()
+# Color (*fill color*)
+symbol.setColor(QColor("green"))  # nom
+symbol.setColor(QColor(0,255,0,150))  # RGBA
+# Gruix (*width*)
+symbol.setWidth(0.5) # width 0.26 píxels per defecte
+
 
 
 
