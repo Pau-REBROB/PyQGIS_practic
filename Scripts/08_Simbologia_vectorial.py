@@ -19,7 +19,7 @@ vlayer.renderer().dump()
 # És bon costum guardar el renderitzador en una variable independent
 renderer = vlayer.renderer()
 
-# Totes les capes afegides al projecte, tant si estan al canvas com si no, presenten per defecte una simbologia de símbol únic: 'singleSymbol'
+# Totes les capes afegides al projecte, tant si estan al canvas com si no, presenten per defecte una simbologia de símbol únic 'singleSymbol', tal i com passa quan s'utilitza la GUI
 
 # Els símbols tenen diferents classes, segons el tipus de simbologia
 # La classe utilitzada, que acostuma a guardar-se en la variable `symbol`, s'ha d'entendre com un contenidor de capes de simbologia que es poden anar afegint per a fer la simbologia més rica
@@ -39,39 +39,19 @@ symbol = vlayer.renderer().symbol()
 
 # Amb el mètode `.defaultSymbol` es crea un objecte de símbol en funció del tipus de geometria de la capa vectorial
 symbol = QgsSymbol.defaultSymbol(vlayer.geometryType())
-# És recomenable utilitzar aquest constructor i no crear-ne un de totalment buit, ja que així queda garantida la compatibilitat amb el renderer i ja té unes propietats assignades per defecte, entre altres coses
+# És recomenable utilitzar aquest constructor i no crear-ne un de totalment buit, ja que així, entre altres coses, queda garantida la compatibilitat amb el renderer i ja té unes propietats assignades per defecte
 
 # Un cop creat l'objecte símbol, es pot modificar al gust
-# Cada una de les classes conté mètodes específics per a modificar diferents aspectes de la simbologia --> sembla que no pas
-
-## Capes PUNTUALS
-symbol = QgsSymbol.defaultSymbol(point_layer.geometryType())
-# Color de fons (*fill color*)
+# Existeixen uns mètodes específics per a modificar fàcilment la simbologia que son comuns per totes les geometries
+symbol = QgsSymbol.defaultSymbol(vlayer.geometryType())
+## Color de fons (*fill color*)
 symbol.setColor(QColor("red"))  # nom
 symbol.setColor(QColor(255,0,0,150))  # RGBA
-# Mida (*size*)
+## Mida (*size*) - en el cas de capes puntuals
 symbol.setSize(5) # size 2 per defecte
-
-## Capes LINEALS
-symbol = QgsSymbol.defaultSymbol(linestring_layer.geometryType())
-# Color (*fill color*)
-symbol.setColor(QColor("green"))  # nom
-symbol.setColor(QColor(0,255,0,150))  # RGBA
-# Gruix (*width*)
+## Gruix (*width*) - en el cas de capes lineals
 symbol.setWidth(1.5) # width 0.26 píxels per defecte
 
-## Capes POLIGONALS
-symbol = QgsSymbol.defaultSymbol(polygon_layer.geometryType())
-# Color de farcit (*fill color*)
-symbol.setColor(QColor("blue"))  # nom
-symbol.setColor(QColor(0,0,255,150))  # RGBA
-### comprovar, no fa pinta
-# Gruix (*width*)
-symbol.setWidth(1.5) # width 0.26 píxels per defecte
-# Color de contorn (*outline color*)
-symbol.setStrokeColor(QColor())
-# Gruix de contorn (*outline width*)
-symbol.setStrokeWidth(0.5) # width 0.26 píxels per defecte
 
 
 
