@@ -52,13 +52,13 @@ symbol.setSize(5) # size 2 per defecte
 ## Gruix (*width*) - en el cas de capes lineals
 symbol.setWidth(1.5) # width 0.26 píxels per defecte
 
-
-
-
 # Els canvis de simbologia aplicats al constructor del símbol han de ser assignats a la capa vectorial a través del renderer
 vlayer.renderer().setSymbol(symbol)
 # Finalment, cal refrescar el renderitzat perquè els canvis siguin visibles al canvas
 vlayer.triggerRepaint()
+# La llegenda del canvas, és a dir, el panell de capes, no actualitza de manera automàtica la simbologia amb la funció anterior
+# Cal fer ús de `iface` per indicar que es vol actualitzar el renderitzat de la capa en qüestió
+iface.layerTreeView().refreshLayerSymbology(vlayer.id())
 
 # Simplificació
 QgsXSymbol.createSimple({})
