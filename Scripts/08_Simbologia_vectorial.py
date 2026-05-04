@@ -60,8 +60,19 @@ vlayer.triggerRepaint()
 # Cal fer ús de `iface` per indicar que es vol actualitzar el renderitzat de la capa en qüestió
 iface.layerTreeView().refreshLayerSymbology(vlayer.id())
 
-# Simplificació
-QgsXSymbol.createSimple({})
+# Els mètodes genèrics anteriors de color i gruix son útils quan es vol fer una modificació mínima de la simbologia, però presenten moltes limitacions
+# El mètode `.createSimple()` és molt més versàtil ja que conté, en format diccionari, instruccions per a poder modificar:
+## Color de fons (*fill color*)
+## Color de contorn (*outline color*)
+## Gruix (*outline width*)
+## Estil de línia (*outline style*)
+# Així, per un element poligonal
+symbol = QgsFillSymbol.createSimple({
+  "color": "red",
+  "outline_color": "white",
+  "outline_width": 0.75,
+  "outline_style": "dash"  # És millor no afegir aquesta opció
+})
 
 # Capa base
 symbol.symbolLayer(0)
