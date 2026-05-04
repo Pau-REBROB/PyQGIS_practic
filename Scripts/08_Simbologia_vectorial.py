@@ -74,5 +74,11 @@ symbol = QgsFillSymbol.createSimple({
   "outline_style": "dash"  # És millor no afegir aquesta opció
 })
 
-# Capa base
+
+# Per a tenir un control total de la simbologia d'una capa, independentment del tipus de renderitzador, cal entendre-la com a un conjunt de capes de simbologia apilades
+#  La capa base és el constructor de la simbologia, segons la geometria de la capa
+base_layer = QgsSymbol.defaultSymbol(vlayer.geometryType())
+# Per sobre d'aquesta, poden existir tantes capes com es desitgi que, a l'igual que amb la GUI, permeten afegir nova simbologia per a crear nous patrons i conjunts de colors
+layer_1 = QgsSymbol.defaultSymbol(vlayer.geometryType())
+# Ara bé, LA ZERO ÉS LA IMPORTANT
 symbol.symbolLayer(0)
