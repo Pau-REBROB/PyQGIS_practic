@@ -67,7 +67,7 @@ base_layer = symbol.symbolLayer(0)
 # En aquesta capa, existeixen molts més mètodes de modificació de simbologia
 ## Per a elements PUNTUALS
 ### Forma (*shape*)
-base_layer.setShape(QgsSimpleMarkerSymbolBaseLayer.Circle) # Square, Triangle, Cross, Star, Diamond
+base_layer.setShape(QgsSimpleMarkerSymbolLayerBase.Circle) # Square, Triangle, Cross, Star, Diamond
 ### Desplaçament (*offset*)
 base_layer.setOffset(QPointF(x,y))  # QPointF perquè necessita convertir-ho en tipus *float*
 
