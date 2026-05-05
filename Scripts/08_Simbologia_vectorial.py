@@ -61,8 +61,24 @@ vlayer.triggerRepaint()
 iface.layerTreeView().refreshLayerSymbology(vlayer.id())
 
 # Els mètodes genèrics anteriors de color i gruix son útils quan es vol fer una modificació mínima de la simbologia, però presenten moltes limitacions
+
+# Una manera de poder obtenir un control molt més gran sobre la simbologia única d'una capa és modificant la capa més interna
+base_layer = symbol.symbolLayer(0)
+# En aquesta capa, existeixen molts més mètodes de modificació de simbologia
+## Per a elements PUNTUALS
+### Forma (*shape*)
+base_layer.setShape(QgsSimpleMarkerSymbolBaseLayer.Circle) # Square, Triangle, Cross, Star, Diamond
+### Desplaçament (*offset*)
+base_layer.setOffset(QPointF(x,y))  # QPointF perquè necessita convertir-ho en tipus *float*
+
+
+# Per a crear una simbologia completa cal tenir present totes les propietats que defineixen el símbol, tant segons el tipus de geometria com el tipus de renderitzador
+# Aquestes propietats son accessibles a través del mètode `.properties()`
+vlayer.renderer().symbol().symbolLayer(0).properties
+
+
 # El mètode `.createSimple()` és molt més versàtil ja que conté, en format diccionari, instruccions per a poder modificar:
-## Color de fons (*fill color*)
+## Color de farcit (*fill color*)
 ## Color de contorn (*outline color*)
 ## Gruix (*outline width*)
 ## Estil de línia (*outline style*)
@@ -75,10 +91,11 @@ symbol = QgsFillSymbol.createSimple({
 })
 
 
+
 # Per a tenir un control total de la simbologia d'una capa, independentment del tipus de renderitzador, cal entendre-la com a un conjunt de capes de simbologia apilades
-#  La capa base és el constructor de la simbologia, segons la geometria de la capa
+# La capa base és el constructor de la simbologia, segons la geometria de la capa
 base_layer = QgsSymbol.defaultSymbol(vlayer.geometryType())
 # Per sobre d'aquesta, poden existir tantes capes com es desitgi que, a l'igual que amb la GUI, permeten afegir nova simbologia per a crear nous patrons i conjunts de colors
-layer_1 = QgsSymbol.defaultSymbol(vlayer.geometryType())
+layer_1 = QgsSymbol.defaultSymbol(vlayer.geometryType()) / layer_1 = QgsFillSymbol.createSimple({})
 # Ara bé, LA ZERO ÉS LA IMPORTANT
 symbol.symbolLayer(0)
