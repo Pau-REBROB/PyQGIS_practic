@@ -60,10 +60,25 @@ vlayer.triggerRepaint()
 # Cal fer ús de `iface` per indicar que es vol actualitzar el renderitzat de la capa en qüestió
 iface.layerTreeView().refreshLayerSymbology(vlayer.id())
 
+
 # Els mètodes genèrics anteriors de color i gruix son útils quan es vol fer una modificació mínima de la simbologia, però presenten moltes limitacions
 
 # Una manera de poder obtenir un control molt més gran sobre la simbologia única d'una capa és modificant la capa més interna
 base_layer = symbol.symbolLayer(0)
+
+# La simbologia cal entendre-la com a un conjunt de capes de simbologia apilades i contingudes en un únic contenidor - el constructor de símbol
+# El constructor de la simbologia, segons la geometria, engloba totes les capes de simbologia
+# Això permet conèixer quantes capes conté amb el mètode `.symbolLayerCount()` i accedir a les seves capes amb el mètode `.symbolLayer(i)` a través del seu índex 
+symbol = QgsSymbol.defaultSymbol(vlayer.geometryType())
+symbol.symbolLayerCount()
+symbol.symbolLayer(i)
+# Com es deia, la capa més interna - la d'índex 0 - és la que més control ofereix en simbologia única, ja que és possible que sigui l'única present
+base_layer = symbol.symbolLayer(0)
+# Aquest element, i totes les subsegüents capes, és un objecte de classe `QgsSimpleMarkerSymbolLayer`, `QgsSimpleLineSymbolLayer` o `QgsSimpleFillSymbolLayer`, segons el tipus de geometria
+# Per sobre d'aquesta, poden existir tantes capes com es desitgi que, a l'igual que amb la GUI, permeten afegir nova simbologia per a crear nous patrons i conjunts de colors
+## Quan s'agafa la simbologia d'un renderer ja existent - normalment perquè hem carregat una capa al projecte - la simbologia única fa que només existeixi la capa base
+## Si es desitja afegir noves capes de simbologia per sobre, cal crear-les com a objectes individuals de la classe adequada i afegir-les al símbol amb el mètode `.appendSymbolLayer()`
+
 # En aquesta capa, existeixen molts més mètodes de modificació de simbologia
 ## Per a elements PUNTUALS
 ### Forma (*shape*)
@@ -100,10 +115,4 @@ symbol = QgsFillSymbol.createSimple({
 
 
 
-# Per a tenir un control total de la simbologia d'una capa, independentment del tipus de renderitzador, cal entendre-la com a un conjunt de capes de simbologia apilades
-# La capa base és el constructor de la simbologia, segons la geometria de la capa
-base_layer = QgsSymbol.defaultSymbol(vlayer.geometryType())
-# Per sobre d'aquesta, poden existir tantes capes com es desitgi que, a l'igual que amb la GUI, permeten afegir nova simbologia per a crear nous patrons i conjunts de colors
-layer_1 = QgsSymbol.defaultSymbol(vlayer.geometryType()) / layer_1 = QgsFillSymbol.createSimple({})
-# Ara bé, LA ZERO ÉS LA IMPORTANT
-symbol.symbolLayer(0)
+
