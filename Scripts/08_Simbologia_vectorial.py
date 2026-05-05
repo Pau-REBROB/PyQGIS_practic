@@ -70,6 +70,14 @@ base_layer = symbol.symbolLayer(0)
 base_layer.setShape(QgsSimpleMarkerSymbolLayerBase.Circle) # Square, Triangle, Cross, Star, Diamond
 ### Desplaçament (*offset*)
 base_layer.setOffset(QPointF(x,y))  # QPointF perquè necessita convertir-ho en tipus *float*
+### Inclinació (*angle*)
+base_layer.setAngle()
+
+## Per a elements LINEALS
+###
+
+## Per a elements POLIGONALS
+###
 
 
 # Per a crear una simbologia completa cal tenir present totes les propietats que defineixen el símbol, tant segons el tipus de geometria com el tipus de renderitzador
