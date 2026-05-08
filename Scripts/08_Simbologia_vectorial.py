@@ -140,4 +140,43 @@ symbol = QgsFillSymbol.createSimple({
 
 
 
+"""Simbologia categòrica"""
 
+# És aquella que està condicionada al valor d'una o més variables categòriques
+
+# Les categories son objectes de la classe `QgsRenderCategory`, on s'ha d'especificar, per a cada categoria
+## Valor
+## Símbol
+## Etiqueta
+QgsRenderCategory(value, symbol, label)
+
+# Així, es poden definir totes les categories de manera manual - el que implica crear tots els símbols des de zero
+cat_1 = QgsRenderCategory(value_1, symbol_1, label_1)
+cat_n = QgsRenderCategory(value_n, symbol_n, label_n)
+# Generar el renderitzador buit de la classe específica per a la simbologia categòrica
+categorized_renderer = QgsCategorizedSymbolRenderer()
+# I, finalment, assignar cada categoria al renderer, tantes vegades com categories hi hagi
+categorized_renderer.addCategory(cat_1)
+categorized_renderer.addCategory(cat_n)
+
+
+# Naturalment, la manera més òptima de treballar és a través d'una iteració amb un *for loop*
+# Es decideix el camp el valor del qual determinarà les categories
+attribute = 'FIELD'
+# Es crea un set amb els valors únics del camp, que seran els que determinaran les diferents categories
+attribute_values = set([feat[attribute] for feat in vlayer.getFeatures()])
+# Es crea una llista buida que encabirà totes les categories
+categories = []
+# Es crea un diccionari amb aquells valors de simbologia que es vulguin modificar segons la categoria
+
+## Si només es desitja simbolitzar cada categiria amb un color diferent, es pot simplificar el codi declarant una llista de colors
+colors = ["red", "green", "blue"]
+# Finalment, s'itera per a generar un símbol i una categoria per a cada valor categòric
+# Després es fa el renderitzat fora del loop
+for value, color in zip(attribute_values, colors):
+  col = QColor(color)
+  symbol = QgsSymbol.defaultSymbol(vlayer.geometryType()).createSimple({"color": col})
+  cat_n = QgsRenderCategory(value, symbol, str(value))
+  categories.append(cat_n)
+categorized_renderer = QgsCategorizedSymbolRenderer(attribute, categories)
+vlayer.setRenderer(categorized_renderer)
