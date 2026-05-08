@@ -168,11 +168,24 @@ attribute_values = set([feat[attribute] for feat in vlayer.getFeatures()])
 # Es crea una llista buida que encabirà totes les categories
 categories = []
 # Es crea un diccionari amb aquells valors de simbologia que es vulguin modificar segons la categoria
+symbol_map = {
+    "cat_1": {"color": "red", "outline_color": "black", "outline_width": "1.5"},
+    "cat_2": {"color": "green", "outline_color": "black", "outline_width": "1.0"},
+    "cat_3": {"color": "blue", "outline_color": "black", "outline_width": "0.5"},
+}
+# Finalment, s'itera per a generar un símbol i una categoria per a cada valor categòric
+# Després es fa el renderitzat fora del loop
+for cat, props in symbol_map.items():
+    symbol = QgsSymbol.defaultSymbol(vlayer.geometryType())
+    symbol.createSimple(props)
+    cat = QgsRenderCategory(value, symbol, str(value))
+    categories.append(cat)
+categorized_renderer = QgsCategorizedSymbolRenderer(attribute, categories)
+vlayer.setRenderer(categorized_renderer)
+vlayer.triggerRepaint()
 
 ## Si només es desitja simbolitzar cada categiria amb un color diferent, es pot simplificar el codi declarant una llista de colors
 colors = ["red", "green", "blue"]
-# Finalment, s'itera per a generar un símbol i una categoria per a cada valor categòric
-# Després es fa el renderitzat fora del loop
 for value, color in zip(attribute_values, colors):
   col = QColor(color)
   symbol = QgsSymbol.defaultSymbol(vlayer.geometryType()).createSimple({"color": col})
@@ -180,3 +193,5 @@ for value, color in zip(attribute_values, colors):
   categories.append(cat_n)
 categorized_renderer = QgsCategorizedSymbolRenderer(attribute, categories)
 vlayer.setRenderer(categorized_renderer)
+vlayer.triggerRepaint()
+
