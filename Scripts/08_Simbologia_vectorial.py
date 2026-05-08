@@ -78,6 +78,13 @@ base_layer = symbol.symbolLayer(0)
 # Per sobre d'aquesta, poden existir tantes capes com es desitgi que, a l'igual que amb la GUI, permeten afegir nova simbologia per a crear nous patrons i conjunts de colors
 ## Quan s'agafa la simbologia d'un renderer ja existent - normalment perquè hem carregat una capa al projecte - la simbologia única fa que només existeixi la capa base
 ## Si es desitja afegir noves capes de simbologia per sobre, cal crear-les com a objectes individuals de la classe adequada i afegir-les al símbol amb el mètode `.appendSymbolLayer()`
+symbol = QgsSymbol.defaultSymbol(vlayer.geometryType())
+base_layer = symbol.symbolLayer(0)
+layer_1 = symbol.symbolLayer(1)
+symbol.appendSymbolLayer(layer_1)
+# De manera similar, es pot modificar una capa ja existent i afegida al constructor de símbol amb el mètode `.changeSymbolLayer()`
+symbol.changeSymbolLayer(n, layer_n)
+
 
 # En aquesta capa, existeixen molts més mètodes de modificació de simbologia
 ## Per a elements PUNTUALS
@@ -89,18 +96,36 @@ base_layer.setOffset(QPointF(x,y))  # QPointF perquè necessita convertir-ho en 
 base_layer.setAngle()
 
 ## Per a elements LINEALS
-###
+### Patró (*stroke style)
+base_layer.setPenStyle(Qt.SolidLine) # DashLine, DotLine, DashDotLine
+### Unió entre segments (*join style*)
+base_layer.setPenJoinStyle(Qt.RoundJoin) # MiterJoin, BevelJoin
+### Final de segment (*cap style*)
+base_layer.setPenCapStyle(Qt.RoundCap) # FlatCap, SquareCap 
 
 ## Per a elements POLIGONALS
-###
+### Color de contorn (*stroke color*)
+base_layer.setStrokeColor(QColor())
+### Estil de farciment (*brush style*)
+base_layer.setBrushStyle(Qt.SolidPattern) # NoBrush, CrossPattern, DiagCrossPattern, HorPattern, VerPattern, BDiagPattern, FDiagPattern
+### Estil contorn (*stroke style*)
+base_layer.setStrokeStyle(Qt.SolidLine) # Els mateixos patrons Qt que amb els elements lineals
+### Unió entre segments
+base_layer.setPenJoinStyle(Qt.RoundJoin) # Els mateixos estils Qt que amb els elements lineals 
 
 
 # Per a crear una simbologia completa cal tenir present totes les propietats que defineixen el símbol, tant segons el tipus de geometria com el tipus de renderitzador
 # Aquestes propietats son accessibles a través del mètode `.properties()`
-vlayer.renderer().symbol().symbolLayer(0).properties
+vlayer.renderer().symbol().symbolLayer(i).properties()
+# Per exemple:
+#{'align_dash_pattern': '0', 'capstyle': 'square', 'customdash': '5;2', 'customdash_map_unit_scale': '3x:0,0,0,0,0,0', 'customdash_unit': 'MM', 
+# 'dash_pattern_offset': '0', 'dash_pattern_offset_map_unit_scale': '3x:0,0,0,0,0,0', 'dash_pattern_offset_unit': 'MM', 'draw_inside_polygon': '0', 'joinstyle': 'bevel',
+# 'line_color': '255,158,23,255', 'line_style': 'solid', 'line_width': '0.26', 'line_width_unit': 'MM', 'offset': '0', 'offset_map_unit_scale': '3x:0,0,0,0,0,0', 'offset_unit': 'MM',
+# 'ring_filter': '0', 'trim_distance_end': '0', 'trim_distance_end_map_unit_scale': '3x:0,0,0,0,0,0', 'trim_distance_end_unit': 'MM', 'trim_distance_start': '0',
+# 'trim_distance_start_map_unit_scale': '3x:0,0,0,0,0,0', 'trim_distance_start_unit': 'MM', 'tweak_dash_pattern_on_corners': '0', 'use_custom_dash': '0', 'width_map_unit_scale': '3x:0,0,0,0,0,0'}
 
-
-# El mètode `.createSimple()` és molt més versàtil ja que conté, en format diccionari, instruccions per a poder modificar:
+# El mètode `.createSimple()` és molt versàtil ja que conté, en format diccionari, instruccions per a poder modificar totes les propietats anteriors
+# A nivell més simple, es pot fer servir el següent diccionari per a modificar:
 ## Color de farcit (*fill color*)
 ## Color de contorn (*outline color*)
 ## Gruix (*outline width*)
