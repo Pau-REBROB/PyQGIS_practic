@@ -267,4 +267,22 @@ graduated_renderer = QgsGraduatedSymbolRenderer(attribute, ranges)
 vlayer.setRenderer(graduated_renderer)
 vlayer.triggerRepaint()
 
+# Si es desitja un millor control sobre el color que tindrà cada classe, es pot fer una interpolació d'una rampa de colors
+col_ramp = QgsStyle().defaultStyle().colorRamp("color_ramp_name")
+col_ramp = QgsGradientColorRamp(QColor("col_inicial"), QColor("color_final"))  # De manera alternativa, es pot crear una rampa definint els dos extrems
+num_classes = 5
+num_intervals = len(num_classes)-1 # 4
+ranges = []
+for i in range(num_intervals):
+  symbol = QgsSymbol.defaultSymbol(vlayer.geometryType())
+  color = col_ramp.color(float(i)/(num_intervals-1))
+  range = QgsRenderRange(num_classes[i], num_classes[i+1], symbol, f"{num_classes[i]}-{num_classes[i+1]}")
+  ranges.append(range)
+graduated_renderer = QgsGraduatedSymbolRenderer(attribute, ranges)
+vlayer.setRenderer(graduated_renderer)
+vlayer.triggerRepaint()
+# El mètode `.color()` permet extreure un color d'una rampa de colors segons la seva posició percentual
+## Així, quan i = 0, *float(i)/(num_intervals-1)* - és a dir, t - és també 0, i agafa el color del 0%, és a dir, el color inicial
+## Quan i = 3 (el màxim), t = 1 i agafa el color del 100%, és a dir, el color final
+## Quan i=1 o i=2, t=0.33 o t=0.66, i el mètode interpola el color corresponent al 33% i 66% de la rampa de color
 
