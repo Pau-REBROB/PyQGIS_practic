@@ -148,16 +148,18 @@ symbol = QgsFillSymbol.createSimple({
 ## Valor
 ## Símbol
 ## Etiqueta
-QgsRenderCategory(value, symbol, label)
+cat = QgsRenderCategory(value, symbol, label)
 
 # Així, es poden definir totes les categories de manera manual - el que implica crear tots els símbols des de zero
 cat_1 = QgsRenderCategory(value_1, symbol_1, label_1)
 cat_n = QgsRenderCategory(value_n, symbol_n, label_n)
 # Generar el renderitzador buit de la classe específica per a la simbologia categòrica
 categorized_renderer = QgsCategorizedSymbolRenderer()
-# I, finalment, assignar cada categoria al renderer, tantes vegades com categories hi hagi
+# Assignar cada categoria al renderer, tantes vegades com categories hi hagi
 categorized_renderer.addCategory(cat_1)
 categorized_renderer.addCategory(cat_n)
+# I, finalment, assignar el renderer a la capa
+vlayer.setRenderer(categorized_renderer)
 
 
 # Naturalment, la manera més òptima de treballar és a través d'una iteració amb un *for loop*
@@ -194,4 +196,75 @@ for value, color in zip(attribute_values, colors):
 categorized_renderer = QgsCategorizedSymbolRenderer(attribute, categories)
 vlayer.setRenderer(categorized_renderer)
 vlayer.triggerRepaint()
+
+
+
+"""Simbologia graduada"""
+
+# És aquella que utilitza una rampa de color per a representar el rang de valors d'una variable numèrica contínua
+
+# En la simbologia graduada cal tenir present quatre elements:
+## Atribut numèric
+## Mètode de classificació
+## Número de classes (o intervals)
+## Rampa de colors
+
+# Les classes son objectes de la classe `QgsRendererRange`, on s'ha d'especificar, per a cada interval de dades
+## Rang inferior
+## Rang superior
+## Símbol
+## Etiqueta
+range = QgsRendererRange(lower, upper, symbol, label)
+
+# Així, es poden definir totes les classes de manera manual - el que implica crear tots els símbols des de zero
+range_1 = QgsRenderRange(lower_1, upper_1, symbol_1, label_1)
+range_n = QgsRenderRange(lower_n, upper_n, symbol_n, label_n)
+# Generar el renderitzador buit de la classe específica per a la simbologia graduada
+graduated_renderer = QgsGraduatedSymbolRenderer()
+# Afegir cada rang al renderer, tantes vegades com categories hi hagi
+graduated_renderer.addClassRange(range_1)
+graduated_renderer.addClassRange(range_n)
+# I, finalment, assignar el renderer a la capa
+vlayer.setRenderer(graduated_renderer)
+
+
+# El mètode manual anterior implica l'elecció per part de l'usuari de la variable, la rampa de colors i del mètode de classificació de manera "implícita"
+# De manera alternativa, es pot crear un renderer buit i omplir-lo amb el mètode `.createRender()`, que permet homogeneïtzar el resultat
+# i escollir el camp, el mètode de classificació i la rampa de colors propis de QGIS
+renderer = QgsGraduatedSymbolRenderer.createRender(
+  vlayer,
+  attribute,
+  num_classes,
+  mode,
+  symbol,
+  ramp
+)
+## *mode* és un mètode de classificació de QGIS
+## S'assigna amb `QgsGraduatedSymbolRender.mode`, on mode pot ser entre *Quantile*, *Jenks*, *StdDev*, *EqualInterval*, *Pretty*
+## *ramp* és la rampa de colors
+## Les rampes de colors per defecte de QGIS son accessibles a través de la classe `QgsStyle`
+col_ramp = QgsStyle().defaultStyle().colorRamp("color_ramp_name")
+## El nom de les rampes de colors és el que es veu a la GUI de QGIS: 'reds', 'blues', 'Magma', 'Viridis', 'RdGy', 'YlOrBr', 'Spectral', etc.
+# Amb aquest mètode, es creen el número de classes indicades en funció del mètode especificat i amb la simbologia indicada de manera automàtica
+
+
+# Si no es volen utilitzar els mètodes de classificació de QGIS i es desitja establir les classes de manera manual, com es veia anteriorment,
+# però treballant de manera més eficient, cal fer-ho a través d'una iteració amb un *for loop*
+# Es defineixen els intervals de valors
+breaks = [0,100,500,1000]
+# Es defineixen els colors que s'utilitzaran
+colors = ["white", "yellow", "orange", "red", "purple"] # Un valor més que el número d'intervals
+# Es crea una llista buida que englobarà tots els rangs de valors
+ranges = []
+# Finalment, s'itera per cada element de la llista de colors - és a dir, per cada rang
+for i in range(len(colors)):
+  symbol = QgsSymbol.defaultSymbol(vlayer.geometryType())
+  # El símbol es pot fer més complex dins o fora del loop
+  symbol.setColor(QColor(colors[i]))
+  range = QgsRenderRange(breaks[i], breaks[i+1], symbol, f"{breaks[i]}-{breaks[i+1]}")
+  ranges.append(range)
+graduated_renderer = QgsGraduatedSymbolRenderer(attribute, ranges)
+vlayer.setRenderer(graduated_renderer)
+vlayer.triggerRepaint()
+
 
