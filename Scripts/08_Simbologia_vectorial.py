@@ -217,8 +217,8 @@ vlayer.triggerRepaint()
 range = QgsRendererRange(lower, upper, symbol, label)
 
 # Així, es poden definir totes les classes de manera manual - el que implica crear tots els símbols des de zero
-range_1 = QgsRenderRange(lower_1, upper_1, symbol_1, label_1)
-range_n = QgsRenderRange(lower_n, upper_n, symbol_n, label_n)
+range_1 = QgsRendererRange(lower_1, upper_1, symbol_1, label_1)
+range_n = QgsRendererRange(lower_n, upper_n, symbol_n, label_n)
 # Generar el renderitzador buit de la classe específica per a la simbologia graduada
 graduated_renderer = QgsGraduatedSymbolRenderer()
 # Afegir cada rang al renderer, tantes vegades com categories hi hagi
@@ -261,7 +261,7 @@ for i in range(len(colors)):
   symbol = QgsSymbol.defaultSymbol(vlayer.geometryType())
   # El símbol es pot fer més complex dins o fora del loop
   symbol.setColor(QColor(colors[i]))
-  range = QgsRenderRange(breaks[i], breaks[i+1], symbol, f"{breaks[i]}-{breaks[i+1]}")
+  range = QgsRendererRange(breaks[i], breaks[i+1], symbol, f"{breaks[i]}-{breaks[i+1]}")
   ranges.append(range)
 graduated_renderer = QgsGraduatedSymbolRenderer(attribute, ranges)
 vlayer.setRenderer(graduated_renderer)
@@ -276,7 +276,7 @@ ranges = []
 for i in range(num_intervals):
   symbol = QgsSymbol.defaultSymbol(vlayer.geometryType())
   color = col_ramp.color(float(i)/(num_intervals-1))
-  range = QgsRenderRange(num_classes[i], num_classes[i+1], symbol, f"{num_classes[i]}-{num_classes[i+1]}")
+  range = QgsRendererRange(num_classes[i], num_classes[i+1], symbol, f"{num_classes[i]}-{num_classes[i+1]}")
   ranges.append(range)
 graduated_renderer = QgsGraduatedSymbolRenderer(attribute, ranges)
 vlayer.setRenderer(graduated_renderer)
