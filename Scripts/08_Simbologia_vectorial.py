@@ -286,3 +286,14 @@ vlayer.triggerRepaint()
 ## Quan i = 3 (el màxim), t = 1 i agafa el color del 100%, és a dir, el color final
 ## Quan i=1 o i=2, t=0.33 o t=0.66, i el mètode interpola el color corresponent al 33% i 66% de la rampa de color
 
+
+
+"""Simbologia basada en regles"""
+
+# És aquella que utilitza una o més condicions per a assignar una simbologia
+
+#
+
+
+
+
