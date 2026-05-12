@@ -231,7 +231,7 @@ vlayer.setRenderer(graduated_renderer)
 # El mètode manual anterior implica l'elecció per part de l'usuari de la variable, la rampa de colors i del mètode de classificació de manera "implícita"
 # De manera alternativa, es pot crear un renderer buit i omplir-lo amb el mètode `.createRender()`, que permet homogeneïtzar el resultat
 # i escollir el camp, el mètode de classificació i la rampa de colors propis de QGIS
-renderer = QgsGraduatedSymbolRenderer.createRender(
+renderer = QgsGraduatedSymbolRenderer.createRenderer(
   vlayer,
   attribute,
   num_classes,
@@ -270,13 +270,13 @@ vlayer.triggerRepaint()
 # Si es desitja un millor control sobre el color que tindrà cada classe, es pot fer una interpolació d'una rampa de colors
 col_ramp = QgsStyle().defaultStyle().colorRamp("color_ramp_name")
 col_ramp = QgsGradientColorRamp(QColor("col_inicial"), QColor("color_final"))  # De manera alternativa, es pot crear una rampa definint els dos extrems
-num_classes = 5
+breaks = []
 num_intervals = len(num_classes)-1 # 4
 ranges = []
 for i in range(num_intervals):
   symbol = QgsSymbol.defaultSymbol(vlayer.geometryType())
   color = col_ramp.color(float(i)/(num_intervals-1))
-  range = QgsRendererRange(num_classes[i], num_classes[i+1], symbol, f"{num_classes[i]}-{num_classes[i+1]}")
+  range = QgsRendererRange(breaks[i], breaks[i+1], symbol, f"{breaks[i]}-{breaks[i+1]}")
   ranges.append(range)
 graduated_renderer = QgsGraduatedSymbolRenderer(attribute, ranges)
 vlayer.setRenderer(graduated_renderer)
