@@ -1,4 +1,19 @@
 # import
+from qgis.core import (
+    QgsSymbol,
+    QgsFillSymbol,
+    QgsRenderCategory,
+    QgsCategorizedSymbolRenderer,
+    QgsRendererRange,
+    QgsGraduatedSymbolRenderer,
+    QgsGradientColorRamp,
+    QgsStyle,
+    QgsRuleBasedRenderer,
+)
+
+from PyQt5.QtCore import Qt, QPointF
+from PyQt5.QtGui import QColor
+
 
 
 """Simbologia de capes vectorials"""
