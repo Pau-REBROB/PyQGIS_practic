@@ -297,6 +297,8 @@ vlayer.triggerRepaint()
 
 # L'ordre més adequat per treballar amb simbologia basada en regles és, primerament, definir el constructor del símbol
 symbol = QgsSymbol.defaultSymbol(vlayer.geometryType())
+# Aquest no és el símbol final, és simplement un valor provisional (*placeholder*) que permet al constructor inicialitzar l'arbre de decisions amb el tipus de geometria correcte
+
 # I després definir totes les regles de simbologia amb la classe `QgsRuleBasedRenderer`
 # Amb el mètode `.Rule()` es defineix, per cada regla
 ## Símbol
@@ -308,8 +310,8 @@ symbol = QgsSymbol.defaultSymbol(vlayer.geometryType())
 ## Regla alternativa (*else rule*)
 rule = QgsRuleBasedRenderer.Rule(
   symbol,
-  maximumScale # per exemple 10000,
-  minimumScale # per exemple 100000,
+  maximumScale=10000 # per exemple,
+  minimumScale=100000 # per exemple,
   filterExp = '"FIELD"<1000',
   label,
   description,
@@ -326,13 +328,18 @@ rule_n.symbol().setColor(QColor()) # per exemple
 rule_renderer = QgsRuleBasedRenderer(symbol)
 root_rule = rule_renderer.rootRule()
 # Un cop creat l'arbre de decisions, la peça clau d'aquesta simbologia, s'hi poden anar afegint les regles definides anteriorment amb el mètode `.appendChild()`
-## És bona pràctica eliminar les possibles regles que ja existissin, amb el mètode `.removeChildAt()`
-root_rule.removeChildAt(0)
 root_rule.appendChild(rule_n)
 ## De manera més eficient, es pot definir una llista de regles i afegir-les de manera iterativa a l'arbre de decisions
 rules = [rule_1, rule_2, ... rule_n]
 for rule in rules:
-  root.appendChild(rule)
+  root_rule.appendChild(rule)
+  
+# Fent passar el constructor de símbol pel renderer es crea una regla arrel buida, amb una regla filla per defecte amb el símbol especificat, i les connecta
+# A la posició 0 ja existeix una regla creada, doncs
+root_rule.children()[0]
+## És bona pràctica eliminar aquesta regla que ja existeix, amb el mètode `.removeChildAt()`, ABANS d'afegir noves regles
+root_rule.removeChildAt(0)
+
 # Amb totes les regles afegides, s'assigna el renderitzador a la capa vectorial
 vlayer.setRenderer(rule_renderer)
 vlayer.triggerRepaint()
