@@ -292,8 +292,49 @@ vlayer.triggerRepaint()
 
 # És aquella que utilitza una o més condicions per a assignar una simbologia
 
-#
+# A diferència de la resta de simbologies, la simbologia basada en regles no funciona per assignació directa sinó que ha de passar per un arbre de decisions
+# Cada *feature* de la capa ha de passar per l'arbre sencer; Si compleix una de les regles, se li aplica la simbologia corresponent i segueix baixant per l'arbre
 
+# L'ordre més adequat per treballar amb simbologia basada en regles és, primerament, definir el constructor del símbol
+symbol = QgsSymbol.defaultSymbol(vlayer.geometryType())
+# I després definir totes les regles de simbologia amb la classe `QgsRuleBasedRenderer`
+# Amb el mètode `.Rule()` es defineix, per cada regla
+## Símbol
+## Escala màxima
+## Escala mínima
+## Expressió
+## Etiqueta
+## Descripció
+## Regla alternativa (*else rule*)
+rule = QgsRuleBasedRenderer.Rule(
+  symbol,
+  maximumScale # per exemple 10000,
+  minimumScale # per exemple 100000,
+  filterExp = '"FIELD"<1000',
+  label,
+  description,
+  elseRule
+)
+## El símbol serà un clon del constructor definit prèviament `symbol.clone()`
+## L'expressió està definida entre comes simples '', amb els camps definits entre comes dobles ""
+### És important utilitzar el nom dels arguments de manera explícita, ja que està confirmat que sinó peta QGIS 
 
+# Definides totes les regles, es modifica la simbologia de cada una d'elles amb els mètodes adequats
+rule_n.symbol().setColor(QColor()) # per exemple
+
+# Seguidament es pot crear el renderitzador - de la classe `QgsRuleBasedRenderer` - i l'arbre de decisions
+rule_renderer = QgsRuleBasedRenderer(symbol)
+root_rule = rule_renderer.rootRule()
+# Un cop creat l'arbre de decisions, la peça clau d'aquesta simbologia, s'hi poden anar afegint les regles definides anteriorment amb el mètode `.appendChild()`
+## És bona pràctica eliminar les possibles regles que ja existissin, amb el mètode `.removeChildAt()`
+root_rule.removeChildAt(0)
+root_rule.appendChild(rule_n)
+## De manera més eficient, es pot definir una llista de regles i afegir-les de manera iterativa a l'arbre de decisions
+rules = [rule_1, rule_2, ... rule_n]
+for rule in rules:
+  root.appendChild(rule)
+# Amb totes les regles afegides, s'assigna el renderitzador a la capa vectorial
+vlayer.setRenderer(rule_renderer)
+vlayer.triggerRepaint()
 
 
