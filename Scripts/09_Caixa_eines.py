@@ -73,7 +73,21 @@ class new_algorithm(QgsProcessingAlgorithm):
     # Converteixen els paràmetres en objectes manipulables dins del codi a través de `self.parameterAsX()`
     layer = self.parameterAsVectorLayer(parameters, self.entry_param_name, context)
     sink, dest_id = self.parameterAsSink(parameters, self.exit_param_name, context)
+    ## Altres helpers útils son `parameterAsSource`, `parameterAsString`, `parameterAsColor`, `parameterAsEnum` o `parameterAsExtent`
 
-
-
-
+    # Amb els paràmetres ja en format usable, es procedeix a realitzar les operacions de l'algoritme
+    # El flux idoni de treball és
+    ## Llegir els paràmetres d'input
+    ### Utilitzar `AsSource` quan només es vulgui fer una lectura de les dades, sense edició ni renderització
+    ### No carrega tota la capa a la memòria, pel que és més eficient i segur
+    ### Utilitzar `AsVectorLayer` quan es vulgui la capa completa de QGIS
+    ## Aplicar les funcions de `processing` - idoni quan la funció es troba a la caixa d'eines de QGIS
+    ## Preparar els paràmetres d'output
+    ## Processar les dades de sortida
+    for feat in layer.getFeatures():
+      # modificació dels features
+      # al final, però, s'ha d'incloure:
+      sink.addFeature(feat)
+    ## Aplicar funcions de post-processat: simbologia, etiquetes, afegir capes al canvas...
+    ## Retorn de resultats
+    return {self.exit_param_name: dest_id}
