@@ -52,8 +52,8 @@ class new_algorithm(QgsProcessingAlgorithm):
       # Si es demana una capa vectorial o ràster d'entrada
       QgsProcessingParameterFeatureSource(self.entry_param_name, "Description"),
       # Si es demana un nombre d'entrada
-      QgsProcessingParameterNumber(self.entry_param_name, "Description"),
-      ## Si el nombre demanat tingués un valor per defecte
+      QgsProcessingParameterNumber(self.entry_param_name, "Description", QgsProcessingParameterNumber.Double),
+      ## Si el nombre demanat tingués un valor per defecte, només cal especificar-lo
       QgsProcessingParameterNumber(self.entry_param_name, "Description", QgsProcessingParameterNumber.Double, 2),
       # Si es defineix una capa vectorial o ràster de sortida
       ## És un element abstracte, que posteriorment s'utilitzarà per a generar la capa de sortida
@@ -62,9 +62,6 @@ class new_algorithm(QgsProcessingAlgorithm):
 
   # Definició de les operacions pròpiament dites
   def processAlgorithm(self, parameters, context, feedback):
-    #
-    #
-
     # El *context* recull el context del projecte: capes carregades, SRC, gestió de la memòria, etc.
     # És un objecte de la classe `QgsProcessingContext`
 
@@ -72,7 +69,10 @@ class new_algorithm(QgsProcessingAlgorithm):
     # Permet mostrar el progrés (`feedback.setProgress()`), la cancel·lació o els missatges (`feedback.pushInfo()`, `feedback.pushWarning()`, `feedback.reportError()`) 
     # És un objecte de la classe `QgsProcessingFeedback`
 
-    # Els *helpers* 
+    # Els *helpers* gestionen el context permeten validar els paràmetres d'entrada - definits al principi
+    # Converteixen els paràmetres en objectes manipulables dins del codi a través de `self.parameterAsX()`
+    layer = self.parameterAsVectorLayer(parameters, self.entry_param_name, context)
+    sink, dest_id = self.parameterAsSink(parameters, self.exit_param_name, context)
 
 
 
