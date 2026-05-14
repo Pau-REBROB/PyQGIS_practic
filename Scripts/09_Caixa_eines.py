@@ -16,7 +16,7 @@ processing.algorithmHelp("native:algorithm_name")
 ### 'OUTPUT' fa referència a el resultat de la funció, que serà "memory:" si es desitja que sigui un arxiu temporal, o la ruta completa de l'arxiu si es desitja guardar en local
 
 # La manera habitual de treballar és guardar el resultat de la funció en una variable, i utilitzar el seu 'OUTPUT' per a afegir-la al canvas de QGIS
-result = processing.run("algorith_id", {params})
+result = processing.run("algorithm_id", {params})
 project.addMapLayer(result['OUTPUT'])
 # Això implica que el resultat de *processing* és sempre un diccionari
 
@@ -40,6 +40,14 @@ class new_algorithm(QgsProcessingAlgorithm):
   def displayName(self):
     return "new_algorithm_display_name"
 
+  # Declaració del nom de la carpeta d'algoritmes on estarà el nou algoritme
+  def group(self):
+    return "group_name"
+
+  # Declaració de l'identificador de la carpeta d'algoritmes  
+  def groupId(self):
+    return "group_name_id"
+
   # Declaració de la nova instància de la classe de l'algoritme
   def createInstance(self):
     return type(self)()
@@ -50,15 +58,17 @@ class new_algorithm(QgsProcessingAlgorithm):
   def initAlgorithm(self, config=None):
     self.addParameter(
       # Si es demana una capa vectorial o ràster d'entrada
-      QgsProcessingParameterFeatureSource(self.entry_param_name, "Description"),
+      QgsProcessingParameterFeatureSource(self.entry_param_name, "Description")),
+    sefl.addParameter(
       # Si es demana un nombre d'entrada
-      QgsProcessingParameterNumber(self.entry_param_name, "Description", QgsProcessingParameterNumber.Double),
+      QgsProcessingParameterNumber(self.entry_param_name, "Description", QgsProcessingParameterNumber.Double)),
+    self.addParameter(
       ## Si el nombre demanat tingués un valor per defecte, només cal especificar-lo
-      QgsProcessingParameterNumber(self.entry_param_name, "Description", QgsProcessingParameterNumber.Double, 2),
+      QgsProcessingParameterNumber(self.entry_param_name, "Description", QgsProcessingParameterNumber.Double, 2)),
+    self.addParameter(
       # Si es defineix una capa vectorial o ràster de sortida
       ## És un element abstracte, que posteriorment s'utilitzarà per a generar la capa de sortida
-      QgsProcessingParameterFeatureSink(self.exit_param_name, "Description")
-    )
+      QgsProcessingParameterFeatureSink(self.exit_param_name, "Description"))
 
   # Definició de les operacions pròpiament dites
   def processAlgorithm(self, parameters, context, feedback):
