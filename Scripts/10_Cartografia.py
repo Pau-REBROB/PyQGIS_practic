@@ -80,4 +80,6 @@ scale.setStyle("Numeric")   # "Line Ticks Up", "Double Box", "Single Box"
 layout.addLayoutItem(scale)
 
 
-# Per a qualsevol element,
+# Per a qualsevol element, la seva posició per defecte és la (0,0), corresponent a la cantonada superior esquerra del canvas
+# Per tant, valors de X superiors centren verticalment l'element
+# Mentre que, valors de Y superiors centren l'element horitzontalment
