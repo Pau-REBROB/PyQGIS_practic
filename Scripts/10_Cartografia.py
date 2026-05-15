@@ -139,3 +139,6 @@ exporter = QgsLayoutExporter(layout)
 exporter.exportToPdf("ruta/output.pdf", QgsLayoutExporter.PdfExportSettings())
 ## Exportar a imatge
 exporter.exportToImage("ruta/output.png", QgsLayoutExporter.ImageExportSettings())
+
+# Per a exportar totes les pàgines d'una col·lecció com a un atles, cal utilitzar el mètode `.atlas()` a l'exporter
+exporter.exportToX(layout.atlas(), "ruta/output.X", QgsLayoutExporter.XExportSettings())
