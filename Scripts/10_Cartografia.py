@@ -85,6 +85,46 @@ layout.addLayoutItem(scale)
 # Mentre que, valors de Y superiors centren l'element horitzontalment
 
 
+# Una composició pot tenir més d'una pàgina
+# Les pàgines es gestionen des de la col·lecció de pàgines (*page collection*) de la composició
+pc = layout.pageCollection()
+
+# Les pàgines s'han de gestionar com a objectes individuals - son objectes de la classe `QgsLayoutItemPage`
+page = QgsLayoutItemPage(layout)
+# Existeixen diferents mètodes per a configurar les pàgines
+## Mida i orientació de la pàgina
+page.setPageSize("name", orientation)
+## La mida ha de ser el nom del format - "A3", "A4", etc.
+## L'orientació és una variable del tipus `QgsLayoutItemPage.Landscape` o `QgsLayoutItemPage.Portrait`
+# De manera alternativa, es pot utilitzar `QgsLayoutSize` per a personalitzar la mida de la pàgina
+page.setPageSize(QgsLayoutSize(x,y,units))
+# Mètodes de consulta de mida i orientació
+page.setSize()
+page.orientation()  # No existeix un mètode directe per a establir l'orientació
+# Color de fons de la pàgina
+page.setPageStyleSymbol(QgsFillSymbol.createSimple({"color": "white"}))
+
+# Per moure's per dins la col·lecció de pàgines cal fer ús dels seus índex posicionals
+pc.page(i)
+# Per afegir noves pàgines es fa ús del mètode `.addPage()`
+# La pàgina sempre s'afegeix a l'última posició
+pc.addPage(page)
+# Per eliminar pàgines es fa ús del mètode `.deletePage()`, indicant l'índex de la pàgina dins la col·lecció
+pc.deletePage(i)
+# Per a eliminar totes les pàgines, es fa ús del mètode `.clear()`
+pc.clear()
+
+# El mètode `.pageCount()` retorna el número total de pàgines presents
+pc.pageCount()
+# El mètode `.pages()` retorna un llistat de totes les pàgines
+pc.pages()
+
+
+# És important destacar que no existeix el concepte de "pàgina activa"
+# Quan el *layout* només conté una pàgina, tots els mètodes vistos s'apliquen sobre l'única pàgina "activa"
+# Quan la composició és de més d'una pàgina, simplement cal afegir el paràmetre `page=i`
+
+
 # Definit el layout, cal afegir-lo al gestor de layouts del projecte perquè no quedi en memòria
 # Es defineix un objecte gestor de composicions
 manager = project.layoutManager()
