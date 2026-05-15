@@ -59,3 +59,25 @@ legend.setAutoUpdateModel(True)
 
 # Finalment, s'afegeix la llegenda a la composició
 layout.addLayoutItem(legend)
+
+## Barra d'escala
+# La classe `QgsLayoutItemScaleBar` afegeix una barra d'escala
+scale = QgsLayoutItemScaleBar(layout)
+
+# De nou, cal fer una vinculació al mapa a través del mètode `.setLinkedMap()`
+scale.setLinkedMap(map)
+
+# La mida i posició s'ajusten de la mateixa manera que en el cas del mapa
+scale.attemptResize(QgsLayoutSize(x,y,units))
+scale.attemptMove(QgsLayoutPoint(x,y,units))
+# En aquest cas, existeix també el mètode de mida per defecte
+scale.applyDefaultSize()
+
+# L'estil de la barra d'escala es controla amb el mètode `.setStyle()`, sent per defecte *Numeric*
+scale.setStyle("Numeric")   # "Line Ticks Up", "Double Box", "Single Box"
+
+# Finalment, s'afegeix l'escala a la composició
+layout.addLayoutItem(scale)
+
+
+# Per a qualsevol element,
