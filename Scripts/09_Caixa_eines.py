@@ -119,23 +119,46 @@ class new_algorithm(QgsProcessingAlgorithm):
 
 
 # __init__.py
-# És el punt d'entrada del plugin
-# Ha de contenir una funció `classFactory()` que retorni una instància de la classe principal
+
+# És el punt d'entrada del plugin, i el primer arxiu que QGIS llegeix en carregar-lo
+# Ha de contenir obligatòriament una funció `classFactory()` que retorni una instància de la classe principal - MyPlugin
+# Els seus arguments son `iface`, l'objecte que permet interactuar amb la GUI
 def classFactory(iface):
     from .my_plugin import MyPlugin
     return MyPlugin(iface)
 
+# La importació es fa de manera relativa - amb el punt davant
+# Això vol dir que la importació es fa des del mateix directori on es troba el fitxer
+
 
 # metadata.txt"""
-# Conté la informació del plugin en format clau=valor
-# És obligatori per a què QGIS reconegui el plugin
+
+# És un fitxer de text pla en format INI - conté la informació en format clau=valor - que conté la informació del plugin
+# És obligatori per a que QGIS reconegui el plugin i el pugui carregar
+# Tota la informació es troba sota la secció [general]
 [general]
+
+# Informació bàsica - tots obligatoris
 name=My Plugin
 version=0.1
 qgisMinimumVersion=3.0
 description=Descripció del plugin
 author=Nom de l'autor
 email=correu@exemple.com
+
+# Informació opcional però recomanable
+about=Descripció llarga del plugin  
+tracker=https://github.com/...      # URL per a reportar errors
+repository=https://github.com/...   
+tags=vector, analysis, processing   
+category=Vector                     # Categoria del plugin: Vector, Raster, Database, Web...
+icon=icon.png                       
+hasProcessingProvider=yes           # Indica que el plugin afegeix algoritmes a la caixa d'eines
+
+# Informació de compatibilitat
+qgisMaximumVersion=3.99             # Versió màxima de QGIS compatible - opcional
+experimental=False                  
+deprecated=False                    
 
 
 # provider.py
@@ -170,4 +193,6 @@ class MyPlugin:
         QgsApplication.processingRegistry().removeProvider(self.provider)
 
 
-#
+# algorithm.py
+# Es correspon amb l'algoritme de la nova eina de processament descrit anteriorment, exactament igual
+
