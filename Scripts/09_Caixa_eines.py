@@ -192,6 +192,7 @@ class MyProvider(QgsProcessingProvider):
 
 
 # my_plugin.py
+
 # És la classe principal del plugin
 # Ha d'heretar de la classe `QgsProcessingAlgorithm`
 class MyPlugin:
