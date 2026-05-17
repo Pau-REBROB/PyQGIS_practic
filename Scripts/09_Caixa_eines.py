@@ -162,19 +162,33 @@ deprecated=False
 
 
 # provider.py
+
 # El proveïdor és la classe que registra els algoritmes al processing de QGIS
+# El proveïdor és la classe que actua de pont entre el plugin i la caixa d'eines de QGIS
 # Ha d'heretar de la classe `QgsProcessingProvider`
 class MyProvider(QgsProcessingProvider):
+    # Importació relativa - des del mateix directori on es troba el fitxer - de l'algoritme que es vulgui registrar
+    # Si és necessari importar-ne més d'un, és habitual tenir-los en fitxers separats i importar-los tots aquí 
+    from .algorithm import MyAlgorithm
     # Identificador únic del proveïdor
+    # Si l'algoritme ha de formar part de la caixa d'eines de QGIS, aquest és *native*
     def id(self):
         return "my_provider"
     # Nom llegible per humans del proveïdor, que es veu a la caixa d'eines
     def name(self):
         return "My Provider"
+    # Nom que es mostrarà a la barra de càrrega de QGIS en arrancar
+    def longName(self):
+        return "My Provider - Descripció llarga"
+    # Icona del proveïdor que es veu a la caixa d'eines
+    # El mètode `QgsProcessingProvider.icon()` retorna la icona per defecte si no es sobreescriu
+    def icon(self):
+        return QgsProcessingProvider.icon(self)
     # Càrrega dels algoritmes del proveïdor
-    # És aquí on es registren tots els algoritmes que contindrà el plugin
+    # Registre de tots els algoritmes que contindrà el plugin
     def loadAlgorithms(self):
-        self.addAlgorithm(MyAlgorithm())
+        # Cal afegir una crida a `self.addAlgorithm()` per cada algoritme
+        self.addAlgorithm(MyAlgorithm())  # new_algorithm(), segons la documentació anterior
 
 
 # my_plugin.py
@@ -185,11 +199,14 @@ class MyPlugin:
         self.iface = iface
         self.provider = None
     # S'executa en carregar el plugin
+    # És on s'inicialitzen tots els recursos del plugin
     def initGui(self):
+        # Es registra el proveïdor a la caixa d'eines de QGIS per tal que els algoritmes del plugin siguin accessibles des de la caixa d'eines
         self.provider = MyProvider()
         QgsApplication.processingRegistry().addProvider(self.provider)
-    # S'executa en descarregar el plugin
+    # S'executa automàticament en descarregar el plugin
     def unload(self):
+        # Es desfà el registre del proveïdor de la caixa d'eines de QGIS - és l'invers de `initGui`
         QgsApplication.processingRegistry().removeProvider(self.provider)
 
 
