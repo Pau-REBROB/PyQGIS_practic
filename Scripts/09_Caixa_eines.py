@@ -108,3 +108,66 @@ class new_algorithm(QgsProcessingAlgorithm):
 
 # La manera de distribuir i integrar un algoritme nou de manera permanent a QGIS és a través de la creació d'un plugin
 # D'aquesta manera, s'estalvia haver d'executar-lo manualment cada vegada des de la consola
+
+# L'estructura bàsica mínima d'un plugin de QGIS és
+# my_plugin/
+  # __init__.py          # punt d'entrada
+  # my_plugin.py         # classe principal del plugin
+  # metadata.txt         # informació del plugin
+  # provider.py          # registra els algoritmes al processing
+  # algorithm.py         # el QgsProcessingAlgorithm ja documentat
+
+
+# __init__.py
+# És el punt d'entrada del plugin
+# Ha de contenir una funció `classFactory()` que retorni una instància de la classe principal
+def classFactory(iface):
+    from .my_plugin import MyPlugin
+    return MyPlugin(iface)
+
+
+# metadata.txt"""
+# Conté la informació del plugin en format clau=valor
+# És obligatori per a què QGIS reconegui el plugin
+[general]
+name=My Plugin
+version=0.1
+qgisMinimumVersion=3.0
+description=Descripció del plugin
+author=Nom de l'autor
+email=correu@exemple.com
+
+
+# provider.py
+# El proveïdor és la classe que registra els algoritmes al processing de QGIS
+# Ha d'heretar de la classe `QgsProcessingProvider`
+class MyProvider(QgsProcessingProvider):
+    # Identificador únic del proveïdor
+    def id(self):
+        return "my_provider"
+    # Nom llegible per humans del proveïdor, que es veu a la caixa d'eines
+    def name(self):
+        return "My Provider"
+    # Càrrega dels algoritmes del proveïdor
+    # És aquí on es registren tots els algoritmes que contindrà el plugin
+    def loadAlgorithms(self):
+        self.addAlgorithm(MyAlgorithm())
+
+
+# my_plugin.py
+# És la classe principal del plugin
+# Ha d'heretar de la classe `QgsProcessingAlgorithm`
+class MyPlugin:
+    def __init__(self, iface):
+        self.iface = iface
+        self.provider = None
+    # S'executa en carregar el plugin
+    def initGui(self):
+        self.provider = MyProvider()
+        QgsApplication.processingRegistry().addProvider(self.provider)
+    # S'executa en descarregar el plugin
+    def unload(self):
+        QgsApplication.processingRegistry().removeProvider(self.provider)
+
+
+#
