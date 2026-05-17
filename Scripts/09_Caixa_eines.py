@@ -101,3 +101,10 @@ class new_algorithm(QgsProcessingAlgorithm):
     ## Aplicar funcions de post-processat: simbologia, etiquetes, afegir capes al canvas...
     ## Retorn de resultats
     return {self.exit_param_name: dest_id}
+
+
+
+"""Creació d'un plugin"""
+
+# La manera de distribuir i integrar un algoritme nou de manera permanent a QGIS és a través de la creació d'un plugin
+# D'aquesta manera, s'estalvia haver d'executar-lo manualment cada vegada des de la consola
