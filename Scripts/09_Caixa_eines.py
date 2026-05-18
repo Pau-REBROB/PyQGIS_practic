@@ -101,6 +101,15 @@ class new_algorithm(QgsProcessingAlgorithm):
     ## Aplicar funcions de post-processat: simbologia, etiquetes, afegir capes al canvas...
     ## Retorn de resultats
     return {self.exit_param_name: dest_id}
+  
+
+# Per a executar un algoritme de processing des de la consola de QGIS, cal tenir totes les classes definides, com si es treballés fora de la consola Python
+
+# Cal guardar el fitxer .py a la carpeta de scripts de processing del perfil de QGIS:
+# C:\Users\<usuari>\AppData\Roaming\QGIS\QGIS3\profiles\default\processing\scripts
+# QGIS llegeix automàticament tots els .py d'aquesta carpeta a l'arrancar i reconeix com a algoritmes vàlids totes les classes que heretin de QgsProcessingAlgorithm
+
+# De manera alternativa, des de la caixa d'eines Scritps - Afegeix un script a la caixa d'eines
 
 
 
@@ -214,3 +223,5 @@ class MyPlugin:
 # algorithm.py
 # Es correspon amb l'algoritme de la nova eina de processament descrit anteriorment, exactament igual
 
+# Si es desitja personalitzar la interfície gràfica del plugin, caldrà crear un arxiu de disseny .ui amb Qt Designer
+# i un arxiu my_dialog.py per a carregar l'arxiu .ui i gestionar els esdeveniments 
