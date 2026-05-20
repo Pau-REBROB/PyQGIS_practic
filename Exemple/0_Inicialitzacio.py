@@ -109,3 +109,22 @@ for i, (nom, path) in enumerate(capes_graf_viari.items()):
         
         # Generació de l'índex i addició al diccionari d'índexs
         dict_indexs[nom] = QgsSpatialIndex(layer.getFeatures())
+
+
+"""SISTEMES DE REFERÈNCIA"""
+
+# Comprovació dels sistema de referència de coordenades del projecte
+print("SRC del projecte:", project.crs().authid())
+
+# Comprovació dels sistema de referència de coordenades de les capes
+for group in dict_layers.values():
+    for layer in group.values():
+        # Impresió per pantalla del SRC de cada capa, en codi EPSG
+        print(f"El SRC de la capa {layer.name()} és {layer.crs().authid()}")
+        
+        # Comparació amb el SRC del projecte
+        if layer.crs().authid() == project.crs().authid():
+            print(f"La capa {layer.name()} i el projecte estan en el mateix SRC")
+        else:
+            print(f"La capa {layer.name()} està en el SRC {layer.crs().authid()} i necessita ser reprojectada a EPSG:25831!")
+
