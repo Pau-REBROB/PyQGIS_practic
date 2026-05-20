@@ -19,7 +19,7 @@ camps_mantenir_limAdm = ['DISTRICTE', 'BARRI', 'PERIMETRE', 'AREA', 'TIPUS_UA', 
 
 # Camps a eliminar
 for layer in dict_layers["Limits_administratius"].values():
-    # Clonació de la capa
+    # Clonació de la capa per no modificar l'original
     layer.clone()
 
     # Llista buida que contindrà els índex dels camps a eliminar
@@ -42,6 +42,9 @@ for layer in dict_layers["Limits_administratius"].values():
 for layer in dict_layers["Limits_administratius"].values():
     print(f"Número de camps presents a la capa {layer.name()} després de la neteja: {layer.fields().count()}")
     print(f"Camps presents: {layer.fields().names()}")
+
+# Addició de la capa al projecte
+##################
 
 # URBANISME
 ## Adreces

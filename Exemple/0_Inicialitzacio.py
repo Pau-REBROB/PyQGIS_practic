@@ -53,10 +53,7 @@ for i, (nom, path) in enumerate(capes_lim_adm.items()):
     else:
         # Addició de la capa al projecte, sense afegir-la al llenç
         project.addMapLayer(layer, False)
-        
-        # Inserció de la capa al panell de capes a la posició definida
-        root.insertLayer(i, layer)
-        
+               
         # Addició de la capa al diccionari de diccionaris de capes, al grup de Límits administratius
         # El key és el nom de la capa, i el value és la capa vectorial pròpiament (QgsVectorLayer)
         dict_layers["Limits_administratius"][nom] = layer
@@ -76,10 +73,7 @@ for i, (nom, path) in enumerate(capes_urb.items()):
     else:
         # Addició de la capa al projecte, sense afegir-la al llenç
         project.addMapLayer(layer, False)
-       
-        # Inserció de la capa al panell de capes a la posició definida
-        root.insertLayer(i, layer)
-       
+             
         # Addició de la capa al diccionari de diccionaris de capes, al grup d'Urbanisme
         # El key és el nom de la capa, i el value és la capa vectorial pròpiament (QgsVectorLayer)
         dict_layers["Urbanisme"][nom] = layer
@@ -99,10 +93,7 @@ for i, (nom, path) in enumerate(capes_graf_viari.items()):
     else:
         # Addició de la capa al projecte, sense afegir-la al llenç
         project.addMapLayer(layer, False)
-       
-        # Inserció de la capa al panell de capes a la posició definida
-        root.insertLayer(i, layer)
-       
+         
         # Addició de la capa al diccionari de diccionaris de capes, al grup de Graf viari
         # El key és el nom de la capa, i el value és la capa vectorial pròpiament (QgsVectorLayer)
         dict_layers["Graf"][nom] = layer
