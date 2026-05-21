@@ -185,6 +185,6 @@ for theme, group in dict_layers.items():
         group_theme = root.addGroup(theme)
     
     # Addició de les capes als grups
-    for layer in group:
+    for layer in group.values():
         group_theme.addLayer(layer)
  
