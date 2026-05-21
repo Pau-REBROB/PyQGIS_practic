@@ -173,3 +173,15 @@ for layer in dict_layers["Graf"].values():
     print(f"Número de camps presents a la capa {layer.name()} després de la neteja: {layer.fields().count()}")
     print(f"Camps presents: {layer.fields().names()}")
 
+
+# Addició de les capes al projecte
+# Les capes han estat creades en ordre
+for cat in dict_layers.values():
+    # Creació d'un grup de capes per cada categoria, si no existeix
+    group = root.findGroup(cat)
+    if not group:
+        group = root.addGroup(cat)
+    
+    # Addició de la capa al grup
+    for layer in group:
+        group.addLayer(layer)
