@@ -20,7 +20,7 @@ camps_mantenir_limAdm = ['DISTRICTE', 'BARRI', 'PERIMETRE', 'AREA', 'TIPUS_UA', 
 # Camps a eliminar
 for layer in dict_layers["Limits_administratius"].values():
     # Clonació de la capa per no modificar l'original
-    layer.clone()
+    layer = layer.clone()
 
     # Llista buida que contindrà els índex dels camps a eliminar
     index_eliminar = []
@@ -43,15 +43,19 @@ for layer in dict_layers["Limits_administratius"].values():
     print(f"Número de camps presents a la capa {layer.name()} després de la neteja: {layer.fields().count()}")
     print(f"Camps presents: {layer.fields().names()}")
 
-# Addició de la capa al projecte
-##################
 
 # URBANISME
+# Diferència entre Adreces i Parcel·les i Illes
+# Conversió dels valors a llista per a la seva manipulació
+vals = list(dict_layers["Urbanisme"].values())
+ # 0 Adreces
+ # 1 Parcelles
+ # 2 Illes
 ## Adreces
 # Número de camps
-dict_layers["Urbanisme"]['Adreces'].fields().count()
+vals[0].fields().count()
 # Nom dels camps
-dict_layers["Urbanisme"]['Adreces'].fields().names()
+vals[0].fields().names()
 
 # Camps a mantenir
 camps_mantenir_adreces = ['CODI_ILLA', 'CODI_PARC', 'CODICARRER', 'CODI_INE', 'NOM_VIA', 'DISTRICTE', 'BARRI']
@@ -64,14 +68,14 @@ camps_mantenir_adreces = ['CODI_ILLA', 'CODI_PARC', 'CODICARRER', 'CODI_INE', 'N
     # 'BARRI' codi barri
 
 # Camps a eliminar
-for layer in dict_layers["Urbanisme"]['Adreces'].values():
+for layer in vals[0]:
     # Clonació de la capa
-    layer.clone()
+    layer = layer.clone()
 
     # Llista buida que contindrà els índex dels camps a eliminar
     index_eliminar = []
     
-    # Per cada capa del grup de Límits administratius, es busquen els seus camps i el seu índex
+    # Per la capa d'adreces, es busquen els seus camps i el seu índex
     for i, field in enumerate(layer.fields()):
         # Si el nom del camp no es troba a la llista de camps a mantenir:
         # Afegir el seu índex a la llista buida a eliminar
@@ -85,15 +89,15 @@ for layer in dict_layers["Urbanisme"]['Adreces'].values():
         layer.deleteAttributes(index_eliminar)
 
 # Comprovació de l'eliminació
-for layer in dict_layers["Urbanisme"]['Adreces'].values():
+for layer in vals[0].values():
     print(f"Número de camps presents a la capa {layer.name()} després de la neteja: {layer.fields().count()}")
     print(f"Camps presents: {layer.fields().names()}")
 
 ## Parcel·les i Illes
 # Número de camps
-dict_layers["Urbanisme"]['Parcelles'].fields().count()
+vals[1].fields().count()
 # Nom dels camps
-dict_layers["Urbanisme"]['Parcelles'].fields().names()
+vals[1].fields().names()
 
 # Camps a mantenir
 camps_mantenir_parceles_illes = ['PERIMETRE', 'AREA', 'CODI_ILLA', 'CODI_PARC', 'SOLAR', 'REF_CADAST', 'DISTRICTE']
@@ -106,9 +110,9 @@ camps_mantenir_parceles_illes = ['PERIMETRE', 'AREA', 'CODI_ILLA', 'CODI_PARC', 
     # 'DISTRICTE' codi districte
 
 # Camps a eliminar
-for layer in dict_layers["Urbanisme"][1:].values():
+for layer in vals[1:].values():
     # Clonació de la capa
-    layer.clone()
+    layer = layer.clone()
 
     # Llista buida que contindrà els índex dels camps a eliminar
     index_eliminar = []
@@ -127,7 +131,7 @@ for layer in dict_layers["Urbanisme"][1:].values():
         layer.deleteAttributes(index_eliminar)
 
 # Comprovació de l'eliminació
-for layer in dict_layers["Urbanisme"][1:].values():
+for layer in vals[1:].values():
     print(f"Número de camps presents a la capa {layer.name()} després de la neteja: {layer.fields().count()}")
     print(f"Camps presents: {layer.fields().names()}")
 
@@ -155,7 +159,7 @@ camps_mantenir_grafViari = ['COORD_X', 'COORD_Y', 'LONGITUD', 'ANGLE', 'C_Tram',
 
 # Camps a eliminar
 for layer in dict_layers["Graf"].values():
-    layer.clone()
+    layer = layer.clone()
 
     index_eliminar = []
     
