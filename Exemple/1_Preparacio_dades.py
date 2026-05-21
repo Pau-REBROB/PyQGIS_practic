@@ -47,15 +47,15 @@ for layer in dict_layers["Limits_administratius"].values():
 # URBANISME
 # Diferència entre Adreces i Parcel·les i Illes
 # Conversió dels valors a llista per a la seva manipulació
-vals = list(dict_layers["Urbanisme"].values())
+adreces, *parceles_illes = dict_layers["Urbanisme"].values()
  # 0 Adreces
  # 1 Parcelles
  # 2 Illes
 ## Adreces
 # Número de camps
-vals[0].fields().count()
+adreces.fields().count()
 # Nom dels camps
-vals[0].fields().names()
+adreces.fields().names()
 
 # Camps a mantenir
 camps_mantenir_adreces = ['CODI_ILLA', 'CODI_PARC', 'CODICARRER', 'CODI_INE', 'NOM_VIA', 'DISTRICTE', 'BARRI']
@@ -68,7 +68,7 @@ camps_mantenir_adreces = ['CODI_ILLA', 'CODI_PARC', 'CODICARRER', 'CODI_INE', 'N
     # 'BARRI' codi barri
 
 # Camps a eliminar
-for layer in vals[0]:
+for layer in adreces:
     # Clonació de la capa
     layer = layer.clone()
 
@@ -89,15 +89,15 @@ for layer in vals[0]:
         layer.deleteAttributes(index_eliminar)
 
 # Comprovació de l'eliminació
-for layer in vals[0].values():
+for layer in adreces.values():
     print(f"Número de camps presents a la capa {layer.name()} després de la neteja: {layer.fields().count()}")
     print(f"Camps presents: {layer.fields().names()}")
 
 ## Parcel·les i Illes
 # Número de camps
-vals[1].fields().count()
+parceles_illes.fields().count()
 # Nom dels camps
-vals[1].fields().names()
+parceles_illes.fields().names()
 
 # Camps a mantenir
 camps_mantenir_parceles_illes = ['PERIMETRE', 'AREA', 'CODI_ILLA', 'CODI_PARC', 'SOLAR', 'REF_CADAST', 'DISTRICTE']
@@ -110,7 +110,7 @@ camps_mantenir_parceles_illes = ['PERIMETRE', 'AREA', 'CODI_ILLA', 'CODI_PARC', 
     # 'DISTRICTE' codi districte
 
 # Camps a eliminar
-for layer in vals[1:].values():
+for layer in parceles_illes.values():
     # Clonació de la capa
     layer = layer.clone()
 
@@ -131,7 +131,7 @@ for layer in vals[1:].values():
         layer.deleteAttributes(index_eliminar)
 
 # Comprovació de l'eliminació
-for layer in vals[1:].values():
+for layer in parceles_illes.values():
     print(f"Número de camps presents a la capa {layer.name()} després de la neteja: {layer.fields().count()}")
     print(f"Camps presents: {layer.fields().names()}")
 
