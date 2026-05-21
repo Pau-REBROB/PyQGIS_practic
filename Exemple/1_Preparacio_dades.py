@@ -176,14 +176,15 @@ for layer in dict_layers["Graf"].values():
     print(f"Camps presents: {layer.fields().names()}")
 
 
-# Addició de les capes al projecte
+# Addició de les capes al projecte en grups de capes
 # Les capes han estat creades en ordre
-for cat in dict_layers.values():
-    # Creació d'un grup de capes per cada categoria, si no existeix
-    group = root.findGroup(cat)
-    if not group:
-        group = root.addGroup(cat)
+for theme, group in dict_layers.items():
+    # Creació d'un grup de capes per cada temàtica, si no existeix
+    group_theme = root.findGroup(theme)
+    if not group_theme:
+        group_theme = root.addGroup(theme)
     
-    # Addició de la capa al grup
+    # Addició de les capes als grups
     for layer in group:
-        group.addLayer(layer)
+        group_theme.addLayer(layer)
+ 
