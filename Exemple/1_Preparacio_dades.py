@@ -68,36 +68,34 @@ camps_mantenir_adreces = ['CODI_ILLA', 'CODI_PARC', 'CODICARRER', 'CODI_INE', 'N
     # 'BARRI' codi barri
 
 # Camps a eliminar
-for layer in adreces:
-    # Clonació de la capa
-    layer = layer.clone()
+# Clonació de la capa
+layer = adreces.clone()
 
-    # Llista buida que contindrà els índex dels camps a eliminar
-    index_eliminar = []
+# Llista buida que contindrà els índex dels camps a eliminar
+index_eliminar = []
     
-    # Per la capa d'adreces, es busquen els seus camps i el seu índex
-    for i, field in enumerate(layer.fields()):
-        # Si el nom del camp no es troba a la llista de camps a mantenir:
-        # Afegir el seu índex a la llista buida a eliminar
-        if field.name() not in camps_mantenir_adreces:
-            index_eliminar.append(i)
-        else:
-            print(f"Camp {field.name()} conservat")
+# Per la capa d'adreces, es busquen els seus camps i el seu índex
+for i, field in enumerate(layer.fields()):
+    # Si el nom del camp no es troba a la llista de camps a mantenir:
+    # Afegir el seu índex a la llista buida a eliminar
+    if field.name() not in camps_mantenir_adreces:
+        index_eliminar.append(i)
+    else:
+        print(f"Camp {field.name()} conservat")
 
-    # Edició de la capa i eliminació del camp i els seus atributs
-    with edit(layer):
-        layer.deleteAttributes(index_eliminar)
+# Edició de la capa i eliminació del camp i els seus atributs
+with edit(layer):
+    layer.deleteAttributes(index_eliminar)
 
 # Comprovació de l'eliminació
-for layer in adreces.values():
-    print(f"Número de camps presents a la capa {layer.name()} després de la neteja: {layer.fields().count()}")
-    print(f"Camps presents: {layer.fields().names()}")
+print(f"Número de camps presents a la capa {layer.name()} després de la neteja: {layer.fields().count()}")
+print(f"Camps presents: {layer.fields().names()}")
 
 ## Parcel·les i Illes
 # Número de camps
-parceles_illes.fields().count()
+parceles_illes[0].fields().count()
 # Nom dels camps
-parceles_illes.fields().names()
+parceles_illes[0].fields().names()
 
 # Camps a mantenir
 camps_mantenir_parceles_illes = ['PERIMETRE', 'AREA', 'CODI_ILLA', 'CODI_PARC', 'SOLAR', 'REF_CADAST', 'DISTRICTE']
@@ -110,7 +108,7 @@ camps_mantenir_parceles_illes = ['PERIMETRE', 'AREA', 'CODI_ILLA', 'CODI_PARC', 
     # 'DISTRICTE' codi districte
 
 # Camps a eliminar
-for layer in parceles_illes.values():
+for layer in parceles_illes:
     # Clonació de la capa
     layer = layer.clone()
 
@@ -131,7 +129,7 @@ for layer in parceles_illes.values():
         layer.deleteAttributes(index_eliminar)
 
 # Comprovació de l'eliminació
-for layer in parceles_illes.values():
+for layer in parceles_illes:
     print(f"Número de camps presents a la capa {layer.name()} després de la neteja: {layer.fields().count()}")
     print(f"Camps presents: {layer.fields().names()}")
 
