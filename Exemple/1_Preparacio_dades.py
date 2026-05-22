@@ -147,7 +147,7 @@ for name, layer in dict_layers["Graf"].items():
 
 # Addició de les capes al projecte en grups de capes
 # Les capes han estat creades en ordre
-for theme, group in dict_layers.items():
+for theme, group in reversed(dict_layers.items()):
     # Creació d'un grup de capes per cada temàtica, si no existeix
     group_theme = root.findGroup(theme)
     if not group_theme:
