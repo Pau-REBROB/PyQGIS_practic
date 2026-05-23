@@ -51,7 +51,7 @@ def simbologia_unica(layer, fill_color, outline_width, stroke_color):
     layer_clone = layer.clone()
     
     # Assignació d'un nou nom
-    layer_clone.setName(f"{layer.name()}_simbUnica")
+    layer_clone.setName(f"{layer_clone.name()}_simbUnica")
     
     # Addició de la capa al projecte
     project.addMapLayer(layer_clone, False)
