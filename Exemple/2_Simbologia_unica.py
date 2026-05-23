@@ -26,16 +26,20 @@ print(QColor.colorNames())
 
 
 
-# SÍMBOL ÚNIC
+"""SÍMBOLOGIA ÚNICA"""
 
 # Desactivar la visibilitat de totes les capes importades
-root.setItemVisibilityCheckedRecursive(False)
+for layer in project.mapLayers().values():
+    root.findLayer(layer).setItemVisibilityChecked(False)
 
-## LÍMITS ADMINISTRATIUS
+
 # Creació d'una funció per a aplicar simbologia única
 def simbologia_unica(layer, fill_color, outline_width, stroke_color):
     """
     Aplica una simbologia de símbol únic a una capa poligonal existent
+
+    La funció clona la capa d'entrada, li assigna un nom nou, crea un grup de simbologia única i hi afegeix la capa
+    Seguidament, aplica la simbologia segons un diccionari de paràmetres
     
     Paràmetres de la funció:
         layer : capa vectorial de tipus poligonal sobre la que aplicar la simbologia
@@ -45,40 +49,56 @@ def simbologia_unica(layer, fill_color, outline_width, stroke_color):
     """
     # Clonació de la capa d'entrada
     layer_clone = layer.clone()
+    
     # Assignació d'un nou nom
     layer_clone.setName(f"{layer.name()}_simbUnica")
+    
     # Addició de la capa al projecte
     project.addMapLayer(layer_clone, False)
+    
     # Creació d'un grup de capes de simbologia única, si no existeix
     group = root.findGroup("Simbologia_única")
     if not group:
         group = root.addGroup("Simbologia_única")
     # Addició de la capa al grup
     group.addLayer(layer_clone)
+    
     # Activar la visibilitat del grup i les capes
-    root.setItemVisibilityChecked(True)
-    group.setItemVisibilityChecked(True)
-    node = root.findLayer(layer_clone.id())
-    if node:
-        node.setItemVisibilityChecked(True)
+    #root.setItemVisibilityChecked(True)
+    #group.setItemVisibilityChecked(True)
+    #node = root.findLayer(layer_clone.id())
+    #if node:
+    #    node.setItemVisibilityChecked(True)
 
-    # Creació de l'objecte símbol
-    symbol = QgsFillSymbol()
+    # Creació del constructor del símbol
+    symbol = QgsSymbol.defaultSymbol(layer_clone.geometryType())
+    
+    # Creació de la capa de simbologia
+    symbol.createSimple({
+        "color": QColor(*fill_color),
+        "outline_color": QColor(*stroke_color),
+        "outline_width": outline_width
+    })
+
     # S'estableix el color de farcit
-    symbol.setColor(QColor(*fill_color))
-    # Accés a la capa més interna del símbol
-    symbol_layer_0 = symbol.symbolLayer(0)
+    #symbol.setColor(QColor(*fill_color))
+    
+    # Accés a la capa interna del símbol
+    #symbol_layer_0 = symbol.symbolLayer(0)
+   
     # S'estableix el gruix i el color de la línia de contorn
-    symbol_layer_0.setStrokeWidth(outline_width)
-    symbol_layer_0.setStrokeColor(QColor(*stroke_color))
+    #symbol_layer_0.setStrokeWidth(outline_width)
+    #symbol_layer_0.setStrokeColor(QColor(*stroke_color))
 
     # S'estableix el renderer de la capa i se li assigna el símbol creat
     layer_clone.renderer().setSymbol(symbol)
+    
     # Actualització del llenç
     layer_clone.triggerRepaint()
     iface.mapCanvas().refresh()
     # Actualització del panell de capes
     iface.layerTreeView().refreshLayerSymbology(layer_clone.id())
+
 
 # Aplicar la simbologia única a les capes
 ## Definició dels paràmetres de cada capa
@@ -87,13 +107,17 @@ params_limAdm = {
     'Districtes': {"fill_color": (0,0,0,0), "outline_width": 0.4, "stroke_color": (0,0,0,255)},
     'TermeMunicipal': {"fill_color": (227,241,249,150), "outline_width": 0.6, "stroke_color": (0,0,0,255)}
 }
+
+#params_urb
+
 ## Aplicar la funció
-for layer in layers["Limits_administratius"].values():
+for layer in dict_layers["Limits_administratius"].values():
     # Comprovació que la capa del diccionari de capes existeix en el diccionari de paràmetres
     if layer.name() in params_limAdm:
         # Assingació del conjunt de paràmetres de la capa a una nova variable més manejable
         p_layer = params_limAdm[layer.name()]
-        # Crida de la funció
+        
+        # Crida de la funció amb la nova variable de paràmetres
         simbologia_unica(layer, p_layer["fill_color"], p_layer["outline_width"], p_layer["stroke_color"])
     else:
         print(f"El diccionari de paràmetres no recull la capa cridada {layer.name()}!")
