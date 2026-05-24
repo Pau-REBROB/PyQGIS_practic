@@ -71,7 +71,7 @@ def simbologia_unica(layer, fill_color, outline_width, stroke_color):
     #    node.setItemVisibilityChecked(True)
 
     # Creació del constructor del símbol
-    symbol = symbol = layer_clone.renderer().symbol()
+    symbol = QgsFillSymbol()
     
     # Creació de la capa de simbologia
     # S'estableix el color de farcit
@@ -83,7 +83,8 @@ def simbologia_unica(layer, fill_color, outline_width, stroke_color):
     symbol_layer_0.setStrokeColor(QColor(*stroke_color))
 
     # S'estableix el renderer de la capa i se li assigna el símbol creat
-    layer_clone.renderer().setSymbol(symbol)
+    renderer = QgsSingleSymbolRenderer(symbol)
+    layer_clone.setRenderer(renderer)
     
     # Actualització del llenç
     layer_clone.triggerRepaint()
