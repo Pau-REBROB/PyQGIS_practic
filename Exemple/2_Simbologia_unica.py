@@ -71,24 +71,16 @@ def simbologia_unica(layer, fill_color, outline_width, stroke_color):
     #    node.setItemVisibilityChecked(True)
 
     # Creació del constructor del símbol
-    symbol = QgsSymbol.defaultSymbol(layer_clone.geometryType())
+    symbol = symbol = layer_clone.renderer().symbol()
     
     # Creació de la capa de simbologia
-    symbol.createSimple({
-        "color": QColor(*fill_color),
-        "outline_color": QColor(*stroke_color),
-        "outline_width": outline_width
-    })
-
     # S'estableix el color de farcit
-    #symbol.setColor(QColor(*fill_color))
-    
+    symbol.setColor(QColor(*fill_color))
     # Accés a la capa interna del símbol
-    #symbol_layer_0 = symbol.symbolLayer(0)
-   
+    symbol_layer_0 = symbol.symbolLayer(0)
     # S'estableix el gruix i el color de la línia de contorn
-    #symbol_layer_0.setStrokeWidth(outline_width)
-    #symbol_layer_0.setStrokeColor(QColor(*stroke_color))
+    symbol_layer_0.setStrokeWidth(outline_width)
+    symbol_layer_0.setStrokeColor(QColor(*stroke_color))
 
     # S'estableix el renderer de la capa i se li assigna el símbol creat
     layer_clone.renderer().setSymbol(symbol)
