@@ -41,13 +41,14 @@ for name, layer in dict_layers["Limits_administratius"].items():
     # Desat de la nova capa
     transform_context = project.transformContext()
     save_options = QgsVectorFileWriter.SaveVectorOptions()
-    QgsVectorFileWriter.writeAsVectorFormatV3(layer, 
-                                              f"C:/projectes_git/Dades/PyQGIS_Repo/Limits_administratius_BCN/{name}_clone.shp", 
+    save_options.driverName = "GPKG"
+    QgsVectorFileWriter.writeAsVectorFormatV3(layer_clone, 
+                                              f"C:/projectes_git/Dades/PyQGIS_Repo/Limits_administratius_BCN/{name}_clone.gpkg", 
                                               transform_context, 
                                               save_options) 
     
     # Actualització del diccionari amb la capa neta
-    layer_clean = QgsVectorLayer(f"C:/projectes_git/Dades/PyQGIS_Repo/Limits_administratius_BCN/{name}_clone.shp", name, "ogr")
+    layer_clean = QgsVectorLayer(f"C:/projectes_git/Dades/PyQGIS_Repo/Limits_administratius_BCN/{name}_clone.gpkg", name, "ogr")
     dict_layers["Limits_administratius"][name] = layer_clean
 
 # Comprovació de l'eliminació
@@ -103,17 +104,16 @@ for name, layer in dict_layers["Urbanisme"].items():
     # Desat de la nova capa
     transform_context = project.transformContext()
     save_options = QgsVectorFileWriter.SaveVectorOptions()
-    QgsVectorFileWriter.writeAsVectorFormatV3(layer, 
-                                              f"C:/projectes_git/Dades/PyQGIS_Repo/Urbanisme/{name}_clone.shp", 
+    save_options.driverName = "GPKG"
+    QgsVectorFileWriter.writeAsVectorFormatV3(layer_clone, 
+                                              f"C:/projectes_git/Dades/PyQGIS_Repo/Urbanisme/{name}_clone.gpkg", 
                                               transform_context, 
                                               save_options) 
     
     # Actualització del diccionari amb la capa neta
-    layer_clean = QgsVectorLayer(f"C:/projectes_git/Dades/PyQGIS_Repo/Urbanisme/{name}_clone.shp", name, "ogr")
+    layer_clean = QgsVectorLayer(f"C:/projectes_git/Dades/PyQGIS_Repo/Urbanisme/{name}_clone.gpkg", name, "ogr")
     dict_layers["Urbanisme"][name] = layer_clean
 
-    # Actualització del diccionari amb la capa neta
-    dict_layers["Urbanisme"][name] = layer_clone
 
 # Comprovació de l'eliminació
 for name, layer in dict_layers["Urbanisme"].items():
@@ -158,17 +158,18 @@ for name, layer in dict_layers["Graf"].items():
     with edit(layer_clone):
         layer_clone.deleteAttributes(index_eliminar)
 
-# Desat de la nova capa
+    # Desat de la nova capa
     transform_context = project.transformContext()
     save_options = QgsVectorFileWriter.SaveVectorOptions()
-    QgsVectorFileWriter.writeAsVectorFormatV3(layer, 
-                                              f"C:/projectes_git/Dades/PyQGIS_Repo/Graf_viari/{name}_clone.shp", 
+    save_options.driverName = "GPKG"
+    QgsVectorFileWriter.writeAsVectorFormatV3(layer_clone, 
+                                              f"C:/projectes_git/Dades/PyQGIS_Repo/Graf_viari/{name}_clone.gpkg", 
                                               transform_context, 
                                               save_options) 
     
     # Actualització del diccionari amb la capa neta
-    layer_clean = QgsVectorLayer(f"C:/projectes_git/Dades/PyQGIS_Repo/Graf_viari/{name}_clone.shp", name, "ogr")
-    dict_layers["Limits_administratius"][name] = layer_clean
+    layer_clean = QgsVectorLayer(f"C:/projectes_git/Dades/PyQGIS_Repo/Graf_viari/{name}_clone.gpkg", name, "ogr")
+    dict_layers["Graf"][name] = layer_clean
 
 # Comprovació de l'eliminació
 for name, layer in dict_layers["Graf"].items():
