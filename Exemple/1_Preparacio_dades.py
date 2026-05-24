@@ -47,6 +47,9 @@ for name, layer in dict_layers["Limits_administratius"].items():
                                               transform_context, 
                                               save_options) 
     
+    # Eliminació de la capa original del projecte
+    project.removeMapLayer(layer.id())
+    
     # Actualització del diccionari amb la capa neta
     layer_clean = QgsVectorLayer(f"C:/projectes_git/Dades/PyQGIS_Repo/Limits_administratius_BCN/{name}_clone.gpkg", name, "ogr")
     dict_layers["Limits_administratius"][name] = layer_clean
@@ -110,6 +113,9 @@ for name, layer in dict_layers["Urbanisme"].items():
                                               transform_context, 
                                               save_options) 
     
+    # Eliminació de la capa original del projecte
+    project.removeMapLayer(layer.id())
+
     # Actualització del diccionari amb la capa neta
     layer_clean = QgsVectorLayer(f"C:/projectes_git/Dades/PyQGIS_Repo/Urbanisme/{name}_clone.gpkg", name, "ogr")
     dict_layers["Urbanisme"][name] = layer_clean
@@ -167,6 +173,9 @@ for name, layer in dict_layers["Graf"].items():
                                               transform_context, 
                                               save_options) 
     
+    # Eliminació de la capa original del projecte
+    project.removeMapLayer(layer.id())
+    
     # Actualització del diccionari amb la capa neta
     layer_clean = QgsVectorLayer(f"C:/projectes_git/Dades/PyQGIS_Repo/Graf_viari/{name}_clone.gpkg", name, "ogr")
     dict_layers["Graf"][name] = layer_clean
@@ -189,5 +198,7 @@ for theme, group in reversed(dict_layers.items()):
     
     # Addició de les capes als grups
     for layer in group.values():
+        # Addició de la capa al projecte, també
+        project.addMapLayer(layer, False)
         group_theme.addLayer(layer)
  

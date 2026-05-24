@@ -6,6 +6,10 @@ project = QgsProject.instance()
 # Generar instància del panell de capes
 root = project.layerTreeRoot()
 
+# Netejar totes les capes i grups existents al projecte
+project.removeAllMapLayers()
+root.removeAllChildren()
+
 
 """IMPORTACIÓ DE CAPES"""
 
