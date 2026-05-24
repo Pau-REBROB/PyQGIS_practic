@@ -101,8 +101,6 @@ params_limAdm = {
     'TermeMunicipal': {"fill_color": (227,241,249,150), "outline_width": 0.6, "stroke_color": (0,0,0,255)}
 }
 
-#params_urb
-
 ## Aplicar la funció
 for layer in dict_layers["Limits_administratius"].values():
     # Comprovació que la capa del diccionari de capes existeix en el diccionari de paràmetres
@@ -115,6 +113,22 @@ for layer in dict_layers["Limits_administratius"].values():
     else:
         print(f"El diccionari de paràmetres no recull la capa cridada {layer.name()}!")
 
+params_urb = {
+    'Parcelles': {"fill_color": (0,0,0,0), "outline_width": 0.1, "stroke_color": (0,0,0,255)},
+    'Illes': {"fill_color": (0,0,0,0), "outline_width": 0.15, "stroke_color": (0,0,0,255)}
+}
+
+## Aplicar la funció
+for layer in dict_layers["Urbanisme"].values():
+    # Comprovació que la capa del diccionari de capes existeix en el diccionari de paràmetres
+    if layer.name() in params_urb:
+        # Assingació del conjunt de paràmetres de la capa a una nova variable més manejable
+        p_layer = params_urb[layer.name()]
+        
+        # Crida de la funció amb la nova variable de paràmetres
+        simbologia_unica(layer, p_layer["fill_color"], p_layer["outline_width"], p_layer["stroke_color"])
+    else:
+        print(f"El diccionari de paràmetres no recull la capa cridada {layer.name()}!")
 
 ## GRAF VIARI
 # Creació d'una funció per a aplicar simbologia única
