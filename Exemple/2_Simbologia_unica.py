@@ -33,13 +33,16 @@ for layer in project.mapLayers().values():
     root.findLayer(layer).setItemVisibilityChecked(False)
 
 
-# Creació d'una funció per a aplicar simbologia única
+# Creació d'una funció per a aplicar simbologia única a elements de tipus poligon
 def simbologia_unica(layer, fill_color, outline_width, stroke_color):
     """
     Aplica una simbologia de símbol únic a una capa poligonal existent
 
-    La funció clona la capa d'entrada, li assigna un nom nou, crea un grup de simbologia única i hi afegeix la capa
-    Seguidament, aplica la simbologia segons un diccionari de paràmetres
+    La funció:
+        Clona la capa d'entrada
+        Assigna un nom nou a la capa clonada
+        Crea un grup de simbologia única 
+        Genera simbologia
     
     Paràmetres de la funció:
         layer : capa vectorial de tipus poligonal sobre la que aplicar la simbologia
@@ -63,13 +66,6 @@ def simbologia_unica(layer, fill_color, outline_width, stroke_color):
     # Addició de la capa al grup
     group.addLayer(layer_clone)
     
-    # Activar la visibilitat del grup i les capes
-    #root.setItemVisibilityChecked(True)
-    #group.setItemVisibilityChecked(True)
-    #node = root.findLayer(layer_clone.id())
-    #if node:
-    #    node.setItemVisibilityChecked(True)
-
     # Creació del constructor del símbol
     symbol = QgsFillSymbol()
     
@@ -93,49 +89,17 @@ def simbologia_unica(layer, fill_color, outline_width, stroke_color):
     iface.layerTreeView().refreshLayerSymbology(layer_clone.id())
 
 
-# Aplicar la simbologia única a les capes
-## Definició dels paràmetres de cada capa
-params_limAdm = {
-    'Barris': {"fill_color": (0,0,0,0), "outline_width": 0.2, "stroke_color": (0,0,0,255)},
-    'Districtes': {"fill_color": (0,0,0,0), "outline_width": 0.4, "stroke_color": (0,0,0,255)},
-    'TermeMunicipal': {"fill_color": (227,241,249,150), "outline_width": 0.6, "stroke_color": (0,0,0,255)}
-}
-
-## Aplicar la funció
-for layer in dict_layers["Limits_administratius"].values():
-    # Comprovació que la capa del diccionari de capes existeix en el diccionari de paràmetres
-    if layer.name() in params_limAdm:
-        # Assingació del conjunt de paràmetres de la capa a una nova variable més manejable
-        p_layer = params_limAdm[layer.name()]
-        
-        # Crida de la funció amb la nova variable de paràmetres
-        simbologia_unica(layer, p_layer["fill_color"], p_layer["outline_width"], p_layer["stroke_color"])
-    else:
-        print(f"El diccionari de paràmetres no recull la capa cridada {layer.name()}!")
-
-params_urb = {
-    'Parcelles': {"fill_color": (0,0,0,0), "outline_width": 0.1, "stroke_color": (0,0,0,255)},
-    'Illes': {"fill_color": (0,0,0,0), "outline_width": 0.15, "stroke_color": (0,0,0,255)}
-}
-
-## Aplicar la funció
-for layer in dict_layers["Urbanisme"].values():
-    # Comprovació que la capa del diccionari de capes existeix en el diccionari de paràmetres
-    if layer.name() in params_urb:
-        # Assingació del conjunt de paràmetres de la capa a una nova variable més manejable
-        p_layer = params_urb[layer.name()]
-        
-        # Crida de la funció amb la nova variable de paràmetres
-        simbologia_unica(layer, p_layer["fill_color"], p_layer["outline_width"], p_layer["stroke_color"])
-    else:
-        print(f"El diccionari de paràmetres no recull la capa cridada {layer.name()}!")
-
-## GRAF VIARI
-# Creació d'una funció per a aplicar simbologia única
+# Creació d'una funció per a aplicar simbologia única a elements tipus línia
 def simbologia_unica_linia(layer, fill_color, width, outline_color, outline_width):
     """
     Aplica una simbologia de símbol únic a una capa linial existent
-    
+
+    La funció:
+        Clona la capa d'entrada
+        Assigna un nom nou a la capa clonada
+        Crea un grup de simbologia única 
+        Genera simbologia
+
     Paràmetres de la funció:
         layer : capa vectorial de tipus lineal sobre la que aplicar la simbologia
         fill_color : color del farcit, passat com a (R,G,B,Alpha)
@@ -143,28 +107,26 @@ def simbologia_unica_linia(layer, fill_color, width, outline_color, outline_widt
         outline_color : color del contorn de la línia, passat com a (R,G,B,Alpha)
         outline_width : gruix de la línia externa (0.26 per defecte)
     """
-    # Clonació de la capa d'entrada
+   # Clonació de la capa d'entrada
     layer_clone = layer.clone()
+    
     # Assignació d'un nou nom
-    layer_clone.setName(f"{layer.name()}_simbUnica")
+    layer_clone.setName(f"{layer_clone.name()}_simbUnica")
+    
     # Addició de la capa al projecte
     project.addMapLayer(layer_clone, False)
+    
     # Creació d'un grup de capes de simbologia única, si no existeix
     group = root.findGroup("Simbologia_única")
     if not group:
         group = root.addGroup("Simbologia_única")
-    # Addició de la capa al grup, a l'última posició
-    group.insertLayer(-1, layer_clone)
-    # Activar la visibilitat del grup i les capes
-    root.setItemVisibilityChecked(True)
-    group.setItemVisibilityChecked(True)
-    node = root.findLayer(layer_clone.id())
-    if node:
-        node.setItemVisibilityChecked(True)
+    # Addició de la capa al grup
+    group.addLayer(layer_clone)
 
-    # Creació de l'objecte símbol
+    # Creació del constructor del símbol
     symbol = QgsLineSymbol()
     
+    # Creació de la capa de simbologia
     # Creació de la línia base
     linia_base = QgsSimpleLineSymbolLayer()
     # S'estableix el seu color i gruix
@@ -177,24 +139,62 @@ def simbologia_unica_linia(layer, fill_color, width, outline_color, outline_widt
     linia_ext.setColor(QColor(*outline_color))
     linia_ext.setWidth(outline_width)
 
-    # S'estableix la línia exterior com a símbol
+    # S'estableix la línia exterior com capa base del símbol
     symbol.changeSymbolLayer(0, linia_ext)
     # S'afegeix al símbol la línia base per sobre
     symbol.appendSymbolLayer(linia_base)
 
     # S'estableix el renderer de la capa i se li assigna el símbol creat
-    layer_clone.renderer().setSymbol(symbol)
+    renderer = QgsSingleSymbolRenderer(symbol)
+    layer_clone.setRenderer(renderer)
+    
     # Actualització del llenç
     layer_clone.triggerRepaint()
     iface.mapCanvas().refresh()
     # Actualització del panell de capes
     iface.layerTreeView().refreshLayerSymbology(layer_clone.id())
 
-# Aplicar la simbologia única a la capa
+
+# Aplicació de les funcions per ordre jeràrquic
+# Graf viari
 simbologia_unica_linia(
-    layers["Graf"]["Graf_trams"],
-    (0,0,255,180),
-    0.10,
-    (200,200,200,180),
-    0.3
+    dict_layers["Graf"]["Graf_trams"],   #layer
+    (0,0,255,180),                  #fill color
+    0.10,                           #width
+    (200,200,200,180),              #outline color
+    0.3                             #outline width
 )
+
+# Illes
+params_urb = {
+    'Illes': {"fill_color": (0,0,0,0), "outline_width": 0.15, "stroke_color": (128,128,128,255)}
+}
+
+for layer in dict_layers["Urbanisme"].values():
+    # Comprovació que la capa del diccionari de capes existeix en el diccionari de paràmetres
+    if layer.name() in params_urb:
+        # Assingació del conjunt de paràmetres de la capa a una nova variable més manejable
+        p_layer = params_urb[layer.name()]
+        
+        # Crida de la funció amb la nova variable de paràmetres
+        simbologia_unica(layer, p_layer["fill_color"], p_layer["outline_width"], p_layer["stroke_color"])
+    else:
+        print(f"El diccionari de paràmetres no recull la capa cridada {layer.name()}!")
+
+# Límits administratius
+params_limAdm = {
+    'Barris': {"fill_color": (0,0,0,0), "outline_width": 0.2, "stroke_color": (0,0,0,255)},
+    'Districtes': {"fill_color": (0,0,0,0), "outline_width": 0.4, "stroke_color": (0,0,0,255)},
+    'TermeMunicipal': {"fill_color": (227,241,249,150), "outline_width": 0.6, "stroke_color": (0,0,0,255)}
+}
+
+for layer in dict_layers["Limits_administratius"].values():
+    # Comprovació que la capa del diccionari de capes existeix en el diccionari de paràmetres
+    if layer.name() in params_limAdm:
+        # Assingació del conjunt de paràmetres de la capa a una nova variable més manejable
+        p_layer = params_limAdm[layer.name()]
+        
+        # Crida de la funció amb la nova variable de paràmetres
+        simbologia_unica(layer, p_layer["fill_color"], p_layer["outline_width"], p_layer["stroke_color"])
+    else:
+        print(f"El diccionari de paràmetres no recull la capa cridada {layer.name()}!")
