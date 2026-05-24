@@ -156,17 +156,9 @@ def simbologia_unica_linia(layer, fill_color, width, outline_color, outline_widt
 
 
 # Aplicació de les funcions per ordre jeràrquic
-# Graf viari
-simbologia_unica_linia(
-    dict_layers["Graf"]["Graf_trams"],   #layer
-    (0,0,255,180),                  #fill color
-    0.10,                           #width
-    (200,200,200,180),              #outline color
-    0.3                             #outline width
-)
-
 # Illes
 params_urb = {
+    'Parcelles': {"fill_color": (0,0,0,0), "outline_width": 0.10, "stroke_color": (128,128,128,255)},
     'Illes': {"fill_color": (0,0,0,0), "outline_width": 0.15, "stroke_color": (128,128,128,255)}
 }
 
@@ -198,3 +190,12 @@ for layer in dict_layers["Limits_administratius"].values():
         simbologia_unica(layer, p_layer["fill_color"], p_layer["outline_width"], p_layer["stroke_color"])
     else:
         print(f"El diccionari de paràmetres no recull la capa cridada {layer.name()}!")
+
+# Graf viari
+simbologia_unica_linia(
+    dict_layers["Graf"]["Graf_trams"],   #layer
+    (255,0,0,180),                  #fill color
+    0.10,                           #width
+    (200,200,200,180),              #outline color
+    0.3                             #outline width
+)
