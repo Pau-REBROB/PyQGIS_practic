@@ -89,17 +89,17 @@ params_limAdm_cat = {
                "outline_width": 0.2, 
                "stroke_color": "black"},
     'Districtes': {"atribut": 'DISTRICTE', 
-                   "colors": ['mediumaquamarine', 'mediumblue', 'mediumorchid', 'mediumpurple', 'mediumseagreen', 'mediumslateblue', 'mediumspringgreen', 'mediumturquoise', 'mediumvioletred', 'midnightblue'],
+                   "colors": ['palegoldenrod', 'palegreen', 'paleturquoise', 'palevioletred', 'papayawhip', 'peachpuff', 'peru', 'pink', 'plum', 'powderblue'],
                    "outline_width": 0.4, 
                    "stroke_color": "black"},
 }
 
-for layer in layers["Limits_administratius"].values():
+for layer in dict_layers["Limits_administratius"].values():
     # Comprovació que la capa existeix en el diccionari de paràmetres
     if layer.name() in params_limAdm_cat:
         # Assingació del conjunt de paràmetres de la capa a una nova variable més manejabl
         p_layer = params_limAdm_cat[layer.name()]
-        
+
         # Crida de la funció amb la nova variable de paràmetres
         simbologia_categorica(layer, p_layer["atribut"], p_layer["colors"], p_layer["outline_width"], p_layer["stroke_color"])
     else:
