@@ -401,6 +401,24 @@ label_settings.displayAll = True
 # Establir la prioritat de l'etiqueta (0-10, on 0 és la més prioritària)
 label_settings.priority = 5
 
+# Les línies d'etiqueta - els *callouts* - es generen com a objectes de la classe `QgsCallout`
+## `QgsSimpleLineCallout`
+## `QgsCurvedLineCallout`
+## `QgsManhattanLineCallout`
+## `QgsBalloonCallout`
+callout = QgsSimpleLineCallout()
+# Es pot establir la seva llargada mínima, per defecte en mil·límetres
+callout.setMinimumLength(3.0)
+callout.setMinimumLengthUnit(QgsUnitTypes.RenderMillimeters)
+# Posteriorment, es pot personalitzar la línia del callout
+line_symbol = callout.lineSymbol()
+line_symbol.setColor(QColor())
+line_symbol.setWidth()
+# Un cop definit el callout, s'assigna a la configuració d'etiquetes
+label_settings.setCallout(callout)
+# També cal activar-los explícitament
+label_settings.calloutVisibility = QgsCallout.DrawCallouts
+
 # Configurat l'etiquetatge, cal activar-lo explícitament
 label_settings.enabled = True
 
