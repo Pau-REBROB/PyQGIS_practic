@@ -360,3 +360,7 @@ vlayer.setRenderer(rule_renderer)
 vlayer.triggerRepaint()
 
 
+
+"""Etiquetatge"""
+
+# fd
