@@ -82,7 +82,10 @@ params_limAdm_grad = {
 for layer in dict_layers["Limits_administratius"].values():
     # Comprovació que la capa existeix en el diccionari de paràmetres
     if layer.name() in params_limAdm_grad:
+        # Assingació del conjunt de paràmetres de la capa a una nova variable més manejable
         p_layer = params_limAdm_grad[layer.name()]
+        
+        # Crida de la funció amb la nova variable de paràmetres
         simbologia_graduada_QGIS(layer, p_layer["atribut"], p_layer["num_classes"], p_layer["color_ramp"], p_layer["mode"])
     else:
         print(f"El diccionari de paràmetres no recull la capa {layer.name()}!")

@@ -23,7 +23,7 @@ def simbologia_categorica(layer, atribut, colors, outline_width, stroke_color):
         outline_width : gruix de la línia de contorn (0.26 per defecte)
         stroke_color : color de la línia de contorn, passat com a string
     """
-   # Clonació de la capa d'entrada
+    # Clonació de la capa d'entrada
     layer_clone = layer.clone()
     
     # Assignació d'un nou nom
@@ -97,7 +97,7 @@ params_limAdm_cat = {
 for layer in dict_layers["Limits_administratius"].values():
     # Comprovació que la capa existeix en el diccionari de paràmetres
     if layer.name() in params_limAdm_cat:
-        # Assingació del conjunt de paràmetres de la capa a una nova variable més manejabl
+        # Assingació del conjunt de paràmetres de la capa a una nova variable més manejable
         p_layer = params_limAdm_cat[layer.name()]
 
         # Crida de la funció amb la nova variable de paràmetres

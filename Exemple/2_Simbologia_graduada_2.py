@@ -81,6 +81,7 @@ def simbologia_graduada_manual(layer, atribut, breaks, color_ramp):
 
 
 # Aplicació de la simbologia graduada a les capes
+## La variable graduada serà l'àrea de l'element
 params_limAdm_grad_man = {
     'Barris': {"atribut": 'AREA', "breaks": [100000, 500000, 1000000, 2000000, 5000000, 15000000], "color_ramp": "Spectral"},
     'Districtes': {"atribut": 'AREA', "breaks": [4000000, 8000000, 12000000, 15000000, 20000000, 25000000], "color_ramp": "YlGnBu"},
