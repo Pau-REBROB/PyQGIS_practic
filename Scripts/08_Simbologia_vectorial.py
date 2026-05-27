@@ -375,8 +375,6 @@ text_format = QgsTextFormat()
 text_format.setFont(QFont("Arial", 10))
 text_format.setSize(10)
 text_format.setColor(QColor("black"))
-# El format cal assignar-lo a la configuració
-label_settings.setFormat(text_format)
 
 # Els *buffers* cal crear-los separadament
 buffer = QgsTextBufferSettings()
@@ -419,6 +417,8 @@ label_settings.setCallout(callout)
 # També cal activar-los explícitament
 label_settings.calloutVisibility = QgsCallout.DrawCallouts
 
+# El conjunt de tot el format cal assignar-lo a la configuració
+label_settings.setFormat(text_format)
 # Configurat l'etiquetatge, cal activar-lo explícitament
 label_settings.enabled = True
 
