@@ -7,11 +7,26 @@ for layer in project.mapLayers().values():
 
 # En aquest cas, no es crea una funció
 # Es decideix aplicar la simbologia sobre la capa de barris
+# Clonació de la capa d'entrada
+layer_clone = dict_layers["Limits_administratius"]["Barris"].clone()
+    
+# Assignació d'un nou nom
+layer_clone.setName(f"{layer_clone.name()}_simbRegles")
+    
+# Addició de la capa al projecte
+project.addMapLayer(layer_clone, False)
+    
+# Creació d'un grup de capes de simbologia única, si no existeix
+group = root.findGroup("Simbologia_regles")
+if not group:
+  group = root.addGroup("Simbologia_regles")
+# Addició de la capa al grup
+group.addLayer(layer_clone)
 
 # Definició el constructor del símbol
-symbol = QgsSymbol.defaultSymbol(dict_layer["Limits_administratius"]["Barris"].geometryType())
+symbol = QgsSymbol.defaultSymbol(layer_clone.geometryType())
 base_layer = symbol.symbolLayer(0)
-base_layer.setStrokeWidth(0.75)
+base_layer.setStrokeWidth(0.5)
 base_layer.setStrokeColor(QColor("white"))
 
 # Definició de les regles
@@ -23,7 +38,7 @@ rule_min = QgsRuleBasedRenderer.Rule(
 )
 rule_max = QgsRuleBasedRenderer.Rule(
   symbol.clone(),
-  filterExp = '"AREA" > 15000000',
+  filterExp = '"AREA" > 1300000',
   label = 'Area_max',
   description = 'Barris d\'àrea més gran'
 )
@@ -42,10 +57,10 @@ root_rule.appendChild(rule_min)
 root_rule.appendChild(rule_max)
 
 # Assignació de les regles a la capa vectorial
-dict_layer["Limits_administratius"]["Barris"].setRenderer(rule_renderer)
+layer_clone.setRenderer(rule_renderer)
 
 # Actualització del llenç
-dict_layer["Limits_administratius"]["Barris"].triggerRepaint()
+layer_clone.triggerRepaint()
 iface.mapCanvas().refresh()
 # Actualització del panell de capes
-iface.layerTreeView().refreshLayerSymbology(dict_layer["Limits_administratius"]["Barris"].id())
+iface.layerTreeView().refreshLayerSymbology(layer_clone.id())
