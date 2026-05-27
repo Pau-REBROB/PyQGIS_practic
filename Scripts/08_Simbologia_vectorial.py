@@ -385,6 +385,22 @@ buffer.setSize(1)
 buffer.setColor(QColor("white"))
 text_format.setBuffer(buffer)
 
+# La posició de les etiquetes es controla des de la configuració, amb el mètode `.placement`
+label_settings.placement = QgsPalLayerSettings.Placement.Horizontal    # AroundPoint, OverPoint, Line, Curved, Perimeter
+# Per a desplaçaments manuals (en mm) s'utilitza els mètodes `.MOffset`
+label_settings.xOffset = 0.0
+label_settings.yOffset = -2.0
+# La rotació es controla, en graus, amb el mètode `.angleOffset`
+label_settings.angleOffset = 45.0
+
+# Altres mètodes permeten
+# Forçar l'etiqueta dins del polígon
+label_settings.fitInPolygonOnly = True
+# Mostrar totes les etiquetes, encara que se solapin
+label_settings.displayAll = True
+# Establir la prioritat de l'etiqueta (0-10, on 0 és la més prioritària)
+label_settings.priority = 5
+
 # Configurat l'etiquetatge, cal activar-lo explícitament
 label_settings.enabled = True
 
