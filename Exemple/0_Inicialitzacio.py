@@ -21,10 +21,10 @@ capes_lim_adm = {
     "TermeMunicipal": "C:/projectes_git/Dades/PyQGIS_Repo/Limits_administratius_BCN/0301040100_TermeMunicipal_UNITATS_ADM.shp"
 }
 
-capes_urb = {
-    "Adreces": "C:/projectes_git/Dades/PyQGIS_Repo/Urbanisme/0501040100_Adreces_TXT.shp",
-    "Parcelles": "C:/projectes_git/Dades/PyQGIS_Repo/Urbanisme/0601040100_Parcel·lari_POL_v.shp",
-    "Illes": "C:/projectes_git/Dades/PyQGIS_Repo/Urbanisme/0601040100_Illes_POL_v.shp"
+capes_cadastre = {
+    "Edificis": "C:/projectes_git/Dades/PyQGIS_Repo/Cadastre/08900/A.ES.SDGC.BU.08900.buildingpart.gml",
+    "Parcelles": "C:/projectes_git/Dades/PyQGIS_Repo/Cadastre/08900/A.ES.SDGC.CP.08900.cadastralparcel",
+    "Illes": "C:/projectes_git/Dades/PyQGIS_Repo/Cadastre/08900/A.ES.SDGC.CP.08900.cadastralzoning"
 }
 
 capes_graf_viari = {
@@ -36,7 +36,7 @@ capes_graf_viari = {
 # Temàtica: diccionari de capes
 dict_layers = {
     "Limits_administratius": {},
-    "Urbanisme": {},
+    "Cadastre": {},
     "Graf": {}
 }
 
@@ -65,7 +65,7 @@ for i, (nom, path) in enumerate(capes_lim_adm.items()):
         # Generació de l'índex i addició al diccionari d'índexs
         dict_indexs[nom] = QgsSpatialIndex(layer.getFeatures())
 
-## Urbanisme
+## Cadastre
 for i, (nom, path) in enumerate(capes_urb.items()):
 
     # Creació de la capa vectorial amb la ruta i utilitzant el nom
@@ -80,7 +80,7 @@ for i, (nom, path) in enumerate(capes_urb.items()):
              
         # Addició de la capa al diccionari de diccionaris de capes, al grup d'Urbanisme
         # El key és el nom de la capa, i el value és la capa vectorial pròpiament (QgsVectorLayer)
-        dict_layers["Urbanisme"][nom] = layer
+        dict_layers["Cadastre"][nom] = layer
         
         # Generació de l'índex i addició al diccionari d'índexs
         dict_indexs[nom] = QgsSpatialIndex(layer.getFeatures())
