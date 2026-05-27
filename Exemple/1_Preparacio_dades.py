@@ -60,31 +60,26 @@ for name, layer in dict_layers["Limits_administratius"].items():
     print(f"Camps presents: {layer.fields().names()}")
 
 
-# URBANISME
-# Diferència entre Adreces i Parcel·les i Illes
+# CADASTRE
+# Diferència entre Adreces i Parcel·les i Edificis
 # Camps a mantenir
-camps_mantenir_urb = {
-    'Adreces': ['CODI_ILLA', 'CODI_PARC', 'CODICARRER', 'CODI_INE', 'NOM_VIA', 'DISTRICTE', 'BARRI'],
-    # 'CODI_ILLA' codi illa parcel·lària
-    # 'CODI_PARC' codi parcel·la
-    # 'CODICARRER' codi carrer
-    # 'CODI_INE' codi INE carrer
-    # 'NOM_VIA' nom carrer
-    # 'DISTRICTE' codi districte
-    # 'BARRI' codi barri
-    'Parcelles': ['PERIMETRE', 'AREA', 'CODI_ILLA', 'CODI_PARC', 'SOLAR', 'REF_CADAST', 'DISTRICTE'],
-    'Illes': ['PERIMETRE', 'AREA', 'CODI_ILLA', 'CODI_PARC', 'SOLAR', 'REF_CADAST', 'DISTRICTE']
-    # 'PERIMETRE'
-    # 'AREA'
-    # 'CODI_ILLA' codi illa parcel·lària
-    # 'CODI_PARC' codi parcel·la
-    # 'SOLAR' codi solar
-    # 'REF_CADAST' referència cadastral de la parcel·la
-    # 'DISTRICTE' codi districte
+camps_mantenir_cadastre = {
+    'Edificis': ['gml_id', 'localId', 'numberOfFloorsAboveGround', 'numberOfFloorsBelowGround'],
+    # 'gml_id' codi de l'arxiu de cadastre
+    # 'localId' codi local
+    # 'numberOfFloorsAboveGround' número de pisos per sobre nivell de terra
+    # 'numberOfFloorsBelowGround' número de pisos per sota terra
+    'Parcelles': ['gml_id', 'areaValue', 'localId', 'nationalCadastralReference', 'pos'],
+    # 'gml_id' codi de l'arxiu de cadastre
+    # 'areaValue' valor del metre quadrat
+    # 'localId' codi local
+    # 'nationalCadastralReference' número de referència cadastral
+    # 'pos' coordenades UTM
+    'Illes': ['gml_id', 'areaValue', 'localId', 'nationalCadastralReference', 'pos']
 }
 
 # Camps a eliminar
-for name, layer in dict_layers["Urbanisme"].items():
+for name, layer in dict_layers["Cadastre"].items():
     # Clonació de la capa per no modificar l'original
     layer_clone = layer.clone()
 
@@ -95,7 +90,7 @@ for name, layer in dict_layers["Urbanisme"].items():
     for i, field in enumerate(layer_clone.fields()):
         # Si el nom del camp no es troba a la llista de camps a mantenir:
         # Afegir el seu índex a la llista buida a eliminar
-        if field.name() not in camps_mantenir_urb[name]:
+        if field.name() not in camps_mantenir_cadastre[name]:
             index_eliminar.append(i)
         else:
             print(f"Camp {field.name()} conservat")
@@ -109,7 +104,7 @@ for name, layer in dict_layers["Urbanisme"].items():
     save_options = QgsVectorFileWriter.SaveVectorOptions()
     save_options.driverName = "GPKG"
     QgsVectorFileWriter.writeAsVectorFormatV3(layer_clone, 
-                                              f"C:/projectes_git/Dades/PyQGIS_Repo/Urbanisme/{name}_clone.gpkg", 
+                                              f"C:/projectes_git/Dades/PyQGIS_Repo/Cadastre/{name}_clone.gpkg", 
                                               transform_context, 
                                               save_options) 
     
@@ -117,12 +112,12 @@ for name, layer in dict_layers["Urbanisme"].items():
     project.removeMapLayer(layer.id())
 
     # Actualització del diccionari amb la capa neta
-    layer_clean = QgsVectorLayer(f"C:/projectes_git/Dades/PyQGIS_Repo/Urbanisme/{name}_clone.gpkg", name, "ogr")
-    dict_layers["Urbanisme"][name] = layer_clean
+    layer_clean = QgsVectorLayer(f"C:/projectes_git/Dades/PyQGIS_Repo/Cadastre/{name}_clone.gpkg", name, "ogr")
+    dict_layers["Cadastre"][name] = layer_clean
 
 
 # Comprovació de l'eliminació
-for name, layer in dict_layers["Urbanisme"].items():
+for name, layer in dict_layers["Cadastre"].items():
     print(f"Número de camps presents a la capa {name} després de la neteja: {layer.fields().count()}")
     print(f"Camps presents: {layer.fields().names()}")
 
