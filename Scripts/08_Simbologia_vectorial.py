@@ -363,4 +363,36 @@ vlayer.triggerRepaint()
 
 """Etiquetatge"""
 
-# fd
+# L'etiquetatge de les capes vectorials es configura de manera independent a les capes de simbologia
+# La classe `QgsPalLayerSettings()` és la que permet configurar els diferents paràmetres referents a les etiquetes
+label_settings = QgsPalLayerSettings()
+
+# El mètode `.fieldName()` permet establir el camp que s'utilitza com a etiqueta
+label_settings.fieldName = "FIELD"
+
+# El format del text es controla a través d'una classe del mètode `QgsTextFormat`
+text_format = QgsTextFormat()
+text_format.setFont(QFont("Arial", 10))
+text_format.setSize(10)
+text_format.setColor(QColor("black"))
+# El format cal assignar-lo a la configuració
+label_settings.setFormat(text_format)
+
+# Els *buffers* cal crear-los separadament
+buffer = QgsTextBufferSettings()
+buffer.setEnabled(True)
+buffer.setSize(1)
+buffer.setColor(QColor("white"))
+text_format.setBuffer(buffer)
+
+# Configurat l'etiquetatge, cal activar-lo explícitament
+label_settings.enabled = True
+
+# La configuarció d'etiquetatge s'utilitza per a crear el motor d'etiquetes i assignar-lo a la capa amb el mètode `.setLabeling()`
+layer_labels = QgsVectorLayerSimpleLabeling(label_settings)
+vlayer.setLabeling(layer_labels)
+vlayer.setLabelsEnabled(True)
+
+# Finalment, cal actualitzar el llenç i el panell de capes
+vlayer.triggerRepaint()
+iface.layerTreeView().refreshLayerSymbology(vlayer.id())
