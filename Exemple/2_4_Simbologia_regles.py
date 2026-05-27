@@ -38,7 +38,7 @@ rule_min = QgsRuleBasedRenderer.Rule(
 )
 rule_max = QgsRuleBasedRenderer.Rule(
   symbol.clone(),
-  filterExp = '"AREA" > 1300000',
+  filterExp = '"AREA" > 1750000',
   label = 'Area_max',
   description = 'Barris d\'àrea més gran'
 )
@@ -58,6 +58,37 @@ root_rule.appendChild(rule_max)
 
 # Assignació de les regles a la capa vectorial
 layer_clone.setRenderer(rule_renderer)
+
+
+# Etiquetatge
+# Configuració de les etiquetes
+label_settings = QgsPalLayerSettings()
+
+# Camp a etiquetar
+label_settings.fieldName = "NOM"
+
+# Establiment del format de les etiquetes
+text_format = QgsTextFormat()
+text_format.setFont(QFont("Calibri", 8))
+text_format.setSize(8)
+text_format.setColor(QColor("grey"))
+
+# Generació del buffer
+buffer = QgsTextBufferSettings()
+buffer.setEnabled(True)
+buffer.setSize(0.5)
+buffer.setColor(QColor("white"))
+text_format.setBuffer(buffer)
+
+# Assignació del format i activació de l'etiquetatge
+label_settings.setFormat(text_format)
+label_settings.enabled = True
+
+# Creació del motor d'etiquetes i assignació a la capa de Barris
+layer_labels = QgsVectorLayerSimpleLabeling(label_settings)
+layer_clone.setLabeling(layer_labels)
+layer_clone.setLabelsEnabled(True)
+
 
 # Actualització del llenç
 layer_clone.triggerRepaint()
