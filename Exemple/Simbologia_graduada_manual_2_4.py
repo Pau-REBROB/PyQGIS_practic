@@ -73,6 +73,9 @@ def simbologia_graduada_manual(layer, atribut, breaks, color_ramp):
     # Actualització del panell de capes
     iface.layerTreeView().refreshLayerSymbology(layer_clone.id())
 
+    # Retorn de la capa amb la simbologia
+    return layer_clone
+
 
 
 if __name__ == '__main__':

@@ -76,6 +76,9 @@ def simbologia_categorica(layer, atribut, colors, outline_width, stroke_color):
     # Actualització del panell de capes
     iface.layerTreeView().refreshLayerSymbology(layer_clone.id())
 
+    # Retorn de la capa amb la simbologia
+    return layer_clone
+
 
 
 if __name__ == '__main__':

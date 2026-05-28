@@ -72,6 +72,9 @@ def simbologia_graduada_QGIS(layer, atribut, num_classes, color_ramp, mode, stro
     # Actualització del panell de capes
     iface.layerTreeView().refreshLayerSymbology(layer_clone.id())
 
+    # Retorn de la capa amb la simbologia
+    return layer_clone
+
 
 
 if __name__ == '__main__':
