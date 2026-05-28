@@ -81,7 +81,7 @@ camps_mantenir_cadastre = {
 # Camps a eliminar
 for name, layer in dict_layers["Cadastre"].items():
     # Clonació de la capa per no modificar l'original
-    layer_clone = layer.clone()
+    layer_clone = layer.materialize(QgsFeatureRequest())
 
     # Llista buida que contindrà els índex dels camps a eliminar
     index_eliminar = []

@@ -23,8 +23,8 @@ capes_lim_adm = {
 
 capes_cadastre = {
     "Edificis": "C:/projectes_git/Dades/PyQGIS_Repo/Cadastre/08900/A.ES.SDGC.BU.08900.buildingpart.gml",
-    "Parcelles": "C:/projectes_git/Dades/PyQGIS_Repo/Cadastre/08900/A.ES.SDGC.CP.08900.cadastralparcel",
-    "Illes": "C:/projectes_git/Dades/PyQGIS_Repo/Cadastre/08900/A.ES.SDGC.CP.08900.cadastralzoning"
+    "Parcelles": "C:/projectes_git/Dades/PyQGIS_Repo/Cadastre/08900/A.ES.SDGC.CP.08900.cadastralparcel.gml",
+    "Illes": "C:/projectes_git/Dades/PyQGIS_Repo/Cadastre/08900/A.ES.SDGC.CP.08900.cadastralzoning.gml"
 }
 
 capes_graf_viari = {
@@ -66,7 +66,7 @@ for i, (nom, path) in enumerate(capes_lim_adm.items()):
         dict_indexs[nom] = QgsSpatialIndex(layer.getFeatures())
 
 ## Cadastre
-for i, (nom, path) in enumerate(capes_urb.items()):
+for i, (nom, path) in enumerate(capes_cadastre.items()):
 
     # Creació de la capa vectorial amb la ruta i utilitzant el nom
     layer = QgsVectorLayer(path, nom, "ogr")
