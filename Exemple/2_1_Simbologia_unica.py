@@ -157,16 +157,17 @@ def simbologia_unica_linia(layer, fill_color, width, outline_color, outline_widt
 
 # Aplicació de les funcions per ordre jeràrquic
 # Illes
-params_urb = {
+params_cad = {
+    'Edificis': {"fill_color": (0,0,0,0), "outline_width": 0.10, "stroke_color": (128,128,128,255)},
     'Parcelles': {"fill_color": (0,0,0,0), "outline_width": 0.10, "stroke_color": (128,128,128,255)},
     'Illes': {"fill_color": (0,0,0,0), "outline_width": 0.15, "stroke_color": (128,128,128,255)}
 }
 
-for layer in dict_layers["Urbanisme"].values():
+for layer in dict_layers["Cadastre"].values():
     # Comprovació que la capa del diccionari de capes existeix en el diccionari de paràmetres
-    if layer.name() in params_urb:
+    if layer.name() in params_cad:
         # Assingació del conjunt de paràmetres de la capa a una nova variable més manejable
-        p_layer = params_urb[layer.name()]
+        p_layer = params_cad[layer.name()]
         
         # Crida de la funció amb la nova variable de paràmetres
         simbologia_unica(layer, p_layer["fill_color"], p_layer["outline_width"], p_layer["stroke_color"])

@@ -81,17 +81,16 @@ def simbologia_graduada_manual(layer, atribut, breaks, color_ramp):
 
 
 # Aplicació de la simbologia graduada a les capes
-## La variable graduada serà l'àrea de l'element
-params_limAdm_grad_man = {
-    'Barris': {"atribut": 'AREA', "breaks": [100000, 500000, 1000000, 2000000, 5000000, 15000000], "color_ramp": "Spectral"},
-    'Districtes': {"atribut": 'AREA', "breaks": [4000000, 8000000, 12000000, 15000000, 20000000, 25000000], "color_ramp": "YlGnBu"},
+## La variable graduada serà el número de plantes per sobre el terra de l'element
+params_cadastre_grad_man = {
+    'Edificis': {"atribut": 'numberOfFloorsAboveGround', "breaks": [0, 1, 3, 5, 10, 20, 100], "color_ramp": "Spectral"}
 }
 
-for layer in dict_layers["Limits_administratius"].values():
+for layer in dict_layers["Cadastre"].values():
     # Comprovació que la capa existeix en el diccionari de paràmetres
-    if layer.name() in params_limAdm_grad_man:
+    if layer.name() in params_cadastre_grad_man:
         # Assingació del conjunt de paràmetres de la capa a una nova variable més manejable
-        p_layer = params_limAdm_grad_man[layer.name()]
+        p_layer = params_cadastre_grad_man[layer.name()]
         
         # Crida de la funció amb la nova variable de paràmetres
         simbologia_graduada_manual(layer, p_layer["atribut"], p_layer["breaks"], p_layer["color_ramp"])
