@@ -2,6 +2,12 @@
 
 """SIMBOLOGIA CATEGÒRICA"""
 
+from qgis.core import QgsProject
+from qgis.utils import iface
+
+project = QgsProject.instance()
+root = project.layerTreeRoot()
+
 def simbologia_categorica(layer, atribut, colors, outline_width, stroke_color):
     """
     Aplica una simbologia categòrica a una capa poligonal existent
