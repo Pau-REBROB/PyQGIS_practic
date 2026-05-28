@@ -130,7 +130,7 @@ def simbologia_unica_linia(layer, fill_color, width, outline_color, outline_widt
 
 
 # Colors disponibles a QGIS:
-print(QColor.colorNames())
+#print(QColor.colorNames())
 
 #['aliceblue', 'antiquewhite', 'aqua', 'aquamarine', 'azure', 
 # 'beige', 'bisque', 'black', 'blanchedalmond', 'blue', 'blueviolet', 'brown', 'burlywood', 

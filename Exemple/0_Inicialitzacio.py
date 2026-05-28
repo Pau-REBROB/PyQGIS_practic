@@ -22,7 +22,8 @@ capes_lim_adm = {
 }
 
 capes_cadastre = {
-    "Edificis": "C:/projectes_git/Dades/PyQGIS_Repo/Cadastre/08900/A.ES.SDGC.BU.08900.buildingpart.gml",
+    "Edificis": "C:/projectes_git/Dades/PyQGIS_Repo/Cadastre/08900/A.ES.SDGC.BU.08900.building.gml",
+    "Edificis_part": "C:/projectes_git/Dades/PyQGIS_Repo/Cadastre/08900/A.ES.SDGC.BU.08900.buildingpart.gml",
     "Parcelles": "C:/projectes_git/Dades/PyQGIS_Repo/Cadastre/08900/A.ES.SDGC.CP.08900.cadastralparcel.gml",
     "Illes": "C:/projectes_git/Dades/PyQGIS_Repo/Cadastre/08900/A.ES.SDGC.CP.08900.cadastralzoning.gml"
 }

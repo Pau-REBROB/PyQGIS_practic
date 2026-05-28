@@ -64,7 +64,15 @@ for name, layer in dict_layers["Limits_administratius"].items():
 # Diferència entre Adreces i Parcel·les i Edificis
 # Camps a mantenir
 camps_mantenir_cadastre = {
-    'Edificis': ['gml_id', 'localId', 'numberOfFloorsAboveGround', 'numberOfFloorsBelowGround'],
+    'Edificis': ['gml_id', 'end', 'reference', 'localId', 'currentUse', 'numberOfDwellings', 'value'],
+    # 'gml_id' codi de l'arxiu de cadastre
+    # 'end' any de finalització de construcció
+    # 'reference' referència del codi gml_id
+    # 'localId' codi local
+    # 'currentUse' ús actual
+    # 'numberOfDwellings' número d'habitacions
+    # 'value' valor del metre quadrat
+    'Edificis_part': ['gml_id', 'localId', 'numberOfFloorsAboveGround', 'numberOfFloorsBelowGround'],
     # 'gml_id' codi de l'arxiu de cadastre
     # 'localId' codi local
     # 'numberOfFloorsAboveGround' número de pisos per sobre nivell de terra

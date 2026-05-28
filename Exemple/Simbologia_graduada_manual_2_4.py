@@ -90,7 +90,7 @@ if __name__ == '__main__':
     # Aplicació de la simbologia graduada a les capes
     ## La variable graduada serà el número de plantes per sobre el terra de l'element
     params_cadastre_grad_man = {
-        'Edificis': {"atribut": 'numberOfFloorsAboveGround', "breaks": [0, 1, 3, 5, 10, 20, 100], "color_ramp": "Spectral"}
+        'Edificis_part': {"atribut": 'numberOfFloorsAboveGround', "breaks": [0, 1, 3, 5, 10, 20, 100], "color_ramp": "Spectral"}
     }
 
     for layer in dict_layers["Cadastre"].values():
