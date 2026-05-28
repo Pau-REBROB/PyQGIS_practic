@@ -96,7 +96,8 @@ for layer in dict_layers["Limits_administratius"].values():
         p_layer = params_limAdm_grad[layer.name()]
         
         # Crida de la funció amb la nova variable de paràmetres
-        simbologia_graduada_QGIS(layer, p_layer["atribut"], p_layer["num_classes"], p_layer["color_ramp"], p_layer["mode"], p_layer["stroke_color"], p_layer["stroke_width"])
+        simbologia_graduada_QGIS(layer, p_layer["atribut"], p_layer["num_classes"], p_layer["color_ramp"], p_layer["mode"],
+                                  p_layer["stroke_color"], p_layer["stroke_width"])
     else:
         print(f"El diccionari de paràmetres no recull la capa {layer.name()}!")
 
@@ -104,7 +105,7 @@ for layer in dict_layers["Limits_administratius"].values():
 # Aplicació de la simbologia graduada a les capes
 ## La variable graduada serà el número de plantes per sobre el terra de l'element
 params_cadastre_grad_man = {
-    'Edificis': {"atribut": 'numberOfFloorsAboveGround', "num_classes": 7, "color_ramp": "Spectral", "mode": 'Jenks',
+    'Edificis': {"atribut": 'numberOfFloorsAboveGround', "num_classes": 6, "color_ramp": "Spectral", "mode": 'Jenks',
                  "stroke_color": "white", "stroke_width": 0.1}
 }
 
@@ -115,7 +116,8 @@ for layer in dict_layers["Cadastre"].values():
         p_layer = params_cadastre_grad_man[layer.name()]
         
         # Crida de la funció amb la nova variable de paràmetres
-        simbologia_graduada_QGIS(layer, p_layer["atribut"], p_layer["num_classes"], p_layer["color_ramp"], p_layer["mode"], p_layer["stroke_color"], p_layer["stroke_width"])
+        simbologia_graduada_QGIS(layer, p_layer["atribut"], p_layer["num_classes"], p_layer["color_ramp"],
+                                  p_layer["mode"], p_layer["stroke_color"], p_layer["stroke_width"])
     else:
       print(f"El diccionari de paràmetres no recull la capa {layer.name()}!")
       

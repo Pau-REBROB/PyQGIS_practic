@@ -1,4 +1,5 @@
 """SIMBOLOGIA GRADUADA"""
+""" S'ELIMINA AQUEST I S'AGAFA EL 3 COM A MÈTODE QGIS I EL 2 COM A MANUAL AMB INTERPOLACIÓ O ELECCIO MANUAL DE COLORS"""
 
 # Desactivar la visibilitat de totes les capes importades
 for layer in project.mapLayers().values():
