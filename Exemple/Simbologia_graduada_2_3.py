@@ -1,15 +1,7 @@
+"""SIMBOLITZACIÓ"""
+
 """SIMBOLOGIA GRADUADA"""
 
-# Desactivar la visibilitat de totes les capes importades
-for layer in project.mapLayers().values():
-    node = root.findLayer(layer)
-    if node:
-        node.setItemVisibilityChecked(False)
-
-
-# Creació d'una funció per a aplicar simbologia graduada
-# No es defineixen els rangs, sinó que s'utilitza un mètode de classificació propi de QGIS
-# S'utilitzen les rampes de colors pròpies de QGIS
 def simbologia_graduada_QGIS(layer, atribut, num_classes, color_ramp, mode, stroke_color, stroke_width):
     """
     Aplica simbologia graduada a una capa poligonal existent
@@ -81,44 +73,54 @@ def simbologia_graduada_QGIS(layer, atribut, num_classes, color_ramp, mode, stro
     iface.layerTreeView().refreshLayerSymbology(layer_clone.id())
 
 
-# Aplicació de la funció a les capes
-## La variable graduada serà l'àrea de l'element
-params_limAdm_grad = {
-    'Barris': {"atribut": 'AREA', "num_classes": 6, "color_ramp": "Mako", "mode": "Pretty",
-                "stroke_color": "white", "stroke_width": 0.25},
-    'Districtes': {"atribut": 'AREA', "num_classes": 6, "color_ramp": "Cividis", "mode": "Pretty", 
-                   "stroke_color": "white", "stroke_width": 0.45},
-}
 
-for layer in dict_layers["Limits_administratius"].values():
-    # Comprovació que la capa existeix en el diccionari de paràmetres
-    if layer.name() in params_limAdm_grad:
-        # Assingació del conjunt de paràmetres de la capa a una nova variable més manejable
-        p_layer = params_limAdm_grad[layer.name()]
-        
-        # Crida de la funció amb la nova variable de paràmetres
-        simbologia_graduada_QGIS(layer, p_layer["atribut"], p_layer["num_classes"], p_layer["color_ramp"], p_layer["mode"],
-                                  p_layer["stroke_color"], p_layer["stroke_width"])
-    else:
-        print(f"El diccionari de paràmetres no recull la capa {layer.name()}!")
+if __name__ == '__main__':
+    # Codi a executar quan es cridi des d'aquest mateix script
+
+    # Desactivar la visibilitat de totes les capes importades
+    for layer in project.mapLayers().values():
+        node = root.findLayer(layer)
+        if node:
+            node.setItemVisibilityChecked(False)
+
+    # Aplicació de la funció a les capes
+    ## La variable graduada serà l'àrea de l'element
+    params_limAdm_grad = {
+        'Barris': {"atribut": 'AREA', "num_classes": 6, "color_ramp": "Mako", "mode": "Pretty",
+                   "stroke_color": "white", "stroke_width": 0.25},
+        'Districtes': {"atribut": 'AREA', "num_classes": 6, "color_ramp": "Cividis", "mode": "Pretty",
+                       "stroke_color": "white", "stroke_width": 0.45},
+    }
+
+    for layer in dict_layers["Limits_administratius"].values():
+        # Comprovació que la capa existeix en el diccionari de paràmetres
+        if layer.name() in params_limAdm_grad:
+            # Assingació del conjunt de paràmetres de la capa a una nova variable més manejable
+            p_layer = params_limAdm_grad[layer.name()]
+
+            # Crida de la funció amb la nova variable de paràmetres
+            simbologia_graduada_QGIS(layer, p_layer["atribut"], p_layer["num_classes"], p_layer["color_ramp"], p_layer["mode"],
+                                     p_layer["stroke_color"], p_layer["stroke_width"])
+        else:
+            print(f"El diccionari de paràmetres no recull la capa {layer.name()}!")
 
 
-# Aplicació de la simbologia graduada a les capes
-## La variable graduada serà el número de plantes per sobre el terra de l'element
-params_cadastre_grad_man = {
-    'Edificis': {"atribut": 'numberOfFloorsAboveGround', "num_classes": 6, "color_ramp": "Spectral", "mode": 'Jenks',
-                 "stroke_color": "white", "stroke_width": 0.1}
-}
+    # Aplicació de la simbologia graduada a les capes
+    ## La variable graduada serà el número de plantes per sobre el terra de l'element
+    params_cadastre_grad_man = {
+        'Edificis': {"atribut": 'numberOfFloorsAboveGround', "num_classes": 6, "color_ramp": "Spectral", "mode": 'Jenks',
+                     "stroke_color": "white", "stroke_width": 0.1}
+    }
 
-for layer in dict_layers["Cadastre"].values():
-    # Comprovació que la capa existeix en el diccionari de paràmetres
-    if layer.name() in params_cadastre_grad_man:
-        # Assingació del conjunt de paràmetres de la capa a una nova variable més manejable
-        p_layer = params_cadastre_grad_man[layer.name()]
-        
-        # Crida de la funció amb la nova variable de paràmetres
-        simbologia_graduada_QGIS(layer, p_layer["atribut"], p_layer["num_classes"], p_layer["color_ramp"],
-                                  p_layer["mode"], p_layer["stroke_color"], p_layer["stroke_width"])
-    else:
-      print(f"El diccionari de paràmetres no recull la capa {layer.name()}!")
+    for layer in dict_layers["Cadastre"].values():
+        # Comprovació que la capa existeix en el diccionari de paràmetres
+        if layer.name() in params_cadastre_grad_man:
+            # Assingació del conjunt de paràmetres de la capa a una nova variable més manejable
+            p_layer = params_cadastre_grad_man[layer.name()]
+
+            # Crida de la funció amb la nova variable de paràmetres
+            simbologia_graduada_QGIS(layer, p_layer["atribut"], p_layer["num_classes"], p_layer["color_ramp"],
+                                     p_layer["mode"], p_layer["stroke_color"], p_layer["stroke_width"])
+        else:
+            print(f"El diccionari de paràmetres no recull la capa {layer.name()}!")
       

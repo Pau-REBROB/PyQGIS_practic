@@ -1,11 +1,7 @@
+"""SIMBOLITZACIÓ"""
+
 """SIMBOLOGIA CATEGÒRICA"""
 
-# Desactivar la visibilitat de totes les capes importades
-for layer in project.mapLayers().values():
-    root.findLayer(layer).setItemVisibilityChecked(False)
-
-
-# Creació d'una funció per a aplicar simbologia categòrica a elements de tipus poligon
 def simbologia_categorica(layer, atribut, colors, outline_width, stroke_color):
     """
     Aplica una simbologia categòrica a una capa poligonal existent
@@ -81,26 +77,36 @@ def simbologia_categorica(layer, atribut, colors, outline_width, stroke_color):
     iface.layerTreeView().refreshLayerSymbology(layer_clone.id())
 
 
-# Aplicació de la simbologia categòrica a les capes dels límits administratius
-## La variable categòrica serà el districte
-params_limAdm_cat = {
-    'Barris': {"atribut": 'DISTRICTE', 
-               "colors": ["lightsalmon", "lightpink", "lightcoral", "lightblue", "lightsteelblue", "limegreen", "lightyellow", "lightgoldenrodyellow", "lightgrey", "whitesmoke"],
-               "outline_width": 0.2, 
-               "stroke_color": "black"},
-    'Districtes': {"atribut": 'DISTRICTE', 
-                   "colors": ['palegoldenrod', 'palegreen', 'paleturquoise', 'palevioletred', 'papayawhip', 'peachpuff', 'peru', 'pink', 'plum', 'powderblue'],
-                   "outline_width": 0.4, 
+
+if __name__ == '__main__':
+    # Codi a executar quan es cridi des d'aquest mateix script
+
+    # Desactivar la visibilitat de totes les capes importades
+    for layer in project.mapLayers().values():
+        node = root.findLayer(layer)
+        if node:
+            node.setItemVisibilityChecked(False)
+
+    # Aplicació de la simbologia categòrica a les capes dels límits administratius
+    ## La variable categòrica serà el districte
+    params_limAdm_cat = {
+        'Barris': {"atribut": 'DISTRICTE', 
+                   "colors": ["lightsalmon", "lightpink", "lightcoral", "lightblue", "lightsteelblue", "limegreen", "lightyellow", "lightgoldenrodyellow", "lightgrey", "whitesmoke"],
+                   "outline_width": 0.2, 
                    "stroke_color": "black"},
-}
+        'Districtes': {"atribut": 'DISTRICTE', 
+                       "colors": ['palegoldenrod', 'palegreen', 'paleturquoise', 'palevioletred', 'papayawhip', 'peachpuff', 'peru', 'pink', 'plum', 'powderblue'],
+                       "outline_width": 0.4, 
+                       "stroke_color": "black"},
+    }
 
-for layer in dict_layers["Limits_administratius"].values():
-    # Comprovació que la capa existeix en el diccionari de paràmetres
-    if layer.name() in params_limAdm_cat:
-        # Assingació del conjunt de paràmetres de la capa a una nova variable més manejable
-        p_layer = params_limAdm_cat[layer.name()]
+    for layer in dict_layers["Limits_administratius"].values():
+        # Comprovació que la capa existeix en el diccionari de paràmetres
+        if layer.name() in params_limAdm_cat:
+            # Assingació del conjunt de paràmetres de la capa a una nova variable més manejable
+            p_layer = params_limAdm_cat[layer.name()]
 
-        # Crida de la funció amb la nova variable de paràmetres
-        simbologia_categorica(layer, p_layer["atribut"], p_layer["colors"], p_layer["outline_width"], p_layer["stroke_color"])
-    else:
-        print(f"El diccionari de paràmetres no recull la capa {layer.name()}!")
+            # Crida de la funció amb la nova variable de paràmetres
+            simbologia_categorica(layer, p_layer["atribut"], p_layer["colors"], p_layer["outline_width"], p_layer["stroke_color"])
+        else:
+            print(f"El diccionari de paràmetres no recull la capa {layer.name()}!")

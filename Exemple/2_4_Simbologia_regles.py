@@ -2,8 +2,10 @@
 
 # Desactivar la visibilitat de totes les capes importades
 for layer in project.mapLayers().values():
-    root.findLayer(layer).setItemVisibilityChecked(False)
-
+    node = root.findLayer(layer)
+    if node:
+        node.setItemVisibilityChecked(False)
+        
 
 # En aquest cas, no es crea una funció
 # Es decideix aplicar la simbologia sobre la capa de barris

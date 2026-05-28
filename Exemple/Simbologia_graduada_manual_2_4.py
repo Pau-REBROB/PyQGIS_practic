@@ -1,15 +1,7 @@
+"""SIMBOLITZACIÓ"""
+
 """SIMBOLOGIA GRADUADA"""
 
-# Desactivar la visibilitat de totes les capes importades
-for layer in project.mapLayers().values():
-    node = root.findLayer(layer)
-    if node:
-        node.setItemVisibilityChecked(False)
-
-
-# Creació d'una funció per a aplicar simbologia graduada per a elements de tipus poligonal
-# No s'utilitza un mètode de classificació propi de QGIS, sinó que es creen els rangs manualment
-# S'utilitzen les rampes de colors pròpies de QGIS fent una interpolació per a determinar el color corresponent
 def simbologia_graduada_manual(layer, atribut, breaks, color_ramp):
     """
     Aplica simbologia graduada a una capa poligonal existent
@@ -82,20 +74,30 @@ def simbologia_graduada_manual(layer, atribut, breaks, color_ramp):
     iface.layerTreeView().refreshLayerSymbology(layer_clone.id())
 
 
-# Aplicació de la simbologia graduada a les capes
-## La variable graduada serà el número de plantes per sobre el terra de l'element
-params_cadastre_grad_man = {
-    'Edificis': {"atribut": 'numberOfFloorsAboveGround', "breaks": [0, 1, 3, 5, 10, 20, 100], "color_ramp": "Spectral"}
-}
 
-for layer in dict_layers["Cadastre"].values():
-    # Comprovació que la capa existeix en el diccionari de paràmetres
-    if layer.name() in params_cadastre_grad_man:
-        # Assingació del conjunt de paràmetres de la capa a una nova variable més manejable
-        p_layer = params_cadastre_grad_man[layer.name()]
-        
-        # Crida de la funció amb la nova variable de paràmetres
-        simbologia_graduada_manual(layer, p_layer["atribut"], p_layer["breaks"], p_layer["color_ramp"])
-    else:
-      print(f"El diccionari de paràmetres no recull la capa {layer.name()}!")
+if __name__ == '__main__':
+    # Codi a executar quan es cridi des d'aquest mateix script
+
+    # Desactivar la visibilitat de totes les capes importades
+    for layer in project.mapLayers().values():
+        node = root.findLayer(layer)
+        if node:
+            node.setItemVisibilityChecked(False)
+
+    # Aplicació de la simbologia graduada a les capes
+    ## La variable graduada serà el número de plantes per sobre el terra de l'element
+    params_cadastre_grad_man = {
+        'Edificis': {"atribut": 'numberOfFloorsAboveGround', "breaks": [0, 1, 3, 5, 10, 20, 100], "color_ramp": "Spectral"}
+    }
+
+    for layer in dict_layers["Cadastre"].values():
+        # Comprovació que la capa existeix en el diccionari de paràmetres
+        if layer.name() in params_cadastre_grad_man:
+            # Assingació del conjunt de paràmetres de la capa a una nova variable més manejable
+            p_layer = params_cadastre_grad_man[layer.name()]
+
+            # Crida de la funció amb la nova variable de paràmetres
+            simbologia_graduada_manual(layer, p_layer["atribut"], p_layer["breaks"], p_layer["color_ramp"])
+        else:
+            print(f"El diccionari de paràmetres no recull la capa {layer.name()}!")
       
