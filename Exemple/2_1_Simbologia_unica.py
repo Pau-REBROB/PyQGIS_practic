@@ -30,8 +30,10 @@ print(QColor.colorNames())
 
 # Desactivar la visibilitat de totes les capes importades
 for layer in project.mapLayers().values():
-    root.findLayer(layer).setItemVisibilityChecked(False)
-
+    node = root.findLayer(layer)
+    if node:
+        node.setItemVisibilityChecked(False)
+        
 
 # Creació d'una funció per a aplicar simbologia única a elements de tipus poligon
 def simbologia_unica(layer, fill_color, outline_width, stroke_color):

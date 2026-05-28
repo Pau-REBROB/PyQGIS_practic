@@ -2,7 +2,9 @@
 
 # Desactivar la visibilitat de totes les capes importades
 for layer in project.mapLayers().values():
-    root.findLayer(layer).setItemVisibilityChecked(False)
+    node = root.findLayer(layer)
+    if node:
+        node.setItemVisibilityChecked(False)
 
 
 # Creació d'una funció per a aplicar simbologia graduada per a elements de tipus poligonal
@@ -57,7 +59,7 @@ def simbologia_graduada_manual(layer, atribut, breaks, color_ramp):
         symbol = QgsFillSymbol()
         
         # S'estableix un color com el valor interpolat de la rampa de colors en funció del nombre d'intervals
-        color = rampa.color(float(i)/(intervals-1))
+        color = rampa.color(float(i)/(intervals-1) if intervals > 1 else 0)
         
         # Es defineix el color del símbol
         symbol.setColor(color)

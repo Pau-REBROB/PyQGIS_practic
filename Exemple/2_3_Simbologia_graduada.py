@@ -2,13 +2,14 @@
 
 # Desactivar la visibilitat de totes les capes importades
 for layer in project.mapLayers().values():
-    root.findLayer(layer).setItemVisibilityChecked(False)
+    node = root.findLayer(layer)
+    if node:
+        node.setItemVisibilityChecked(False)
 
 
 # Creació d'una funció per a aplicar simbologia graduada
 # No es defineixen els rangs, sinó que s'utilitza un mètode de classificació propi de QGIS
 # S'utilitzen les rampes de colors pròpies de QGIS
-## Aquesta funció seria una mescla entre les dues anteriors
 def simbologia_graduada_QGIS(layer, atribut, num_classes, color_ramp, mode, stroke_color, stroke_width):
     """
     Aplica simbologia graduada a una capa poligonal existent
