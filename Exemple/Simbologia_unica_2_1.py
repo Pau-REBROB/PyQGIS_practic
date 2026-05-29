@@ -2,8 +2,16 @@
 
 """SIMBOLOGIA ÚNICA"""
 
-from qgis.core import QgsProject
+from qgis.core import ( 
+    QgsProject,
+    QgsFillSymbol,
+    QgsLineSymbol,
+    QgsSimpleLineSymbolLayer,
+    QgsSingleSymbolRenderer,
+)
 from qgis.utils import iface
+from qgis.PyQt.QtGui import QColor
+from qgis.PyQt.QtCore import Qt, QPointF
 
 project = QgsProject.instance()
 root = project.layerTreeRoot()

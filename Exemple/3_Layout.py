@@ -3,6 +3,19 @@
 # Importació de les funcions definides en els scripts de simbologia
 import sys
 sys.path.append("C:/projectes_git/PyQGIS_practic/Exemple")
+import importlib
+
+# Forçar la recàrrega dels mòduls de simbologia
+mods_a_recarregar = [
+    "simbologia_unica_2_1",
+    "simbologia_categorica_2_2",
+    "simbologia_graduada_2_3",
+    "simbologia_graduada_manual_2_4"
+]
+
+for mod in mods_a_recarregar:
+    if mod in sys.modules:
+        importlib.reload(sys.modules[mod])
 
 from simbologia_unica_2_1 import simbologia_unica, simbologia_unica_linia
 from simbologia_categorica_2_2 import simbologia_categorica
@@ -34,7 +47,7 @@ layer_base_barris = simbologia_unica(
 
 layer_us_edificis = simbologia_categorica(
     dict_layers["Cadastre"]["Edificis"],
-    currentUse,
+    'currentUse',
     ['red','orange','yellow','green'],
     0.15,
     "white"

@@ -5,6 +5,9 @@
 from qgis.core import QgsProject
 from qgis.utils import iface
 
+from qgis.PyQt.QtGui import QColor
+from qgis.PyQt.QtCore import Qt, QPointF
+
 project = QgsProject.instance()
 root = project.layerTreeRoot()
 
