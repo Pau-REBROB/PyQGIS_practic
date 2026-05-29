@@ -29,6 +29,13 @@ from simbologia_categorica_2_2 import simbologia_categorica
 ## simbologia graduada --> altura dels edificis / àrea barris,districtes / població (CAL AFEGIR-LA)
 ## simbologia regles --> els barris amb més,menys àrea o població / edificis amb més,menys plantes
 
+
+# Desactivar la visibilitat de totes les capes importades
+for layer in project.mapLayers().values():
+    node = root.findLayer(layer)
+    if node:
+        node.setItemVisibilityChecked(False)
+
 # Aplicació de les funcions per generar la cartografia
 ## Ús dels edificis a Barcelona - segons cadastre / Simbologia categòrica
 layer_base_districtes = simbologia_unica(
@@ -48,7 +55,7 @@ layer_base_barris = simbologia_unica(
 layer_us_edificis = simbologia_categorica(
     dict_layers["Cadastre"]["Edificis"],
     'currentUse',
-    ['red','orange','yellow','green'],
+    ['red','orange','yellow','green', 'blue', 'purple'],
     0.15,
     "white"
 )
@@ -58,12 +65,17 @@ layout = QgsPrintLayout(project)
 layout.initializeDefaults()
 layout.setName("Ús dels edificis")
 
+manager = project.layoutManager()
+
 map = QgsLayoutItemMap(layout)
 map.attemptResize(QgsLayoutSize(200,200,QgsUnitTypes.LayoutMillimeters))
 #map.attemptMove(QgsLayoutPoint(x,y,units))
-extent = project.layerTreeRoot().extent()
+#extent = project.layerTreeRoot().extent()  REVISAR EXTENT A DOCUMENTACIO QUE AIXÒ NO FUNCIONA
+extent = dict_layers["Limits_administratius"]["TermeMunicipal"].extent() 
 map.setExtent(extent)
 map.zoomToExtent(extent)
+map.setLayers([layer_us_edificis, layer_base_barris, layer_base_districtes])    #AFEGIR-HO A DOCUMENTACIO
+map.setKeepLayerSet(True)
 layout.addLayoutItem(map)
 
 legend = QgsLayoutItemLegend(layout)
@@ -82,8 +94,9 @@ scale.applyDefaultSize()
 scale.setStyle("Line Ticks Up")  
 layout.addLayoutItem(scale)
 
-manager = project.layoutManager()
-manager.addLayout(layout)
 
 exporter = QgsLayoutExporter(layout)
 exporter.exportToImage("C:/projectes_git/PyQGIS_practic/Resultats/Classificacio_edificis.png", QgsLayoutExporter.ImageExportSettings())
+
+manager.addLayout(layout)   # AFEGIR A DOCU QUE L'ORDRE SERIA CEAR LAYOUT-AFEGIR ELEMENTS-EXPORTAR-AFEGIR AL GESTOR
+                            # PYTHON POT ELIMINAR LA REFERÈNCIA LOCAL DEL LAYOUT QUAN AQUESTA ES TRANSFEREIX AL GESTOR, PER AIXÒ MILLOR FER-HO AL FINAL

@@ -2,9 +2,13 @@
 
 """SIMBOLOGIA CATEGÒRICA"""
 
-from qgis.core import QgsProject
+from qgis.core import ( 
+    QgsProject,
+    QgsFillSymbol,
+    QgsRendererCategory,
+    QgsCategorizedSymbolRenderer
+)
 from qgis.utils import iface
-
 from qgis.PyQt.QtGui import QColor
 from qgis.PyQt.QtCore import Qt, QPointF
 
@@ -45,7 +49,8 @@ def simbologia_categorica(layer, atribut, colors, outline_width, stroke_color):
     group.addLayer(layer_clone)
     
     # Obtenció dels valors únics de l'atribut categòric, ordenats
-    valors_atribut = sorted(set([feat[atribut] for feat in layer_clone.getFeatures()]))
+    # Filtratge dels elements no nuls
+    valors_atribut = sorted(set([feat[atribut] for feat in layer_clone.getFeatures() if feat[atribut] is not None]))
 
     # Llistat de cada categoria de la classe QgsRendererCategory, com a (value, symbol, label)
     categories = []
