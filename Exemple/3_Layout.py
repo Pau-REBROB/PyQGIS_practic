@@ -1,6 +1,9 @@
-"""GENERACIÓ DE CARTOGRAFIA"""
+"""ÚS EDIFICIS DE BARCELONA"""
 
-# Importació de les funcions definides en els scripts de simbologia
+
+"""INICIALITZACIÓ PROJECTE"""
+
+# Importació de mòduls i funcions
 import sys
 sys.path.append("C:/projectes_git/PyQGIS_practic/Exemple")
 import importlib
@@ -22,7 +25,73 @@ from simbologia_categorica_2_2 import simbologia_categorica
 #from simbologia_graduada_2_3 import simbologia_graduada_QGIS
 #from simbologia_graduada_manual_2_4 import simbologia_graduada_manual
 
+# Generació instància del projecte
+project = QgsProject.instance()
 
+# Generació instància del panell de capes
+root = project.layerTreeRoot()
+
+# Neteja de totes les capes i grups prexistents al projecte
+project.removeAllMapLayers()
+root.removeAllChildren()
+
+
+"""IMPORTACIÓ DE CAPES"""
+
+# Diccionari de rutes - Nom de la capa: ruta absoluta
+layers = {
+    "Barris": "C:/projectes_git/Dades/PyQGIS_Repo/Limits_administratius_BCN/0301040100_Barris_UNITATS_ADM.shp",
+    "Districtes": "C:/projectes_git/Dades/PyQGIS_Repo/Limits_administratius_BCN/0301040100_Districtes_UNITATS_ADM.shp",
+    "TermeMunicipal": "C:/projectes_git/Dades/PyQGIS_Repo/Limits_administratius_BCN/0301040100_TermeMunicipal_UNITATS_ADM.shp",
+    "Edificis": "C:/projectes_git/Dades/PyQGIS_Repo/Cadastre/08900/A.ES.SDGC.BU.08900.building.gml"
+}
+
+# Diccionari buit de les capes
+dict_layers = {}
+
+# Diccionari buit dels índex de les capes
+dict_indexs = {}
+
+
+# Importació de les capes al projecte i generació dels índex espacials sobre les geometries de cada capa
+for i, (nom, path) in enumerate(layers.items()):
+    
+    # Creació de la capa vectorial amb la ruta i utilitzant el nom
+    layer = QgsVectorLayer(path, nom, "ogr")
+    
+    # Comprovació que la capa és vàlida
+    if not layer.isValid():
+        print(f"Error al carregar la capa de {nom}!")
+    else:
+        # Addició de la capa al projecte, sense afegir-la al llenç
+        project.addMapLayer(layer, False)
+               
+        # Addició de la capa al diccionari de diccionaris de capes, al grup de Límits administratius
+        # El key és el nom de la capa, i el value és la capa vectorial pròpiament (QgsVectorLayer)
+        dict_layers[nom] = layer
+        
+        # Generació de l'índex i addició al diccionari d'índexs
+        dict_indexs[nom] = QgsSpatialIndex(layer.getFeatures())
+
+
+"""SISTEMES DE REFERÈNCIA"""
+
+# Comprovació dels sistema de referència de coordenades del projecte
+print("SRC del projecte:", project.crs().authid())
+
+# Comprovació dels sistema de referència de coordenades de les capes
+for layer in dict_layers.values():
+    # Impresió per pantalla del SRC de cada capa, en codi EPSG
+    print(f"El SRC de la capa {layer.name()} és {layer.crs().authid()}")
+       
+    # Comparació amb el SRC del projecte
+    if layer.crs().authid() == project.crs().authid():
+        print(f"La capa {layer.name()} i el projecte estan en el mateix SRC")
+    else:
+        print(f"La capa {layer.name()} està en el SRC {layer.crs().authid()} i necessita ser reprojectada a EPSG:25831!")
+
+
+"""GENERACIÓ DE CARTOGRAFIA"""
 # QUINS LAYOUTS VULL CREAR?
 ## simbologia única per tenir de fons les divisions administratives
 ## simbologia categòrica --> ús dels edificis / barris,districtes
@@ -39,28 +108,30 @@ for layer in project.mapLayers().values():
 # Aplicació de les funcions per generar la cartografia
 ## Ús dels edificis a Barcelona - segons cadastre / Simbologia categòrica
 layer_base_districtes = simbologia_unica(
-    dict_layers["Limits_administratius"]["Districtes"],
+    dict_layers["Districtes"],
     (0,0,0,0),
     0.4,
     (0,0,0,255)
 )
 
 layer_base_barris = simbologia_unica(
-    dict_layers["Limits_administratius"]["Barris"],
+    dict_layers["Barris"],
     (0,0,0,0),
     0.2,
     (0,0,0,255)
 )
 
 layer_us_edificis = simbologia_categorica(
-    dict_layers["Cadastre"]["Edificis"],
+    dict_layers["Edificis"],
     'currentUse',
     ['red','orange','yellow','green', 'blue', 'purple'],
     0.15,
     "white"
 )
 
-# Generació del layout
+
+""" GENERACIÓ DE LA COMPOSICIÓ"""
+
 layout = QgsPrintLayout(project)
 layout.initializeDefaults()
 layout.setName("Ús dels edificis")
