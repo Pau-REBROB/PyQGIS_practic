@@ -7,6 +7,7 @@
 import sys
 sys.path.append("C:/projectes_git/PyQGIS_practic/Exemple")
 import importlib
+import os
 
 # Forçar la recàrrega dels mòduls de simbologia
 mods_a_recarregar = [
@@ -142,7 +143,10 @@ map = QgsLayoutItemMap(layout)
 map.attemptResize(QgsLayoutSize(200,200,QgsUnitTypes.LayoutMillimeters))
 #map.attemptMove(QgsLayoutPoint(x,y,units))
 #extent = project.layerTreeRoot().extent()  REVISAR EXTENT A DOCUMENTACIO QUE AIXÒ NO FUNCIONA
-extent = dict_layers["Limits_administratius"]["TermeMunicipal"].extent() 
+extent = dict_layers["TermeMunicipal"].extent() 
+# Afegir un marge del 5% al voltant
+margin = extent.width() * 0.1
+extent.grow(margin)
 map.setExtent(extent)
 map.zoomToExtent(extent)
 map.setLayers([layer_us_edificis, layer_base_barris, layer_base_districtes])    #AFEGIR-HO A DOCUMENTACIO
@@ -154,6 +158,15 @@ legend.setLinkedMap(map)
 #legend.attemptResize(QgsLayoutSize(x,y,units))
 legend.attemptMove(QgsLayoutPoint(205,100,QgsUnitTypes.LayoutMillimeters))
 legend.setTitle("Classificació dels usos dels edificis de Barcelona")
+# Títol
+legend.setStyleFont(QgsLegendStyle.Title, QFont("Arial", 10))
+# Grups
+legend.setStyleFont(QgsLegendStyle.Group, QFont("Arial", 8))
+# Subgrups
+legend.setStyleFont(QgsLegendStyle.Subgroup, QFont("Arial", 6))
+# Elements individuals
+legend.setStyleFont(QgsLegendStyle.SymbolLabel, QFont("Arial", 6))
+
 legend.setAutoUpdateModel(True) 
 layout.addLayoutItem(legend)
 
@@ -165,9 +178,16 @@ scale.applyDefaultSize()
 scale.setStyle("Line Ticks Up")  
 layout.addLayoutItem(scale)
 
+output_path = "C:/projectes_git/PyQGIS_practic/Resultats/Classificacio_edificis.png"
+if os.path.exists(output_path):
+    os.remove(output_path)      #ELIMINACIÓ DE L'ARXIU ABANS DE GENERAR-LO DE NOU
 
 exporter = QgsLayoutExporter(layout)
-exporter.exportToImage("C:/projectes_git/PyQGIS_practic/Resultats/Classificacio_edificis.png", QgsLayoutExporter.ImageExportSettings())
+image_settings = QgsLayoutExporter.ImageExportSettings()
+image_settings.dpi = 500
+result = exporter.exportToImage(output_path, image_settings)
+print(f"Resultat: {result}")
+print(f"Fitxer existeix: {os.path.exists(output_path)}")
 
 manager.addLayout(layout)   # AFEGIR A DOCU QUE L'ORDRE SERIA CEAR LAYOUT-AFEGIR ELEMENTS-EXPORTAR-AFEGIR AL GESTOR
                             # PYTHON POT ELIMINAR LA REFERÈNCIA LOCAL DEL LAYOUT QUAN AQUESTA ES TRANSFEREIX AL GESTOR, PER AIXÒ MILLOR FER-HO AL FINAL
