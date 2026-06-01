@@ -39,4 +39,8 @@ Creació de funcions de simbologia graduada creant manualment els rangs de dades
 Test de la funció amb dades de Barcelona, només executable en el propi script. Creació de simbologia graduada pel nombre de pisos dels edificis
 
 ## Simbologia basada en regles
-Creació de cartografia 
+Creació de cartografia dels barris basada en regles: àrea més petita i àrea més gran
+
+
+## Ús edificis
+Script individual que inicialitza QGIS, importa les dades 
