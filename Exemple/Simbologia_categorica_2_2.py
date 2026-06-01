@@ -56,7 +56,7 @@ def simbologia_categorica(layer, atribut, colors, outline_width, stroke_color):
         symbol = QgsFillSymbol()
         
         # S'estableix el color del farcit
-        symbol.setColor(QColor(color))
+        symbol.setColor(QColor(*color))
         
         # Accés a la capa interna del símbol
         symbol_layer_0 = symbol.symbolLayer(0)
