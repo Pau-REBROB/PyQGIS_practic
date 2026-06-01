@@ -10,7 +10,6 @@ from qgis.core import (
 )
 from qgis.utils import iface
 from qgis.PyQt.QtGui import QColor
-from qgis.PyQt.QtCore import Qt, QPointF
 
 project = QgsProject.instance()
 root = project.layerTreeRoot()
@@ -28,7 +27,7 @@ def simbologia_categorica(layer, atribut, colors, outline_width, stroke_color):
     Paràmetres de la funció:
         layer : capa vectorial de tipus poligonal sobre la que aplicar la simbologia
         atribut : camp a representar
-        colors : llista de colors - passats com a string - que tindran les categories ## Es podria establir com a aleatori
+        colors : diccionari tipus {categoria: color RGBA}
         outline_width : gruix de la línia de contorn (0.26 per defecte)
         stroke_color : color de la línia de contorn, passat com a string
     """
@@ -48,23 +47,16 @@ def simbologia_categorica(layer, atribut, colors, outline_width, stroke_color):
     # Addició de la capa al grup
     group.addLayer(layer_clone)
     
-    # Obtenció dels valors únics de l'atribut categòric, ordenats
-    # Filtratge dels elements no nuls
-    valors_atribut = sorted(set([feat[atribut] for feat in layer_clone.getFeatures() if feat[atribut] is not None]))
-
     # Llistat de cada categoria de la classe QgsRendererCategory, com a (value, symbol, label)
     categories = []
 
     # Creació de la categoria per cada valor d'atribut
-    for valor, color in zip(valors_atribut, colors):
-        # Creació d'una variable tipus QColor a partir del nom del color introduït com a argument
-        col = QColor(color)
-        
+    for cat, color in colors.items():     
         # Creació del constructor del símbol
         symbol = QgsFillSymbol()
         
         # S'estableix el color del farcit
-        symbol.setColor(QColor(col))
+        symbol.setColor(QColor(color))
         
         # Accés a la capa interna del símbol
         symbol_layer_0 = symbol.symbolLayer(0)
@@ -73,7 +65,7 @@ def simbologia_categorica(layer, atribut, colors, outline_width, stroke_color):
         symbol_layer_0.setStrokeColor(QColor(stroke_color))
 
         # Creació de la categoria
-        cat = QgsRendererCategory(valor, symbol, str(valor))
+        cat = QgsRendererCategory(cat, symbol, str(cat))
         
         # Inserció de l'objecte de categoria a la llista de categories
         categories.append(cat)
