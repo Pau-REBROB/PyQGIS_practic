@@ -43,4 +43,10 @@ Creació de cartografia dels barris basada en regles: àrea més petita i àrea 
 
 
 ## Ús edificis
-Script individual que inicialitza QGIS, importa les dades 
+Script individual que inicialitza QGIS, importa les dades i les funcions anteriors com a mòduls per a generar una composició
+
+S'utilitza la funció de simbologia única per generar una base cartogràfica de referència dels barris i districtes, juntament amb un mapa base de fons en format WMS CartoDB Dark
+
+S'utilitza la funció de simbologia categòrica per a representar els edificis en funció del seu ús
+
+Es genera un atles, amb un full per districte
