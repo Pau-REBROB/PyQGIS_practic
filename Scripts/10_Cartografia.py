@@ -177,6 +177,8 @@ atlas.setCoverageLayer(vlayer)
 
 # Establir el camp que genera els fulls - el nom de cada full
 atlas.setPageNameExpression('"FIELD"')
+# Establir el camp que genera el nom de cada arxiu
+atlas.setFilenameExpression('"FIELD"')
 
 # Filtrar o ordenar els fulls, si es desitja
 atlas.setFilterExpression('"FIELD" < 5')
@@ -193,10 +195,10 @@ map.setAtlasMargin(0.1)
 
 # Exportar tots els fulls
 exporter = QgsLayoutExporter(layout)
-exporter.exportAtlasToImage(
+exporter.exportToImage(
     atlas,
     "ruta/",
-    "prefix_",          
+    ".png", # O un altre format          
     QgsLayoutExporter.ImageExportSettings()
 )
 
