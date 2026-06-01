@@ -63,6 +63,16 @@ legend.attemptMove(QgsLayoutPoint(x,y,units))
 # El títol s'estableix amb el mètode `.setTitle()`
 legend.setTitle("legend title")
 
+# Per a controlar la mida i font dels diferents elements de la llegenda cal utilitzar el mètode `.setStyleFont()`
+# Títol
+legend.setStyleFont(QgsLegendStyle.Title, QFont("Arial", 10))
+# Grups
+legend.setStyleFont(QgsLegendStyle.Group, QFont("Arial", 8))
+# Subgrups
+legend.setStyleFont(QgsLegendStyle.Subgroup, QFont("Arial", 6))
+# Elements individuals
+legend.setStyleFont(QgsLegendStyle.SymbolLabel, QFont("Arial", 6))
+
 # Per tal que la llegenda s'actualitzi automàticament amb el contingut del mapa, cal especificar-ho amb el mètode `.setAutoUpdateModel()` com a *True*
 legend.setAutoUpdateModel(True) 
 
