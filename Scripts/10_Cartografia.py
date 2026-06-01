@@ -214,3 +214,37 @@ manager.addLayout(layout)
 ## Addició elements
 ## Exportació
 ## Addició layout al gestor
+
+
+# Etiquetatge
+# L'etiquetatge és clau en la creació de cartografia. La seva configuració s'estableix com a instància de la classe `QgsPalLayerSetting`
+label_settings = QgsPalLayerSettings()
+
+# El camp a etiquetar s'estableix amb el mètode `.fieldName()`
+label_settings.fieldName = "FIELD"
+
+# Per a modificar el format de text de les etiquetes cal generar una instància de la classe `QgsTextFormat`
+text_format = QgsTextFormat()
+# Es pot, llavors, establir la font, la mida o el color de la font de les etiquetes
+text_format.setFont(QFont("Calibri", 8))
+text_format.setSize(8)
+text_format.setColor(QColor("grey"))
+
+# Si es desitja generar un *buffer* - una àrea d'influència - cal crear una instància de la classe `QgsTextBufferSettings`
+# Cal explicitar que s'activa el buffer amb el mètode `.setEnabled()`
+buffer = QgsTextBufferSettings()
+buffer.setEnabled(True)
+# Es pot, llavors, modificar la seva mida i el seu color
+buffer.setSize(0.5)
+buffer.setColor(QColor("white"))
+# És necessari establir el vincle entre l'àrea d'influència i el format de text de les etiquetes
+text_format.setBuffer(buffer)
+
+# És necessari, també, la assignació del format de text conjunt - *text_format* amb *buffer* - a la configuració d'etiquetatge, així com la seva activació
+label_settings.setFormat(text_format)
+label_settings.enabled = True
+
+# Finalment, cal establir la creació del motor d'etiquetes i la assignació a la capa vectorial desitjada
+layer_labels = QgsVectorLayerSimpleLabeling(label_settings)
+vlayer.setLabeling(layer_labels)
+vlayer.setLabelsEnabled(True)
