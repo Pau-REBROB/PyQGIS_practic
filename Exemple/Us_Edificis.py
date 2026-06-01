@@ -111,15 +111,15 @@ for layer in project.mapLayers().values():
 layer_base_districtes = simbologia_unica(
     dict_layers["Districtes"],
     (0,0,0,0),
-    0.3,
-    (255,255,255,255)
+    0.4,
+    (200,200,200,255)
 )
 
 layer_base_barris = simbologia_unica(
     dict_layers["Barris"],
     (0,0,0,0),
-    0.1,
-    (255,255,255,255)
+    0.2,
+    (150,220,220,255)
 )
 
 dict_colors_edificis = {
@@ -135,7 +135,7 @@ layer_us_edificis = simbologia_categorica(
     dict_layers["Edificis"],
     'currentUse',
     dict_colors_edificis, 
-    0.15,
+    0.1,
     "white"
 )
 
@@ -186,6 +186,12 @@ legend.setStyleFont(QgsLegendStyle.SymbolLabel, QFont("Arial", 6))
 
 legend.setAutoUpdateModel(True) 
 layout.addLayoutItem(legend)
+
+title = QgsLayoutItemLabel(layout)
+title.setText("Ús dels edificis de Barcelona")
+title.setFont(QFont("Arial", 16))
+title.attemptMove(QgsLayoutPoint(10, 5, QgsUnitTypes.LayoutMillimeters))
+layout.addLayoutItem(title)
 
 scale = QgsLayoutItemScaleBar(layout)
 scale.setLinkedMap(map)
@@ -238,7 +244,7 @@ exporter.exportToImage(
 
 #exporter = QgsLayoutExporter(layout)
 #image_settings = QgsLayoutExporter.ImageExportSettings()
-#image_settings.dpi = 350
+#image_settings.dpi = 300
 #result = exporter.exportToImage(output_path, image_settings)
 #print(f"Resultat: {result}")
 #print(f"Fitxer existeix: {os.path.exists(output_path)}")
