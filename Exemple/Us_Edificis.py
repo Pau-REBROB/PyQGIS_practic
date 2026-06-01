@@ -143,7 +143,7 @@ layer_carto_dark = "type=xyz&url=https://basemaps.cartocdn.com/dark_all/{z}/{x}/
 # Creació de la capa de fons
 layer_fons = QgsRasterLayer(layer_base, "CartoDB Dark", "wms")
 if layer_fons.isValid():
-    project.addMapLayer(layer_fons, False)
+    project.addMapLayer(layer_fons, True)
     print("Capa de fons carregada correctament")
 else:
     print("Error al carregar la capa de fons")
