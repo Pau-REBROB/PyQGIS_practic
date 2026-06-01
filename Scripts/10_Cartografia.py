@@ -20,6 +20,10 @@ layout.addLayoutItem(item)
 ## Mapa
 # La classe `QgsLayoutItemMap` afegeix un mapa buit, sense mida ni posició
 map = QgsLayoutItemMap(layout)
+# Per defecte, `QgsLayoutItemMap` agafarà totes les capes visibles del canvas
+# Es poden definir explícitament les capes que ha de mostrar la composició amb el mètode `.setLayers()`
+map.setLayers([vlayer_1, vlayer_2, vlayer_3])
+map.setKeepLayerSet(True)
 
 # Per defecte, la mida del mapa és 0x0 i es situa a la posició (0,0)
 # Per a redimensionar-lo, s'utilitza el mètode `.attemptResize()`
@@ -29,13 +33,18 @@ map.attemptMove(QgsLayoutPoint(x,y,units))
 ## Les unitats (*units*) de mida i posició son variables tipus `QgsUnitTypes.LayoutMillimeters` o `QgsUnitTypes.LayoutPixels`
 
 # Per a establir una extensió, s'utilitza algun dels diferents mètodes següents 
-## Es pot seleccionar l'extensió del mapa amb `map.extent()`
+## Es pot seleccionar l'extensió d'una capa del mapa amb `layer.extent()`
 ## Es pot seleccionar l'extensió actual del canvas amb `iface.mapCanvas().extent()`
-## Es pot seleccionar l'extensió màxima de totes les capes del panell de capes del projecte amb `project.layerTreeRoot().extent()`
 ## Es pot definir manualment amb `QgsRectangle(xmin, ymin, xmax, ymax)`
 # Establerta l'extensió, s'assigna al mapa amb el mètode `.setExtent()` i, posteriorment, cal forçar la seva renderització 
 map.setExtent(extent)
 map.zoomToExtent(extent)
+
+# A vegades pot ser necessari augmentar l'extensió del mapa, si aquest queda tallat en la composició final, per exemple
+# El mètode `.grow()` expandeix l'extensió en totes les direccions segons el valor indicat
+extent = vlayer.extent()
+margin = extent.width() * 0.05  # Marge del 5%
+extent.grow(margin)
 
 # Finalment, s'afegeix el mapa a la composició
 layout.addLayoutItem(map)
@@ -125,13 +134,6 @@ pc.pages()
 # Quan la composició és de més d'una pàgina, simplement cal afegir el paràmetre `page=i`
 
 
-# Definit el layout, cal afegir-lo al gestor de layouts del projecte perquè no quedi en memòria
-# Es defineix un objecte gestor de composicions
-manager = project.layoutManager()
-# S'afegeix el layout amb el mètode `.addLayout()`
-manager.addLayout(layout)
-
-
 # L'exportació de la composició es duu a terme amb un objecte de la classe `QgsLayoutExporter`
 exporter = QgsLayoutExporter(layout)
 # El mètode `.exportToX()` permet exportar la composició a arxiu PDF o a imatge format PNG
@@ -140,5 +142,63 @@ exporter.exportToPdf("ruta/output.pdf", QgsLayoutExporter.PdfExportSettings())
 ## Exportar a imatge
 exporter.exportToImage("ruta/output.png", QgsLayoutExporter.ImageExportSettings())
 
-# Per a exportar totes les pàgines d'una col·lecció com a un atles, cal utilitzar el mètode `.atlas()` a l'exporter
-exporter.exportToX(layout.atlas(), "ruta/output.X", QgsLayoutExporter.XExportSettings())
+# La configuració de sortida es controla a través de `QgsLayoutExporter.ImageExportSettings`
+image_settings = QgsLayoutExporter.ImageExportSettings()
+# Un dels elements que es poden configurar és la resolució de l'arxiu generat - els seus dpi
+image_settings.dpi = 300
+# També es pot establir el nombre de pàgines a exportar (a través dels seus índex), que per defecte és únicament la primera
+image_settings.pages = [0] 
+
+# És bona pràctica comprovar anteriorment a l'exportació que no hi hagi cap element anterior creat
+# Amb el mòdul `os` es defineix el directori de sortida de les composicions i s'elimina l'arxiu anterior que pugui haver-hi al directori 
+import os
+output_path = "ruta/output.png"
+if os.path.exists(output_path):
+    os.remove(output_path)
+
+
+# Un tipus de composició especial son els ATLES, que requeixen d'un procés de generació particular
+# Activar l'atlas com a layout
+atlas = layout.atlas()
+atlas.setEnabled(True)
+
+# Definir la capa de cobertura
+atlas.setCoverageLayer(vlayer)
+
+# Establir el camp que genera els fulls - el nom de cada full
+atlas.setPageNameExpression('"FIELD"')
+
+# Filtrar o ordenar els fulls, si es desitja
+atlas.setFilterExpression('"FIELD" < 5')
+atlas.setSortExpression('"NOM"')
+atlas.setSortAscending(True)
+
+# Ajustar la composició amb diferents mètodes
+# Fer que el mapa s'ajusti automàticament a cada feature
+map.setAtlasDriven(True)
+# Establir zoom automàtic a cada element
+map.setAtlasScalingMode(QgsLayoutItemMap.Auto)
+# Establir un marge percentual al voltant del mapa
+map.setAtlasMargin(0.1)
+
+# Exportar tots els fulls
+exporter = QgsLayoutExporter(layout)
+exporter.exportAtlasToImage(
+    atlas,
+    "ruta/",
+    "prefix_",          
+    QgsLayoutExporter.ImageExportSettings()
+)
+
+
+# Generat el layout, cal afegir-lo al gestor de layouts del projecte perquè no quedi en memòria
+# Es defineix un objecte gestor de composicions, normalment al començament del codi
+manager = project.layoutManager()
+# S'afegeix el layout amb el mètode `.addLayout()`
+manager.addLayout(layout)
+
+# El flux de treball correcte en la creació de composicions és:
+## Creació layout
+## Addició elements
+## Exportació
+## Addició layout al gestor
