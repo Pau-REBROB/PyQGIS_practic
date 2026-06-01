@@ -3,12 +3,6 @@ Visualització dels resultats d'execució dels diferents scripts dins de QGIS.
 
 ---
 
-### Inicialització
-Inicialització del projecte i importació de les capes
-![Inicialització del projecte](Inicialització_2.png)
-
----
-
 ### Simbolització
 #### Simbologia única
 Modificació de la simbologia per defecte a una simbologia més adequada, amb símbol únic
