@@ -21,9 +21,9 @@ Addició de les capes al canvas
 ## Simbologia única
 Creació de funcions de simbologia única per a elements poligonals i lineals, aptes per a ser usades com a mòduls
 
-Test de les funcions amb dades de Barcelona, només executable en el propi script. Creació de simbologia única per a les unitats administratives, el graf viari i els edificis
+Test de les funcions amb dades de Barcelona, només executable en el propi script. Creació de simbologia única per a les unitats administratives, el graf viari i elements del cadastre
 
 ## Simbologia categòrica
 Creació de funcions de simbologia categòrica per a elements poligonals, apta per a ser usada com a mòdul
 
-Test de la funció amb dades de Barcelona, només executable en el propi script
+Test de la funció amb dades de Barcelona, només executable en el propi script. Creació de simbologia categòrica 
