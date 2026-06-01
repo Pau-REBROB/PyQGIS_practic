@@ -128,7 +128,7 @@ dict_colors_edificis = {
     "3_industrial": (178, 178, 178, 255),
     "4_1_office": (255, 170, 0, 255),
     "4_2_retail": (255, 127, 0, 255),
-    "4_3_publicServices": ( 0, 197, 255, 255)
+    "4_3_publicServices": ( 255, 150, 150, 255)
 } # Colors basats en convencions cartogràfiques habituals per a usos del sòl
 
 layer_us_edificis = simbologia_categorica(
@@ -138,6 +138,15 @@ layer_us_edificis = simbologia_categorica(
     0.15,
     "white"
 )
+
+layer_base = "type=xyz&url=https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png&zmax=19&zmin=0"
+# Creació de la capa de fons
+layer_fons = QgsRasterLayer(layer_base, "CartoDB Dark", "wms")
+if layer_fons.isValid():
+    project.addMapLayer(layer_fons, False)
+    print("Capa de fons carregada correctament")
+else:
+    print("Error al carregar la capa de fons")
 
 
 """ GENERACIÓ DE LA COMPOSICIÓ"""
@@ -157,7 +166,7 @@ margin = extent.width() * 0.1
 extent.grow(margin)
 map.setExtent(extent)
 map.zoomToExtent(extent)
-map.setLayers([layer_us_edificis, layer_base_barris, layer_base_districtes])
+map.setLayers([layer_us_edificis, layer_base_barris, layer_base_districtes, layer_base])
 map.setKeepLayerSet(True)
 layout.addLayoutItem(map)
 
