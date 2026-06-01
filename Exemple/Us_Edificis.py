@@ -122,10 +122,19 @@ layer_base_barris = simbologia_unica(
     (0,0,0,255)
 )
 
+dict_colors_edificis = {
+    "1_residential": (255, 235, 175, 255),
+    "2_agriculture": (170, 255, 115, 255),
+    "3_industrial": (178, 178, 178, 255),
+    "4_1_office": (255, 170, 0, 255),
+    "4_2_retail": (255, 127, 0, 255),
+    "4_3_publicServices": ( 0, 197, 255, 255)
+} # Colors basats en convencions cartogràfiques habituals per a usos del sòl
+
 layer_us_edificis = simbologia_categorica(
     dict_layers["Edificis"],
     'currentUse',
-    ['red','green','grey','yellow', 'blue', 'purple'],
+    dict_colors_edificis, 
     0.15,
     "white"
 )

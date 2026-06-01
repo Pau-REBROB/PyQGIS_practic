@@ -65,10 +65,10 @@ def simbologia_categorica(layer, atribut, colors, outline_width, stroke_color):
         symbol_layer_0.setStrokeColor(QColor(stroke_color))
 
         # Creació de la categoria
-        cat = QgsRendererCategory(cat, symbol, str(cat))
+        categ = QgsRendererCategory(cat, symbol, str(cat))
         
         # Inserció de l'objecte de categoria a la llista de categories
-        categories.append(cat)
+        categories.append(categ)
 
     # S'estableix el renderer categòric de la capa i se li assinga l'atribut categòric i el llistat de categories 
     renderer = QgsCategorizedSymbolRenderer(atribut, categories)
