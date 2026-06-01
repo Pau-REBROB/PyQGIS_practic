@@ -33,3 +33,5 @@ Aplicació de simbologia graduada a la capa de Barris en funció de la seva àre
 Aplicació de simbologia graduada a la capa de Districtes en funció de la seva àrea
 ![Simbologia graduada manual Districtes](Simbologia/Simbologia_grad_manual_districtes.png)
 
+### Simbologia basada en regles
+Aplicació de simbologia basada en regles, segons els barris amb menys superfície (< ) i amb més superfície (> )
