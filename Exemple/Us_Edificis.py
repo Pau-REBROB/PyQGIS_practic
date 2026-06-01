@@ -111,21 +111,21 @@ for layer in project.mapLayers().values():
 layer_base_districtes = simbologia_unica(
     dict_layers["Districtes"],
     (0,0,0,0),
-    0.4,
+    0.3,
     (0,0,0,255)
 )
 
 layer_base_barris = simbologia_unica(
     dict_layers["Barris"],
     (0,0,0,0),
-    0.2,
+    0.1,
     (0,0,0,255)
 )
 
 layer_us_edificis = simbologia_categorica(
     dict_layers["Edificis"],
     'currentUse',
-    ['red','orange','yellow','green', 'blue', 'purple'],
+    ['red','green','grey','yellow', 'blue', 'purple'],
     0.15,
     "white"
 )
@@ -142,14 +142,13 @@ manager = project.layoutManager()
 map = QgsLayoutItemMap(layout)
 map.attemptResize(QgsLayoutSize(200,200,QgsUnitTypes.LayoutMillimeters))
 #map.attemptMove(QgsLayoutPoint(x,y,units))
-#extent = project.layerTreeRoot().extent()  REVISAR EXTENT A DOCUMENTACIO QUE AIXÒ NO FUNCIONA
 extent = dict_layers["TermeMunicipal"].extent() 
 # Afegir un marge del 5% al voltant
 margin = extent.width() * 0.1
 extent.grow(margin)
 map.setExtent(extent)
 map.zoomToExtent(extent)
-map.setLayers([layer_us_edificis, layer_base_barris, layer_base_districtes])    #AFEGIR-HO A DOCUMENTACIO
+map.setLayers([layer_us_edificis, layer_base_barris, layer_base_districtes])
 map.setKeepLayerSet(True)
 layout.addLayoutItem(map)
 
@@ -178,16 +177,52 @@ scale.applyDefaultSize()
 scale.setStyle("Line Ticks Up")  
 layout.addLayoutItem(scale)
 
-output_path = "C:/projectes_git/PyQGIS_practic/Resultats/Classificacio_edificis.png"
-if os.path.exists(output_path):
-    os.remove(output_path)      #ELIMINACIÓ DE L'ARXIU ABANS DE GENERAR-LO DE NOU
+#output_path = "C:/projectes_git/PyQGIS_practic/Resultats/Classificacio_edificis.png"
+#if os.path.exists(output_path):
+#    os.remove(output_path)  
 
+
+# Activar l'atlas com a layout
+atlas = layout.atlas()
+atlas.setEnabled(True)
+
+# Definir la capa de cobertura
+atlas.setCoverageLayer(dict_layers["Districtes"])
+
+# Establir el camp que genera els fulls - el nom de cada full
+atlas.setPageNameExpression('"NOM"')
+atlas.setFilenameExpression('"NOM"')
+
+# Filtrar o ordenar els fulls, si es desitja
+#atlas.setFilterExpression('"FIELD" < 5')
+#atlas.setSortExpression('"NOM"')
+#atlas.setSortAscending(True)
+
+# Ajustar la composició amb diferents mètodes
+# Fer que el mapa s'ajusti automàticament a cada feature
+map.setAtlasDriven(True)
+# Establir zoom automàtic a cada element
+map.setAtlasScalingMode(QgsLayoutItemMap.Auto)
+# Establir un marge percentual al voltant del mapa
+map.setAtlasMargin(0.2)
+
+# Exportar tots els fulls
 exporter = QgsLayoutExporter(layout)
 image_settings = QgsLayoutExporter.ImageExportSettings()
-image_settings.dpi = 500
-result = exporter.exportToImage(output_path, image_settings)
-print(f"Resultat: {result}")
-print(f"Fitxer existeix: {os.path.exists(output_path)}")
+image_settings.dpi = 350
+exporter.exportToImage(
+    atlas,
+    "C:/projectes_git/PyQGIS_practic/Resultats/",
+    ".png",          
+    image_settings
+)
+    
 
-manager.addLayout(layout)   # AFEGIR A DOCU QUE L'ORDRE SERIA CEAR LAYOUT-AFEGIR ELEMENTS-EXPORTAR-AFEGIR AL GESTOR
-                            # PYTHON POT ELIMINAR LA REFERÈNCIA LOCAL DEL LAYOUT QUAN AQUESTA ES TRANSFEREIX AL GESTOR, PER AIXÒ MILLOR FER-HO AL FINAL
+#exporter = QgsLayoutExporter(layout)
+#image_settings = QgsLayoutExporter.ImageExportSettings()
+#image_settings.dpi = 350
+#result = exporter.exportToImage(output_path, image_settings)
+#print(f"Resultat: {result}")
+#print(f"Fitxer existeix: {os.path.exists(output_path)}")
+
+manager.addLayout(layout)
