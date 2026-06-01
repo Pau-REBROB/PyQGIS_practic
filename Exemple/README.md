@@ -26,4 +26,9 @@ Test de les funcions amb dades de Barcelona, només executable en el propi scrip
 ## Simbologia categòrica
 Creació de funcions de simbologia categòrica per a elements poligonals, apta per a ser usada com a mòdul
 
-Test de la funció amb dades de Barcelona, només executable en el propi script. Creació de simbologia categòrica 
+Test de la funció amb dades de Barcelona, només executable en el propi script. Creació de simbologia categòrica per als barris i districtes
+
+## Simbologia graduada
+Creació de funcions de simbologia graduada utilitzant els mètodes de classificació propis de QGIS per a elements poligonals, apta per a ser usada com a mòdul
+
+Test de la funció amb dades de Barcelona, només executable en el propi script. Creació de simbologia graduada per als barris i districtes
