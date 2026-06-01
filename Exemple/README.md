@@ -31,4 +31,12 @@ Test de la funció amb dades de Barcelona, només executable en el propi script.
 ## Simbologia graduada
 Creació de funcions de simbologia graduada utilitzant els mètodes de classificació propis de QGIS per a elements poligonals, apta per a ser usada com a mòdul
 
-Test de la funció amb dades de Barcelona, només executable en el propi script. Creació de simbologia graduada per als barris i districtes
+Test de la funció amb dades de Barcelona, només executable en el propi script. Creació de simbologia graduada per l'àrea dels barris i districtes, així com el nombre de pisos dels edificis
+
+## Simbologia graduada manual
+Creació de funcions de simbologia graduada creant manualment els rangs de dades per a elements poligonals, apta per a ser usada com a mòdul
+
+Test de la funció amb dades de Barcelona, només executable en el propi script. Creació de simbologia graduada pel nombre de pisos dels edificis
+
+## Simbologia basada en regles
+Creació de cartografia 
