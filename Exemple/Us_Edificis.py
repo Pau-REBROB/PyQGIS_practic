@@ -141,7 +141,7 @@ layer_us_edificis = simbologia_categorica(
 
 layer_carto_dark = "type=xyz&url=https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png&zmax=19&zmin=0"
 # Creació de la capa de fons
-layer_fons = QgsRasterLayer(layer_base, "CartoDB Dark", "wms")
+layer_fons = QgsRasterLayer(layer_carto_dark, "CartoDB Dark", "wms")
 if layer_fons.isValid():
     project.addMapLayer(layer_fons, True)
     print("Capa de fons carregada correctament")
@@ -158,8 +158,8 @@ layout.setName("Ús dels edificis")
 manager = project.layoutManager()
 
 map = QgsLayoutItemMap(layout)
-map.attemptResize(QgsLayoutSize(200,200,QgsUnitTypes.LayoutMillimeters))
-#map.attemptMove(QgsLayoutPoint(x,y,units))
+map.attemptResize(QgsLayoutSize(297,210,QgsUnitTypes.LayoutMillimeters))    #DIN A4 apaisat 297x210mm
+map.attemptMove(QgsLayoutPoint(0,0,QgsUnitTypes.LayoutMillimeters))
 extent = dict_layers["TermeMunicipal"].extent() 
 # Afegir un marge del 5% al voltant
 margin = extent.width() * 0.1
@@ -170,36 +170,69 @@ map.setLayers([layer_us_edificis, layer_base_barris, layer_base_districtes, laye
 map.setKeepLayerSet(True)
 layout.addLayoutItem(map)
 
+
+title = QgsLayoutItemLabel(layout)
+title.attemptMove(QgsLayoutPoint(210, 5, QgsUnitTypes.LayoutMillimeters))
+title.attemptResize(QgsLayoutSize(100, 20, QgsUnitTypes.LayoutMillimeters))
+title.setText("Ús dels edificis de Barcelona")
+title_format = QgsTextFormat()
+title_format.setFont(QFont("Arial", 20))
+title_format.setSize(20)
+title_format.setSizeUnit(QgsUnitTypes.RenderPoints)
+title_format.setColor(QColor(255, 255, 255))
+title.setTextFormat(title_format)
+title.setBackgroundEnabled(True)
+title.setBackgroundColor(QColor(100, 100, 100, 200))
+
+layout.addLayoutItem(title)
+
+
 legend = QgsLayoutItemLegend(layout)
 legend.setLinkedMap(map)
 #legend.attemptResize(QgsLayoutSize(x,y,units))
-legend.attemptMove(QgsLayoutPoint(205,100,QgsUnitTypes.LayoutMillimeters))
-legend.setTitle("Classificació dels usos dels edificis de Barcelona")
+
+legend.attemptMove(QgsLayoutPoint(10,10,QgsUnitTypes.LayoutMillimeters))
+legend.setTitle("Ús dels edificis de Barcelona")
+
+text_format = QgsTextFormat()
+text_format.setSize(10)
+text_format.setSizeUnit(QgsUnitTypes.RenderPoints)
+text_format.setColor(QColor(255, 255, 255))
 # Títol
-legend.setStyleFont(QgsLegendStyle.Title, QFont("Arial", 10))
+legend.rstyle(QgsLegendStyle.Title).setTextFormat(text_format)
 # Grups
-legend.setStyleFont(QgsLegendStyle.Group, QFont("Arial", 8))
+legend.rstyle(QgsLegendStyle.Group).setTextFormat(text_format)
 # Subgrups
-legend.setStyleFont(QgsLegendStyle.Subgroup, QFont("Arial", 6))
+legend.rstyle(QgsLegendStyle.Subgroup).setTextFormat(text_format)
 # Elements individuals
-legend.setStyleFont(QgsLegendStyle.SymbolLabel, QFont("Arial", 6))
+legend.rstyle(QgsLegendStyle.SymbolLabel).setTextFormat(text_format)
+
+legend.setBackgroundEnabled(True)
+legend.setBackgroundColor(QColor(80, 80, 80, 200))
+legend.setFrameEnabled(False)
 
 legend.setAutoUpdateModel(True) 
 layout.addLayoutItem(legend)
 
-title = QgsLayoutItemLabel(layout)
-title.setText("Ús dels edificis de Barcelona")
-title.setFont(QFont("Arial", 16))
-title.attemptMove(QgsLayoutPoint(10, 5, QgsUnitTypes.LayoutMillimeters))
-layout.addLayoutItem(title)
 
 scale = QgsLayoutItemScaleBar(layout)
 scale.setLinkedMap(map)
 #scale.attemptResize(QgsLayoutSize(x,y,units))
-scale.attemptMove(QgsLayoutPoint(205,180,QgsUnitTypes.LayoutMillimeters))
+scale.attemptMove(QgsLayoutPoint(270,170,QgsUnitTypes.LayoutMillimeters))
+scale.setFontColor(QColor(255, 255, 255))
 scale.applyDefaultSize()
-scale.setStyle("Line Ticks Up")  
+scale.setStyle("Numeric")
+numeric_format = QgsBasicNumericFormat()
+numeric_format.setShowThousandsSeparator(True)
+numeric_format.setNumberDecimalPlaces(0)
+scale.setNumericFormat(numeric_format)  
 layout.addLayoutItem(scale)
+
+north = QgsLayoutItemPicture(layout)
+north.setPicturePath("C:/projectes_git/Dades/nord.png")
+north.attemptResize(QgsLayoutSize(15, 15, QgsUnitTypes.LayoutMillimeters))
+north.attemptMove(QgsLayoutPoint(270, 180, QgsUnitTypes.LayoutMillimeters))
+layout.addLayoutItem(north)
 
 #output_path = "C:/projectes_git/PyQGIS_practic/Resultats/Classificacio_edificis.png"
 #if os.path.exists(output_path):
@@ -233,7 +266,7 @@ map.setAtlasMargin(0.2)
 # Exportar tots els fulls
 exporter = QgsLayoutExporter(layout)
 image_settings = QgsLayoutExporter.ImageExportSettings()
-image_settings.dpi = 350
+image_settings.dpi = 125
 exporter.exportToImage(
     atlas,
     "C:/projectes_git/PyQGIS_practic/Resultats/",
@@ -248,5 +281,9 @@ exporter.exportToImage(
 #result = exporter.exportToImage(output_path, image_settings)
 #print(f"Resultat: {result}")
 #print(f"Fitxer existeix: {os.path.exists(output_path)}")
+
+existing = manager.layoutByName("Ús dels edificis")
+if existing:
+    manager.removeLayout(existing)
 
 manager.addLayout(layout)
