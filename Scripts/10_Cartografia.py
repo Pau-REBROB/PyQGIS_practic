@@ -16,14 +16,20 @@ layout.setName("layout_name")
 # Tots els elements que s'afegeixin a la composició estan representats per classes que hereden de la classe base `QgsLayoutItem`
 # Un cop definits, s'afegeixen a la composició amb el mètode `.addLayoutItem()`
 layout.addLayoutItem(item)
+# Afegits a la composició, es poden configurar amb mètodes específics
+
 
 ## Mapa
 # La classe `QgsLayoutItemMap` afegeix un mapa buit, sense mida ni posició
 map = QgsLayoutItemMap(layout)
+# S'afegeix el mapa a la composició
+layout.addLayoutItem(map)
+
 # Per defecte, `QgsLayoutItemMap` agafarà totes les capes visibles del canvas
 # Es poden definir explícitament les capes que ha de mostrar la composició amb el mètode `.setLayers()`
 map.setLayers([vlayer_1, vlayer_2, vlayer_3])
 map.setKeepLayerSet(True)
+# L'ordre de les capes serà l'ordre ascendent sobre el mapa: la primera capa quedarà dalt de tot del mapa
 
 # Per defecte, la mida del mapa és 0x0 i es situa a la posició (0,0)
 # Per a redimensionar-lo, s'utilitza el mètode `.attemptResize()`
@@ -46,12 +52,12 @@ extent = vlayer.extent()
 margin = extent.width() * 0.05  # Marge del 5%
 extent.grow(margin)
 
-# Finalment, s'afegeix el mapa a la composició
-layout.addLayoutItem(map)
 
 ## Llegenda
 # La classe `QgsLayoutItemLegend` afegeix una llegenda buida
 legend = QgsLayoutItemLegend(layout)
+# S'afegeix la llegenda a la composició
+layout.addLayoutItem(legend)
 
 # La llegenda es vincula al mapa a través del mètode `.setLinkedMap()`
 legend.setLinkedMap(map)
@@ -63,25 +69,40 @@ legend.attemptMove(QgsLayoutPoint(x,y,units))
 # El títol s'estableix amb el mètode `.setTitle()`
 legend.setTitle("legend title")
 
-# Per a controlar la mida i font dels diferents elements de la llegenda cal utilitzar el mètode `.setStyleFont()`
-# Títol
-legend.setStyleFont(QgsLegendStyle.Title, QFont("Arial", 10))
-# Grups
-legend.setStyleFont(QgsLegendStyle.Group, QFont("Arial", 8))
-# Subgrups
-legend.setStyleFont(QgsLegendStyle.Subgroup, QFont("Arial", 6))
-# Elements individuals
-legend.setStyleFont(QgsLegendStyle.SymbolLabel, QFont("Arial", 6))
+# Per a controlar la mida i font dels diferents elements de la llegenda, cal crear una instància de `QgsTextFormat`, una per cada nivell de la llegenda
+# A partir d'aquí, es poden aplicar els formats desitjats a cada nivell de llegenda
+# Així, per exemple, pel títol de la llegenda
+legend_title_text_format = QgsTextFormat()
+legend_title_text_format.setSize(12)
+legend_title_text_format.setSizeUnit(QgsUnitTypes.RenderPoints)
+legend_title_text_format.setColor(QColor())
+######FONT
+# Cal vincular el format de text amb la instància de la llegenda
+legend.rstyle(QgsLegendStyle.Title).setTextFormat(legend_title_text_format)
+
+# Els nivells de llegenda - a modificar en el lloc de *Title* - son
+## Title
+## Group
+## Subgroup
+## SymbolLabel
 
 # Per tal que la llegenda s'actualitzi automàticament amb el contingut del mapa, cal especificar-ho amb el mètode `.setAutoUpdateModel()` com a *True*
-legend.setAutoUpdateModel(True) 
+legend.setAutoUpdateModel(True)
 
-# Finalment, s'afegeix la llegenda a la composició
-layout.addLayoutItem(legend)
+# L'element gràfic de la llegenda té associat un fons (*background*) i un marc (*frame*) blancs
+# Els mètodes `.setBackgroundEnabled()` i `.setFrameEnabled()` permeten gestionar-los: amb *True* o *False* s'activen o desactiven
+legend.setFrameEnabled(False)
+legend.setBackgroundEnabled(True)
+# Amb el mètode `.setBackgroundColor()` es pot modificar el color i transparència del fons
+legend.setBackgroundColor(QColor(80, 80, 80, 200))
+###### hi ha setFrameColor i frameWidth???
+
 
 ## Barra d'escala
 # La classe `QgsLayoutItemScaleBar` afegeix una barra d'escala
 scale = QgsLayoutItemScaleBar(layout)
+# S'afegeix l'escala a la composició
+layout.addLayoutItem(scale)
 
 # De nou, cal fer una vinculació al mapa a través del mètode `.setLinkedMap()`
 scale.setLinkedMap(map)
@@ -92,11 +113,60 @@ scale.attemptMove(QgsLayoutPoint(x,y,units))
 # En aquest cas, existeix també el mètode de mida per defecte
 scale.applyDefaultSize()
 
+# Es pot modificar el color amb el mètode `.setFontColor()`
+scale.setFontColor(QColor(255, 255, 255))
+######## es pot controlar la font???
+
 # L'estil de la barra d'escala es controla amb el mètode `.setStyle()`, sent per defecte *Numeric*
 scale.setStyle("Numeric")   # "Line Ticks Up", "Double Box", "Single Box"
 
-# Finalment, s'afegeix l'escala a la composició
-layout.addLayoutItem(scale)
+# Per a escales numèriques, es pot controlar el format creant una instància de la classe `QgsBasicNumericFormat`
+numeric_format = QgsBasicNumericFormat()
+# Amb el mètode `.setShowThousandsSeparator()` es mostra el separador de milers
+numeric_format.setShowThousandsSeparator(True)
+# Amb el mètode `.setNumberDecimalPlaces(i)` es mostren fins a *i* posicions decimals
+numeric_format.setNumberDecimalPlaces(0)
+# Finalment, cal vincular el format numèric amb l'objecte de l'escala
+scale.setNumericFormat(numeric_format) 
+
+
+## Fletxa del nord
+# PyQGIS no conté una classe específica per a les fletxes del nord, sinó que s'han d'importar com a imatges
+# La instància corresponent a una imatge és a partir de la classe `QgsLayoutItemPicture`
+north = QgsLayoutItemPicture(layout)
+layout.addLayoutItem(north)
+
+# Amb el mètode `.setPicturePath()` s'indica la ruta i arxiu de la imatge 
+north.setPicturePath("path/picture.png")
+
+# Per a establir una mida i una posició en el layout, s'utilitzen els mètodes vistos anteriorment
+north.attemptResize(QgsLayoutSize(x,y,units)
+north.attemptMove(QgsLayoutPoint(x,y,units)
+
+
+## Títol
+# El títol - i qualsevol altre element de text - son objectes de la classe `QgsLayoutItemLabel`
+title = QgsLayoutItemLabel(layout)
+layout.addLayoutItem(title)
+
+# La seva mida i posició s'ajusten de la mateixa manera que en els casos anteriors
+title.attemptResize(QgsLayoutSize(x,y,units))
+title.attemptMove(QgsLayoutPoint(x,y,units))
+
+# El text que contindran aquestes etiquetes s'estableix amb el mètode `.setText()`
+title.setText("title tex")
+# Aquest text pot contenir caràcters especials d'escapament - com \n - i referències a camps o variables
+title.setText("Ús dels edificis de Barcelona\n Districte de [% \"NOM\" %]")
+
+# Per a configurar el text, cal generar una instància de la classe `QgsTextFormat`
+title_format = QgsTextFormat()
+# Els diferents mètodes permeten modificar la font, la mida i el color del text
+title_format.setFont(QFont("Arial", 20))
+title_format.setSize(20)
+title_format.setSizeUnit(QgsUnitTypes.RenderPoints)
+title_format.setColor(QColor(255, 255, 255))
+# Cal vincular el format de text amb la instància del títol
+title.setTextFormat(title_format)
 
 
 # Per a qualsevol element, la seva posició per defecte és la (0,0), corresponent a la cantonada superior esquerra del canvas
