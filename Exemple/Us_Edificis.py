@@ -157,24 +157,30 @@ layout.setName("Ús dels edificis")
 
 manager = project.layoutManager()
 
-map = QgsLayoutItemMap(layout)
-map.attemptResize(QgsLayoutSize(297,210,QgsUnitTypes.LayoutMillimeters))    #DIN A4 apaisat 297x210mm
-map.attemptMove(QgsLayoutPoint(0,0,QgsUnitTypes.LayoutMillimeters))
+layout_map = QgsLayoutItemMap(layout)
+
 extent = dict_layers["TermeMunicipal"].extent() 
 # Afegir un marge del 5% al voltant
-margin = extent.width() * 0.1
-extent.grow(margin)
-map.setExtent(extent)
-map.zoomToExtent(extent)
-map.setLayers([layer_us_edificis, layer_base_barris, layer_base_districtes, layer_fons])
-map.setKeepLayerSet(True)
-layout.addLayoutItem(map)
+#margin = extent.width() * 0.1
+#extent.grow(margin)
+#layout_map.setExtent(extent)
+
+layout_map.zoomToExtent(extent)
+layout_map.setLayers([layer_us_edificis, layer_base_barris, layer_base_districtes, layer_fons])
+
+
+layout_map.setKeepLayerSet(True)
+layout.addLayoutItem(layout_map)
+
+
+layout_map.attemptResize(QgsLayoutSize(297,210,QgsUnitTypes.LayoutMillimeters))    #DIN A4 apaisat 297x210mm
+layout_map.attemptMove(QgsLayoutPoint(0,0,QgsUnitTypes.LayoutMillimeters))
 
 
 title = QgsLayoutItemLabel(layout)
-title.attemptMove(QgsLayoutPoint(210, 5, QgsUnitTypes.LayoutMillimeters))
+title.attemptMove(QgsLayoutPoint(205, 5, QgsUnitTypes.LayoutMillimeters))
 title.attemptResize(QgsLayoutSize(100, 20, QgsUnitTypes.LayoutMillimeters))
-title.setText("Ús dels edificis de Barcelona")
+title.setText("Ús dels edificis de Barcelona\n Districte de [% \"NOM\" %]")
 title_format = QgsTextFormat()
 title_format.setFont(QFont("Arial", 20))
 title_format.setSize(20)
@@ -188,7 +194,7 @@ layout.addLayoutItem(title)
 
 
 legend = QgsLayoutItemLegend(layout)
-legend.setLinkedMap(map)
+legend.setLinkedMap(layout_map)
 #legend.attemptResize(QgsLayoutSize(x,y,units))
 
 legend.attemptMove(QgsLayoutPoint(10,10,QgsUnitTypes.LayoutMillimeters))
@@ -216,7 +222,7 @@ layout.addLayoutItem(legend)
 
 
 scale = QgsLayoutItemScaleBar(layout)
-scale.setLinkedMap(map)
+scale.setLinkedMap(layout_map)
 #scale.attemptResize(QgsLayoutSize(x,y,units))
 scale.attemptMove(QgsLayoutPoint(270,170,QgsUnitTypes.LayoutMillimeters))
 scale.setFontColor(QColor(255, 255, 255))
@@ -229,7 +235,7 @@ scale.setNumericFormat(numeric_format)
 layout.addLayoutItem(scale)
 
 north = QgsLayoutItemPicture(layout)
-north.setPicturePath("C:/projectes_git/Dades/nord.png")
+north.setPicturePath("C:/projectes_git/Dades/nord2.png")
 north.attemptResize(QgsLayoutSize(15, 15, QgsUnitTypes.LayoutMillimeters))
 north.attemptMove(QgsLayoutPoint(270, 180, QgsUnitTypes.LayoutMillimeters))
 layout.addLayoutItem(north)
@@ -255,13 +261,19 @@ atlas.setFilenameExpression('"NOM"')
 #atlas.setSortExpression('"NOM"')
 #atlas.setSortAscending(True)
 
+
 # Ajustar la composició amb diferents mètodes
 # Fer que el mapa s'ajusti automàticament a cada feature
-map.setAtlasDriven(True)
+layout_map.setAtlasDriven(True)
 # Establir zoom automàtic a cada element
-map.setAtlasScalingMode(QgsLayoutItemMap.Auto)
+layout_map.setAtlasScalingMode(QgsLayoutItemMap.Auto)
 # Establir un marge percentual al voltant del mapa
-map.setAtlasMargin(0.2)
+layout_map.setAtlasMargin(0.5)
+
+
+atlas.updateFeatures()
+atlas.beginRender()
+
 
 # Exportar tots els fulls
 exporter = QgsLayoutExporter(layout)
@@ -273,7 +285,9 @@ exporter.exportToImage(
     ".png",          
     image_settings
 )
-    
+
+atlas.endRender()
+
 
 #exporter = QgsLayoutExporter(layout)
 #image_settings = QgsLayoutExporter.ImageExportSettings()
