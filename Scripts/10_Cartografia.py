@@ -73,10 +73,10 @@ legend.setTitle("legend title")
 # A partir d'aquí, es poden aplicar els formats desitjats a cada nivell de llegenda
 # Així, per exemple, pel títol de la llegenda
 legend_title_text_format = QgsTextFormat()
+legend_title_text_format.setFont(QFont("Arial"), 12)
 legend_title_text_format.setSize(12)
 legend_title_text_format.setSizeUnit(QgsUnitTypes.RenderPoints)
 legend_title_text_format.setColor(QColor())
-######FONT
 # Cal vincular el format de text amb la instància de la llegenda
 legend.rstyle(QgsLegendStyle.Title).setTextFormat(legend_title_text_format)
 
@@ -95,7 +95,9 @@ legend.setFrameEnabled(False)
 legend.setBackgroundEnabled(True)
 # Amb el mètode `.setBackgroundColor()` es pot modificar el color i transparència del fons
 legend.setBackgroundColor(QColor(80, 80, 80, 200))
-###### hi ha setFrameColor i frameWidth???
+# Pel que fa al marc, també es pot contolar el color i el gruix
+legend.setFrameStrokeColor(QColor(255, 255, 255, 200))
+legend.setFrameStrokeWidth(QgsLayoutMeasurement(0.5, QgsUnitTypes.LayoutMillimeters))
 
 
 ## Barra d'escala
@@ -140,8 +142,8 @@ layout.addLayoutItem(north)
 north.setPicturePath("path/picture.png")
 
 # Per a establir una mida i una posició en el layout, s'utilitzen els mètodes vistos anteriorment
-north.attemptResize(QgsLayoutSize(x,y,units)
-north.attemptMove(QgsLayoutPoint(x,y,units)
+north.attemptResize(QgsLayoutSize(x,y,units))
+north.attemptMove(QgsLayoutPoint(x,y,units))
 
 
 ## Títol
@@ -172,6 +174,7 @@ title.setTextFormat(title_format)
 # S'activen i es desactiven amb els mètodes `.setBackgroundEnabled()` i `.setFrameEnabled()` com a *True* o *False*
 title.setBackgroundEnabled(True)
 title.setBackgroundColor(QColor(100, 100, 100, 200))
+# Igual que s'ha vist anteriorment, es pot controlar el seu color, transparència i gruix
 
 
 # Per a qualsevol element, la seva posició per defecte és la (0,0), corresponent a la cantonada superior esquerra del canvas
@@ -193,7 +196,7 @@ page.setPageSize("name", orientation)
 # De manera alternativa, es pot utilitzar `QgsLayoutSize` per a personalitzar la mida de la pàgina
 page.setPageSize(QgsLayoutSize(x,y,units))
 # Mètodes de consulta de mida i orientació
-page.setSize()
+page.pageSize()
 page.orientation()  # No existeix un mètode directe per a establir l'orientació
 # Color de fons de la pàgina
 page.setPageStyleSymbol(QgsFillSymbol.createSimple({"color": "white"}))
@@ -271,11 +274,6 @@ map.setAtlasScalingMode(QgsLayoutItemMap.Auto)  # també Fixed
 # Establir un marge percentual al voltant del *feature*
 map.setAtlasMargin(i)
 
-##### això cal realment¿¿
-atlas.updateFeatures()
-atlas.beginRender()
-
-
 # Exportar tots els fulls
 exporter = QgsLayoutExporter(layout)
 exporter.exportToImage(
@@ -289,8 +287,10 @@ exporter.exportToImage(
 image_settings = QgsLayoutExporter.ImageExportSettings()
 image_settings.dpi = 300  
 
-
-##### això cal realment¿¿
+# El mètode d'exportació gestiona internament el cicle de renderització
+# Això implica que actualitza els elements automàticament i inicia i finalitza sol la renderització
+atlas.updateFeatures()
+atlas.beginRender()
 atlas.endRender()
 
 
