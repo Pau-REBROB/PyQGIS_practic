@@ -168,6 +168,11 @@ title_format.setColor(QColor(255, 255, 255))
 # Cal vincular el format de text amb la instància del títol
 title.setTextFormat(title_format)
 
+# Els textos també tenen associats un fons i un marc
+# S'activen i es desactiven amb els mètodes `.setBackgroundEnabled()` i `.setFrameEnabled()` com a *True* o *False*
+title.setBackgroundEnabled(True)
+title.setBackgroundColor(QColor(100, 100, 100, 200))
+
 
 # Per a qualsevol element, la seva posició per defecte és la (0,0), corresponent a la cantonada superior esquerra del canvas
 # Per tant, valors de X superiors centren verticalment l'element
@@ -232,12 +237,14 @@ image_settings.pages = [0]
 # És bona pràctica comprovar anteriorment a l'exportació que no hi hagi cap element anterior creat
 # Amb el mòdul `os` es defineix el directori de sortida de les composicions i s'elimina l'arxiu anterior que pugui haver-hi al directori 
 import os
-output_path = "ruta/output.png"
+output_path = "path/output.png"
 if os.path.exists(output_path):
     os.remove(output_path)
 
 
+
 # Un tipus de composició especial son els ATLES, que requeixen d'un procés de generació particular
+# Cada pàgina de l'atlas necessita de les definicions anteriors del mapa, llegenda, escala, títol, etc. anteriors, a part de les configuracions següents
 # Activar l'atlas com a layout
 atlas = layout.atlas()
 atlas.setEnabled(True)
@@ -256,12 +263,18 @@ atlas.setSortExpression('"NOM"')
 atlas.setSortAscending(True)
 
 # Ajustar la composició amb diferents mètodes
-# Fer que el mapa s'ajusti automàticament a cada feature
+# Fer que el mapa s'ajusti automàticament a cada *feature*
 map.setAtlasDriven(True)
-# Establir zoom automàtic a cada element
-map.setAtlasScalingMode(QgsLayoutItemMap.Auto)
-# Establir un marge percentual al voltant del mapa
-map.setAtlasMargin(0.1)
+# Establir l'escala de visualització a cada element
+## Per defecte, genera una escala de visualització automàtica, però podria ser fixe
+map.setAtlasScalingMode(QgsLayoutItemMap.Auto)  # també Fixed
+# Establir un marge percentual al voltant del *feature*
+map.setAtlasMargin(i)
+
+##### això cal realment¿¿
+atlas.updateFeatures()
+atlas.beginRender()
+
 
 # Exportar tots els fulls
 exporter = QgsLayoutExporter(layout)
@@ -271,19 +284,34 @@ exporter.exportToImage(
     ".png", # O un altre format          
     QgsLayoutExporter.ImageExportSettings()
 )
+# Igual que amb el layout estàndard, es pot definir una configuració d'exportació
+# Per exemple:
+image_settings = QgsLayoutExporter.ImageExportSettings()
+image_settings.dpi = 300  
+
+
+##### això cal realment¿¿
+atlas.endRender()
 
 
 # Generat el layout, cal afegir-lo al gestor de layouts del projecte perquè no quedi en memòria
 # Es defineix un objecte gestor de composicions, normalment al començament del codi
 manager = project.layoutManager()
+
 # S'afegeix el layout amb el mètode `.addLayout()`
+# És bona pràctica eliminar la composició anterior per tal de no haver de sobreescriure-la  
+existing = manager.layoutByName("layout_name")
+if existing:
+    manager.removeLayout(existing)
 manager.addLayout(layout)
+
 
 # El flux de treball correcte en la creació de composicions és:
 ## Creació layout
 ## Addició elements
 ## Exportació
 ## Addició layout al gestor
+
 
 
 # Etiquetatge
