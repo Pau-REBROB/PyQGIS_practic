@@ -151,6 +151,10 @@ else:
 
 """ GENERACIÓ DE LA COMPOSICIÓ"""
 
+### DEFINIR ELEMENT
+### ADDICIÓ AL LAYOUT
+### CONFIGURACIÓ
+
 layout = QgsPrintLayout(project)
 layout.initializeDefaults()
 layout.setName("Ús dels edificis")
