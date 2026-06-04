@@ -271,6 +271,7 @@ map.setAtlasDriven(True)
 # Establir l'escala de visualització a cada element
 ## Per defecte, genera una escala de visualització automàtica, però podria ser fixe
 map.setAtlasScalingMode(QgsLayoutItemMap.Auto)  # també Fixed
+## Aquest comportament propi de l'atles fa que no sigui realment necessari ajustar un *extent* a l'element mapa de la composició 
 # Establir un marge percentual al voltant del *feature*
 map.setAtlasMargin(i)
 
