@@ -91,6 +91,7 @@ for layer in dict_layers.values():
     else:
         print(f"La capa {layer.name()} està en el SRC {layer.crs().authid()} i necessita ser reprojectada a EPSG:25831!")
 
+#===================================================================
 
 """GENERACIÓ DE CARTOGRAFIA"""
 # QUINS LAYOUTS VULL CREAR?
@@ -111,16 +112,16 @@ for layer in project.mapLayers().values():
 layer_base_districtes = simbologia_unica(
     dict_layers["Districtes"],
     (0,0,0,0),
-    0.4,
-    (200,200,200,255)
+    0.5,
+    (255,200,50,255)
 )
 
-layer_base_barris = simbologia_unica(
-    dict_layers["Barris"],
-    (0,0,0,0),
-    0.2,
-    (150,220,220,255)
-)
+#layer_base_barris = simbologia_unica(
+#    dict_layers["Barris"],
+#    (0,0,0,0),
+#    0.2,
+#    (150,220,220,255)
+#)
 
 dict_colors_edificis = {
     "1_residential": (255, 235, 175, 255),
@@ -128,7 +129,7 @@ dict_colors_edificis = {
     "3_industrial": (178, 178, 178, 255),
     "4_1_office": (255, 170, 0, 255),
     "4_2_retail": (255, 127, 0, 255),
-    "4_3_publicServices": ( 255, 190, 190, 255)
+    "4_3_publicServices": (200, 170, 220, 255)
 } # Colors basats en convencions cartogràfiques habituals per a usos del sòl
 
 layer_us_edificis = simbologia_categorica(
@@ -148,6 +149,7 @@ if layer_fons.isValid():
 else:
     print("Error al carregar la capa de fons")
 
+#========================================================================================
 
 """ GENERACIÓ DE LA COMPOSICIÓ"""
 
@@ -167,7 +169,8 @@ manager = project.layoutManager()
 layout_map = QgsLayoutItemMap(layout)
 layout.addLayoutItem(layout_map)
 
-layout_map.setLayers([layer_us_edificis, layer_base_barris, layer_base_districtes, layer_fons])
+#layout_map.setLayers([layer_us_edificis, layer_base_barris, layer_base_districtes, layer_fons])
+layout_map.setLayers([layer_us_edificis, layer_base_districtes, layer_fons])
 layout_map.setKeepLayerSet(True)
 
 extent = dict_layers["TermeMunicipal"].extent() 
@@ -184,7 +187,7 @@ layout.addLayoutItem(title)
 title.attemptMove(QgsLayoutPoint(10, 5, QgsUnitTypes.LayoutMillimeters))
 title.attemptResize(QgsLayoutSize(275, 10, QgsUnitTypes.LayoutMillimeters))
 
-title.setText("Ús dels edificis de Barcelona - Districte de [% \"NOM\" %]")
+title.setText("Ús dels edificis de Barcelona - Districte: [% \"NOM\" %]")
 title_format = QgsTextFormat()
 title_format.setFont(QFont("Arial", 20))
 title_format.setSize(20)
@@ -194,7 +197,7 @@ title.setTextFormat(title_format)
 
 #title.setHAlign(Qt.AlignCenter)
 title.setMarginX(5)  # marge horitzontal en mm
-title.setMarginY(2)  # marge vertical en mm
+title.setMarginY(1)  # marge vertical en mm
 
 title.setBackgroundEnabled(True)
 title.setBackgroundColor(QColor(100, 100, 100, 200))
@@ -334,3 +337,126 @@ if existing:
     manager.removeLayout(existing)
 
 manager.addLayout(layout)
+
+#=============================================================================================0
+
+"""ANÀLISI ESPACIAL"""
+
+# Identificació de zones d'alta concentració - clústers - d'edificis amb el mateix ús 
+## Ús comercial: 4_2_retail
+
+import processing
+
+# Filtrar els edificis comercials
+request_retail = QgsFeatureRequest().setFilterExpression("\"currentUse\" = '4_2_retail'")
+###layer_retail = dict_layers["Edificis"].getFeatures(request_retail) ###getFeatures() retorna un iterador de features, no una capa. 
+layer_retail = dict_layers["Edificis"].materialize(request_retail)
+
+# Convertir a centroides
+result_centroids = processing.run("native:centroids", {
+    'INPUT': layer_retail,
+    'ALL_PARTS': False,
+    'OUTPUT': 'memory:'
+})
+layer_retail_centroids = result_centroids['OUTPUT']
+print(f"Centroides: {layer_retail_centroids.featureCount()}")
+print(f"Geometria: {layer_retail_centroids.geometryType()}")
+
+# Aplicar DBSCAN
+result = processing.run("native:dbscanclustering", {
+    'INPUT': layer_retail_centroids,
+    'EPS': 50,          # 100 metres de distància màxima entre edificis
+    'MINSIZE': 5,       # mínim 10 edificis per formar un clúster
+    'FIELD_NAME': 'CLUSTER_ID',
+    'SIZE_FIELD_NAME': 'CLUSTER_SIZE',
+    'OUTPUT': 'memory:'
+})
+
+# Guardar el resultat
+layer_clusters_retail = result['OUTPUT']
+project.addMapLayer(layer_clusters_retail, False)
+
+# Obtenir tots els valors únics de CLUSTER_ID
+cluster_ids = set([f["CLUSTER_ID"] for f in layer_clusters_retail.getFeatures() if f["CLUSTER_ID"] is not None])
+print(f"Valors únics de CLUSTER_ID: {sorted(cluster_ids)}")
+
+# Estadístiques
+cluster_ids = set([f["CLUSTER_ID"] for f in layer_clusters_retail.getFeatures() if f["CLUSTER_ID"] is not None])
+num_clusters = len([c for c in cluster_ids if c != -1])
+num_outliers = sum(1 for f in layer_clusters_retail.getFeatures() if f["CLUSTER_ID"] == -1)
+
+print(f"Número de clústers: {num_clusters}")
+print(f"Número d'outliers: {num_outliers}")
+
+
+# Aplicar simbologia
+def simbologia_clusters(layer, cluster_field, color_ramp, outlier_color=(128,128,128,255)):
+    """
+    Aplica simbologia categòrica a una capa de clústers
+
+    La funció:
+        Clona la capa d'entrada
+        Assigna un nom nou a la capa clonada
+        Genera simbologia assignant un color interpolat de la rampa a cada clúster
+        Els outliers (CLUSTER_ID = -1) reben un color neutre
+
+    Paràmetres de la funció:
+        layer : capa vectorial amb els clústers
+        cluster_field : nom del camp que conté els identificadors de clúster
+        color_ramp : nom de la rampa de colors de QGIS
+        outlier_color : color dels outliers en format (R,G,B,A) - gris per defecte
+    """
+    # Clonació de la capa d'entrada
+    layer_clone = layer.clone()
+
+    # Assignació d'un nou nom
+    layer_clone.setName(f"{layer_clone.name()}_clusters")
+
+    # Addició de la capa al projecte
+    project.addMapLayer(layer_clone, False)
+
+    # Obtenir els valors únics de CLUSTER_ID, excloent None
+    cluster_ids = sorted(set(
+        f[cluster_field] for f in layer_clone.getFeatures()
+        if f[cluster_field] is not None and f[cluster_field] != -1
+    ))
+
+    # Rampa de colors
+    rampa = QgsStyle().defaultStyle().colorRamp(color_ramp)
+    num_clusters = len(cluster_ids)
+
+    # Generació de les categories
+    categories = []
+
+    # Outliers
+    symbol_outlier = QgsSymbol.defaultSymbol(layer_clone.geometryType())
+    symbol_outlier.setColor(QColor(*outlier_color))
+    categories.append(QgsRenderCategory(-1, symbol_outlier, "Outlier"))
+
+    # Clústers
+    for i, cluster_id in enumerate(cluster_ids):
+        symbol = QgsSymbol.defaultSymbol(layer_clone.geometryType())
+        # Interpolació del color de la rampa
+        t = float(i) / (num_clusters - 1) if num_clusters > 1 else 0
+        color = rampa.color(t)
+        symbol.setColor(color)
+        categories.append(QgsRenderCategory(cluster_id, symbol, f"Clúster {cluster_id}"))
+
+    # Renderer categòric
+    renderer = QgsCategorizedSymbolRenderer(cluster_field, categories)
+    layer_clone.setRenderer(renderer)
+
+    # Actualització
+    layer_clone.triggerRepaint()
+    iface.mapCanvas().refresh()
+    iface.layerTreeView().refreshLayerSymbology(layer_clone.id())
+
+    return layer_clone
+
+layer_clusters_visual = simbologia_clusters(
+    layer=layer_clusters_retail,
+    cluster_field="CLUSTER_ID",
+    color_ramp="Spectral"
+)
+
+project.addMapLayer(layer_clusters_visual)
