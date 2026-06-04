@@ -412,9 +412,6 @@ def simbologia_clusters(layer, cluster_field, color_ramp, outlier_color=(128,128
     # Assignació d'un nou nom
     layer_clone.setName(f"{layer_clone.name()}_clusters")
 
-    # Addició de la capa al projecte
-    project.addMapLayer(layer_clone, False)
-
     # Obtenir els valors únics de CLUSTER_ID, excloent None
     cluster_ids = sorted(set(
         f[cluster_field] for f in layer_clone.getFeatures()
@@ -431,7 +428,7 @@ def simbologia_clusters(layer, cluster_field, color_ramp, outlier_color=(128,128
     # Outliers
     symbol_outlier = QgsSymbol.defaultSymbol(layer_clone.geometryType())
     symbol_outlier.setColor(QColor(*outlier_color))
-    categories.append(QgsRenderCategory(-1, symbol_outlier, "Outlier"))
+    categories.append(QgsRendererCategory(-1, symbol_outlier, "Outlier"))
 
     # Clústers
     for i, cluster_id in enumerate(cluster_ids):
@@ -440,11 +437,14 @@ def simbologia_clusters(layer, cluster_field, color_ramp, outlier_color=(128,128
         t = float(i) / (num_clusters - 1) if num_clusters > 1 else 0
         color = rampa.color(t)
         symbol.setColor(color)
-        categories.append(QgsRenderCategory(cluster_id, symbol, f"Clúster {cluster_id}"))
+        categories.append(QgsRendererCategory(cluster_id, symbol, f"Clúster {cluster_id}"))
 
     # Renderer categòric
     renderer = QgsCategorizedSymbolRenderer(cluster_field, categories)
     layer_clone.setRenderer(renderer)
+
+    # Addició de la capa al projecte
+    project.addMapLayer(layer_clone)
 
     # Actualització
     layer_clone.triggerRepaint()
@@ -460,3 +460,20 @@ layer_clusters_visual = simbologia_clusters(
 )
 
 project.addMapLayer(layer_clusters_visual)
+
+
+#Ajuntar geometries per clúster
+result_collect = processing.run("native:collect", {
+    'INPUT': layer_clusters_retail,
+    'FIELD': ['CLUSTER_ID'],
+    'OUTPUT': 'memory:'
+})
+layer_collected = result_collect['OUTPUT']
+
+# Generar polígon convex per cada clúster
+result_hull = processing.run("native:convexhull", {
+    'INPUT': layer_collected,
+    'OUTPUT': 'memory:'
+})
+layer_hull_retail = result_hull['OUTPUT']
+project.addMapLayer(layer_hull_retail, True)
