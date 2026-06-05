@@ -44,7 +44,8 @@ layers = {
     "Barris": "C:/projectes_git/Dades/PyQGIS_Repo/Limits_administratius_BCN/0301040100_Barris_UNITATS_ADM.shp",
     "Districtes": "C:/projectes_git/Dades/PyQGIS_Repo/Limits_administratius_BCN/0301040100_Districtes_UNITATS_ADM.shp",
     "TermeMunicipal": "C:/projectes_git/Dades/PyQGIS_Repo/Limits_administratius_BCN/0301040100_TermeMunicipal_UNITATS_ADM.shp",
-    "Edificis": "C:/projectes_git/Dades/PyQGIS_Repo/Cadastre/08900/A.ES.SDGC.BU.08900.building.gml"
+    "Edificis": "C:/projectes_git/Dades/PyQGIS_Repo/Cadastre/08900/A.ES.SDGC.BU.08900.building.gml",
+    "Graf": "C:/projectes_git/Dades/PyQGIS_Repo/Graf_viari/BCN_GrafVial_Trams_ETRS89_SHP.shp"
 }
 
 # Diccionari buit de les capes
@@ -345,135 +346,111 @@ manager.addLayout(layout)
 # Identificació de zones d'alta concentració - clústers - d'edificis amb el mateix ús 
 ## Ús comercial: 4_2_retail
 
+# Seleccionar els edificis d'ús = retail
+# Generació centroides
+# Agrupació en clústers
+# Envolvent convexa dels clústers d'igual ID
+# Simbologia dels envolvents
+# Anàlisi de xarxes
+
 import processing
 
-# Filtrar els edificis comercials
-request_retail = QgsFeatureRequest().setFilterExpression("\"currentUse\" = '4_2_retail'")
+# Selecció dels edificis comercials
+request_retail = QgsFeatureRequest().setFilterExpression('"currentUse" = \'4_2_retail\'')
 ###layer_retail = dict_layers["Edificis"].getFeatures(request_retail) ###getFeatures() retorna un iterador de features, no una capa. 
 layer_retail = dict_layers["Edificis"].materialize(request_retail)
 
-# Convertir a centroides
-result_centroids = processing.run("native:centroids", {
+# Generació dels seus centroides
+result_centroids_retail = processing.run("native:centroids", {
     'INPUT': layer_retail,
     'ALL_PARTS': False,
     'OUTPUT': 'memory:'
 })
-layer_retail_centroids = result_centroids['OUTPUT']
-print(f"Centroides: {layer_retail_centroids.featureCount()}")
-print(f"Geometria: {layer_retail_centroids.geometryType()}")
+layer_retail_centroids = result_centroids_retail['OUTPUT']
 
-# Aplicar DBSCAN
-result = processing.run("native:dbscanclustering", {
+# Generació de clústers amb mètode DBSCAN
+result_clusters_retail = processing.run("native:dbscanclustering", {
     'INPUT': layer_retail_centroids,
-    'EPS': 50,          # 100 metres de distància màxima entre edificis
-    'MINSIZE': 5,       # mínim 10 edificis per formar un clúster
+    'EPS': 100,          # 100 metres de distància màxima entre edificis
+    'MINSIZE': 5,       # mínim 5 edificis per formar un clúster
     'FIELD_NAME': 'CLUSTER_ID',
     'SIZE_FIELD_NAME': 'CLUSTER_SIZE',
     'OUTPUT': 'memory:'
 })
-
-# Guardar el resultat
-layer_clusters_retail = result['OUTPUT']
+layer_clusters_retail = result_clusters_retail['OUTPUT']
+# Addició de la capa al projecte
 project.addMapLayer(layer_clusters_retail, False)
 
-# Obtenir tots els valors únics de CLUSTER_ID
-cluster_ids = set([f["CLUSTER_ID"] for f in layer_clusters_retail.getFeatures() if f["CLUSTER_ID"] is not None])
-print(f"Valors únics de CLUSTER_ID: {sorted(cluster_ids)}")
+# Filtre de tots els valors únics de CLUSTER_ID - els que no son NULL
+cluster_ids = set([f["CLUSTER_ID"] for f in layer_clusters_retail.getFeatures() if f["CLUSTER_ID"] is not 'NULL'])
+print(f"Número de clústers: {len(cluster_ids)}")
 
-# Estadístiques
-cluster_ids = set([f["CLUSTER_ID"] for f in layer_clusters_retail.getFeatures() if f["CLUSTER_ID"] is not None])
-num_clusters = len([c for c in cluster_ids if c != -1])
-num_outliers = sum(1 for f in layer_clusters_retail.getFeatures() if f["CLUSTER_ID"] == -1)
+request_clusters = QgsFeatureRequest().setFilterExpression('"CLUSTER_ID" IS NOT NULL AND "CLUSTER_ID" != -1')
+layer_clusters_retail_notNull = layer_clusters_retail.materialize(request_clusters)
 
-print(f"Número de clústers: {num_clusters}")
-print(f"Número d'outliers: {num_outliers}")
-
-
-# Aplicar simbologia
-def simbologia_clusters(layer, cluster_field, color_ramp, outlier_color=(128,128,128,255)):
-    """
-    Aplica simbologia categòrica a una capa de clústers
-
-    La funció:
-        Clona la capa d'entrada
-        Assigna un nom nou a la capa clonada
-        Genera simbologia assignant un color interpolat de la rampa a cada clúster
-        Els outliers (CLUSTER_ID = -1) reben un color neutre
-
-    Paràmetres de la funció:
-        layer : capa vectorial amb els clústers
-        cluster_field : nom del camp que conté els identificadors de clúster
-        color_ramp : nom de la rampa de colors de QGIS
-        outlier_color : color dels outliers en format (R,G,B,A) - gris per defecte
-    """
-    # Clonació de la capa d'entrada
-    layer_clone = layer.clone()
-
-    # Assignació d'un nou nom
-    layer_clone.setName(f"{layer_clone.name()}_clusters")
-
-    # Obtenir els valors únics de CLUSTER_ID, excloent None
-    cluster_ids = sorted(set(
-        f[cluster_field] for f in layer_clone.getFeatures()
-        if f[cluster_field] is not None and f[cluster_field] != -1
-    ))
-
-    # Rampa de colors
-    rampa = QgsStyle().defaultStyle().colorRamp(color_ramp)
-    num_clusters = len(cluster_ids)
-
-    # Generació de les categories
-    categories = []
-
-    # Outliers
-    symbol_outlier = QgsSymbol.defaultSymbol(layer_clone.geometryType())
-    symbol_outlier.setColor(QColor(*outlier_color))
-    categories.append(QgsRendererCategory(-1, symbol_outlier, "Outlier"))
-
-    # Clústers
-    for i, cluster_id in enumerate(cluster_ids):
-        symbol = QgsSymbol.defaultSymbol(layer_clone.geometryType())
-        # Interpolació del color de la rampa
-        t = float(i) / (num_clusters - 1) if num_clusters > 1 else 0
-        color = rampa.color(t)
-        symbol.setColor(color)
-        categories.append(QgsRendererCategory(cluster_id, symbol, f"Clúster {cluster_id}"))
-
-    # Renderer categòric
-    renderer = QgsCategorizedSymbolRenderer(cluster_field, categories)
-    layer_clone.setRenderer(renderer)
-
-    # Addició de la capa al projecte
-    project.addMapLayer(layer_clone)
-
-    # Actualització
-    layer_clone.triggerRepaint()
-    iface.mapCanvas().refresh()
-    iface.layerTreeView().refreshLayerSymbology(layer_clone.id())
-
-    return layer_clone
-
-layer_clusters_visual = simbologia_clusters(
-    layer=layer_clusters_retail,
-    cluster_field="CLUSTER_ID",
-    color_ramp="Spectral"
-)
-
-project.addMapLayer(layer_clusters_visual)
-
-
-#Ajuntar geometries per clúster
-result_collect = processing.run("native:collect", {
-    'INPUT': layer_clusters_retail,
-    'FIELD': ['CLUSTER_ID'],
-    'OUTPUT': 'memory:'
-})
-layer_collected = result_collect['OUTPUT']
-
-# Generar polígon convex per cada clúster
-result_hull = processing.run("native:convexhull", {
-    'INPUT': layer_collected,
+# Generar envolvent per cada clúster
+result_hull = processing.run("qgis:minimumboundinggeometry", {
+    'INPUT': layer_clusters_retail_notNull,
+    'FIELD': 'CLUSTER_ID',
+    'TYPE': 2,
     'OUTPUT': 'memory:'
 })
 layer_hull_retail = result_hull['OUTPUT']
-project.addMapLayer(layer_hull_retail, True)
+
+# Dissolució de les geometria
+result_dissolved = processing.run("native:dissolve", {
+    'INPUT': layer_hull_retail,
+    'FIELD': [],
+    'SEPARATE_DISJOINT': True,
+    'OUTPUT': 'memory:'
+})
+layer_retail_zones = result_dissolved['OUTPUT']
+project.addMapLayer(layer_retail_zones, True)
+
+# Generació centroides de les zones dissoltes
+result_centroids_zones = processing.run("native:centroids", {
+    'INPUT': layer_retail_zones,
+    'ALL_PARTS': False,
+    'OUTPUT': 'memory:'
+})
+layer_zones_centroids = result_centroids_zones['OUTPUT']
+
+
+# Aplicar simbologia
+cluster_symbol = QgsSymbol.defaultSymbol(layer_retail_zones.geometryType())
+cluster_symbol.setColor(QColor(255, 127, 0, 125))
+cluster_symbol.symbolLayer(0).setStrokeColor(QColor(255, 127, 0, 255))
+
+renderer = QgsSingleSymbolRenderer(cluster_symbol)
+layer_hull_retail.setRenderer(renderer)
+   
+# Actualització del llenç
+layer_retail_zones.triggerRepaint()
+iface.mapCanvas().refresh()
+# Actualització del panell de capes
+iface.layerTreeView().refreshLayerSymbology(layer_retail_zones.id())
+
+
+# Anàlisi de xarxes
+## Isoàrees de proximitat a les zones de comerços
+# S'utilitza el plugin QNEAT3
+result_isoareas = processing.run("qneat3:isoareaaspolygonsfromlayer", {
+    'INPUT': dict_layers["Graf"],
+    'START_POINTS': layer_zones_centroids,
+    'ID_FIELD': "id",
+    'MAX_DIST': 200,#200 METRES DE DISTÀNCIA MÀXIMA --- CAL AUGMENTAR
+    'INTERVAL': 50,
+    'STRATEGY': 0,#SHORTEST PATH
+    'OUTPUT_INTERPOLATION': "C:/projectes_git/PyQGIS_practic/Resultats/output_interpolation.tif",
+    'OUTPUT_POLYGONS': "C:/projectes_git/PyQGIS_practic/Resultats/output_polygons.shp"
+})
+
+layer_polygons_isoareas = QgsVectorLayer(
+    "C:/projectes_git/PyQGIS_practic/Resultats/output_polygons.shp",
+    "Isoàrees",
+    "ogr"
+)
+project.addMapLayer(layer_polygons_isoareas, True)
+
+
+# SIMBOLOGIA DE ISOÀREES + COMPOSICIÓ FINAL
