@@ -23,7 +23,6 @@ def simbologia_unica(layer, fill_color, outline_width, stroke_color):
     La funció:
         Clona la capa d'entrada
         Assigna un nom nou a la capa clonada
-        Crea un grup de simbologia única 
         Genera simbologia
     
     Paràmetres de la funció:
@@ -40,14 +39,7 @@ def simbologia_unica(layer, fill_color, outline_width, stroke_color):
     
     # Addició de la capa al projecte
     project.addMapLayer(layer_clone, False)
-    
-    # Creació d'un grup de capes de simbologia única, si no existeix
-    group = root.findGroup("Simbologia_única")
-    if not group:
-        group = root.addGroup("Simbologia_única")
-    # Addició de la capa al grup
-    group.addLayer(layer_clone)
-    
+       
     # Creació del constructor del símbol
     symbol = QgsFillSymbol()
     
@@ -81,7 +73,6 @@ def simbologia_unica_linia(layer, fill_color, width, outline_color, outline_widt
     La funció:
         Clona la capa d'entrada
         Assigna un nom nou a la capa clonada
-        Crea un grup de simbologia única 
         Genera simbologia
 
     Paràmetres de la funció:
@@ -97,16 +88,6 @@ def simbologia_unica_linia(layer, fill_color, width, outline_color, outline_widt
     # Assignació d'un nou nom
     layer_clone.setName(f"{layer_clone.name()}_simbUnica")
     
-    # Addició de la capa al projecte
-    project.addMapLayer(layer_clone, False)
-    
-    # Creació d'un grup de capes de simbologia única, si no existeix
-    group = root.findGroup("Simbologia_única")
-    if not group:
-        group = root.addGroup("Simbologia_única")
-    # Addició de la capa al grup
-    group.addLayer(layer_clone)
-
     # Creació del constructor del símbol
     symbol = QgsLineSymbol()
     
@@ -133,10 +114,7 @@ def simbologia_unica_linia(layer, fill_color, width, outline_color, outline_widt
     layer_clone.setRenderer(renderer)
     
     # Actualització del llenç
-    layer_clone.triggerRepaint()
     iface.mapCanvas().refresh()
-    # Actualització del panell de capes
-    iface.layerTreeView().refreshLayerSymbology(layer_clone.id())
 
     # Retorn de la capa amb la simbologia
     return layer_clone

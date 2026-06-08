@@ -21,7 +21,6 @@ def simbologia_categorica(layer, atribut, colors, outline_width, stroke_color):
     La funció:
         Clona la capa d'entrada
         Assigna un nom nou a la capa clonada
-        Crea un grup de simbologia categòrica 
         Genera simbologia
     
     Paràmetres de la funció:
@@ -36,17 +35,7 @@ def simbologia_categorica(layer, atribut, colors, outline_width, stroke_color):
     
     # Assignació d'un nou nom
     layer_clone.setName(f"{layer_clone.name()}_simbCat")
-    
-    # Addició de la capa al projecte
-    project.addMapLayer(layer_clone, False)
-    
-    # Creació d'un grup de capes de simbologia única, si no existeix
-    group = root.findGroup("Simbologia_categorica")
-    if not group:
-        group = root.addGroup("Simbologia_categorica")
-    # Addició de la capa al grup
-    group.addLayer(layer_clone)
-    
+          
     # Llistat de cada categoria de la classe QgsRendererCategory, com a (value, symbol, label)
     categories = []
 
@@ -77,11 +66,8 @@ def simbologia_categorica(layer, atribut, colors, outline_width, stroke_color):
     layer_clone.setRenderer(renderer)
     
     # Actualització del llenç
-    layer_clone.triggerRepaint()
     iface.mapCanvas().refresh()
-    # Actualització del panell de capes
-    iface.layerTreeView().refreshLayerSymbology(layer_clone.id())
-
+    
     # Retorn de la capa amb la simbologia
     return layer_clone
 

@@ -23,7 +23,6 @@ def simbologia_graduada_QGIS(layer, atribut, num_classes, color_ramp, mode, stro
     La funció:
         Clona la capa d'entrada
         Assigna un nom nou a la capa clonada
-        Crea un grup de simbologia graduada 
         Genera simbologia especificant el mètode de classificació i la rampa de colors
         
     Paràmetres de la funció:
@@ -32,7 +31,7 @@ def simbologia_graduada_QGIS(layer, atribut, num_classes, color_ramp, mode, stro
         num_classes : número de classes amb què es divideix el valor de l'atribut
         color_ramp : rampa de color d'estil QGIS
         mode : mètode de classificació de QGIS
-        stroke_color : color de la línia de contorn, passat com a string
+        stroke_color : color de la línia de contorn, passat com a (RGBA)
         stroke_width : gruix de la línia de contorn (0.26 per defecte)
     """
     # Clonació de la capa d'entrada
@@ -40,17 +39,7 @@ def simbologia_graduada_QGIS(layer, atribut, num_classes, color_ramp, mode, stro
     
     # Assignació d'un nou nom
     layer_clone.setName(f"{layer_clone.name()}_simbGradQGIS")
-    
-    # Addició de la capa al projecte
-    project.addMapLayer(layer_clone, False)
-    
-    # Creació d'un grup de capes de simbologia única, si no existeix
-    group = root.findGroup("Simbologia_graduada_QGIS")
-    if not group:
-        group = root.addGroup("Simbologia_graduada_QGIS")
-    # Addició de la capa al grup
-    group.addLayer(layer_clone)
-
+       
     # Mètodes de classificació possibles
     mode_map = {
         "EqualInterval": QgsGraduatedSymbolRenderer.EqualInterval,
@@ -62,7 +51,7 @@ def simbologia_graduada_QGIS(layer, atribut, num_classes, color_ramp, mode, stro
 
     # Es defineix la simbologia, amb el color i el gruix del contorn
     symbol = QgsFillSymbol()
-    symbol.symbolLayer(0).setStrokeColor(QColor(stroke_color))
+    symbol.symbolLayer(0).setStrokeColor(QColor(*stroke_color))
     symbol.symbolLayer(0).setStrokeWidth(stroke_width)
 
     # S'estableix el renderer graduat de la capa, amb els paràmetres entrats en la crida de la funció
@@ -79,10 +68,7 @@ def simbologia_graduada_QGIS(layer, atribut, num_classes, color_ramp, mode, stro
     layer_clone.setRenderer(renderer)
     
     # Actualització del llenç
-    layer_clone.triggerRepaint()
     iface.mapCanvas().refresh()
-    # Actualització del panell de capes
-    iface.layerTreeView().refreshLayerSymbology(layer_clone.id())
 
     # Retorn de la capa amb la simbologia
     return layer_clone

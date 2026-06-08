@@ -108,37 +108,36 @@ for layer in dict_layers.values():
 # Anàlisi de xarxes
 
 
-# Selecció dels edificis comercials
+# Selecció dels edificis comercials a partir d'un request
 request_retail = QgsFeatureRequest().setFilterExpression('"currentUse" = \'4_2_retail\'')
 ###layer_retail = dict_layers["Edificis"].getFeatures(request_retail) ###getFeatures() retorna un iterador de features, no una capa. 
 layer_retail = dict_layers["Edificis"].materialize(request_retail)
 
-# Generació dels seus centroides
+# Generació dels centroides dels edificis tipus *retail*
 result_centroids_retail = processing.run("native:centroids", {
     'INPUT': layer_retail,
     'ALL_PARTS': False,
     'OUTPUT': 'memory:'
 })
-layer_retail_centroids = result_centroids_retail['OUTPUT']
+# Desat del resultat en una capa
+layer_centroids_retail = result_centroids_retail['OUTPUT']
 
-# Generació de clústers amb mètode DBSCAN
+# Generació de clústers retail amb mètode DBSCAN a partir dels centroides dels edificis retail
 result_clusters_retail = processing.run("native:dbscanclustering", {
-    'INPUT': layer_retail_centroids,
+    'INPUT': layer_centroids_retail,
     'EPS': 100,          # 100 metres de distància màxima entre edificis
     'MINSIZE': 5,       # mínim 5 edificis per formar un clúster
     'FIELD_NAME': 'CLUSTER_ID',
     'SIZE_FIELD_NAME': 'CLUSTER_SIZE',
     'OUTPUT': 'memory:'
 })
+# Desat del resultat en una capa
 layer_clusters_retail = result_clusters_retail['OUTPUT']
-
-# Addició de la capa al projecte
-project.addMapLayer(layer_clusters_retail, False)
 
 # Filtre de tots els valors únics de CLUSTER_ID - els que no son NULL
 cluster_ids = set([f["CLUSTER_ID"] for f in layer_clusters_retail.getFeatures() if f["CLUSTER_ID"] is not 'NULL'])
 print(f"Número de clústers: {len(cluster_ids)}")
-
+# Generació d'una consulta per filtrar la capa de clústers a aquells no nuls
 request_clusters = QgsFeatureRequest().setFilterExpression('"CLUSTER_ID" IS NOT NULL AND "CLUSTER_ID" != -1')
 layer_clusters_retail_notNull = layer_clusters_retail.materialize(request_clusters)
 
@@ -149,23 +148,27 @@ result_hull = processing.run("qgis:minimumboundinggeometry", {
     'TYPE': 2,
     'OUTPUT': 'memory:'
 })
+# Desat del resultat en una capa
 layer_hull_retail = result_hull['OUTPUT']
 
-# Dissolució de les geometria
+# Dissolució de les geometria de les envolents per unificar-les
 result_dissolved = processing.run("native:dissolve", {
     'INPUT': layer_hull_retail,
     'FIELD': [],
     'SEPARATE_DISJOINT': True,
     'OUTPUT': 'memory:'
 })
-layer_retail_zones = result_dissolved['OUTPUT']
+# Desat del resultat en una capa
+layer_zones_retail = result_dissolved['OUTPUT']
+# Canvi de nom de la capa 'output'
+layer_zones_retail.setName("Zones_comercials")
 
 # Addició capa al projecte
-project.addMapLayer(layer_retail_zones, False)
+project.addMapLayer(layer_zones_retail, False)
 
-# Generació centroides de les zones dissoltes
+# Generació centroides de les zones dissoltes per a l'anàlisi de xarxa
 result_centroids_zones = processing.run("native:centroids", {
-    'INPUT': layer_retail_zones,
+    'INPUT': layer_zones_retail,
     'ALL_PARTS': False,
     'OUTPUT': 'memory:'
 })
@@ -211,14 +214,36 @@ for layer in project.mapLayers().values():
 
 
 # Aplicació de simbologia per generar la cartografia
+## Ordre de capes:
+### CartoDarrk
+### Districtes
+### Barris
+### Graf
+### Edificis
+### Clústers
+### Isoàrees
 
-## Ús dels edificis a Barcelona - segons cadastre / Simbologia categòrica
+# 1. Mapa base de fons
+layer_carto_dark = "type=xyz&url=https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png&zmax=19&zmin=0"
+# Creació de la capa de fons
+layer_fons = QgsRasterLayer(layer_carto_dark, "CartoDB Dark", "wms")
+if layer_fons.isValid():
+    project.addMapLayer(layer_fons, False)
+    root.addLayer(layer_fons)
+    print("Capa de fons carregada correctament")
+else:
+    print("Error al carregar la capa de fons")
+
+
+# 2. Límits administratius
 layer_base_districtes = simbologia_unica(
     dict_layers["Districtes"],
     (0,0,0,0),
     0.5,
     (255,200,50,255)
 )
+print("Afegint els límits administratius dels districtes")
+root.addLayer(layer_base_districtes)
 
 layer_base_barris = simbologia_unica(
     dict_layers["Barris"],
@@ -226,7 +251,16 @@ layer_base_barris = simbologia_unica(
     0.2,
     (150,220,220,255)
 )
+print("Afegint els límits administratius dels barris")
+root.addLayer(layer_base_barris)
 
+
+# 3. Graf viari
+print("Afegint el graf viari")
+root.addLayer(dict_layers["Graf"]) ##FUNCIÓ SIMBOLOGIA ÜNICA? 
+
+
+# 4. Edificis amb usos
 dict_colors_edificis = {
     "1_residential": (255, 235, 175, 255),
     "2_agriculture": (170, 255, 115, 255),
@@ -244,43 +278,32 @@ layer_us_edificis = simbologia_categorica(
     "white"
 )
 
-# Mapa base de fons
-layer_carto_dark = "type=xyz&url=https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png&zmax=19&zmin=0"
-# Creació de la capa de fons
-layer_fons = QgsRasterLayer(layer_carto_dark, "CartoDB Dark", "wms")
-if layer_fons.isValid():
-    project.addMapLayer(layer_fons, True)
-    print("Capa de fons carregada correctament")
-else:
-    print("Error al carregar la capa de fons")
+print("Afegint els edificis classificats per ús")
+root.addLayer(layer_us_edificis)
 
 
-# Clústers retail
-cluster_symbol = QgsSymbol.defaultSymbol(layer_retail_zones.geometryType())
+# 5. Clústers retail
+cluster_symbol = QgsSymbol.defaultSymbol(layer_zones_retail.geometryType())
 cluster_symbol.setColor(QColor(255, 127, 0, 125))
 cluster_symbol.symbolLayer(0).setStrokeColor(QColor(255, 127, 0, 255))
-
 renderer = QgsSingleSymbolRenderer(cluster_symbol)
-layer_retail_zones.setRenderer(renderer)
+layer_zones_retail.setRenderer(renderer)
+print("Afegint els clústers")
+root.addLayer(layer_zones_retail)
 
-# Isoàrees
+
+# 6. Isoàrees
 layer_isoareas = simbologia_graduada_QGIS(layer_polygons_isoareas,
                                           "cost_level",
                                           7, 
                                           "Spectral",
                                           "Jenks",
-                                          "white",
+                                          (255,255,255,100),
                                           0.2) 
 
-
-# Addició de capes al canvas
-# Afegir capes al canvas en l'ordre desitjat (de baix a dalt)
-root.addLayer(layer_fons)
-root.addLayer(layer_base_districtes)
-root.addLayer(layer_base_barris)
-root.addLayer(layer_us_edificis)
-root.addLayer(layer_retail_zones)
+print("Afegint les isoàrees")
 root.addLayer(layer_isoareas)
+
 
 #========================================================================================
 
@@ -472,15 +495,7 @@ if existing:
 manager.addLayout(layout)
 
 
-# COMPOSICIÓ FINAL
-##Ordre:
-### CartoDarrk
-### Districtes
-### Barris
-### Graf
-### Edificis
-### Clústers
-### Isoàrees
+
 
 # Composició global
 # LAYOUT
