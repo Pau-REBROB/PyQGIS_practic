@@ -2,6 +2,18 @@
 
 """SIMBOLOGIA GRADUADA"""
 
+from qgis.core import (
+    QgsProject,
+    QgsFillSymbol,
+    QgsGraduatedSymbolRenderer,
+    QgsStyle,
+)
+from qgis.PyQt.QtGui import QColor
+from qgis.utils import iface
+
+project = QgsProject.instance()
+root = project.layerTreeRoot()
+
 def simbologia_graduada_QGIS(layer, atribut, num_classes, color_ramp, mode, stroke_color, stroke_width):
     """
     Aplica simbologia graduada a una capa poligonal existent

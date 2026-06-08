@@ -8,13 +8,13 @@ import sys
 sys.path.append("C:/projectes_git/PyQGIS_practic/Exemple")
 import importlib
 import os
+import processing
 
 # Forçar la recàrrega dels mòduls de simbologia
 mods_a_recarregar = [
     "simbologia_unica_2_1",
     "simbologia_categorica_2_2",
     "simbologia_graduada_2_3",
-    "simbologia_graduada_manual_2_4"
 ]
 
 for mod in mods_a_recarregar:
@@ -23,8 +23,7 @@ for mod in mods_a_recarregar:
 
 from simbologia_unica_2_1 import simbologia_unica, simbologia_unica_linia
 from simbologia_categorica_2_2 import simbologia_categorica
-#from simbologia_graduada_2_3 import simbologia_graduada_QGIS
-#from simbologia_graduada_manual_2_4 import simbologia_graduada_manual
+from simbologia_graduada_2_3 import simbologia_graduada_QGIS
 
 # Generació instància del projecte
 project = QgsProject.instance()
@@ -36,6 +35,7 @@ root = project.layerTreeRoot()
 project.removeAllMapLayers()
 root.removeAllChildren()
 
+#============================================================================================
 
 """IMPORTACIÓ DE CAPES"""
 
@@ -75,6 +75,7 @@ for i, (nom, path) in enumerate(layers.items()):
         # Generació de l'índex i addició al diccionari d'índexs
         dict_indexs[nom] = QgsSpatialIndex(layer.getFeatures())
 
+#============================================================================================
 
 """SISTEMES DE REFERÈNCIA"""
 
@@ -92,7 +93,107 @@ for layer in dict_layers.values():
     else:
         print(f"La capa {layer.name()} està en el SRC {layer.crs().authid()} i necessita ser reprojectada a EPSG:25831!")
 
-#===================================================================
+#============================================================================================
+
+"""ANÀLISI ESPACIAL"""
+
+# Identificació de zones d'alta concentració - clústers - d'edificis amb el mateix ús 
+## Ús comercial: 4_2_retail
+
+# Seleccionar els edificis d'ús = retail
+# Generació centroides
+# Agrupació en clústers
+# Envolvent convexa dels clústers d'igual ID
+# Simbologia dels envolvents
+# Anàlisi de xarxes
+
+
+# Selecció dels edificis comercials
+request_retail = QgsFeatureRequest().setFilterExpression('"currentUse" = \'4_2_retail\'')
+###layer_retail = dict_layers["Edificis"].getFeatures(request_retail) ###getFeatures() retorna un iterador de features, no una capa. 
+layer_retail = dict_layers["Edificis"].materialize(request_retail)
+
+# Generació dels seus centroides
+result_centroids_retail = processing.run("native:centroids", {
+    'INPUT': layer_retail,
+    'ALL_PARTS': False,
+    'OUTPUT': 'memory:'
+})
+layer_retail_centroids = result_centroids_retail['OUTPUT']
+
+# Generació de clústers amb mètode DBSCAN
+result_clusters_retail = processing.run("native:dbscanclustering", {
+    'INPUT': layer_retail_centroids,
+    'EPS': 100,          # 100 metres de distància màxima entre edificis
+    'MINSIZE': 5,       # mínim 5 edificis per formar un clúster
+    'FIELD_NAME': 'CLUSTER_ID',
+    'SIZE_FIELD_NAME': 'CLUSTER_SIZE',
+    'OUTPUT': 'memory:'
+})
+layer_clusters_retail = result_clusters_retail['OUTPUT']
+
+# Addició de la capa al projecte
+project.addMapLayer(layer_clusters_retail, False)
+
+# Filtre de tots els valors únics de CLUSTER_ID - els que no son NULL
+cluster_ids = set([f["CLUSTER_ID"] for f in layer_clusters_retail.getFeatures() if f["CLUSTER_ID"] is not 'NULL'])
+print(f"Número de clústers: {len(cluster_ids)}")
+
+request_clusters = QgsFeatureRequest().setFilterExpression('"CLUSTER_ID" IS NOT NULL AND "CLUSTER_ID" != -1')
+layer_clusters_retail_notNull = layer_clusters_retail.materialize(request_clusters)
+
+# Generar envolvent per cada clúster
+result_hull = processing.run("qgis:minimumboundinggeometry", {
+    'INPUT': layer_clusters_retail_notNull,
+    'FIELD': 'CLUSTER_ID',
+    'TYPE': 2,
+    'OUTPUT': 'memory:'
+})
+layer_hull_retail = result_hull['OUTPUT']
+
+# Dissolució de les geometria
+result_dissolved = processing.run("native:dissolve", {
+    'INPUT': layer_hull_retail,
+    'FIELD': [],
+    'SEPARATE_DISJOINT': True,
+    'OUTPUT': 'memory:'
+})
+layer_retail_zones = result_dissolved['OUTPUT']
+
+# Addició capa al projecte
+project.addMapLayer(layer_retail_zones, False)
+
+# Generació centroides de les zones dissoltes
+result_centroids_zones = processing.run("native:centroids", {
+    'INPUT': layer_retail_zones,
+    'ALL_PARTS': False,
+    'OUTPUT': 'memory:'
+})
+layer_zones_centroids = result_centroids_zones['OUTPUT']
+
+
+# Anàlisi de xarxes
+## Isoàrees de proximitat a les zones de comerços
+# S'utilitza el plugin QNEAT3
+result_isoareas = processing.run("qneat3:isoareaaspolygonsfromlayer", {
+    'INPUT': dict_layers["Graf"],
+    'START_POINTS': layer_zones_centroids,
+    'ID_FIELD': "id",
+    'MAX_DIST': 5000,#DISTÀNCIA MÀXIMA
+    'INTERVAL': 100,
+    'STRATEGY': 0,#SHORTEST PATH
+    'OUTPUT_INTERPOLATION': "C:/projectes_git/PyQGIS_practic/Resultats/output_interpolation.tif",
+    'OUTPUT_POLYGONS': "C:/projectes_git/PyQGIS_practic/Resultats/output_polygons.shp"
+})
+
+layer_polygons_isoareas = QgsVectorLayer(
+    "C:/projectes_git/PyQGIS_practic/Resultats/output_polygons.shp",
+    "Isoàrees",
+    "ogr"
+)
+project.addMapLayer(layer_polygons_isoareas, False)
+
+#============================================================================================
 
 """GENERACIÓ DE CARTOGRAFIA"""
 # QUINS LAYOUTS VULL CREAR?
@@ -108,7 +209,9 @@ for layer in project.mapLayers().values():
     if node:
         node.setItemVisibilityChecked(False)
 
-# Aplicació de les funcions per generar la cartografia
+
+# Aplicació de simbologia per generar la cartografia
+
 ## Ús dels edificis a Barcelona - segons cadastre / Simbologia categòrica
 layer_base_districtes = simbologia_unica(
     dict_layers["Districtes"],
@@ -117,12 +220,12 @@ layer_base_districtes = simbologia_unica(
     (255,200,50,255)
 )
 
-#layer_base_barris = simbologia_unica(
-#    dict_layers["Barris"],
-#    (0,0,0,0),
-#    0.2,
-#    (150,220,220,255)
-#)
+layer_base_barris = simbologia_unica(
+    dict_layers["Barris"],
+    (0,0,0,0),
+    0.2,
+    (150,220,220,255)
+)
 
 dict_colors_edificis = {
     "1_residential": (255, 235, 175, 255),
@@ -141,6 +244,7 @@ layer_us_edificis = simbologia_categorica(
     "white"
 )
 
+# Mapa base de fons
 layer_carto_dark = "type=xyz&url=https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png&zmax=19&zmin=0"
 # Creació de la capa de fons
 layer_fons = QgsRasterLayer(layer_carto_dark, "CartoDB Dark", "wms")
@@ -149,6 +253,34 @@ if layer_fons.isValid():
     print("Capa de fons carregada correctament")
 else:
     print("Error al carregar la capa de fons")
+
+
+# Clústers retail
+cluster_symbol = QgsSymbol.defaultSymbol(layer_retail_zones.geometryType())
+cluster_symbol.setColor(QColor(255, 127, 0, 125))
+cluster_symbol.symbolLayer(0).setStrokeColor(QColor(255, 127, 0, 255))
+
+renderer = QgsSingleSymbolRenderer(cluster_symbol)
+layer_retail_zones.setRenderer(renderer)
+
+# Isoàrees
+layer_isoareas = simbologia_graduada_QGIS(layer_polygons_isoareas,
+                                          "cost_level",
+                                          7, 
+                                          "Spectral",
+                                          "Jenks",
+                                          "white",
+                                          0.2) 
+
+
+# Addició de capes al canvas
+# Afegir capes al canvas en l'ordre desitjat (de baix a dalt)
+root.addLayer(layer_fons)
+root.addLayer(layer_base_districtes)
+root.addLayer(layer_base_barris)
+root.addLayer(layer_us_edificis)
+root.addLayer(layer_retail_zones)
+root.addLayer(layer_isoareas)
 
 #========================================================================================
 
@@ -339,118 +471,154 @@ if existing:
 
 manager.addLayout(layout)
 
-#=============================================================================================0
 
-"""ANÀLISI ESPACIAL"""
+# COMPOSICIÓ FINAL
+##Ordre:
+### CartoDarrk
+### Districtes
+### Barris
+### Graf
+### Edificis
+### Clústers
+### Isoàrees
 
-# Identificació de zones d'alta concentració - clústers - d'edificis amb el mateix ús 
-## Ús comercial: 4_2_retail
+# Composició global
+# LAYOUT
+layout_isoareas = QgsPrintLayout(project)
+layout_isoareas.initializeDefaults()
+layout_isoareas.setName("Proximitat als eixos comercials")
 
-# Seleccionar els edificis d'ús = retail
-# Generació centroides
-# Agrupació en clústers
-# Envolvent convexa dels clústers d'igual ID
-# Simbologia dels envolvents
-# Anàlisi de xarxes
-
-import processing
-
-# Selecció dels edificis comercials
-request_retail = QgsFeatureRequest().setFilterExpression('"currentUse" = \'4_2_retail\'')
-###layer_retail = dict_layers["Edificis"].getFeatures(request_retail) ###getFeatures() retorna un iterador de features, no una capa. 
-layer_retail = dict_layers["Edificis"].materialize(request_retail)
-
-# Generació dels seus centroides
-result_centroids_retail = processing.run("native:centroids", {
-    'INPUT': layer_retail,
-    'ALL_PARTS': False,
-    'OUTPUT': 'memory:'
-})
-layer_retail_centroids = result_centroids_retail['OUTPUT']
-
-# Generació de clústers amb mètode DBSCAN
-result_clusters_retail = processing.run("native:dbscanclustering", {
-    'INPUT': layer_retail_centroids,
-    'EPS': 100,          # 100 metres de distància màxima entre edificis
-    'MINSIZE': 5,       # mínim 5 edificis per formar un clúster
-    'FIELD_NAME': 'CLUSTER_ID',
-    'SIZE_FIELD_NAME': 'CLUSTER_SIZE',
-    'OUTPUT': 'memory:'
-})
-layer_clusters_retail = result_clusters_retail['OUTPUT']
-# Addició de la capa al projecte
-project.addMapLayer(layer_clusters_retail, False)
-
-# Filtre de tots els valors únics de CLUSTER_ID - els que no son NULL
-cluster_ids = set([f["CLUSTER_ID"] for f in layer_clusters_retail.getFeatures() if f["CLUSTER_ID"] is not 'NULL'])
-print(f"Número de clústers: {len(cluster_ids)}")
-
-request_clusters = QgsFeatureRequest().setFilterExpression('"CLUSTER_ID" IS NOT NULL AND "CLUSTER_ID" != -1')
-layer_clusters_retail_notNull = layer_clusters_retail.materialize(request_clusters)
-
-# Generar envolvent per cada clúster
-result_hull = processing.run("qgis:minimumboundinggeometry", {
-    'INPUT': layer_clusters_retail_notNull,
-    'FIELD': 'CLUSTER_ID',
-    'TYPE': 2,
-    'OUTPUT': 'memory:'
-})
-layer_hull_retail = result_hull['OUTPUT']
-
-# Dissolució de les geometria
-result_dissolved = processing.run("native:dissolve", {
-    'INPUT': layer_hull_retail,
-    'FIELD': [],
-    'SEPARATE_DISJOINT': True,
-    'OUTPUT': 'memory:'
-})
-layer_retail_zones = result_dissolved['OUTPUT']
-project.addMapLayer(layer_retail_zones, True)
-
-# Generació centroides de les zones dissoltes
-result_centroids_zones = processing.run("native:centroids", {
-    'INPUT': layer_retail_zones,
-    'ALL_PARTS': False,
-    'OUTPUT': 'memory:'
-})
-layer_zones_centroids = result_centroids_zones['OUTPUT']
+#manager = project.layoutManager()
 
 
-# Aplicar simbologia
-cluster_symbol = QgsSymbol.defaultSymbol(layer_retail_zones.geometryType())
-cluster_symbol.setColor(QColor(255, 127, 0, 125))
-cluster_symbol.symbolLayer(0).setStrokeColor(QColor(255, 127, 0, 255))
+# MAP
+layout_map_isoareas = QgsLayoutItemMap(layout_isoareas)
+layout_isoareas.addLayoutItem(layout_map_isoareas)
 
-renderer = QgsSingleSymbolRenderer(cluster_symbol)
-layer_hull_retail.setRenderer(renderer)
-   
-# Actualització del llenç
-layer_retail_zones.triggerRepaint()
-iface.mapCanvas().refresh()
-# Actualització del panell de capes
-iface.layerTreeView().refreshLayerSymbology(layer_retail_zones.id())
+#layout_map.setLayers([layer_us_edificis, layer_base_barris, layer_base_districtes, layer_fons])
+layout_map_isoareas.setLayers([layer_isoareas, 
+                      layer_us_edificis,
+                      dict_layers["Graf"],
+                      layer_base_districtes,
+                      layer_fons])
+layout_map_isoareas.setKeepLayerSet(True)
 
+extent = dict_layers["TermeMunicipal"].extent() 
+layout_map_isoareas.zoomToExtent(extent)
 
-# Anàlisi de xarxes
-## Isoàrees de proximitat a les zones de comerços
-# S'utilitza el plugin QNEAT3
-result_isoareas = processing.run("qneat3:isoareaaspolygonsfromlayer", {
-    'INPUT': dict_layers["Graf"],
-    'START_POINTS': layer_zones_centroids,
-    'ID_FIELD': "id",
-    'MAX_DIST': 200,#200 METRES DE DISTÀNCIA MÀXIMA --- CAL AUGMENTAR
-    'INTERVAL': 50,
-    'STRATEGY': 0,#SHORTEST PATH
-    'OUTPUT_INTERPOLATION': "C:/projectes_git/PyQGIS_practic/Resultats/output_interpolation.tif",
-    'OUTPUT_POLYGONS': "C:/projectes_git/PyQGIS_practic/Resultats/output_polygons.shp"
-})
-
-layer_polygons_isoareas = QgsVectorLayer(
-    "C:/projectes_git/PyQGIS_practic/Resultats/output_polygons.shp",
-    "Isoàrees",
-    "ogr"
-)
-project.addMapLayer(layer_polygons_isoareas, True)
+layout_map_isoareas.attemptResize(QgsLayoutSize(297,210,QgsUnitTypes.LayoutMillimeters))    #DIN A4 apaisat 297x210mm
+layout_map_isoareas.attemptMove(QgsLayoutPoint(0,0,QgsUnitTypes.LayoutMillimeters))
 
 
-# SIMBOLOGIA DE ISOÀREES + COMPOSICIÓ FINAL
+# TITLE
+title = QgsLayoutItemLabel(layout_isoareas)
+layout_isoareas.addLayoutItem(title)
+
+title.attemptMove(QgsLayoutPoint(10, 5, QgsUnitTypes.LayoutMillimeters))
+title.attemptResize(QgsLayoutSize(275, 10, QgsUnitTypes.LayoutMillimeters))
+
+title.setText("Proximitat als eixos comercials de Barcelona")
+title_format = QgsTextFormat()
+title_format.setFont(QFont("Arial", 20))
+title_format.setSize(20)
+title_format.setSizeUnit(QgsUnitTypes.RenderPoints)
+title_format.setColor(QColor(255, 255, 255))
+title.setTextFormat(title_format)
+
+#title.setHAlign(Qt.AlignCenter)
+title.setMarginX(5)  # marge horitzontal en mm
+title.setMarginY(1)  # marge vertical en mm
+
+title.setBackgroundEnabled(True)
+title.setBackgroundColor(QColor(100, 100, 100, 200))
+title.setFrameEnabled(True)
+title.setFrameStrokeColor(QColor(255, 255, 255, 200))
+title.setFrameStrokeWidth(QgsLayoutMeasurement(0.75, QgsUnitTypes.LayoutMillimeters))
+
+
+# LEGEND
+legend = QgsLayoutItemLegend(layout_isoareas)
+layout_isoareas.addLayoutItem(legend)
+
+legend.setLinkedMap(layout_map_isoareas)
+legend.setAutoUpdateModel(True) 
+
+legend.setTitle("Ús dels edificis")
+
+legend.attemptMove(QgsLayoutPoint(10,30,QgsUnitTypes.LayoutMillimeters))
+
+text_format = QgsTextFormat()
+text_format.setSize(10)
+text_format.setSizeUnit(QgsUnitTypes.RenderPoints)
+text_format.setColor(QColor(255, 255, 255))
+# Títol
+legend.rstyle(QgsLegendStyle.Title).setTextFormat(text_format)
+# Grups
+legend.rstyle(QgsLegendStyle.Group).setTextFormat(text_format)
+# Subgrups
+legend.rstyle(QgsLegendStyle.Subgroup).setTextFormat(text_format)
+# Elements individuals
+legend.rstyle(QgsLegendStyle.SymbolLabel).setTextFormat(text_format)
+
+legend.setBackgroundEnabled(True)
+legend.setBackgroundColor(QColor(80, 80, 80, 200))
+legend.setFrameEnabled(False)
+
+legend.setAutoUpdateModel(False)  
+root_legend = legend.model().rootGroup()
+noms_a_eliminar = ["Simbologia_única", "CartoDB Dark"]
+for child in root_legend.children()[:]:
+    if child.name() in noms_a_eliminar:
+        root_legend.removeChildNode(child)
+
+
+# SCALE
+scale = QgsLayoutItemScaleBar(layout_isoareas)
+layout_isoareas.addLayoutItem(scale)
+
+scale.setLinkedMap(layout_map_isoareas)
+
+#scale.attemptResize(QgsLayoutSize(15,15,QgsUnitTypes.LayoutMillimeters))
+scale.attemptMove(QgsLayoutPoint(270,200,QgsUnitTypes.LayoutMillimeters))
+
+scale.setStyle("Numeric")
+numeric_format = QgsBasicNumericFormat()
+numeric_format.setShowThousandsSeparator(True)
+numeric_format.setNumberDecimalPlaces(0)
+scale.setNumericFormat(numeric_format)
+
+scale_format = QgsTextFormat()
+scale_format.setFont(QFont("Arial"))
+scale_format.setSize(16)
+scale_format.setSizeUnit(QgsUnitTypes.RenderPoints)
+scale_format.setColor(QColor(255, 255, 255))
+scale.setTextFormat(scale_format)
+#scale.setFontColor(QColor(255, 255, 255))
+
+
+# NORTH
+north = QgsLayoutItemPicture(layout_isoareas)
+layout_isoareas.addLayoutItem(north)
+
+north.setPicturePath("C:/projectes_git/Dades/nord2.png")
+north.attemptResize(QgsLayoutSize(15, 15, QgsUnitTypes.LayoutMillimeters))
+north.attemptMove(QgsLayoutPoint(270, 180, QgsUnitTypes.LayoutMillimeters))
+
+
+
+output_path = "C:/projectes_git/PyQGIS_practic/Resultats/Proximitat_retail.png"
+if os.path.exists(output_path):
+    os.remove(output_path)  
+
+exporter_isoareas = QgsLayoutExporter(layout_isoareas)
+image_settings = QgsLayoutExporter.ImageExportSettings()
+image_settings.dpi = 300
+result = exporter_isoareas.exportToImage(output_path, image_settings)
+print(f"Resultat: {result}")
+print(f"Fitxer existeix: {os.path.exists(output_path)}")
+
+existing = manager.layoutByName("Proximitat als eixos comercials")
+if existing:
+    manager.removeLayout(existing)
+
+manager.addLayout(layout_isoareas)
