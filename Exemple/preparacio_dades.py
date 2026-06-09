@@ -1,5 +1,8 @@
 """NETEJA DE CAPES"""
 
+# ELS CAMPS A MANTENIR ESTARIEN AL MAIN O CONFIGURACIÓ
+
+
 # LÍMITS ADMINISTRATIUS
 # Les capes contenen molts camps (fins a 46!) que resulten innecessaris
 # Les tres capes del grup de Límits administratius contenen els mateixos 46 camps

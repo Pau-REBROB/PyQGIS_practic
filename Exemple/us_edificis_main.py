@@ -1,7 +1,38 @@
 """ÚS EDIFICIS DE BARCELONA"""
+"""Detecció automàtica de clústers comercials i anàlisi d'accessibilitat viària a Barcelona mitjançant PyQGIS i QNEAT3"""
 
+"""
+00_inicialitzacio.py
+01_importacio.py
+02_analisi.py
+03_simbologia.py
+04_layout.py
+main.py
+ -----
+ main.py
 
-"""INICIALITZACIÓ PROJECTE"""
+config.py              # rutes, colors, paràmetres DBSCAN...
+
+carrega_dades.py
+analisi_retail.py
+analisi_usos.py
+
+simbologia_unica.py
+simbologia_categorica.py
+simbologia_graduada.py
+
+layout_general.py
+layout_clusters.py
+"""
+
+"""
+1. Visió general: composició de la distribució dels usos dels edificis
+2. Dinàmica comercial: composició dels principals eixos comercials i el seu accés
+3. Comparació entre usos: mateix pipeline amb altres usos
+"""
+
+# ==============================================================================
+# 01-INICIALITZACIÓ PROJECTE
 
 # Importació de mòduls i funcions
 import sys
