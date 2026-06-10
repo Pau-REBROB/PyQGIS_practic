@@ -1,6 +1,8 @@
 """NETEJA DE CAPES"""
 
-# ELS CAMPS A MANTENIR ESTARIEN AL MAIN O CONFIGURACIÓ
+# ELS CAMPS A MANTENIR ESTARIEN AL MAIN O CONFIGURACIÓ COM A DICCIONARI
+
+# LA INSPECCIÓ ES FARIA EN EL MAIN??
 
 
 # LÍMITS ADMINISTRATIUS
@@ -19,49 +21,6 @@ camps_mantenir_limAdm = ['DISTRICTE', 'BARRI', 'PERIMETRE', 'AREA', 'TIPUS_UA', 
   # 'AREA' superfície de la geometria
   # 'TIPUS_UA' tipus d'unitat administrativa - indica si es tracta d'un barri, un districte o un terme municipal
   # 'NOM' nom de la unitat administrativa
-
-# Camps a eliminar
-for name, layer in dict_layers["Limits_administratius"].items():
-    # Clonació de la capa per no modificar l'original
-    layer_clone = layer.clone()
-
-    # Llista buida que contindrà els índex dels camps a eliminar
-    index_eliminar = []
-    
-    # Per cada capa del grup de Límits administratius, es busquen els seus camps i el seu índex
-    for i, field in enumerate(layer_clone.fields()):
-        # Si el nom del camp no es troba a la llista de camps a mantenir:
-        # Afegir el seu índex a la llista buida a eliminar
-        if field.name() not in camps_mantenir_limAdm:
-            index_eliminar.append(i)
-        else:
-            print(f"Camp {field.name()} conservat")
-
-    # Edició de la capa i eliminació del camp i els seus atributs
-    with edit(layer_clone):
-        layer_clone.deleteAttributes(index_eliminar)
-    
-    # Desat de la nova capa
-    transform_context = project.transformContext()
-    save_options = QgsVectorFileWriter.SaveVectorOptions()
-    save_options.driverName = "GPKG"
-    QgsVectorFileWriter.writeAsVectorFormatV3(layer_clone, 
-                                              f"C:/projectes_git/Dades/PyQGIS_Repo/Limits_administratius_BCN/{name}_clone.gpkg", 
-                                              transform_context, 
-                                              save_options) 
-    
-    # Eliminació de la capa original del projecte
-    project.removeMapLayer(layer.id())
-    
-    # Actualització del diccionari amb la capa neta
-    layer_clean = QgsVectorLayer(f"C:/projectes_git/Dades/PyQGIS_Repo/Limits_administratius_BCN/{name}_clone.gpkg", name, "ogr")
-    dict_layers["Limits_administratius"][name] = layer_clean
-
-# Comprovació de l'eliminació
-for name, layer in dict_layers["Limits_administratius"].items():
-    print(f"Número de camps presents a la capa {name} després de la neteja: {layer.fields().count()}")
-    print(f"Camps presents: {layer.fields().names()}")
-
 
 # CADASTRE
 # Diferència entre Adreces i Parcel·les i Edificis
@@ -89,50 +48,6 @@ camps_mantenir_cadastre = {
     'Illes': ['gml_id', 'areaValue', 'localId', 'nationalCadastralReference', 'pos']
 }
 
-# Camps a eliminar
-for name, layer in dict_layers["Cadastre"].items():
-    # Clonació de la capa per no modificar l'original
-    layer_clone = layer.materialize(QgsFeatureRequest())
-
-    # Llista buida que contindrà els índex dels camps a eliminar
-    index_eliminar = []
-    
-    # Per cada capa del grup de Límits administratius, es busquen els seus camps i el seu índex
-    for i, field in enumerate(layer_clone.fields()):
-        # Si el nom del camp no es troba a la llista de camps a mantenir:
-        # Afegir el seu índex a la llista buida a eliminar
-        if field.name() not in camps_mantenir_cadastre[name]:
-            index_eliminar.append(i)
-        else:
-            print(f"Camp {field.name()} conservat")
-
-    # Edició de la capa i eliminació del camp i els seus atributs
-    with edit(layer_clone):
-        layer_clone.deleteAttributes(index_eliminar)
-    
-    # Desat de la nova capa
-    transform_context = project.transformContext()
-    save_options = QgsVectorFileWriter.SaveVectorOptions()
-    save_options.driverName = "GPKG"
-    QgsVectorFileWriter.writeAsVectorFormatV3(layer_clone, 
-                                              f"C:/projectes_git/Dades/PyQGIS_Repo/Cadastre/{name}_clone.gpkg", 
-                                              transform_context, 
-                                              save_options) 
-    
-    # Eliminació de la capa original del projecte
-    project.removeMapLayer(layer.id())
-
-    # Actualització del diccionari amb la capa neta
-    layer_clean = QgsVectorLayer(f"C:/projectes_git/Dades/PyQGIS_Repo/Cadastre/{name}_clone.gpkg", name, "ogr")
-    dict_layers["Cadastre"][name] = layer_clean
-
-
-# Comprovació de l'eliminació
-for name, layer in dict_layers["Cadastre"].items():
-    print(f"Número de camps presents a la capa {name} després de la neteja: {layer.fields().count()}")
-    print(f"Camps presents: {layer.fields().names()}")
-
-
 # GRAF VIARI
 # Número de camps
 dict_layers["Graf"]['Graf_trams'].fields().count()
@@ -155,56 +70,71 @@ camps_mantenir_grafViari = ['COORD_X', 'COORD_Y', 'LONGITUD', 'ANGLE', 'C_Tram',
     # 'TVia_E' tipus de via de la part esquerra
     # 'NVia_E'  nom de la via de la part esquerra
 
-# Camps a eliminar
-for name, layer in dict_layers["Graf"].items():
-    layer_clone = layer.clone()
 
+
+from qgis.core import QgsFeatureRequest, QgsProject, QgsVectorFileWriter, QgsVectorLayer
+
+def netejar_capa(layer, camps):
+    """
+    Funció que elimina els camps especificats de la capa
+    """
+
+    # Clonació de la capa original per no modificar-la
+    layer_clone = layer.materialize(QgsFeatureRequest())
+
+    # Llista buida que contindrà els índex dels camps a eliminar
     index_eliminar = []
-    
+
+    # Cerca dels índexs dels camps a eliminar
     for i, field in enumerate(layer_clone.fields()):
-        if field.name() not in camps_mantenir_grafViari:
+        # Si el nom del camp no es troba a la llista de camps a mantenir passada com a paràmetre
+        # Afegir el seu índex a la llista buida
+        if field.name() not in camps:
             index_eliminar.append(i)
-        else:
-            print(f"Camp {field.name()} conservat")
     
+    # Edició de la capa i eliminació dels camps
     with edit(layer_clone):
         layer_clone.deleteAttributes(index_eliminar)
+   
+   
+    return layer_clone
 
-    # Desat de la nova capa
-    transform_context = project.transformContext()
+
+def desar_carregar_capa(layer_clone):
+    """
+    Funció que desa la capa neta per la funció `netejar_capa()` en un arxiu GPKG i carrega la capa al projecte
+    """
+
+    # Desat de la capa neta
+    transform_context = QgsProject.instance().transformContext()
+    
     save_options = QgsVectorFileWriter.SaveVectorOptions()
     save_options.driverName = "GPKG"
+    
     QgsVectorFileWriter.writeAsVectorFormatV3(layer_clone, 
-                                              f"C:/projectes_git/Dades/PyQGIS_Repo/Graf_viari/{name}_clone.gpkg", 
+                                              f"C:/projectes_git/Dades/PyQGIS_Repo/Dades_netes/{layer_clone.name()}_clean.gpkg", 
                                               transform_context, 
-                                              save_options) 
+                                              save_options)
+
+    # Importació de la capa al projecte
+    layer_clean = QgsVectorLayer(f"C:/projectes_git/Dades/PyQGIS_Repo/Dades_netes/{layer_clone.name()}_clean.gpkg",
+                                 layer_clone.name(),
+                                 "ogr")
+
+    return layer_clean 
     
-    # Eliminació de la capa original del projecte
-    project.removeMapLayer(layer.id())
-    
-    # Actualització del diccionari amb la capa neta
-    layer_clean = QgsVectorLayer(f"C:/projectes_git/Dades/PyQGIS_Repo/Graf_viari/{name}_clone.gpkg", name, "ogr")
-    dict_layers["Graf"][name] = layer_clean
 
-# Comprovació de l'eliminació
-for name, layer in dict_layers["Graf"].items():
-    print(f"Número de camps presents a la capa {name} després de la neteja: {layer.fields().count()}")
-    print(f"Camps presents: {layer.fields().names()}")
+def netejar_grup(dict_layers, configuracio):
+    """
+    Funció que genera un nou diccionari de capes netejades a partir de la funció `netejar_capa()`
+    """
 
+    for grup, capes in dict_layers.items():
+        
+        for nom, layer in capes.items():
+            
+            camps = configuracio[grup][nom]
+            
+            dict_layers[grup][nom] = netejar_capa(layer, camps) 
 
-"""ADDICIÓ DE CAPES AL PROJECTE"""
-
-# Addició de les capes al projecte en grups de capes
-# Les capes han estat creades en ordre
-for theme, group in reversed(dict_layers.items()):
-    # Creació d'un grup de capes per cada temàtica, si no existeix
-    group_theme = root.findGroup(theme)
-    if not group_theme:
-        group_theme = root.addGroup(theme)
-    
-    # Addició de les capes als grups
-    for layer in group.values():
-        # Addició de la capa al projecte, també
-        project.addMapLayer(layer, False)
-        group_theme.addLayer(layer)
- 
+    return dict_layers
