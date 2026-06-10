@@ -126,7 +126,14 @@ def desar_carregar_capa(layer_clone):
 
 def netejar_grup(dict_layers, configuracio):
     """
-    Funció que genera un nou diccionari de capes netejades a partir de la funció `netejar_capa()`
+    Funció que genera un nou diccionari de capes a partir de les funcions `netejar_capa()` i `desar_carregar_capa()`
+    La funció 
+        Agafa el diccionari de diccionaris de capes generat al mòdul d'importació.py
+        Itera sobre cada capa QgsVectorLayer present
+            Neteja la capa dels camps no desitjats
+            Desa la capa neta en un arxiu nou
+            Carrega la nova capa
+        Agafa la nova capa neta carregada i l'utilitza per suplir una nova QgsVectorLayer en el diccionari de diccionaris de capes
     """
 
     for grup, capes in dict_layers.items():
@@ -135,6 +142,10 @@ def netejar_grup(dict_layers, configuracio):
             
             camps = configuracio[grup][nom]
             
-            dict_layers[grup][nom] = netejar_capa(layer, camps) 
+            layer_clone = netejar_capa(layer, camps)
+
+            layer_clean = desar_carregar_capa(layer_clone)
+            
+            dict_layers[grup][nom] = layer_clean 
 
     return dict_layers
