@@ -23,6 +23,27 @@ simbologia_graduada.py
 
 layout_general.py
 layout_clusters.py
+
+--------
+
+PyQGIS_practic/
+
+main.py
+
+config.py
+
+inicialitzacio.py
+importacio.py
+analisi.py
+
+simbologia/
+    simbol_unic.py
+    simbol_categoric.py
+    simbol_graduat.py
+
+layouts/
+    layout_general.py
+    layout_clusters.py
 """
 
 """
@@ -31,12 +52,22 @@ layout_clusters.py
 3. Comparació entre usos: mateix pipeline amb altres usos
 """
 
+"""
+1. Composició general usos edificis (potser els residencials molt menys opacs)
+2. Atles per districte (10 pàgines)
+3. Concentració activitat comercial (graf, clústers i isoàrees)
+4. Comparació clústers (un per pàgina, o potser tots junts)
+5. Heatmap / Malla hexagonal
+"""
+
+
 # ==============================================================================
 # 01-INICIALITZACIÓ PROJECTE
 
 # Importació de mòduls i funcions
-import sys
 sys.path.append("C:/projectes_git/PyQGIS_practic/Exemple")
+
+import sys
 import importlib
 import os
 import processing

@@ -66,9 +66,6 @@ def simbologia_graduada_QGIS(layer, atribut, num_classes, color_ramp, mode, stro
     
     # S'aplica a la capa el renderer creat
     layer_clone.setRenderer(renderer)
-    
-    # Actualització del llenç
-    iface.mapCanvas().refresh()
 
     # Retorn de la capa amb la simbologia
     return layer_clone

@@ -55,13 +55,7 @@ def simbologia_unica(layer, fill_color, outline_width, stroke_color):
     # S'estableix el renderer de la capa i se li assigna el símbol creat
     renderer = QgsSingleSymbolRenderer(symbol)
     layer_clone.setRenderer(renderer)
-    
-    # Actualització del llenç
-    layer_clone.triggerRepaint()
-    iface.mapCanvas().refresh()
-    # Actualització del panell de capes
-    iface.layerTreeView().refreshLayerSymbology(layer_clone.id())
-
+        
     # Retorn de la capa amb la simbologia
     return layer_clone
 
@@ -112,9 +106,6 @@ def simbologia_unica_linia(layer, fill_color, width, outline_color, outline_widt
     # S'estableix el renderer de la capa i se li assigna el símbol creat
     renderer = QgsSingleSymbolRenderer(symbol)
     layer_clone.setRenderer(renderer)
-    
-    # Actualització del llenç
-    iface.mapCanvas().refresh()
 
     # Retorn de la capa amb la simbologia
     return layer_clone

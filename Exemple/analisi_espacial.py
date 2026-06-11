@@ -106,7 +106,7 @@ def isoarees_qneat3(graf_layer, points_layer, strat, max_dist, interval):
         Interval (metres o segons)
     """
 
-    isoareas = processing.run("qneat3:isoareaaspolygonsfromlayer", {
+    processing.run("qneat3:isoareaaspolygonsfromlayer", {
         'INPUT': graf_layer,
         'START_POINTS': points_layer,
         'ID_FIELD': "id",
@@ -115,4 +115,8 @@ def isoarees_qneat3(graf_layer, points_layer, strat, max_dist, interval):
         'STRATEGY': strat, # 0 SHORTEST PATH
         'OUTPUT_INTERPOLATION': "C:/projectes_git/PyQGIS_practic/Resultats/output_interpolation.tif",
         'OUTPUT_POLYGONS': "C:/projectes_git/PyQGIS_practic/Resultats/output_polygons.shp"
-    })
+        }
+    )
+
+    
+    

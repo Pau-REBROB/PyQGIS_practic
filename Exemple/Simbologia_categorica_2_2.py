@@ -64,10 +64,7 @@ def simbologia_categorica(layer, atribut, colors, outline_width, stroke_color):
    
     # S'aplica a la capa el renderer creat
     layer_clone.setRenderer(renderer)
-    
-    # Actualització del llenç
-    iface.mapCanvas().refresh()
-    
+        
     # Retorn de la capa amb la simbologia
     return layer_clone
 
