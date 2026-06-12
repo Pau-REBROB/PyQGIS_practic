@@ -10,14 +10,18 @@ from qgis.core import (
     QgsLayoutItemMap,
     QgsLayoutItemLabel,
     QgsTextFormat,
-    d,
-    QgsLayoutItemScaleBar)
+    QgsLayoutItemLegend,
+    QgsLayoutItemScaleBar,
+    QgsBasicNumericFormat,
+    QgsLayoutItemPicture,
+    QgsLayoutExporter)
 
 QgsLayoutSize
 QgsLayoutPoint
 QgsUnitTypes
 QFont
 QColor
+QgsLegendStyle
 
 
 def generar_layout(nom_layout):
@@ -124,34 +128,130 @@ def afegir_titol(layout, titol, font, size, font_color, backg_color, frame_color
     return title
 
 
-def afegir_llegenda(layout):
+def afegir_llegenda(layout, mapa, titol, font, size, font_color, backg_color):
     """
-    Funció
+     Funció que
+        Afegeix una llegenda a la composició
+        Estableix el seu títol
+        Estableix el format del text contingut
+        Estableix un fons
     """
 
+    # Creació de la llegenda
+    legend = QgsLayoutItemLegend(layout)
+    
+    # Addició de la llegenda a la composició
+    layout.addLayoutItem(legend)
 
-def afegir_escala(layout, mapa):
+    # Vinculació de la llegenda amb el mapa
+    legend.setLinkedMap(mapa)
+    # Actualització automàtica de la llegenda
+    legend.setAutoUpdateModel(True) 
+
+    # Definició d'un títol
+    legend.setTitle(titol)
+
+    # Definició de posició
+    legend.attemptMove(QgsLayoutPoint(200, 20, QgsUnitTypes.LayoutMillimeters))
+
+    # Definició del format de text - tot igual
+    text_format = QgsTextFormat()
+    text_format.setFont(QFont(font))
+    text_format.setSize(size)
+    text_format.setSizeUnit(QgsUnitTypes.RenderPoints)
+    text_format.setColor(QColor(*font_color))
+    # Títol
+    legend.rstyle(QgsLegendStyle.Title).setTextFormat(text_format)
+    # Grups
+    legend.rstyle(QgsLegendStyle.Group).setTextFormat(text_format)
+    # Subgrups
+    legend.rstyle(QgsLegendStyle.Subgroup).setTextFormat(text_format)
+    # Elements individuals
+    legend.rstyle(QgsLegendStyle.SymbolLabel).setTextFormat(text_format)
+
+    # Definició del fons i el marc
+    legend.setBackgroundEnabled(True)
+    legend.setBackgroundColor(QColor(*backg_color))
+    legend.setFrameEnabled(False)
+
+    return legend
+
+
+def afegir_escala(layout, mapa, font, font_color):
     """
-    Funció
+    Funció que defineix l'escala
     """
+    
+    # Creació de l'escala
     scale = QgsLayoutItemScaleBar(layout)
+    
+    # Addició de l'escala a la composició
     layout.addLayoutItem(scale)
 
-    scale.setLinkedMap(layout_map)
+    # Vinculació de l'escala amb el mapa
+    scale.setLinkedMap(mapa)
 
+    # Definició de mida
     #scale.attemptResize(QgsLayoutSize(15,15,QgsUnitTypes.LayoutMillimeters))
-    scale.attemptMove(QgsLayoutPoint(270,200,QgsUnitTypes.LayoutMillimeters))
+    scale.attemptMove(QgsLayoutPoint(15, 190, QgsUnitTypes.LayoutMillimeters))
 
+    # Definició del tipus numèric
     scale.setStyle("Numeric")
     numeric_format = QgsBasicNumericFormat()
     numeric_format.setShowThousandsSeparator(True)
     numeric_format.setNumberDecimalPlaces(0)
     scale.setNumericFormat(numeric_format)
 
+    # Definició del format de text
     scale_format = QgsTextFormat()
-    scale_format.setFont(QFont("Arial"))
+    scale_format.setFont(QFont(font))
     scale_format.setSize(16)
     scale_format.setSizeUnit(QgsUnitTypes.RenderPoints)
-    scale_format.setColor(QColor(255, 255, 255))
+    scale_format.setColor(QColor(*font_color))
     scale.setTextFormat(scale_format)
-    #scale.setFontColor(QColor(255, 255, 255))
+
+    return scale
+
+
+def afegir_nord(layout, path):
+    """
+    Funció que defineix la fletxa del nord a partir d'una imatge guardada en local
+    """
+
+    # Creació de la fletxa del nord
+    north = QgsLayoutItemPicture(layout)
+
+    # Addició del nord a la composició
+    layout.addLayoutItem(north)
+
+    # Cerca de la imatge
+    north.setPicturePath(path)  #"C:/projectes_git/Dades/nord2.png"
+    
+    # Definició de posició i mida
+    north.attemptResize(QgsLayoutSize(15, 15, QgsUnitTypes.LayoutMillimeters))
+    north.attemptMove(QgsLayoutPoint(15, 170, QgsUnitTypes.LayoutMillimeters))
+
+    return north
+
+
+def exportar_layout(layout, output_path, dpi):
+    """
+    Funció per exportar la composició
+    """
+
+    #output_path = "C:/projectes_git/PyQGIS_practic/Resultats/Proximitat_retail.png"
+    
+    # Comprovació de composicions existents
+    if os.path.exists(output_path):
+        os.remove(output_path)  
+
+    # Definició de l'exportador
+    exporter = QgsLayoutExporter(layout)
+    
+    # Definició de paràmetres de configuració
+    image_settings = QgsLayoutExporter.ImageExportSettings()
+    image_settings.dpi = dpi
+    
+    # Exportació a PDF
+    exporter.exportToPdf(output_path, image_settings)
+    
