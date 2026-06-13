@@ -249,9 +249,11 @@ def exportar_layout(layout, output_path, dpi):
     exporter = QgsLayoutExporter(layout)
     
     # Definició de paràmetres de configuració
-    image_settings = QgsLayoutExporter.ImageExportSettings()
-    image_settings.dpi = dpi
+    pdf_settings = QgsLayoutExporter.PdfExportSettings()
+    pdf_settings.dpi = dpi
+    pdf_settings.forceVectorOutput = True
+    pdf_settings.rasterizeWholeImage = False
     
     # Exportació a PDF
-    exporter.exportToPdf(output_path, image_settings)
+    exporter.exportToPdf(output_path, pdf_settings)
     

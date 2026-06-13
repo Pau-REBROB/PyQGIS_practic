@@ -42,3 +42,101 @@ LAYERS = {
     #"Graf_nodes": f"{PATH_DADES}/Graf_viari/BCN_GrafVial_Nodes_ETRS89_SHP.shp"
 }}
 
+CAMPS_MANTENIR = {
+    "Limits_administratius": {
+        "*": ['DISTRICTE', 'BARRI', 'PERIMETRE', 'AREA', 'TIPUS_UA', 'NOM']
+                # 'DISTRICTE' codi del districte
+                # 'BARRI' codi del barri
+                # 'PERIMETRE' perímetre de la geometria
+                # 'AREA' superfície de la geometria
+                # 'TIPUS_UA' tipus d'unitat administrativa - indica si es tracta d'un barri, un districte o un terme municipal
+                # 'NOM' nom de la unitat administrativa
+    },
+    "Cadastre": {
+        'Edificis': ['gml_id', 'end', 'reference', 'localId', 'currentUse', 'numberOfDwellings', 'value'],
+                # 'gml_id' codi de l'arxiu de cadastre
+                # 'end' any de finalització de construcció
+                # 'reference' referència del codi gml_id
+                # 'localId' codi local
+                # 'currentUse' ús actual
+                # 'numberOfDwellings' número d'habitacions
+                # 'value' valor del metre quadrat
+        'Edificis_part': ['gml_id', 'localId', 'numberOfFloorsAboveGround', 'numberOfFloorsBelowGround'],
+                # 'gml_id' codi de l'arxiu de cadastre
+                # 'localId' codi local
+                # 'numberOfFloorsAboveGround' número de pisos per sobre nivell de terra
+                # 'numberOfFloorsBelowGround' número de pisos per sota terra
+        'Parcelles': ['gml_id', 'areaValue', 'localId', 'nationalCadastralReference', 'pos'],
+                # 'gml_id' codi de l'arxiu de cadastre
+                # 'areaValue' valor del metre quadrat
+                # 'localId' codi local
+                # 'nationalCadastralReference' número de referència cadastral
+                # 'pos' coordenades UTM
+        'Illes': ['gml_id', 'areaValue', 'localId', 'nationalCadastralReference', 'pos']
+    },
+    "Graf": {
+        "*": ['COORD_X', 'COORD_Y', 'LONGITUD', 'ANGLE', 'C_Tram', 'Distric_D', 'NDistric_D', 'TVia_D', 'NVia_D', 'Distric_E', 'NDistric_E', 'TVia_E', 'NVia_E']
+                # 'COORD_X' coordenada UTM X
+                # 'COORD_Y' coordenada UTM Y
+                # 'LONGITUD' longitud de la via
+                # 'ANGLE' angle de la via
+                # 'C_Tram' codi del tram de via
+                # 'Distric_D' codi districte de la part dreta
+                # 'NDistric_D' nom districte de la part dreta
+                # 'TVia_D' tipus de via de la part dreta
+                # 'NVia_D' nom de la via de la part dreta
+                # 'Distric_E' codi districte de la part esquerra
+                # 'NDistric_E' nom districte de la part esquerra
+                # 'TVia_E' tipus de via de la part esquerra
+                # 'NVia_E'  nom de la via de la part esquerra
+    }
+}
+
+SIMBOLOGIA = {
+    "Barris": {
+        "fill_color": (0,0,0,0),
+        "outline_width": 0.2,
+        "stroke_color": (150,220,220,255)
+    },
+    "Districtes": {
+        "fill_color": (255,255,255,255),
+        "outline_width": 0.4,
+        "stroke_color": (255,200,50,255)
+    },
+    "Graf": {
+        "fill_color": (0,0,0,255),
+        "width": 0.1,
+        "outline_color": (255,255,255,255),
+        "outline_width": 0.2
+    },
+    "Edificis": {
+        "atribut": 'currentUse',
+        "colors_categories": {
+            "1_residential": (255, 235, 175, 255),
+            "2_agriculture": (170, 255, 115, 255),
+            "3_industrial": (178, 178, 178, 255),
+            "4_1_office": (255, 170, 0, 255),
+            "4_2_retail": (255, 127, 0, 255),
+            "4_3_publicServices": (200, 170, 220, 255)
+        },
+       "outline_width": 0.1,
+       "stroke_color": "white" 
+    },
+    "Clusters_retail": {
+        "fill_color": (255, 127, 0, 125),
+        "outline_width": 0.2,
+        "stroke_color": (255, 127, 0, 255)
+    },
+    "Isoarees": {
+        "atribut": 'cost_level',
+        "num_classes": 7,
+        "color_ramp": "Spectral",
+        "mode": "Jenks",
+        "stroke_color": (255,255,255,100),
+        "stroke_width": 0.2
+    }
+}
+## UN DICCIONARI EXTERN QUE SIGUI PER CADA LAYOUT
+# SIMBOLOGIA={LAYOUT_GENERAL:{"BARRIS":{},"DISTRICTES":{},"GRAF":{},"EDIFICIS":{}}, LAYOUT_RETAIL:{}, LAYOUT_COMPARATIU: {}}
+
+# CREAR UN SCRIPT D'APLICACIÓ DE SIMBOLOGIA?

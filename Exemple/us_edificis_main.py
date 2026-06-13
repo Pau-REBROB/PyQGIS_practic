@@ -64,15 +64,23 @@ layouts/
 
 from inicialitzacio import inicialitzar_projecte, recarregar_moduls
 from importacio import carregar_capes
-from preparacio_dades import netejar_capa, desar_carregar_capa, netejar_grup
-from analisi_espacial import seleccio_atribut, clusters_dbscan, envolvent_clusters, generacio_centroides, isoarees_qneat3
-# simbologia
+from preparacio_dades import netejar_grup
+from analisi_espacial import zones_us, isoarees_qneat3
+from simbologia_unica_2_1 import simbologia_unica, simbologia_unica_linia
+from simbologia_categorica_2_2 import simbologia_categorica
+from simbologia_graduada_2_3 import simbologia_graduada_QGIS
 from layout_general import generar_layout, afegir_mapa, afegir_titol, afegir_llegenda, afegir_escala, afegir_nord, exportar_layout
 
 ## Funcions d'alt nivell en ANÀLISI i LAYOUT?
 
 ## Arxiu de configuració??
 from config import *
+
+# LLISTA_MODULS
+# LAYERS
+# CAMPS_MANTENIR
+# SIMBOLOGIA
+
 
 # ==============================================================================
 # 2. Inicialització
@@ -89,112 +97,71 @@ dict_layers, dict_indexs = carregar_capes(layers=LAYERS)
 # ==============================================================================
 # 4. Neteja de les dades
 
-ddddd
+dict_layers_clean = netejar_grup(dict_layers=dict_layers, configuracio=CAMPS_MANTENIR)
 
 # ==============================================================================
+# 5. Anàlisi espacial
+
+zones_retail = zones_us(layer=dict_layers_clean["Cadastre"]["Edificis"],
+                        expressio='"currentUse" = \'4_2_retail\'',
+                        eps=100,
+                        min_size=5)
+
+zones_office = zones_us(layer=dict_layers_clean["Cadastre"]["Edificis"],
+                        expressio='"currentUse" = \'4_1_office\'',
+                        eps=100,
+                        min_size=5)
+
+zones_public = zones_us(layer=dict_layers_clean["Cadastre"]["Edificis"],
+                        expressio='"currentUse" = \'4_3_publicServices\'',
+                        eps=100,
+                        min_size=5)
+
+zones_residential = zones_us(layer=dict_layers_clean["Cadastre"]["Edificis"],
+                             expressio='"currentUse" = \'1_residential\'',
+                             eps=100,
+                             min_size=5) #EN AQUEST CAS, S'HAURIA DE MIRAR ELS PARÀMETRES
+
+isoarees_qneat3(graf_layer=dict_layers_clean["Graf"]["Graf_trams"],
+                points_layer=zones_retail,
+                strat=0,
+                max_dist=5000,
+                interval=250)
 
 #============================================================================================
+# 6. Simbologia
+## Composició general (general + atles)
+layer_districtes = simbologia_unica(layer=dict_layers_clean["Limits_administratius"]["Districtes"],
+                                    **SIMBOLOGIA["Districtes"]
+                                    )
 
-"""ANÀLISI ESPACIAL"""
+layer_barris = simbologia_unica(layer=dict_layers_clean["Limits_administratius"]["Barris"],
+                                **SIMBOLOGIA["Barris"]
+                                )
 
-# Identificació de zones d'alta concentració - clústers - d'edificis amb el mateix ús 
-## Ús comercial: 4_2_retail
+layer_edificis = simbologia_categorica(layer=dict_layers_clean["Cadastre"]["Edificis"],
+                                       **SIMBOLOGIA["Edificis"]
+                                       )
 
-# Seleccionar els edificis d'ús = retail
-# Generació centroides
-# Agrupació en clústers
-# Envolvent convexa dels clústers d'igual ID
-# Simbologia dels envolvents
-# Anàlisi de xarxes
+## Concentració activitat comercial
+layer_graf = simbologia_unica_linia(layer=dict_layers_clean["Graf"]["Graf_trams"],
+                                    **SIMBOLOGIA["Graf"]
+                                    )
 
+layer_cluster_retail = simbologia_unica(layer=zones_retail,
+                                        **SIMBOLOGIA["Clusters_retail"]
+                                        )
 
-# Selecció dels edificis comercials a partir d'un request
-request_retail = QgsFeatureRequest().setFilterExpression('"currentUse" = \'4_2_retail\'')
-###layer_retail = dict_layers["Edificis"].getFeatures(request_retail) ###getFeatures() retorna un iterador de features, no una capa. 
-layer_retail = dict_layers["Edificis"].materialize(request_retail)
+layer_isoarees = simbologia_graduada_QGIS(layer=isoarees_qneat3,
+                                          **SIMBOLOGIA["Isoarees"])
 
-# Generació dels centroides dels edificis tipus *retail*
-result_centroids_retail = processing.run("native:centroids", {
-    'INPUT': layer_retail,
-    'ALL_PARTS': False,
-    'OUTPUT': 'memory:'
-})
-# Desat del resultat en una capa
-layer_centroids_retail = result_centroids_retail['OUTPUT']
-
-# Generació de clústers retail amb mètode DBSCAN a partir dels centroides dels edificis retail
-result_clusters_retail = processing.run("native:dbscanclustering", {
-    'INPUT': layer_centroids_retail,
-    'EPS': 100,          # 100 metres de distància màxima entre edificis
-    'MINSIZE': 5,       # mínim 5 edificis per formar un clúster
-    'FIELD_NAME': 'CLUSTER_ID',
-    'SIZE_FIELD_NAME': 'CLUSTER_SIZE',
-    'OUTPUT': 'memory:'
-})
-# Desat del resultat en una capa
-layer_clusters_retail = result_clusters_retail['OUTPUT']
-
-# Filtre de tots els valors únics de CLUSTER_ID - els que no son NULL
-cluster_ids = set([f["CLUSTER_ID"] for f in layer_clusters_retail.getFeatures() if f["CLUSTER_ID"] is not 'NULL'])
-print(f"Número de clústers: {len(cluster_ids)}")
-# Generació d'una consulta per filtrar la capa de clústers a aquells no nuls
-request_clusters = QgsFeatureRequest().setFilterExpression('"CLUSTER_ID" IS NOT NULL AND "CLUSTER_ID" != -1')
-layer_clusters_retail_notNull = layer_clusters_retail.materialize(request_clusters)
-
-# Generar envolvent per cada clúster
-result_hull = processing.run("qgis:minimumboundinggeometry", {
-    'INPUT': layer_clusters_retail_notNull,
-    'FIELD': 'CLUSTER_ID',
-    'TYPE': 2,
-    'OUTPUT': 'memory:'
-})
-# Desat del resultat en una capa
-layer_hull_retail = result_hull['OUTPUT']
-
-# Dissolució de les geometria de les envolents per unificar-les
-result_dissolved = processing.run("native:dissolve", {
-    'INPUT': layer_hull_retail,
-    'FIELD': [],
-    'SEPARATE_DISJOINT': True,
-    'OUTPUT': 'memory:'
-})
-# Desat del resultat en una capa
-layer_zones_retail = result_dissolved['OUTPUT']
-# Canvi de nom de la capa 'output'
-layer_zones_retail.setName("Zones_comercials")
-
-# Addició capa al projecte
-project.addMapLayer(layer_zones_retail, False)
-
-# Generació centroides de les zones dissoltes per a l'anàlisi de xarxa
-result_centroids_zones = processing.run("native:centroids", {
-    'INPUT': layer_zones_retail,
-    'ALL_PARTS': False,
-    'OUTPUT': 'memory:'
-})
-layer_zones_centroids = result_centroids_zones['OUTPUT']
+## Comparativa concentracions diferents usos
+# layer_cluster_retail - feta
+layer_cluster_office
+layer_cluster_public
 
 
-# Anàlisi de xarxes
-## Isoàrees de proximitat a les zones de comerços
-# S'utilitza el plugin QNEAT3
-result_isoareas = processing.run("qneat3:isoareaaspolygonsfromlayer", {
-    'INPUT': dict_layers["Graf"],
-    'START_POINTS': layer_zones_centroids,
-    'ID_FIELD': "id",
-    'MAX_DIST': 5000,#DISTÀNCIA MÀXIMA
-    'INTERVAL': 100,
-    'STRATEGY': 0,#SHORTEST PATH
-    'OUTPUT_INTERPOLATION': "C:/projectes_git/PyQGIS_practic/Resultats/output_interpolation.tif",
-    'OUTPUT_POLYGONS': "C:/projectes_git/PyQGIS_practic/Resultats/output_polygons.shp"
-})
 
-layer_polygons_isoareas = QgsVectorLayer(
-    "C:/projectes_git/PyQGIS_practic/Resultats/output_polygons.shp",
-    "Isoàrees",
-    "ogr"
-)
-project.addMapLayer(layer_polygons_isoareas, False)
 
 #============================================================================================
 
@@ -213,15 +180,6 @@ for layer in project.mapLayers().values():
         node.setItemVisibilityChecked(False)
 
 
-# Aplicació de simbologia per generar la cartografia
-## Ordre de capes:
-### CartoDarrk
-### Districtes
-### Barris
-### Graf
-### Edificis
-### Clústers
-### Isoàrees
 
 # 1. Mapa base de fons
 layer_carto_dark = "type=xyz&url=https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png&zmax=19&zmin=0"
@@ -233,76 +191,6 @@ if layer_fons.isValid():
     print("Capa de fons carregada correctament")
 else:
     print("Error al carregar la capa de fons")
-
-
-# 2. Límits administratius
-layer_base_districtes = simbologia_unica(
-    dict_layers["Districtes"],
-    (0,0,0,0),
-    0.5,
-    (255,200,50,255)
-)
-print("Afegint els límits administratius dels districtes")
-root.addLayer(layer_base_districtes)
-
-layer_base_barris = simbologia_unica(
-    dict_layers["Barris"],
-    (0,0,0,0),
-    0.2,
-    (150,220,220,255)
-)
-print("Afegint els límits administratius dels barris")
-root.addLayer(layer_base_barris)
-
-
-# 3. Graf viari
-print("Afegint el graf viari")
-root.addLayer(dict_layers["Graf"]) ##FUNCIÓ SIMBOLOGIA ÜNICA? 
-
-
-# 4. Edificis amb usos
-dict_colors_edificis = {
-    "1_residential": (255, 235, 175, 255),
-    "2_agriculture": (170, 255, 115, 255),
-    "3_industrial": (178, 178, 178, 255),
-    "4_1_office": (255, 170, 0, 255),
-    "4_2_retail": (255, 127, 0, 255),
-    "4_3_publicServices": (200, 170, 220, 255)
-} # Colors basats en convencions cartogràfiques habituals per a usos del sòl
-
-layer_us_edificis = simbologia_categorica(
-    dict_layers["Edificis"],
-    'currentUse',
-    dict_colors_edificis, 
-    0.1,
-    "white"
-)
-
-print("Afegint els edificis classificats per ús")
-root.addLayer(layer_us_edificis)
-
-
-# 5. Clústers retail
-cluster_symbol = QgsSymbol.defaultSymbol(layer_zones_retail.geometryType())
-cluster_symbol.setColor(QColor(255, 127, 0, 125))
-cluster_symbol.symbolLayer(0).setStrokeColor(QColor(255, 127, 0, 255))
-renderer = QgsSingleSymbolRenderer(cluster_symbol)
-layer_zones_retail.setRenderer(renderer)
-print("Afegint els clústers")
-root.addLayer(layer_zones_retail)
-
-
-# 6. Isoàrees
-layer_isoareas = simbologia_graduada_QGIS(layer_polygons_isoareas,
-                                          "cost_level",
-                                          7, 
-                                          "Spectral",
-                                          "Jenks",
-                                          (255,255,255,100),
-                                          0.2) 
-
-print("Afegint les isoàrees")
-root.addLayer(layer_isoareas)
 
 
 #========================================================================================

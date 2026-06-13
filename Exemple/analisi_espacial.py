@@ -79,6 +79,22 @@ def envolvent_clusters(layer):
 
     return layer_zones
 
+def zones_us(layer, expressio, eps, min_size):
+    """
+    Funció d'alt nivell que
+        Selecciona d'una capa vectorial els elements que compleixen amb una condició en una nova capa
+        Genera els seus centroides i aplica una anàlisi de clusterització DBSCAN
+        Genera la geometria mínima envolent de cada clúster i dissol totes les geometries
+    """
+
+    layer_request = seleccio_atribut(layer, expressio)
+
+    clusters = clusters_dbscan(layer_request, eps, min_size)
+
+    layer_zones = envolvent_clusters(clusters)
+
+    return layer_zones
+
 
 # 2 - Anàlisi de xarxes
 
@@ -97,18 +113,20 @@ def generacio_centroides(layer):
 
 def isoarees_qneat3(graf_layer, points_layer, strat, max_dist, interval):
     """
-    Funció per generar isoàrees de proximitat a partir del plugin QNEAT3
+    Funció d'alt nivell per generar isoàrees de proximitat a partir del plugin QNEAT3
     Es defineix com a paràmetes 
         Capa vectorial que conté el graf viari
-        Capa vectorial amb els punts objectiu - provinent de la funció `generacio_centroides()`
+        Capa vectorial amb els punts objectiu a la que s'aplica la funció `generacio_centroides()`
         Estratègia: 0 shortest path - 1 shortest time
         Distància màxima / Temps màxim
         Interval (metres o segons)
     """
 
+    centroides = generacio_centroides(points_layer)
+
     processing.run("qneat3:isoareaaspolygonsfromlayer", {
         'INPUT': graf_layer,
-        'START_POINTS': points_layer,
+        'START_POINTS': centroides,
         'ID_FIELD': "id",
         'MAX_DIST': max_dist # 5000 DISTÀNCIA MÀXIMA
         'INTERVAL': interval,    # 100 interval
