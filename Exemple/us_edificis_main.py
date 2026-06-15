@@ -62,6 +62,9 @@ layouts/
 # =============================================================================
 # 1. Importació de mòduls
 
+import sys
+sys.path.append("C:/projectes_git/PyQGIS_practic/Exemple")
+
 from inicialitzacio import inicialitzar_projecte, recarregar_moduls
 from importacio import carregar_capes
 from preparacio_dades import netejar_grup
@@ -73,7 +76,7 @@ from layout_general import generar_layout, afegir_mapa, afegir_titol, afegir_lle
 
 ## Funcions d'alt nivell en ANÀLISI i LAYOUT?
 
-## Arxiu de configuració??
+## Arxiu de configuració
 from config import *
 
 # LLISTA_MODULS
@@ -122,11 +125,11 @@ zones_residential = zones_us(layer=dict_layers_clean["Cadastre"]["Edificis"],
                              eps=100,
                              min_size=5) #EN AQUEST CAS, S'HAURIA DE MIRAR ELS PARÀMETRES
 
-isoarees_qneat3(graf_layer=dict_layers_clean["Graf"]["Graf_trams"],
-                points_layer=zones_retail,
-                strat=0,
-                max_dist=5000,
-                interval=250)
+isoarees = isoarees_qneat3(graf_layer=dict_layers_clean["Graf"]["Graf_trams"],
+                           points_layer=zones_retail,
+                           strat=0,
+                           max_dist=5000,
+                           interval=250)
 
 #============================================================================================
 # 6. Simbologia
@@ -152,16 +155,52 @@ layer_cluster_retail = simbologia_unica(layer=zones_retail,
                                         **SIMBOLOGIA["Clusters_retail"]
                                         )
 
-layer_isoarees = simbologia_graduada_QGIS(layer=isoarees_qneat3,
-                                          **SIMBOLOGIA["Isoarees"])
+layer_isoarees = simbologia_graduada_QGIS(layer=isoarees,
+                                          **SIMBOLOGIA["Isoarees"]
+                                          )
 
 ## Comparativa concentracions diferents usos
 # layer_cluster_retail - feta
-layer_cluster_office
-layer_cluster_public
+#layer_cluster_office
+#layer_cluster_public
 
+#============================================================================================
+# 7. Composició
 
+## Composició general
+layout_general = generar_layout(nom_layout="Ús dels edificis a Barcelona")
 
+mapa_general = afegir_mapa(layout=layout_general,
+                           capes=[layer_edificis, layer_barris, layer_districtes],
+                           capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"])
+
+titol_general = afegir_titol(layout=layout_general,
+                             titol="Ús dels edificis de la ciutat de Barcelona - font: Cadastre",
+                             font="Calibri",
+                             size=20,
+                             font_color=(0,0,0,255),
+                             backg_color=(100,100,100,200),
+                             frame_color=(255, 255, 255, 200))
+
+llegenda_general = afegir_llegenda(layout=layout_general,
+                                   mapa=mapa_general,
+                                   titol="Classificació dels edificis",
+                                   font="Calibri",
+                                   size=10,
+                                   font_color=(0,0,0,255),
+                                   backg_color=(100,100,100,255))
+
+escala_general = afegir_escala(layout=layout_general,
+                               mapa=mapa_general,
+                               font="Calibri",
+                               font_color=(0,0,0,255))
+
+nord_general = afegir_nord(layout=layout_general,
+                           path="C:/projectes_git/Dades/nord2.png")
+
+exportar_layout(layout=layout_general,
+                output_path="C:/projectes_git/PyQGIS_practic/Resultats/Classificacio_edificis.pdf",
+                dpi=150)
 
 #============================================================================================
 

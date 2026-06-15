@@ -1,30 +1,10 @@
 """IMPORTACIÓ DE CAPES"""
 
-### RUTA I LAYERS AL MAIN - O A ARXIU DE CONFIGURACIÓ
-# Rutes
-path_dades = "C:/projectes_git/Dades/PyQGIS_Repo"
-
-# Diccionari de capes per temàtica 
-# Nom de la capa: ruta absoluta
-layers = {
-"Limits_administratius": {
-    "Barris": f"{path_dades}/Limits_administratius_BCN/0301040100_Barris_UNITATS_ADM.shp",
-    "Districtes": f"{path_dades}/Limits_administratius_BCN/0301040100_Districtes_UNITATS_ADM.shp",
-    "TermeMunicipal": f"{path_dades}/Limits_administratius_BCN/0301040100_TermeMunicipal_UNITATS_ADM.shp"
-},
-"Cadastre": {
-    "Edificis": f"{path_dades}/Cadastre/08900/A.ES.SDGC.BU.08900.building.gml",
-    "Edificis_part": f"{path_dades}/Cadastre/08900/A.ES.SDGC.BU.08900.buildingpart.gml",
-    "Parcelles": f"{path_dades}/Cadastre/08900/A.ES.SDGC.CP.08900.cadastralparcel.gml",
-    "Illes": f"{path_dades}/Cadastre/08900/A.ES.SDGC.CP.08900.cadastralzoning.gml"
-},
-"Graf": {
-    "Graf_trams": f"{path_dades}/Graf_viari/BCN_GrafVial_Trams_ETRS89_SHP.shp",
-    #"Graf_nodes": f"{path_dades}/Graf_viari/BCN_GrafVial_Nodes_ETRS89_SHP.shp"
-}}
-
-
-from qgis.core import QgsProject, QgsVectorLayer, QgsSpatialIndex
+from qgis.core import (
+    QgsProject,
+    QgsVectorLayer,
+    QgsSpatialIndex
+)
 
 def carregar_capes(layers):
     """
@@ -41,6 +21,9 @@ def carregar_capes(layers):
     dict_indexs = {}
 
     for grup, capes in layers.items():
+        dict_layers.setdefault(grup, {})
+        dict_indexs.setdefault(grup, {})
+        
         for nom, path in capes.items():
             # Creació de la capa vectorial amb la ruta i el nom especificats
             layer = QgsVectorLayer(path, nom, "ogr")

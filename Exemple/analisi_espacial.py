@@ -2,7 +2,7 @@
 
 # Definició de funcions per a les diferents operacions d'anàlisi espacial
 
-from qgis.core import QgsFeatureRequest
+from qgis.core import (QgsFeatureRequest, QgsVectorLayer)
 import processing
 
 # 1 - Clusterització
@@ -128,7 +128,7 @@ def isoarees_qneat3(graf_layer, points_layer, strat, max_dist, interval):
         'INPUT': graf_layer,
         'START_POINTS': centroides,
         'ID_FIELD': "id",
-        'MAX_DIST': max_dist # 5000 DISTÀNCIA MÀXIMA
+        'MAX_DIST': max_dist, # 5000 DISTÀNCIA MÀXIMA
         'INTERVAL': interval,    # 100 interval
         'STRATEGY': strat, # 0 SHORTEST PATH
         'OUTPUT_INTERPOLATION': "C:/projectes_git/PyQGIS_practic/Resultats/output_interpolation.tif",
@@ -136,5 +136,11 @@ def isoarees_qneat3(graf_layer, points_layer, strat, max_dist, interval):
         }
     )
 
-    
+    layer_isoareas = QgsVectorLayer(
+        "C:/projectes_git/PyQGIS_practic/Resultats/output_polygons.shp",
+        "Isoarees",
+        "ogr"
+    )
+
+    return layer_isoareas   
     

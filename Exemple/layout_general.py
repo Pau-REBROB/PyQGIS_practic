@@ -8,21 +8,25 @@ from qgis.core import (
     QgsProject,
     QgsPrintLayout,
     QgsLayoutItemMap,
+    QgsLayoutSize,
+    QgsLayoutMeasurement,
+    QgsLayoutPoint,
+    QgsUnitTypes,
     QgsLayoutItemLabel,
     QgsTextFormat,
     QgsLayoutItemLegend,
+    QgsLegendStyle,
     QgsLayoutItemScaleBar,
     QgsBasicNumericFormat,
     QgsLayoutItemPicture,
     QgsLayoutExporter)
 
-QgsLayoutSize
-QgsLayoutPoint
-QgsUnitTypes
-QFont
-QColor
-QgsLegendStyle
+from qgis.PyQt.QtGui import (
+    QFont,
+    QColor
+)
 
+import os
 
 def generar_layout(nom_layout):
     """

@@ -1,10 +1,12 @@
 """NETEJA DE CAPES"""
 
-# ELS CAMPS A MANTENIR ESTARIEN AL MAIN O CONFIGURACIÓ COM A DICCIONARI
-
-# LA INSPECCIÓ ES FARIA EN EL MAIN??
-
-from qgis.core import QgsFeatureRequest, QgsProject, QgsVectorFileWriter, QgsVectorLayer
+from qgis.core import (
+    QgsFeatureRequest,
+    QgsProject,
+    QgsVectorFileWriter,
+    QgsVectorLayer, 
+    edit
+)
 
 def netejar_capa(layer, camps):
     """
@@ -72,7 +74,10 @@ def netejar_grup(dict_layers, configuracio):
         
         for nom, layer in capes.items():
             
-            camps = configuracio[grup][nom]
+            if nom in configuracio[grup]:
+                camps = configuracio[grup][nom]
+            else:
+                camps = configuracio[grup]["*"]
             
             layer_clone = netejar_capa(layer, camps)
 
