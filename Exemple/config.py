@@ -3,24 +3,14 @@
 # Arxiu de configuració
 
 LLISTA_MODULS = [
-    "inicialitzar_projecte",
-    "recarregar_moduls",
-    "carregar_capes",
-    "netejar_capa",
-    "desar_carregar_capa",
-    "netejar_grup",
-    "seleccio_atribut",
-    "clusters_dbscan",
-    "envolvent_clusters",
-    "generacio_centroides",
-    "isoarees_qneat3",
-    "generar_layout",
-    "afegir_mapa",
-    "afegir_titol",
-    "afegir_llegenda",
-    "afegir_escala",
-    "afegir_nord",
-    "exportar_layout"
+    "inicialitzacio",
+    "importacio",
+    "preparacio_dades",
+    "analisi_espacial",
+    "simbologia_unica_2_1",
+    "simbologia_categorica_2_2",
+    "simbologia_graduada_2_3",
+    "layout_general"
 ]
 
 PATH_DADES_LIMITS = "C:/projectes_git/Dades/PyQGIS_Repo/Limits_administratius_BCN"
@@ -114,7 +104,7 @@ SIMBOLOGIA = {
     },
     "Edificis": {
         "atribut": 'currentUse',
-        "colors_categories": {
+        "colors": {
             "1_residential": (255, 235, 175, 255),
             "2_agriculture": (170, 255, 115, 255),
             "3_industrial": (178, 178, 178, 255),

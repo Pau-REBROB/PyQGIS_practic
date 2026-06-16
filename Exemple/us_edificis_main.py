@@ -65,10 +65,15 @@ layouts/
 import sys
 sys.path.append("C:/projectes_git/PyQGIS_practic/Exemple")
 
-from inicialitzacio import inicialitzar_projecte, recarregar_moduls
-from importacio import carregar_capes
-from preparacio_dades import netejar_grup
-from analisi_espacial import zones_us, isoarees_qneat3
+import inicialitzacio
+import importacio
+import preparacio_dades
+import analisi_espacial
+import simbologia_unica_2_1
+import simbologia_categorica_2_2
+import simbologia_graduada_2_3
+import layout_general
+
 from simbologia_unica_2_1 import simbologia_unica, simbologia_unica_linia
 from simbologia_categorica_2_2 import simbologia_categorica
 from simbologia_graduada_2_3 import simbologia_graduada_QGIS
@@ -77,7 +82,7 @@ from layout_general import generar_layout, afegir_mapa, afegir_titol, afegir_lle
 ## Funcions d'alt nivell en ANÀLISI i LAYOUT?
 
 ## Arxiu de configuració
-from config import *
+import config
 
 # LLISTA_MODULS
 # LAYERS
@@ -88,75 +93,75 @@ from config import *
 # ==============================================================================
 # 2. Inicialització
 
-project, root = inicialitzar_projecte()
+project, root = inicialitzacio.inicialitzar_projecte()
 
-recarregar_moduls(llista=LLISTA_MODULS)
+inicialitzacio.recarregar_moduls(llista=config.LLISTA_MODULS)
 
 # ==============================================================================
 # 3. Importació de capes
 
-dict_layers, dict_indexs = carregar_capes(layers=LAYERS)
+dict_layers, dict_indexs = importacio.carregar_capes(layers=config.LAYERS)
 
 # ==============================================================================
 # 4. Neteja de les dades
 
-dict_layers_clean = netejar_grup(dict_layers=dict_layers, configuracio=CAMPS_MANTENIR)
+dict_layers_clean = preparacio_dades.netejar_grup(dict_layers=dict_layers, configuracio=config.CAMPS_MANTENIR)
 
 # ==============================================================================
 # 5. Anàlisi espacial
 
-zones_retail = zones_us(layer=dict_layers_clean["Cadastre"]["Edificis"],
-                        expressio='"currentUse" = \'4_2_retail\'',
-                        eps=100,
-                        min_size=5)
+zones_retail = analisi_espacial.zones_us(layer=dict_layers_clean["Cadastre"]["Edificis"],
+                                         expressio=''' "currentUse" = '4_2_retail' ''',
+                                         eps=100,
+                                         min_size=5)
 
-zones_office = zones_us(layer=dict_layers_clean["Cadastre"]["Edificis"],
-                        expressio='"currentUse" = \'4_1_office\'',
-                        eps=100,
-                        min_size=5)
+zones_office = analisi_espacial.zones_us(layer=dict_layers_clean["Cadastre"]["Edificis"],
+                                         expressio='"currentUse" = \'4_1_office\'',
+                                         eps=100,
+                                         min_size=5)
 
-zones_public = zones_us(layer=dict_layers_clean["Cadastre"]["Edificis"],
-                        expressio='"currentUse" = \'4_3_publicServices\'',
-                        eps=100,
-                        min_size=5)
+zones_public = analisi_espacial.zones_us(layer=dict_layers_clean["Cadastre"]["Edificis"],
+                                         expressio='"currentUse" = \'4_3_publicServices\'',
+                                         eps=100,
+                                         min_size=5)
 
-zones_residential = zones_us(layer=dict_layers_clean["Cadastre"]["Edificis"],
-                             expressio='"currentUse" = \'1_residential\'',
-                             eps=100,
-                             min_size=5) #EN AQUEST CAS, S'HAURIA DE MIRAR ELS PARÀMETRES
+zones_residential = analisi_espacial.zones_us(layer=dict_layers_clean["Cadastre"]["Edificis"],
+                                              expressio='"currentUse" = \'1_residential\'',
+                                              eps=100,
+                                              min_size=5) #EN AQUEST CAS, S'HAURIA DE MIRAR ELS PARÀMETRES
 
-isoarees = isoarees_qneat3(graf_layer=dict_layers_clean["Graf"]["Graf_trams"],
-                           points_layer=zones_retail,
-                           strat=0,
-                           max_dist=5000,
-                           interval=250)
+isoarees = analisi_espacial.isoarees_qneat3(graf_layer=dict_layers_clean["Graf"]["Graf_trams"],
+                                            points_layer=zones_retail,
+                                            strat=0,
+                                            max_dist=5000,
+                                            interval=250)
 
 #============================================================================================
 # 6. Simbologia
 ## Composició general (general + atles)
 layer_districtes = simbologia_unica(layer=dict_layers_clean["Limits_administratius"]["Districtes"],
-                                    **SIMBOLOGIA["Districtes"]
+                                    **config.SIMBOLOGIA["Districtes"]
                                     )
 
 layer_barris = simbologia_unica(layer=dict_layers_clean["Limits_administratius"]["Barris"],
-                                **SIMBOLOGIA["Barris"]
+                                **config.SIMBOLOGIA["Barris"]
                                 )
 
 layer_edificis = simbologia_categorica(layer=dict_layers_clean["Cadastre"]["Edificis"],
-                                       **SIMBOLOGIA["Edificis"]
+                                       **config.SIMBOLOGIA["Edificis"]
                                        )
 
 ## Concentració activitat comercial
 layer_graf = simbologia_unica_linia(layer=dict_layers_clean["Graf"]["Graf_trams"],
-                                    **SIMBOLOGIA["Graf"]
+                                    **config.SIMBOLOGIA["Graf"]
                                     )
 
 layer_cluster_retail = simbologia_unica(layer=zones_retail,
-                                        **SIMBOLOGIA["Clusters_retail"]
+                                        **config.SIMBOLOGIA["Clusters_retail"]
                                         )
 
 layer_isoarees = simbologia_graduada_QGIS(layer=isoarees,
-                                          **SIMBOLOGIA["Isoarees"]
+                                          **config.SIMBOLOGIA["Isoarees"]
                                           )
 
 ## Comparativa concentracions diferents usos

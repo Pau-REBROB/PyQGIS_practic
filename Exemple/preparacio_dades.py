@@ -8,6 +8,8 @@ from qgis.core import (
     edit
 )
 
+import os
+
 def netejar_capa(layer, camps):
     """
     Funció que elimina els camps especificats de la capa
@@ -29,8 +31,10 @@ def netejar_capa(layer, camps):
     # Edició de la capa i eliminació dels camps
     with edit(layer_clone):
         layer_clone.deleteAttributes(index_eliminar)
-   
-   
+
+    layer_clone.updateFields()
+
+
     return layer_clone
 
 
@@ -39,19 +43,26 @@ def desar_carregar_capa(layer_clone):
     Funció que desa la capa neta per la funció `netejar_capa()` en un arxiu GPKG i carrega la capa al projecte
     """
 
-    # Desat de la capa neta
-    transform_context = QgsProject.instance().transformContext()
+    clean_path = f"C:/projectes_git/Dades/PyQGIS_Repo/Dades_netes/{layer_clone.name()}_clean.gpkg"
+
+    if not os.path.exists(clean_path):
+        # Desat de la capa neta
+        transform_context = QgsProject.instance().transformContext()
     
-    save_options = QgsVectorFileWriter.SaveVectorOptions()
-    save_options.driverName = "GPKG"
-    
-    QgsVectorFileWriter.writeAsVectorFormatV3(layer_clone, 
-                                              f"C:/projectes_git/Dades/PyQGIS_Repo/Dades_netes/{layer_clone.name()}_clean.gpkg", 
-                                              transform_context, 
-                                              save_options)
+        save_options = QgsVectorFileWriter.SaveVectorOptions()
+        save_options.driverName = "GPKG"
+        save_options.layerName = layer_clone.name()
+            
+        QgsVectorFileWriter.writeAsVectorFormatV3(layer_clone,
+                                                  clean_path, 
+                                                  transform_context, 
+                                                  save_options)
+        
+    else:
+        print(f"La capa {layer_clone.name()} ja existeix")
 
     # Importació de la capa al projecte
-    layer_clean = QgsVectorLayer(f"C:/projectes_git/Dades/PyQGIS_Repo/Dades_netes/{layer_clone.name()}_clean.gpkg",
+    layer_clean = QgsVectorLayer(f"C:/projectes_git/Dades/PyQGIS_Repo/Dades_netes/{layer_clone.name()}_clean.gpkg|layername={layer_clone.name()}",
                                  layer_clone.name(),
                                  "ogr")
 

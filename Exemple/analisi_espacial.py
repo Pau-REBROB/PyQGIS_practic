@@ -54,7 +54,7 @@ def envolvent_clusters(layer):
 
     # Filtratge dels clústers
     # Generació d'una consulta per filtrar la capa de clústers a aquells no nuls
-    request_clusters = QgsFeatureRequest().setFilterExpression('"CLUSTER_ID" IS NOT NULL AND "CLUSTER_ID" != -1')
+    request_clusters = QgsFeatureRequest().setFilterExpression('"CLUSTER_ID" is not \'NULL\' AND "CLUSTER_ID" != -1')
     
     clusters_notNull = layer.materialize(request_clusters)
 
@@ -89,9 +89,34 @@ def zones_us(layer, expressio, eps, min_size):
 
     layer_request = seleccio_atribut(layer, expressio)
 
+    ##
+    print("Selecció:", layer_request.featureCount())
+
+    for f in layer_request.getFeatures():
+        print(f.hasGeometry(), f.geometry().isNull())
+        break
+    ##
+
+
     clusters = clusters_dbscan(layer_request, eps, min_size)
 
+    ##
+    print("Clusters:", clusters.featureCount())
+
+    for f in clusters.getFeatures():
+        print(f.hasGeometry(), f.geometry().isNull())
+        break
+    ##
+
     layer_zones = envolvent_clusters(clusters)
+
+    ##
+    print("Zones:", layer_zones.featureCount())
+
+    for f in layer_zones.getFeatures():
+        print(f.hasGeometry(), f.geometry().isNull())
+        break   
+    ##
 
     return layer_zones
 
