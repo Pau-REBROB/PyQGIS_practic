@@ -1,6 +1,9 @@
 """INICIALITZACIÓ DEL PROJECTE"""
 
-from qgis.core import QgsProject, QgsCoordinateReferenceSystem
+from qgis.core import (
+    QgsProject,
+    QgsCoordinateReferenceSystem
+)
 
 def inicialitzar_projecte():
     """
@@ -24,16 +27,3 @@ def inicialitzar_projecte():
     project.setCrs(QgsCoordinateReferenceSystem("EPSG:25831"))
 
     return project, root
-
-
-import sys
-import importlib
-
-def recarregar_moduls(llista):
-    """
-    Funció encarregada de recarregar els mòduls propis importats 
-    """
-    
-    for mod in llista:
-        if mod in sys.modules:
-            importlib.reload(sys.modules[mod])

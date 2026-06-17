@@ -2,8 +2,6 @@
 
 # Composició general =============================
 
-# LES CAPES QUE ES VOLGUIN MOSTRAR S'ESTABLIRAN DES DEL MAIN O EL CONFIG.
-
 from qgis.core import (
     QgsProject,
     QgsPrintLayout,
@@ -15,6 +13,7 @@ from qgis.core import (
     QgsLayoutItemLabel,
     QgsTextFormat,
     QgsLayoutItemLegend,
+    QgsLayerTree,
     QgsLegendStyle,
     QgsLayoutItemScaleBar,
     QgsBasicNumericFormat,
@@ -25,6 +24,8 @@ from qgis.PyQt.QtGui import (
     QFont,
     QColor
 )
+
+from qgis.PyQt.QtCore import Qt
 
 import os
 
@@ -84,7 +85,7 @@ def afegir_mapa(layout, capes, capa_extent):
     layout_map.zoomToExtent(extent)
 
     # Definició de posició i mida
-    layout_map.attemptResize(QgsLayoutSize(180, 180, QgsUnitTypes.LayoutMillimeters))    #DIN A4 apaisat 297x210mm
+    layout_map.attemptResize(QgsLayoutSize(270, 190, QgsUnitTypes.LayoutMillimeters))    #DIN A4 apaisat 297x210mm
     layout_map.attemptMove(QgsLayoutPoint(10, 10, QgsUnitTypes.LayoutMillimeters))
 
     return layout_map
@@ -115,12 +116,13 @@ def afegir_titol(layout, titol, font, size, font_color, backg_color, frame_color
     title.setTextFormat(title_format)
     
     # Definició de posició i mida
-    title.attemptMove(QgsLayoutPoint(15, 5, QgsUnitTypes.LayoutMillimeters))
-    title.adjustSizeToText() #NO SÉ SI CAL 
+    title.attemptMove(QgsLayoutPoint(10, 5, QgsUnitTypes.LayoutMillimeters))
+    title.attemptResize(QgsLayoutSize(270, 10, QgsUnitTypes.LayoutMillimeters))
 
     # Definició de l'alineació
     title.setMarginX(5)  # marge horitzontal en mm
     title.setMarginY(1)  # marge vertical en mm
+    title.setHAlign(Qt.AlignCenter)
 
     # Definició del fons i el marc
     title.setBackgroundEnabled(True)
@@ -149,14 +151,24 @@ def afegir_llegenda(layout, mapa, titol, font, size, font_color, backg_color):
 
     # Vinculació de la llegenda amb el mapa
     legend.setLinkedMap(mapa)
+    
+    # Construcció de la llegenda
     # Actualització automàtica de la llegenda
-    legend.setAutoUpdateModel(True) 
+    legend.setAutoUpdateModel(True)
+    #root = QgsLayerTree()
+
+    #for layer in mapa.layers():
+    #    root.addLayer(layer)
+
+    #legend.model().setRootGroup(root) 
+
 
     # Definició d'un títol
     legend.setTitle(titol)
 
-    # Definició de posició
-    legend.attemptMove(QgsLayoutPoint(200, 20, QgsUnitTypes.LayoutMillimeters))
+    # Definició de posició i mida
+    legend.attemptMove(QgsLayoutPoint(250, 20, QgsUnitTypes.LayoutMillimeters))
+    legend.adjustBoxSize()
 
     # Definició del format de text - tot igual
     text_format = QgsTextFormat()
@@ -232,8 +244,8 @@ def afegir_nord(layout, path):
     north.setPicturePath(path)  #"C:/projectes_git/Dades/nord2.png"
     
     # Definició de posició i mida
-    north.attemptResize(QgsLayoutSize(15, 15, QgsUnitTypes.LayoutMillimeters))
-    north.attemptMove(QgsLayoutPoint(15, 170, QgsUnitTypes.LayoutMillimeters))
+    north.attemptResize(QgsLayoutSize(10, 10, QgsUnitTypes.LayoutMillimeters))
+    north.attemptMove(QgsLayoutPoint(15, 180, QgsUnitTypes.LayoutMillimeters))
 
     return north
 

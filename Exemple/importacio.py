@@ -3,6 +3,7 @@
 from qgis.core import (
     QgsProject,
     QgsVectorLayer,
+    QgsRasterLayer,
     QgsSpatialIndex
 )
 
@@ -55,3 +56,18 @@ def carregar_capes(layers):
 
 
     return dict_layers, dict_indexs
+
+
+def carregar_basemap():
+    """
+    Funció per a carregar un mapa de fons
+    """
+    uri = ("type=xyz&url=https://basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png&zmax=19&zmin=0")
+
+    layer = QgsRasterLayer(
+        uri,
+        "CartoDB Positron No Labels",
+        "wms"
+    )
+
+    return layer

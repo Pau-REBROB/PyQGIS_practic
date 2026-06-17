@@ -8,7 +8,6 @@ from qgis.core import (
     QgsRendererCategory,
     QgsCategorizedSymbolRenderer
 )
-from qgis.utils import iface
 from qgis.PyQt.QtGui import QColor
 
 project = QgsProject.instance()

@@ -2,17 +2,6 @@
 
 # Arxiu de configuració
 
-LLISTA_MODULS = [
-    "inicialitzacio",
-    "importacio",
-    "preparacio_dades",
-    "analisi_espacial",
-    "simbologia_unica_2_1",
-    "simbologia_categorica_2_2",
-    "simbologia_graduada_2_3",
-    "layout_general"
-]
-
 PATH_DADES_LIMITS = "C:/projectes_git/Dades/PyQGIS_Repo/Limits_administratius_BCN"
 PATH_DADES_CADASTRE = "C:/projectes_git/Dades/PyQGIS_Repo/Cadastre"
 PATH_DADES_GRAF = "C:/projectes_git/Dades/PyQGIS_Repo/Graf_viari"
@@ -87,13 +76,13 @@ CAMPS_MANTENIR = {
 
 SIMBOLOGIA = {
     "Barris": {
-        "fill_color": (0,0,0,0),
-        "outline_width": 0.2,
-        "stroke_color": (150,220,220,255)
+        "fill_color": (255,255,255,0),
+        "outline_width": 0.15,
+        "stroke_color": (180,220,230,255)
     },
     "Districtes": {
-        "fill_color": (255,255,255,255),
-        "outline_width": 0.4,
+        "fill_color": (255,255,255,0),
+        "outline_width": 0.5,
         "stroke_color": (255,200,50,255)
     },
     "Graf": {
@@ -129,6 +118,36 @@ SIMBOLOGIA = {
         "stroke_width": 0.2
     }
 }
+
+LAYOUT = {
+    "Mapa": {
+        "capes": [layer_edificis, layer_barris, layer_districtes, basemap_layer],
+        "capa_extent": dict_layers_clean["Limits_administratius"]["TermeMunicipal"]
+    },
+    "Titol": {
+        "titol": "Ús dels edificis de la ciutat de Barcelona - font: Cadastre",
+        "font": "Calibri",
+        "size": 20,
+        "font_color": (0,0,0,255),
+        "backg_color": (100,100,100,180),
+        "frame_color": (255, 255, 255, 200)
+    },
+    "Llegenda": {
+        "titol": "Classificació dels edificis",
+        "font": "Calibri",
+        "size": 10,
+        "font_color": (0,0,0,255),
+        "backg_color": (100,100,100,180)
+    },
+    "Escala": {
+        "font": "Calibri",
+        "font_color": (0,0,0,255)
+    },
+    "Nord": {
+        "path": "C:/projectes_git/Dades/nord2.png"
+    }
+}
+
 ## UN DICCIONARI EXTERN QUE SIGUI PER CADA LAYOUT
 # SIMBOLOGIA={LAYOUT_GENERAL:{"BARRIS":{},"DISTRICTES":{},"GRAF":{},"EDIFICIS":{}}, LAYOUT_RETAIL:{}, LAYOUT_COMPARATIU: {}}
 

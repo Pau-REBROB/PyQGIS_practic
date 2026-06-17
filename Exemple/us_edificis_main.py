@@ -69,38 +69,42 @@ import inicialitzacio
 import importacio
 import preparacio_dades
 import analisi_espacial
-import simbologia_unica_2_1
-import simbologia_categorica_2_2
-import simbologia_graduada_2_3
+import simbologia_unica
+import simbologia_categorica
+import simbologia_graduada
 import layout_general
 
-from simbologia_unica_2_1 import simbologia_unica, simbologia_unica_linia
-from simbologia_categorica_2_2 import simbologia_categorica
-from simbologia_graduada_2_3 import simbologia_graduada_QGIS
-from layout_general import generar_layout, afegir_mapa, afegir_titol, afegir_llegenda, afegir_escala, afegir_nord, exportar_layout
 
 ## Funcions d'alt nivell en ANÀLISI i LAYOUT?
 
 ## Arxiu de configuració
 import config
 
-# LLISTA_MODULS
-# LAYERS
-# CAMPS_MANTENIR
-# SIMBOLOGIA
 
+# Recàrrega
+import importlib
+
+importlib.reload(config)
+importlib.reload(inicialitzacio)
+importlib.reload(importacio)
+importlib.reload(preparacio_dades)
+importlib.reload(analisi_espacial)
+importlib.reload(simbologia_unica)
+importlib.reload(simbologia_categorica)
+importlib.reload(simbologia_graduada)
+importlib.reload(layout_general)
 
 # ==============================================================================
 # 2. Inicialització
 
 project, root = inicialitzacio.inicialitzar_projecte()
 
-inicialitzacio.recarregar_moduls(llista=config.LLISTA_MODULS)
-
 # ==============================================================================
 # 3. Importació de capes
 
 dict_layers, dict_indexs = importacio.carregar_capes(layers=config.LAYERS)
+
+basemap_layer = importacio.carregar_basemap()
 
 # ==============================================================================
 # 4. Neteja de les dades
@@ -139,30 +143,43 @@ isoarees = analisi_espacial.isoarees_qneat3(graf_layer=dict_layers_clean["Graf"]
 #============================================================================================
 # 6. Simbologia
 ## Composició general (general + atles)
-layer_districtes = simbologia_unica(layer=dict_layers_clean["Limits_administratius"]["Districtes"],
-                                    **config.SIMBOLOGIA["Districtes"]
-                                    )
+layer_districtes = simbologia_unica.simbologia_unica(layer=dict_layers_clean["Limits_administratius"]["Districtes"],
+                                                         **config.SIMBOLOGIA["Districtes"]
+                                                         )
 
-layer_barris = simbologia_unica(layer=dict_layers_clean["Limits_administratius"]["Barris"],
-                                **config.SIMBOLOGIA["Barris"]
-                                )
+layer_barris = simbologia_unica.simbologia_unica(layer=dict_layers_clean["Limits_administratius"]["Barris"],
+                                                     **config.SIMBOLOGIA["Barris"]
+                                                     )
 
-layer_edificis = simbologia_categorica(layer=dict_layers_clean["Cadastre"]["Edificis"],
-                                       **config.SIMBOLOGIA["Edificis"]
-                                       )
+layer_edificis = simbologia_categorica.simbologia_categorica(layer=dict_layers_clean["Cadastre"]["Edificis"],
+                                                                 **config.SIMBOLOGIA["Edificis"]
+                                                                 )
+
+# Modificació dels noms
+basemap_layer.setName("Fons cartogràfic CartoDB")
+layer_districtes.setName("Districtes")
+layer_barris.setName("Barris")
+layer_edificis.setName("Ús dels edificis")
+
+# Addició de capes al projecte
+QgsProject.instance().addMapLayer(basemap_layer)
+QgsProject.instance().addMapLayer(layer_districtes)
+QgsProject.instance().addMapLayer(layer_barris)
+QgsProject.instance().addMapLayer(layer_edificis)
+
 
 ## Concentració activitat comercial
-layer_graf = simbologia_unica_linia(layer=dict_layers_clean["Graf"]["Graf_trams"],
-                                    **config.SIMBOLOGIA["Graf"]
-                                    )
+layer_graf = simbologia_unica.simbologia_unica_linia(layer=dict_layers_clean["Graf"]["Graf_trams"],
+                                                         **config.SIMBOLOGIA["Graf"]
+                                                         )
 
-layer_cluster_retail = simbologia_unica(layer=zones_retail,
-                                        **config.SIMBOLOGIA["Clusters_retail"]
-                                        )
+layer_cluster_retail = simbologia_unica.simbologia_unica(layer=zones_retail,
+                                                             **config.SIMBOLOGIA["Clusters_retail"]
+                                                             )
 
-layer_isoarees = simbologia_graduada_QGIS(layer=isoarees,
-                                          **config.SIMBOLOGIA["Isoarees"]
-                                          )
+layer_isoarees = simbologia_graduada.simbologia_graduada_QGIS(layer=isoarees,
+                                                                  **config.SIMBOLOGIA["Isoarees"]
+                                                                  )
 
 ## Comparativa concentracions diferents usos
 # layer_cluster_retail - feta
@@ -173,39 +190,38 @@ layer_isoarees = simbologia_graduada_QGIS(layer=isoarees,
 # 7. Composició
 
 ## Composició general
-layout_general = generar_layout(nom_layout="Ús dels edificis a Barcelona")
+layout = layout_general.generar_layout(nom_layout="Ús dels edificis a Barcelona")
 
-mapa_general = afegir_mapa(layout=layout_general,
-                           capes=[layer_edificis, layer_barris, layer_districtes],
-                           capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"])
+mapa_general = layout_general.afegir_mapa(
+    layout=layout,
+    **config.LAYOUT["Mapa"]
+)
 
-titol_general = afegir_titol(layout=layout_general,
-                             titol="Ús dels edificis de la ciutat de Barcelona - font: Cadastre",
-                             font="Calibri",
-                             size=20,
-                             font_color=(0,0,0,255),
-                             backg_color=(100,100,100,200),
-                             frame_color=(255, 255, 255, 200))
+titol_general = layout_general.afegir_titol(
+    layout=layout,
+    **config.LAYOUT["Titol"]
+)
 
-llegenda_general = afegir_llegenda(layout=layout_general,
-                                   mapa=mapa_general,
-                                   titol="Classificació dels edificis",
-                                   font="Calibri",
-                                   size=10,
-                                   font_color=(0,0,0,255),
-                                   backg_color=(100,100,100,255))
+llegenda_general = layout_general.afegir_llegenda(
+    layout=layout,
+    mapa=mapa_general,
+    **config.LAYOUT["Llegenda"]
+)
 
-escala_general = afegir_escala(layout=layout_general,
-                               mapa=mapa_general,
-                               font="Calibri",
-                               font_color=(0,0,0,255))
+escala_general = layout_general.afegir_escala(
+    layout=layout,
+    mapa=mapa_general,
+    **config.LAYOUT["Escala"]
+)
 
-nord_general = afegir_nord(layout=layout_general,
-                           path="C:/projectes_git/Dades/nord2.png")
+nord_general = layout_general.afegir_nord(
+    layout=layout,
+    **config.LAYOUT["Nord"]
+)
 
-exportar_layout(layout=layout_general,
+layout_general.exportar_layout(layout=layout,
                 output_path="C:/projectes_git/PyQGIS_practic/Resultats/Classificacio_edificis.pdf",
-                dpi=150)
+                dpi=300)
 
 #============================================================================================
 
@@ -223,18 +239,6 @@ for layer in project.mapLayers().values():
     if node:
         node.setItemVisibilityChecked(False)
 
-
-
-# 1. Mapa base de fons
-layer_carto_dark = "type=xyz&url=https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png&zmax=19&zmin=0"
-# Creació de la capa de fons
-layer_fons = QgsRasterLayer(layer_carto_dark, "CartoDB Dark", "wms")
-if layer_fons.isValid():
-    project.addMapLayer(layer_fons, False)
-    root.addLayer(layer_fons)
-    print("Capa de fons carregada correctament")
-else:
-    print("Error al carregar la capa de fons")
 
 
 #========================================================================================

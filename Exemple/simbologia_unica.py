@@ -9,9 +9,7 @@ from qgis.core import (
     QgsSimpleLineSymbolLayer,
     QgsSingleSymbolRenderer,
 )
-from qgis.utils import iface
 from qgis.PyQt.QtGui import QColor
-from qgis.PyQt.QtCore import Qt, QPointF
 
 project = QgsProject.instance()
 root = project.layerTreeRoot()
@@ -36,9 +34,6 @@ def simbologia_unica(layer, fill_color, outline_width, stroke_color):
     
     # Assignació d'un nou nom
     layer_clone.setName(f"{layer_clone.name()}_simbUnica")
-    
-    # Addició de la capa al projecte
-    project.addMapLayer(layer_clone, False)
        
     # Creació del constructor del símbol
     symbol = QgsFillSymbol()

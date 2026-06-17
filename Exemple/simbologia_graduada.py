@@ -9,7 +9,6 @@ from qgis.core import (
     QgsStyle,
 )
 from qgis.PyQt.QtGui import QColor
-from qgis.utils import iface
 
 project = QgsProject.instance()
 root = project.layerTreeRoot()

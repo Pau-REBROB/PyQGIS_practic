@@ -16,7 +16,7 @@ for mod in mods_a_recarregar:
     if mod in sys.modules:
         importlib.reload(sys.modules[mod])
 
-from simbologia_unica_2_1 import simbologia_unica, simbologia_unica_linia
+from simbologia_unica import simbologia_unica, simbologia_unica_linia
 from simbologia_shannon import simbologia_shannon
 
 
