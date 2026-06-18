@@ -73,6 +73,7 @@ import simbologia_unica
 import simbologia_categorica
 import simbologia_graduada
 import layout_general
+import layout_atles
 
 
 ## Funcions d'alt nivell en ANÀLISI i LAYOUT?
@@ -93,6 +94,7 @@ importlib.reload(simbologia_unica)
 importlib.reload(simbologia_categorica)
 importlib.reload(simbologia_graduada)
 importlib.reload(layout_general)
+importlib.reload(layout_atles)
 
 # ==============================================================================
 # 2. Inicialització
@@ -190,38 +192,86 @@ layer_isoarees = simbologia_graduada.simbologia_graduada_QGIS(layer=isoarees,
 # 7. Composició
 
 ## Composició general
+cfg_layout_general = config.LAYOUTS["GENERAL"]
+
 layout = layout_general.generar_layout(nom_layout="Ús dels edificis a Barcelona")
 
 mapa_general = layout_general.afegir_mapa(
     layout=layout,
-    **config.LAYOUT["Mapa"]
+    capes=[layer_edificis, layer_barris, layer_districtes, basemap_layer],
+    capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"]
 )
 
 titol_general = layout_general.afegir_titol(
     layout=layout,
-    **config.LAYOUT["Titol"]
+    **cfg_layout_general["Titol"]
 )
 
 llegenda_general = layout_general.afegir_llegenda(
     layout=layout,
     mapa=mapa_general,
-    **config.LAYOUT["Llegenda"]
+    **cfg_layout_general["Llegenda"]
 )
 
 escala_general = layout_general.afegir_escala(
     layout=layout,
     mapa=mapa_general,
-    **config.LAYOUT["Escala"]
+    **cfg_layout_general["Escala"]
 )
 
 nord_general = layout_general.afegir_nord(
     layout=layout,
-    **config.LAYOUT["Nord"]
+    mapa=mapa_general,
+    **cfg_layout_general["Nord"]
 )
 
-layout_general.exportar_layout(layout=layout,
-                output_path="C:/projectes_git/PyQGIS_practic/Resultats/Classificacio_edificis.pdf",
-                dpi=300)
+layout_general.exportar_layout(
+    layout=layout,
+    **cfg_layout_general["Exportacio"]
+)
+
+
+## Composició atles
+cfg_layout_atles = config.LAYOUTS["ATLES"]
+
+layout_atles = layout_atles.generar_layout(nom_layout="Ús dels edificis a Barcelona per districte")
+
+mapa_atles = layout_atles.afegir_mapa(
+    layout=layout_atles,
+    capes=[layer_edificis, layer_barris, layer_districtes, basemap_layer],
+    capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"]
+)
+
+titol_atles = layout_general.afegir_titol(
+    layout=layout_atles,
+    **cfg_layout_atles["Titol"]
+)
+
+llegenda_atles = layout_atles.afegir_llegenda(
+    layout=layout_atles,
+    mapa=mapa_atles,
+    **cfg_layout_atles["Llegenda"]
+)
+
+escala_general = layout_atles.afegir_escala(
+    layout=layout_atles,
+    mapa=mapa_atles,
+    **cfg_layout_atles["Escala"]
+)
+
+nord_general = layout_atles.afegir_nord(
+    layout=layout_atles,
+    mapa=mapa_atles,
+    **cfg_layout_atles["Nord"]
+)
+
+layout_atles.exportar_atles(
+    layout=layout_atles,
+    capa_cobertura=dict_layers_clean["Districtes"],
+    **cfg_layout_atles["Exportacio"]
+)
+
+
 
 #============================================================================================
 
@@ -366,67 +416,4 @@ north.setPicturePath("C:/projectes_git/Dades/nord2.png")
 north.attemptResize(QgsLayoutSize(15, 15, QgsUnitTypes.LayoutMillimeters))
 north.attemptMove(QgsLayoutPoint(270, 180, QgsUnitTypes.LayoutMillimeters))
 
-
-
-#output_path = "C:/projectes_git/PyQGIS_practic/Resultats/Classificacio_edificis.png"
-#if os.path.exists(output_path):
-#    os.remove(output_path)  
-
-
-# Activar l'atlas com a layout
-atlas = layout.atlas()
-atlas.setEnabled(True)
-
-# Definir la capa de cobertura
-atlas.setCoverageLayer(dict_layers["Districtes"])
-
-# Establir el camp que genera els fulls - el nom de cada full
-atlas.setPageNameExpression('"NOM"')
-atlas.setFilenameExpression('"NOM"')
-
-# Filtrar o ordenar els fulls, si es desitja
-#atlas.setFilterExpression('"FIELD" < 5')
-#atlas.setSortExpression('"NOM"')
-#atlas.setSortAscending(True)
-
-
-# Ajustar la composició amb diferents mètodes
-# Fer que el mapa s'ajusti automàticament a cada feature
-layout_map.setAtlasDriven(True)
-# Establir zoom automàtic a cada element
-layout_map.setAtlasScalingMode(QgsLayoutItemMap.Auto)
-# Establir un marge percentual al voltant del mapa
-layout_map.setAtlasMargin(0.1)
-
-
-atlas.updateFeatures()
-atlas.beginRender()
-
-
-# Exportar tots els fulls
-exporter = QgsLayoutExporter(layout)
-image_settings = QgsLayoutExporter.ImageExportSettings()
-image_settings.dpi = 125
-exporter.exportToImage(
-    atlas,
-    "C:/projectes_git/PyQGIS_practic/Resultats/",
-    ".png",          
-    image_settings
-)
-
-atlas.endRender()
-
-
-#exporter = QgsLayoutExporter(layout)
-#image_settings = QgsLayoutExporter.ImageExportSettings()
-#image_settings.dpi = 300
-#result = exporter.exportToImage(output_path, image_settings)
-#print(f"Resultat: {result}")
-#print(f"Fitxer existeix: {os.path.exists(output_path)}")
-
-existing = manager.layoutByName("Ús dels edificis")
-if existing:
-    manager.removeLayout(existing)
-
-manager.addLayout(layout)
 

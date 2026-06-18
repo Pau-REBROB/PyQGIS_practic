@@ -120,35 +120,66 @@ SIMBOLOGIA = {
 }
 
 LAYOUT = {
-    "Mapa": {
-        "capes": [layer_edificis, layer_barris, layer_districtes, basemap_layer],
-        "capa_extent": dict_layers_clean["Limits_administratius"]["TermeMunicipal"]
+    "GENERAL":{
+        "Titol": {
+            "titol": "Ús dels edificis de la ciutat de Barcelona - font: Cadastre",
+            "font": "Calibri",
+            "size": 20,
+            "font_color": (0,0,0,255),
+            "backg_color": (100,100,100,180),
+            "frame_color": (255, 255, 255, 200)
+        },
+        "Llegenda": {
+            "titol": "Classificació dels edificis",
+            "font": "Calibri",
+            "size": 10,
+            "font_color": (0,0,0,255),
+            "backg_color": (100,100,100,180)
+        },
+        "Escala": {
+            "font": "Calibri",
+            "font_color": (0,0,0,255)
+        },
+        "Nord": {
+            "path": "C:/projectes_git/Dades/nord2.png"
+        },
+        "Exportacio": {
+            "output_path": "C:/projectes_git/PyQGIS_practic/Resultats/Classificacio_edificis.pdf",
+            "dpi": 300
+        }
     },
-    "Titol": {
-        "titol": "Ús dels edificis de la ciutat de Barcelona - font: Cadastre",
-        "font": "Calibri",
-        "size": 20,
-        "font_color": (0,0,0,255),
-        "backg_color": (100,100,100,180),
-        "frame_color": (255, 255, 255, 200)
-    },
-    "Llegenda": {
-        "titol": "Classificació dels edificis",
-        "font": "Calibri",
-        "size": 10,
-        "font_color": (0,0,0,255),
-        "backg_color": (100,100,100,180)
-    },
-    "Escala": {
-        "font": "Calibri",
-        "font_color": (0,0,0,255)
-    },
-    "Nord": {
-        "path": "C:/projectes_git/Dades/nord2.png"
+
+    "ATLES": {
+        "Titol": {
+            "titol": "Ús dels edificis de la ciutat de Barcelona - Districte: [% \"NOM\" %]",
+            "font": "Calibri",
+            "size": 20,
+            "font_color": (0,0,0,255),
+            "backg_color": (100,100,100,180),
+            "frame_color": (255, 255, 255, 200)
+        },
+        "Llegenda": {
+            "titol": "Classificació dels edificis",
+            "font": "Calibri",
+            "size": 10,
+            "font_color": (0,0,0,255),
+            "backg_color": (100,100,100,180)
+        },
+        "Escala": {
+            "font": "Calibri",
+            "font_color": (0,0,0,255)
+        },
+        "Nord": {
+            "path": "C:/projectes_git/Dades/nord2.png"
+        },
+        "Exportacio": {
+            "camp": "NOM",
+            "output_path": "C:/projectes_git/PyQGIS_practic/Resultats/",
+            "dpi": 300
+        }
     }
 }
 
-## UN DICCIONARI EXTERN QUE SIGUI PER CADA LAYOUT
 # SIMBOLOGIA={LAYOUT_GENERAL:{"BARRIS":{},"DISTRICTES":{},"GRAF":{},"EDIFICIS":{}}, LAYOUT_RETAIL:{}, LAYOUT_COMPARATIU: {}}
 
 # CREAR UN SCRIPT D'APLICACIÓ DE SIMBOLOGIA?

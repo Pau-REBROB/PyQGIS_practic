@@ -1,6 +1,6 @@
 """COMPOSICIONS - LAYOUTS"""
 
-# Composició general =============================
+# Composició en atles
 
 from qgis.core import (
     QgsProject,
@@ -29,6 +29,7 @@ from qgis.PyQt.QtGui import (
 from qgis.PyQt.QtCore import Qt
 
 import os
+
 
 def generar_layout(nom_layout):
     """
@@ -91,13 +92,12 @@ def afegir_mapa(layout, capes, capa_extent):
     # Definició de l'extensió i vista
     extent = capa_extent.extent() 
     extent.scale(0.5)
-    extent.setXMinimum(extent.xMinimum() + 500)
-    extent.setXMaximum(extent.xMaximum() + 500)
-    extent.setYMinimum(extent.yMinimum() + 250)
-    extent.setYMaximum(extent.yMaximum() + 250)
+    #extent.setXMinimum(extent.xMinimum() + 500)
+    #extent.setXMaximum(extent.xMaximum() + 500)
+    #extent.setYMinimum(extent.yMinimum() + 250)
+    #extent.setYMaximum(extent.yMaximum() + 250)
     layout_map.zoomToExtent(extent)
     
-
     return layout_map
 
 
@@ -263,26 +263,46 @@ def afegir_nord(layout, mapa, path):
     return north
 
 
-def exportar_layout(layout, output_path, dpi):
+def exportar_atles(layout, capa_cobertura, camp, output_path, dpi):
     """
-    Funció per exportar la composició
+    Funció per exportar la composició com a atles
     """
 
-    #output_path = "C:/projectes_git/PyQGIS_practic/Resultats/Proximitat_retail.png"
+    # Activar l'atlas com a layout
+    atlas = layout.atlas()
+    atlas.setEnabled(True)
+
+    # Definir la capa de cobertura
+    atlas.setCoverageLayer(capa_cobertura) #dict_layers["Districtes"]
+
+    # Establir el camp que genera els fulls - el nom de cada full
+    atlas.setPageNameExpression(camp) #'"NOM"'
+    atlas.setFilenameExpression(camp) #'"NOM"'
+
+    # Ajustar la composició amb diferents mètodes
+    # Fer que el mapa s'ajusti automàticament a cada feature
+    layout.setAtlasDriven(True)
+    # Establir zoom automàtic a cada element
+    layout.setAtlasScalingMode(QgsLayoutItemMap.Auto)
+    # Establir un marge percentual al voltant del mapa
+    layout.setAtlasMargin(0.1)
+
+    atlas.updateFeatures()
     
-    # Comprovació de composicions existents
-    if os.path.exists(output_path):
-        os.remove(output_path)  
+    atlas.beginRender()
 
-    # Definició de l'exportador
+    # Exportar tots els fulls
     exporter = QgsLayoutExporter(layout)
-    
-    # Definició de paràmetres de configuració
     pdf_settings = QgsLayoutExporter.PdfExportSettings()
     pdf_settings.dpi = dpi
     pdf_settings.forceVectorOutput = True
     pdf_settings.rasterizeWholeImage = False
-    
-    # Exportació a PDF
-    exporter.exportToPdf(output_path, pdf_settings)
-    
+    exporter.exportToPdf(
+        atlas,
+        output_path, #"C:/projectes_git/PyQGIS_practic/Resultats/"
+        ".pdf",          
+        pdf_settings
+    )
+
+    atlas.endRender()
+
