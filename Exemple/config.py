@@ -172,9 +172,11 @@ LAYOUT = {
         "Nord": {
             "path": "C:/projectes_git/Dades/nord2.png"
         },
+        "Generacio": {
+            "camp": '"NOM"'
+        },
         "Exportacio": {
-            "camp": "NOM",
-            "output_path": "C:/projectes_git/PyQGIS_practic/Resultats/",
+            "output_path": "C:/projectes_git/PyQGIS_practic/Resultats/AtlesDistrictes.pdf",
             "dpi": 300
         }
     }

@@ -192,7 +192,7 @@ layer_isoarees = simbologia_graduada.simbologia_graduada_QGIS(layer=isoarees,
 # 7. Composició
 
 ## Composició general
-cfg_layout_general = config.LAYOUTS["GENERAL"]
+cfg_layout_general = config.LAYOUT["GENERAL"]
 
 layout = layout_general.generar_layout(nom_layout="Ús dels edificis a Barcelona")
 
@@ -232,46 +232,50 @@ layout_general.exportar_layout(
 
 
 ## Composició atles
-cfg_layout_atles = config.LAYOUTS["ATLES"]
+cfg_layout_atles = config.LAYOUT["ATLES"]
 
-layout_atles = layout_atles.generar_layout(nom_layout="Ús dels edificis a Barcelona per districte")
+layout_a = layout_atles.generar_layout(nom_layout="Ús dels edificis a Barcelona per districte")
 
 mapa_atles = layout_atles.afegir_mapa(
-    layout=layout_atles,
+    layout=layout_a,
     capes=[layer_edificis, layer_barris, layer_districtes, basemap_layer],
     capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"]
 )
 
 titol_atles = layout_general.afegir_titol(
-    layout=layout_atles,
+    layout=layout_a,
     **cfg_layout_atles["Titol"]
 )
 
 llegenda_atles = layout_atles.afegir_llegenda(
-    layout=layout_atles,
+    layout=layout_a,
     mapa=mapa_atles,
     **cfg_layout_atles["Llegenda"]
 )
 
 escala_general = layout_atles.afegir_escala(
-    layout=layout_atles,
+    layout=layout_a,
     mapa=mapa_atles,
     **cfg_layout_atles["Escala"]
 )
 
 nord_general = layout_atles.afegir_nord(
-    layout=layout_atles,
+    layout=layout_a,
     mapa=mapa_atles,
     **cfg_layout_atles["Nord"]
 )
 
-layout_atles.exportar_atles(
-    layout=layout_atles,
-    capa_cobertura=dict_layers_clean["Districtes"],
-    **cfg_layout_atles["Exportacio"]
+atles = layout_atles.generar_atles(
+    layout=layout_a,
+    capa_cobertura=dict_layers_clean["Limits_administratius"]["Districtes"],
+    mapa=mapa_atles,
+    **cfg_layout_atles["Generacio"]
 )
 
-
+layout_atles.exportar_atles(
+    atlas=atles,
+    **cfg_layout_atles["Exportacio"]
+)
 
 #============================================================================================
 

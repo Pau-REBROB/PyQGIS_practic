@@ -263,9 +263,9 @@ def afegir_nord(layout, mapa, path):
     return north
 
 
-def exportar_atles(layout, capa_cobertura, camp, output_path, dpi):
+def generar_atles(layout, capa_cobertura, camp, mapa):
     """
-    Funció per exportar la composició com a atles
+    Funció per generar l'atles
     """
 
     # Activar l'atlas com a layout
@@ -273,36 +273,41 @@ def exportar_atles(layout, capa_cobertura, camp, output_path, dpi):
     atlas.setEnabled(True)
 
     # Definir la capa de cobertura
-    atlas.setCoverageLayer(capa_cobertura) #dict_layers["Districtes"]
+    atlas.setCoverageLayer(capa_cobertura)
 
     # Establir el camp que genera els fulls - el nom de cada full
-    atlas.setPageNameExpression(camp) #'"NOM"'
-    atlas.setFilenameExpression(camp) #'"NOM"'
+    atlas.setPageNameExpression(camp) 
+    atlas.setFilenameExpression(camp) 
 
     # Ajustar la composició amb diferents mètodes
     # Fer que el mapa s'ajusti automàticament a cada feature
-    layout.setAtlasDriven(True)
+    mapa.setAtlasDriven(True)
     # Establir zoom automàtic a cada element
-    layout.setAtlasScalingMode(QgsLayoutItemMap.Auto)
+    mapa.setAtlasScalingMode(QgsLayoutItemMap.Auto)
     # Establir un marge percentual al voltant del mapa
-    layout.setAtlasMargin(0.1)
+    mapa.setAtlasMargin(0.1)
 
     atlas.updateFeatures()
-    
-    atlas.beginRender()
 
+    return atlas
+
+
+def exportar_atles(atlas, output_path, dpi):
+    """
+    Funció per exportar la composició com a atles
+    """
+    
     # Exportar tots els fulls
-    exporter = QgsLayoutExporter(layout)
+    #exporter = QgsLayoutExporter(layout)
+    
     pdf_settings = QgsLayoutExporter.PdfExportSettings()
     pdf_settings.dpi = dpi
     pdf_settings.forceVectorOutput = True
     pdf_settings.rasterizeWholeImage = False
-    exporter.exportToPdf(
+    
+    result, error = QgsLayoutExporter.exportToPdf(
         atlas,
-        output_path, #"C:/projectes_git/PyQGIS_practic/Resultats/"
-        ".pdf",          
-        pdf_settings
-    )
-
-    atlas.endRender()
-
+        output_path,
+        pdf_settings)
+    
+    return result
