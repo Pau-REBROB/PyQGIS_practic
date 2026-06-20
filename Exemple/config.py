@@ -182,6 +182,13 @@ LAYOUT = {
     }
 }
 
+EXPORTACIO = {
+    "Mapa_general": "C:/projectes_git/PyQGIS_practic/Resultats/Classificacio_edificis.pdf",
+    "Atles": "C:/projectes_git/PyQGIS_practic/Resultats/AtlesDistrictes.pdf",
+
+    "Informe": "C:/projectes_git/PyQGIS_practic/Resultats/Informe_final.pdf"
+}
+
 # SIMBOLOGIA={LAYOUT_GENERAL:{"BARRIS":{},"DISTRICTES":{},"GRAF":{},"EDIFICIS":{}}, LAYOUT_RETAIL:{}, LAYOUT_COMPARATIU: {}}
 
 # CREAR UN SCRIPT D'APLICACIÓ DE SIMBOLOGIA?

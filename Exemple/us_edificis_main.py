@@ -64,17 +64,20 @@ layouts/
 
 import sys
 sys.path.append("C:/projectes_git/PyQGIS_practic/Exemple")
+sys.path.append("C:/projectes_git/PyQGIS_practic/Exemple/simbologia")
+sys.path.append("C:/projectes_git/PyQGIS_practic/Exemple/layouts")
 
 import inicialitzacio
 import importacio
 import preparacio_dades
 import analisi_espacial
-import simbologia_unica
-import simbologia_categorica
-import simbologia_graduada
-import layout_common
-import layout_general
-import layout_atles
+import simbologia.simbologia_unica as simbologia_unica
+import simbologia.simbologia_categorica as simbologia_categorica
+import simbologia.simbologia_graduada as simbologia_graduada
+import layouts.layout_common as layout_common
+import layouts.layout_general as layout_general
+import layouts.layout_atles as layout_atles
+import layouts.fusionar_layouts as fusionar_layouts
 
 
 ## Funcions d'alt nivell en ANÀLISI i LAYOUT?
@@ -97,6 +100,8 @@ importlib.reload(simbologia_graduada)
 importlib.reload(layout_common)
 importlib.reload(layout_general)
 importlib.reload(layout_atles)
+importlib.reload(fusionar_layouts)
+
 
 # ==============================================================================
 # 2. Inicialització
@@ -279,6 +284,15 @@ layout_atles.exportar_atles(
     **cfg_layout_atles["Exportacio"]
 )
 
+## Unió de composicions
+fusionar_layouts.fusionar_pdf(
+    pdfs=[
+        config.EXPORTACIO["Mapa_general"],
+        config.EXPORTACIO["Atles"]
+        ],
+    output_path=config.EXPORTACIO["Informe"]
+)
+
 #============================================================================================
 
 """GENERACIÓ DE CARTOGRAFIA"""
@@ -298,128 +312,3 @@ for layer in project.mapLayers().values():
 
 
 #========================================================================================
-
-""" GENERACIÓ DE LA COMPOSICIÓ"""
-
-### DEFINIR ELEMENT
-### ADDICIÓ AL LAYOUT
-### CONFIGURACIÓ
-
-# LAYOUT
-layout = QgsPrintLayout(project)
-layout.initializeDefaults()
-layout.setName("Ús dels edificis")
-
-manager = project.layoutManager()
-
-
-# MAP
-layout_map = QgsLayoutItemMap(layout)
-layout.addLayoutItem(layout_map)
-
-#layout_map.setLayers([layer_us_edificis, layer_base_barris, layer_base_districtes, layer_fons])
-layout_map.setLayers([layer_us_edificis, layer_base_districtes, layer_fons])
-layout_map.setKeepLayerSet(True)
-
-extent = dict_layers["TermeMunicipal"].extent() 
-layout_map.zoomToExtent(extent)
-
-layout_map.attemptResize(QgsLayoutSize(297,210,QgsUnitTypes.LayoutMillimeters))    #DIN A4 apaisat 297x210mm
-layout_map.attemptMove(QgsLayoutPoint(0,0,QgsUnitTypes.LayoutMillimeters))
-
-
-# TITLE
-title = QgsLayoutItemLabel(layout)
-layout.addLayoutItem(title)
-
-title.attemptMove(QgsLayoutPoint(10, 5, QgsUnitTypes.LayoutMillimeters))
-title.attemptResize(QgsLayoutSize(275, 10, QgsUnitTypes.LayoutMillimeters))
-
-title.setText("Ús dels edificis de Barcelona - Districte: [% \"NOM\" %]")
-title_format = QgsTextFormat()
-title_format.setFont(QFont("Arial", 20))
-title_format.setSize(20)
-title_format.setSizeUnit(QgsUnitTypes.RenderPoints)
-title_format.setColor(QColor(255, 255, 255))
-title.setTextFormat(title_format)
-
-#title.setHAlign(Qt.AlignCenter)
-title.setMarginX(5)  # marge horitzontal en mm
-title.setMarginY(1)  # marge vertical en mm
-
-title.setBackgroundEnabled(True)
-title.setBackgroundColor(QColor(100, 100, 100, 200))
-title.setFrameEnabled(True)
-title.setFrameStrokeColor(QColor(255, 255, 255, 200))
-title.setFrameStrokeWidth(QgsLayoutMeasurement(0.75, QgsUnitTypes.LayoutMillimeters))
-
-
-# LEGEND
-legend = QgsLayoutItemLegend(layout)
-layout.addLayoutItem(legend)
-
-legend.setLinkedMap(layout_map)
-legend.setAutoUpdateModel(True) 
-
-legend.setTitle("Ús dels edificis")
-
-legend.attemptMove(QgsLayoutPoint(10,30,QgsUnitTypes.LayoutMillimeters))
-
-text_format = QgsTextFormat()
-text_format.setSize(10)
-text_format.setSizeUnit(QgsUnitTypes.RenderPoints)
-text_format.setColor(QColor(255, 255, 255))
-# Títol
-legend.rstyle(QgsLegendStyle.Title).setTextFormat(text_format)
-# Grups
-legend.rstyle(QgsLegendStyle.Group).setTextFormat(text_format)
-# Subgrups
-legend.rstyle(QgsLegendStyle.Subgroup).setTextFormat(text_format)
-# Elements individuals
-legend.rstyle(QgsLegendStyle.SymbolLabel).setTextFormat(text_format)
-
-legend.setBackgroundEnabled(True)
-legend.setBackgroundColor(QColor(80, 80, 80, 200))
-legend.setFrameEnabled(False)
-
-legend.setAutoUpdateModel(False)  
-root_legend = legend.model().rootGroup()
-noms_a_eliminar = ["Simbologia_única", "CartoDB Dark"]
-for child in root_legend.children()[:]:
-    if child.name() in noms_a_eliminar:
-        root_legend.removeChildNode(child)
-
-
-# SCALE
-scale = QgsLayoutItemScaleBar(layout)
-layout.addLayoutItem(scale)
-
-scale.setLinkedMap(layout_map)
-
-#scale.attemptResize(QgsLayoutSize(15,15,QgsUnitTypes.LayoutMillimeters))
-scale.attemptMove(QgsLayoutPoint(270,200,QgsUnitTypes.LayoutMillimeters))
-
-scale.setStyle("Numeric")
-numeric_format = QgsBasicNumericFormat()
-numeric_format.setShowThousandsSeparator(True)
-numeric_format.setNumberDecimalPlaces(0)
-scale.setNumericFormat(numeric_format)
-
-scale_format = QgsTextFormat()
-scale_format.setFont(QFont("Arial"))
-scale_format.setSize(16)
-scale_format.setSizeUnit(QgsUnitTypes.RenderPoints)
-scale_format.setColor(QColor(255, 255, 255))
-scale.setTextFormat(scale_format)
-#scale.setFontColor(QColor(255, 255, 255))
-
-
-# NORTH
-north = QgsLayoutItemPicture(layout)
-layout.addLayoutItem(north)
-
-north.setPicturePath("C:/projectes_git/Dades/nord2.png")
-north.attemptResize(QgsLayoutSize(15, 15, QgsUnitTypes.LayoutMillimeters))
-north.attemptMove(QgsLayoutPoint(270, 180, QgsUnitTypes.LayoutMillimeters))
-
-
