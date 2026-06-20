@@ -72,6 +72,7 @@ import analisi_espacial
 import simbologia_unica
 import simbologia_categorica
 import simbologia_graduada
+import layout_common
 import layout_general
 import layout_atles
 
@@ -93,6 +94,7 @@ importlib.reload(analisi_espacial)
 importlib.reload(simbologia_unica)
 importlib.reload(simbologia_categorica)
 importlib.reload(simbologia_graduada)
+importlib.reload(layout_common)
 importlib.reload(layout_general)
 importlib.reload(layout_atles)
 
@@ -194,7 +196,7 @@ layer_isoarees = simbologia_graduada.simbologia_graduada_QGIS(layer=isoarees,
 ## Composició general
 cfg_layout_general = config.LAYOUT["GENERAL"]
 
-layout = layout_general.generar_layout(nom_layout="Ús dels edificis a Barcelona")
+layout = layout_common.generar_layout(nom_layout="Ús dels edificis a Barcelona")
 
 mapa_general = layout_general.afegir_mapa(
     layout=layout,
@@ -202,24 +204,24 @@ mapa_general = layout_general.afegir_mapa(
     capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"]
 )
 
-titol_general = layout_general.afegir_titol(
+titol_general = layout_common.afegir_titol(
     layout=layout,
     **cfg_layout_general["Titol"]
 )
 
-llegenda_general = layout_general.afegir_llegenda(
+llegenda_general = layout_common.afegir_llegenda(
     layout=layout,
     mapa=mapa_general,
     **cfg_layout_general["Llegenda"]
 )
 
-escala_general = layout_general.afegir_escala(
+escala_general = layout_common.afegir_escala(
     layout=layout,
     mapa=mapa_general,
     **cfg_layout_general["Escala"]
 )
 
-nord_general = layout_general.afegir_nord(
+nord_general = layout_common.afegir_nord(
     layout=layout,
     mapa=mapa_general,
     **cfg_layout_general["Nord"]
@@ -234,7 +236,7 @@ layout_general.exportar_layout(
 ## Composició atles
 cfg_layout_atles = config.LAYOUT["ATLES"]
 
-layout_a = layout_atles.generar_layout(nom_layout="Ús dels edificis a Barcelona per districte")
+layout_a = layout_common.generar_layout(nom_layout="Ús dels edificis a Barcelona per districte")
 
 mapa_atles = layout_atles.afegir_mapa(
     layout=layout_a,
@@ -242,24 +244,24 @@ mapa_atles = layout_atles.afegir_mapa(
     capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"]
 )
 
-titol_atles = layout_general.afegir_titol(
+titol_atles = layout_common.afegir_titol(
     layout=layout_a,
     **cfg_layout_atles["Titol"]
 )
 
-llegenda_atles = layout_atles.afegir_llegenda(
+llegenda_atles = layout_common.afegir_llegenda(
     layout=layout_a,
     mapa=mapa_atles,
     **cfg_layout_atles["Llegenda"]
 )
 
-escala_general = layout_atles.afegir_escala(
+escala_general = layout_common.afegir_escala(
     layout=layout_a,
     mapa=mapa_atles,
     **cfg_layout_atles["Escala"]
 )
 
-nord_general = layout_atles.afegir_nord(
+nord_general = layout_common.afegir_nord(
     layout=layout_a,
     mapa=mapa_atles,
     **cfg_layout_atles["Nord"]
