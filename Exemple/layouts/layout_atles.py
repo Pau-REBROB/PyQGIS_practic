@@ -7,6 +7,7 @@ from qgis.core import (
     QgsLayoutSize,
     QgsLayoutPoint,
     QgsUnitTypes,
+    QgsLayoutMeasurement,
     QgsLayoutExporter
 )
 
@@ -31,7 +32,7 @@ def afegir_mapa(layout, capes, capa_extent):
     layout_map.setKeepLayerSet(True)
 
     # Definició de posició i mida
-    layout_map.attemptResize(QgsLayoutSize(270, 190, QgsUnitTypes.LayoutMillimeters))    #DIN A4 apaisat 297x210mm
+    layout_map.attemptResize(QgsLayoutSize(280, 190, QgsUnitTypes.LayoutMillimeters))    #DIN A4 apaisat 297x210mm
     layout_map.attemptMove(QgsLayoutPoint(10, 10, QgsUnitTypes.LayoutMillimeters))
 
     # Rotació del mapa
@@ -47,6 +48,43 @@ def afegir_mapa(layout, capes, capa_extent):
     layout_map.zoomToExtent(extent)
     
     return layout_map
+
+
+def afegir_mapa_localitzador(layout, layer_location, capa_extensio, mapa):
+    """
+    Funció per a afegir un mapa localitzador a cada pàgina de l'atles
+    """
+
+    # Creació del mapa
+    locator = QgsLayoutItemMap(layout)
+
+    # Addició del mapa a la composició
+    layout.addLayoutItem(locator)
+
+    # Addició de les capes
+    locator.setLayers([layer_location])
+    locator.setKeepLayerSet(True)
+
+    # Definició de posició i mida
+    locator.attemptResize(QgsLayoutSize(50, 50, QgsUnitTypes.LayoutMillimeters))
+    locator.attemptMove(QgsLayoutPoint(240, 140, QgsUnitTypes.LayoutMillimeters))
+
+    # Definició de l'extensió - fixa
+    locator.zoomToExtent(capa_extensio.extent())
+
+    # Definir l'overview
+    overview = locator.overview()
+
+    print(overview)
+
+    overview.setLinkedMap(mapa)
+    overview.setEnabled(True)
+    
+    # Definició d'un marc
+    locator.setFrameEnabled(True)
+    locator.setFrameStrokeWidth(QgsLayoutMeasurement(0.5, QgsUnitTypes.LayoutMillimeters))
+
+    return locator
 
 
 def generar_atles(layout, capa_cobertura, camp, mapa):

@@ -84,7 +84,7 @@ def afegir_titol(layout, titol, font, size, font_color, backg_color, frame_color
     
     # Definició de posició i mida
     title.attemptMove(QgsLayoutPoint(10, 5, QgsUnitTypes.LayoutMillimeters))
-    title.attemptResize(QgsLayoutSize(270, 10, QgsUnitTypes.LayoutMillimeters))
+    title.attemptResize(QgsLayoutSize(280, 10, QgsUnitTypes.LayoutMillimeters))
 
     # Definició de l'alineació
     title.setMarginX(5)  # marge horitzontal en mm
@@ -134,7 +134,7 @@ def afegir_llegenda(layout, mapa, titol, font, size, font_color, backg_color):
     legend.setTitle(titol)
 
     # Definició de posició i mida
-    legend.attemptMove(QgsLayoutPoint(250, 120, QgsUnitTypes.LayoutMillimeters))
+    legend.attemptMove(QgsLayoutPoint(240, 60, QgsUnitTypes.LayoutMillimeters))
     legend.adjustBoxSize()
 
     # Definició del format de text - tot igual

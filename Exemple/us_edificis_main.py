@@ -66,11 +66,14 @@ import sys
 sys.path.append("C:/projectes_git/PyQGIS_practic/Exemple")
 sys.path.append("C:/projectes_git/PyQGIS_practic/Exemple/simbologia")
 sys.path.append("C:/projectes_git/PyQGIS_practic/Exemple/layouts")
+sys.path.append("C:/projectes_git/PyQGIS_practic/Exemple/analisi")
+
 
 import inicialitzacio
 import importacio
 import preparacio_dades
-import analisi_espacial
+import analisi.agregacions as agregacions
+import analisi.analisi_espacial as analisi_espacial
 import simbologia.simbologia_unica as simbologia_unica
 import simbologia.simbologia_categorica as simbologia_categorica
 import simbologia.simbologia_graduada as simbologia_graduada
@@ -93,6 +96,7 @@ importlib.reload(config)
 importlib.reload(inicialitzacio)
 importlib.reload(importacio)
 importlib.reload(preparacio_dades)
+importlib.reload(agregacions)
 importlib.reload(analisi_espacial)
 importlib.reload(simbologia_unica)
 importlib.reload(simbologia_categorica)
@@ -123,6 +127,18 @@ dict_layers_clean = preparacio_dades.netejar_grup(dict_layers=dict_layers, confi
 # ==============================================================================
 # 5. Anàlisi espacial
 
+# Agregació de dades per districtes
+dades_districtes = agregacions.resum_usos_districtes(
+    edificis=dict_layers_clean["Cadastre"]["Edificis"],
+    districtes=dict_layers_clean["Limits_administratius"]["Districtes"]
+)
+
+taula_districtes = agregacions.taula_usos_districtes(dades_districtes)
+print(taula_districtes)
+
+taula_percentatges = agregacions.percentatge_usos_districtes(taula_districtes)
+print(taula_percentatges)
+####
 zones_retail = analisi_espacial.zones_us(layer=dict_layers_clean["Cadastre"]["Edificis"],
                                          expressio=''' "currentUse" = '4_2_retail' ''',
                                          eps=100,
@@ -247,6 +263,13 @@ mapa_atles = layout_atles.afegir_mapa(
     layout=layout_a,
     capes=[layer_edificis, layer_barris, layer_districtes, basemap_layer],
     capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"]
+)
+
+mapa_localitzador = layout_atles.afegir_mapa_localitzador(
+    layout=layout_a,
+    layer_location=layer_districtes,
+    capa_extensio=dict_layers_clean["Limits_administratius"]["TermeMunicipal"],
+    mapa=mapa_atles
 )
 
 titol_atles = layout_common.afegir_titol(
