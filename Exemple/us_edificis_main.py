@@ -73,6 +73,7 @@ import inicialitzacio
 import importacio
 import preparacio_dades
 import analisi.agregacions as agregacions
+import analisi.grafics as grafics
 import analisi.analisi_espacial as analisi_espacial
 import simbologia.simbologia_unica as simbologia_unica
 import simbologia.simbologia_categorica as simbologia_categorica
@@ -97,6 +98,7 @@ importlib.reload(inicialitzacio)
 importlib.reload(importacio)
 importlib.reload(preparacio_dades)
 importlib.reload(agregacions)
+importlib.reload(grafics)
 importlib.reload(analisi_espacial)
 importlib.reload(simbologia_unica)
 importlib.reload(simbologia_categorica)
@@ -138,6 +140,17 @@ print(taula_districtes)
 
 taula_percentatges = agregacions.percentatge_usos_districtes(taula_districtes)
 print(taula_percentatges)
+
+# Visualització dels resultats
+grafics.grafic_usos_districtes(
+    df=taula_districtes,
+    output_path="C:/projectes_git/PyQGIS_practic/Resultats/Grafic_nombreEdificis_districte.pdf"
+)
+
+grafics.grafic_percentatge_usos_districtes(
+    df=taula_percentatges,
+    output_path="C:/projectes_git/PyQGIS_practic/Resultats/Grafic_percentatgeEdificis_districte.pdf"
+)
 ####
 zones_retail = analisi_espacial.zones_us(layer=dict_layers_clean["Cadastre"]["Edificis"],
                                          expressio=''' "currentUse" = '4_2_retail' ''',
