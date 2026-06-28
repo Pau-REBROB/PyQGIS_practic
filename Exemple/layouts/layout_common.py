@@ -207,7 +207,7 @@ def afegir_nord(layout, mapa, path):
     # Addició del nord a la composició
     layout.addLayoutItem(north)
 
-    # Vinculació de l'escala amb el mapa
+    # Vinculació de la imatge amb el mapa
     north.setLinkedMap(mapa)
 
     # Cerca de la imatge
@@ -218,3 +218,24 @@ def afegir_nord(layout, mapa, path):
     north.attemptMove(QgsLayoutPoint(15, 180, QgsUnitTypes.LayoutMillimeters))
 
     return north
+
+
+def afegir_grafic(layout, path, x_s, y_s, x_m, y_m):
+    """
+    Funció que insereix un gràfic en forma d'imatge a la composició
+    """
+
+    # Creació de la imatge
+    image = QgsLayoutItemPicture(layout)
+
+    # Addició de la imatge a la composició
+    layout.addLayoutItem(image)
+
+    # Cerca de la imatge
+    image.setPicturePath(path)
+    
+    # Definició de posició i mida
+    image.attemptResize(QgsLayoutSize(x_s, y_s, QgsUnitTypes.LayoutMillimeters))
+    image.attemptMove(QgsLayoutPoint(x_m, y_m, QgsUnitTypes.LayoutMillimeters))
+
+    return image

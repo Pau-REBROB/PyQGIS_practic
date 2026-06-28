@@ -213,6 +213,49 @@ LAYOUT = {
             "output_path": "C:/projectes_git/PyQGIS_practic/Resultats/AtlesDistrictes.pdf",
             "dpi": 300
         }
+    },
+
+    "ANALISI":{
+        "Titol": {
+            "titol": "Anàlisi dels usos dels edificis de la ciutat de Barcelona - font: Cadastre",
+            "font": "Calibri",
+            "size": 20,
+            "font_color": (0,0,0,255),
+            "backg_color": (100,100,100,180),
+            "frame_color": (255, 255, 255, 200)
+        },
+        "Llegenda": {
+            "titol": "Classificació dels edificis",
+            "font": "Calibri",
+            "size": 10,
+            "font_color": (0,0,0,255),
+            "backg_color": (100,100,100,180)
+        },
+        "Escala": {
+            "font": "Calibri",
+            "font_color": (0,0,0,255)
+        },
+        "Nord": {
+            "path": "C:/projectes_git/Dades/nord2.png"
+        },
+        "Grafic_total": {
+            "path": "C:/projectes_git/PyQGIS_practic/Resultats/Grafic_nombreEdificis_districte.png",
+            "x_s": 120,
+            "y_s": 60,
+            "x_m": 15,
+            "y_m": 145
+        },
+        "Grafic_percentatge": {
+            "path": "C:/projectes_git/PyQGIS_practic/Resultats/Grafic_percentatgeEdificis_districte.png",
+            "x_s": 120,
+            "y_s": 60,
+            "x_m": 145,
+            "y_m": 145
+        },
+        "Exportacio": {
+            "output_path": "C:/projectes_git/PyQGIS_practic/Resultats/Analisi_edificis.pdf",
+            "dpi": 300
+        }
     }
 }
 

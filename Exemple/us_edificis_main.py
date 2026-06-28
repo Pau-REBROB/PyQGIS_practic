@@ -144,12 +144,12 @@ print(taula_percentatges)
 # Visualització dels resultats
 grafics.grafic_usos_districtes(
     df=taula_districtes,
-    output_path="C:/projectes_git/PyQGIS_practic/Resultats/Grafic_nombreEdificis_districte.pdf"
+    output_path="C:/projectes_git/PyQGIS_practic/Resultats/Grafic_nombreEdificis_districte.png"
 )
 
 grafics.grafic_percentatge_usos_districtes(
     df=taula_percentatges,
-    output_path="C:/projectes_git/PyQGIS_practic/Resultats/Grafic_percentatgeEdificis_districte.pdf"
+    output_path="C:/projectes_git/PyQGIS_practic/Resultats/Grafic_percentatgeEdificis_districte.png"
 )
 ####
 zones_retail = analisi_espacial.zones_us(layer=dict_layers_clean["Cadastre"]["Edificis"],
@@ -319,6 +319,57 @@ layout_atles.exportar_atles(
     atlas=atles,
     **cfg_layout_atles["Exportacio"]
 )
+
+
+## Composició anàlisi
+cfg_layout_analisi = config.LAYOUT["ANALISI"]
+
+layout = layout_common.generar_layout(nom_layout="Anàlisi dels usos dels edificis a Barcelona")
+
+mapa_analisi = layout_general.afegir_mapa(
+    layout=layout,
+    capes=[layer_edificis, layer_barris, layer_districtes, basemap_layer],
+    capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"]
+)
+
+titol_analisi = layout_common.afegir_titol(
+    layout=layout,
+    **cfg_layout_analisi["Titol"]
+)
+
+llegenda_analisi = layout_common.afegir_llegenda(
+    layout=layout,
+    mapa=mapa_analisi,
+    **cfg_layout_analisi["Llegenda"]
+)
+
+escala_analisi = layout_common.afegir_escala(
+    layout=layout,
+    mapa=mapa_analisi,
+    **cfg_layout_analisi["Escala"]
+)
+
+nord_analisi = layout_common.afegir_nord(
+    layout=layout,
+    mapa=mapa_analisi,
+    **cfg_layout_analisi["Nord"]
+)
+
+imatge_totals = layout_common.afegir_grafic(
+    layout=layout,
+    **cfg_layout_analisi["Grafic_total"]
+)
+
+imatge_percentatges = layout_common.afegir_grafic(
+    layout=layout,
+    **cfg_layout_analisi["Grafic_percentatge"]
+)
+
+layout_general.exportar_layout(
+    layout=layout,
+    **cfg_layout_analisi["Exportacio"]
+)
+
 
 ## Unió de composicions
 fusionar_layouts.fusionar_pdf(
