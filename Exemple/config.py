@@ -74,6 +74,40 @@ CAMPS_MANTENIR = {
     }
 }
 
+#USOS
+
+ETIQUETES_USOS = {
+    "1_residential": "Residencial",
+    "2_agriculture": "Agricultura",
+    "3_industrial": "Industrial",
+    "4_1_office": "Oficines",
+    "4_2_retail": "Comerç",
+    "4_3_publicServices": "Serveis públics"
+}
+
+COLORS_USOS = {
+    "1_residential": (255, 235, 175, 255),
+    "2_agriculture": (170, 255, 115, 255),
+    "3_industrial": (178, 178, 178, 255),
+    "4_1_office": (255, 170, 0, 255),
+    "4_2_retail": (255, 127, 0, 255),
+    "4_3_publicServices": (200, 170, 220, 255)
+}
+
+def colors_mpl(us):
+    """
+    Funció per convertir colors en format (RGBA) de PyQGIS en format acceptat per matplotlib
+    """
+    r,g,b,a = COLORS_USOS[us]
+    
+    return (
+        r/255,
+        g/255,
+        b/255,
+        a/255
+    )
+
+
 SIMBOLOGIA = {
     "Barris": {
         "fill_color": (255,255,255,0),
