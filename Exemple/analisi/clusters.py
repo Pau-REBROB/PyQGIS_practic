@@ -4,6 +4,7 @@
 
 from qgis.core import (QgsFeatureRequest, QgsVectorLayer)
 import processing
+import pandas as pd
 
 # 1 - Clusterització
 
@@ -79,7 +80,8 @@ def envolvent_clusters(layer):
 
     return layer_zones
 
-def zones_us(layer, expressio, eps, min_size):
+
+def zones_cluster(layer, expressio, eps, min_size):
     """
     Funció d'alt nivell que
         Selecciona d'una capa vectorial els elements que compleixen amb una condició en una nova capa
@@ -89,39 +91,69 @@ def zones_us(layer, expressio, eps, min_size):
 
     layer_request = seleccio_atribut(layer, expressio)
 
-    ##
-    print("Selecció:", layer_request.featureCount())
-
-    for f in layer_request.getFeatures():
-        print(f.hasGeometry(), f.geometry().isNull())
-        break
-    ##
-
-
     clusters = clusters_dbscan(layer_request, eps, min_size)
-
-    ##
-    print("Clusters:", clusters.featureCount())
-
-    for f in clusters.getFeatures():
-        print(f.hasGeometry(), f.geometry().isNull())
-        break
-    ##
 
     layer_zones = envolvent_clusters(clusters)
 
-    ##
-    print("Zones:", layer_zones.featureCount())
-
-    for f in layer_zones.getFeatures():
-        print(f.hasGeometry(), f.geometry().isNull())
-        break   
-    ##
-
-    return layer_zones
+    return {
+        "clusters": clusters,
+        "zones": layer_zones
+    }
 
 
-# 2 - Anàlisi de xarxes
+def resum_clusters(layer):
+    """
+    Funció que retorna el resum estadístic bàsic d'una capa de clusters
+    """
+
+    clusters = {}
+
+    for feat in layer.getFeatures():
+        cluster_id = feat["CLUSTER_ID"]
+        cluster_size = feat["CLUSTER_SIZE"]
+
+        if cluster_id is None or cluster_size is None:
+            continue
+        
+        clusters[cluster_id] = cluster_size
+    
+    if not clusters:
+        dict_resum_noCluster = {
+            "n_clusters": 0,
+            "n_edificis_totals": 0,
+            "max_edificis_cluster": 0,
+            "min_edificis_cluster": 0,
+            "mitjana_edificis_cluster": 0
+        }
+        return dict_resum_noCluster
+    
+    dict_resum = {
+        "n_clusters": len(clusters),
+        "n_edificis_totals": sum(clusters.values()),
+        "max_edificis_cluster": max(clusters.values()),
+        "min_edificis_cluster": min(clusters.values()),
+        "mitjana_edificis_cluster": sum(clusters.values())/len(clusters)
+    }
+    return dict_resum
+
+
+def taula_clusters(resultats, us):
+    """
+    Funció que retorna una taula DataFrame a partir d'un diccionari de valors
+    """
+
+    # Transformació de diccionari a DataFrame
+    df = pd.DataFrame(resultats, index=[0])
+
+    # Transposició de la matriu i addició de nom dels índex 
+    #df = df.T
+
+    df.index.name = us
+
+    return df
+
+
+################## 2 - Anàlisi de xarxes
 
 def generacio_centroides(layer):
     """

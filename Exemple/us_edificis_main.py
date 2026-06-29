@@ -74,7 +74,7 @@ import importacio
 import preparacio_dades
 import analisi.agregacions as agregacions
 import analisi.grafics as grafics
-import analisi.analisi_espacial as analisi_espacial
+import analisi.clusters as clusters
 import simbologia.simbologia_unica as simbologia_unica
 import simbologia.simbologia_categorica as simbologia_categorica
 import simbologia.simbologia_graduada as simbologia_graduada
@@ -99,7 +99,7 @@ importlib.reload(importacio)
 importlib.reload(preparacio_dades)
 importlib.reload(agregacions)
 importlib.reload(grafics)
-importlib.reload(analisi_espacial)
+importlib.reload(clusters)
 importlib.reload(simbologia_unica)
 importlib.reload(simbologia_categorica)
 importlib.reload(simbologia_graduada)
@@ -151,28 +151,61 @@ grafics.grafic_percentatge_usos_districtes(
     df=taula_percentatges,
     output_path="C:/projectes_git/PyQGIS_practic/Resultats/Grafic_percentatgeEdificis_districte.png"
 )
+
+
 ####
-zones_retail = analisi_espacial.zones_us(layer=dict_layers_clean["Cadastre"]["Edificis"],
-                                         expressio=''' "currentUse" = '4_2_retail' ''',
-                                         eps=100,
-                                         min_size=5)
+# Clústers -> Anàlisi
+# Zones -> Representació
+retail = clusters.zones_cluster(layer=dict_layers_clean["Cadastre"]["Edificis"],
+                                expressio=''' "currentUse" = '4_2_retail' ''',
+                                eps=100,
+                                min_size=5)
+retail_clusters = retail["clusters"]
+retail_zones = retail["zones"]
 
-zones_office = analisi_espacial.zones_us(layer=dict_layers_clean["Cadastre"]["Edificis"],
-                                         expressio='"currentUse" = \'4_1_office\'',
-                                         eps=100,
-                                         min_size=5)
+office = clusters.zones_cluster(layer=dict_layers_clean["Cadastre"]["Edificis"],
+                                expressio='"currentUse" = \'4_1_office\'',
+                                eps=100,
+                                min_size=5)
+office_clusters = office["clusters"]
+office_zones = office["zones"]
 
-zones_public = analisi_espacial.zones_us(layer=dict_layers_clean["Cadastre"]["Edificis"],
-                                         expressio='"currentUse" = \'4_3_publicServices\'',
-                                         eps=100,
-                                         min_size=5)
+public = clusters.zones_cluster(layer=dict_layers_clean["Cadastre"]["Edificis"],
+                                expressio='"currentUse" = \'4_3_publicServices\'',
+                                eps=100,
+                                min_size=5)
+public_clusters = public["clusters"]
+public_zones = public["zones"]
 
-zones_residential = analisi_espacial.zones_us(layer=dict_layers_clean["Cadastre"]["Edificis"],
+## RESIDENCIAL VA UNA MICA APART
+zones_residential = clusters.zones_cluster(layer=dict_layers_clean["Cadastre"]["Edificis"],
                                               expressio='"currentUse" = \'1_residential\'',
                                               eps=100,
                                               min_size=5) #EN AQUEST CAS, S'HAURIA DE MIRAR ELS PARÀMETRES
 
-isoarees = analisi_espacial.isoarees_qneat3(graf_layer=dict_layers_clean["Graf"]["Graf_trams"],
+industrial = clusters.zones_cluster(layer=dict_layers_clean["Cadastre"]["Edificis"],
+                                    expressio='"currentUse" = \'3_industrial\'',
+                                    eps=100,
+                                    min_size=5)
+industrial_clusters = industrial["clusters"]
+industrial_zones = industrial["zones"]
+
+
+# Anàlisi de clústers
+resum_retail = clusters.resum_clusters(retail_clusters)
+resum_office = clusters.resum_clusters(office_clusters)
+resum_public = clusters.resum_clusters(public_clusters)
+resum_industrial = clusters.resum_clusters(industrial_clusters)
+
+taula_retail = clusters.taula_clusters(
+    resultats=resum_retail,
+    us="Comerços"
+)
+print(taula_retail)
+
+
+
+isoarees = clusters.isoarees_qneat3(graf_layer=dict_layers_clean["Graf"]["Graf_trams"],
                                             points_layer=zones_retail,
                                             strat=0,
                                             max_dist=5000,
@@ -198,12 +231,22 @@ basemap_layer.setName("Fons cartogràfic CartoDB")
 layer_districtes.setName("Districtes")
 layer_barris.setName("Barris")
 layer_edificis.setName("Ús dels edificis")
+zones_office.setName("Clúster oficines")
+zones_public.setName("Clúster serveis públics")
+zones_retail.setName("Clúster comerços")
+zones_residential.setName("Clúster residencial")
+zones_industrial.setName("Clúster industrial")
 
 # Addició de capes al projecte
 QgsProject.instance().addMapLayer(basemap_layer)
 QgsProject.instance().addMapLayer(layer_districtes)
 QgsProject.instance().addMapLayer(layer_barris)
 QgsProject.instance().addMapLayer(layer_edificis)
+QgsProject.instance().addMapLayer(zones_residential)
+QgsProject.instance().addMapLayer(zones_office)
+QgsProject.instance().addMapLayer(zones_retail)
+QgsProject.instance().addMapLayer(zones_public)
+QgsProject.instance().addMapLayer(zones_industrial)
 
 
 ## Concentració activitat comercial

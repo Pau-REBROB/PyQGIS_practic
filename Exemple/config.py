@@ -74,7 +74,14 @@ CAMPS_MANTENIR = {
     }
 }
 
-#USOS
+USOS = [
+    "1_residential",
+    "2_agriculture",
+    "3_industrial",
+    "4_1_office",
+    "4_2_retail",
+    "4_3_publicServices"
+]
 
 ETIQUETES_USOS = {
     "1_residential": "Residencial",
