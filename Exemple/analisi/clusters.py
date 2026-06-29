@@ -143,12 +143,7 @@ def taula_clusters(resultats, us):
     """
 
     # Transformació de diccionari a DataFrame
-    df = pd.DataFrame(resultats, index=[0])
-
-    # Transposició de la matriu i addició de nom dels índex 
-    #df = df.T
-
-    df.index.name = us
+    df = pd.DataFrame(resultats, index=[us])
 
     return df
 

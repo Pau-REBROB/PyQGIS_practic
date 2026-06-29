@@ -68,6 +68,7 @@ sys.path.append("C:/projectes_git/PyQGIS_practic/Exemple/simbologia")
 sys.path.append("C:/projectes_git/PyQGIS_practic/Exemple/layouts")
 sys.path.append("C:/projectes_git/PyQGIS_practic/Exemple/analisi")
 
+import pandas as pd
 
 import inicialitzacio
 import importacio
@@ -201,8 +202,21 @@ taula_retail = clusters.taula_clusters(
     resultats=resum_retail,
     us="Comerços"
 )
-print(taula_retail)
+taula_office = clusters.taula_clusters(
+    resultats=resum_office,
+    us="Oficines"
+)
+taula_public = clusters.taula_clusters(
+    resultats=resum_public,
+    us="Serveis públics"
+)
+taula_industrial = clusters.taula_clusters(
+    resultats=resum_industrial,
+    us="Industrial"
+)
 
+taula_usos = pd.concat([taula_retail, taula_office, taula_public, taula_industrial])
+print(taula_usos)
 
 
 isoarees = clusters.isoarees_qneat3(graf_layer=dict_layers_clean["Graf"]["Graf_trams"],
