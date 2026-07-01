@@ -191,34 +191,45 @@ industrial = clusters.zones_cluster(layer=dict_layers_clean["Cadastre"]["Edifici
 industrial_clusters = industrial["clusters"]
 industrial_zones = industrial["zones"]
 
+agricultura = clusters.zones_cluster(layer=dict_layers_clean["Cadastre"]["Edificis"],
+                                     expressio='"currentUse" = \'2_agriculture\'',
+                                     eps=100,
+                                     min_size=5)
+agricultura_clusters = agricultura["clusters"]
+agricultura_zones = agricultura["zones"]
+
 
 # Anàlisi de clústers
-resum_retail = clusters.resum_clusters(retail_clusters)
-resum_office = clusters.resum_clusters(office_clusters)
-resum_public = clusters.resum_clusters(public_clusters)
-resum_industrial = clusters.resum_clusters(industrial_clusters)
+dict_clusters = {
+    #"1_residential":,
+    "2_agriculture": agricultura_clusters,
+    "3_industrial": industrial_clusters,
+    "4_1_office": office_clusters,
+    "4_2_retail": retail_clusters,
+    "4_3_publicServices": public_clusters
+}
 
-taula_retail = clusters.taula_clusters(
-    resultats=resum_retail,
-    us="Comerços"
-)
-taula_office = clusters.taula_clusters(
-    resultats=resum_office,
-    us="Oficines"
-)
-taula_public = clusters.taula_clusters(
-    resultats=resum_public,
-    us="Serveis públics"
-)
-taula_industrial = clusters.taula_clusters(
-    resultats=resum_industrial,
-    us="Industrial"
-)
+taules = []
 
-taula_usos = pd.concat([taula_retail, taula_office, taula_public, taula_industrial])
+for us, layer in dict_clusters.items():
+    resum = clusters.resum_clusters(layer)
+    df = clusters.taula_clusters(resum, us)
+    taules.append(df)
+
+taula_usos = pd.concat(taules)
 print(taula_usos)
 
+# Visualització dels resultats
+grafics.grafic_clusters_n(
+    df=taula_usos["n_clusters"],
+    output_path="C:/projectes_git/PyQGIS_practic/Resultats/Grafic_nombreClusters.png"
+)
+grafics.grafic_clusters_mida(
+    df=taula_usos["mitjana_edificis_cluster"],
+    output_path="C:/projectes_git/PyQGIS_practic/Resultats/Grafic_midaClusters.png"
+)
 
+###
 isoarees = clusters.isoarees_qneat3(graf_layer=dict_layers_clean["Graf"]["Graf_trams"],
                                             points_layer=zones_retail,
                                             strat=0,
@@ -245,32 +256,54 @@ basemap_layer.setName("Fons cartogràfic CartoDB")
 layer_districtes.setName("Districtes")
 layer_barris.setName("Barris")
 layer_edificis.setName("Ús dels edificis")
-zones_office.setName("Clúster oficines")
-zones_public.setName("Clúster serveis públics")
-zones_retail.setName("Clúster comerços")
-zones_residential.setName("Clúster residencial")
-zones_industrial.setName("Clúster industrial")
+office_zones.setName("Clúster oficines")
+public_zones.setName("Clúster serveis públics")
+retail_zones.setName("Clúster comerços")
+#residential_zones.setName("Clúster residencial")
+industrial_zones.setName("Clúster industrial")
+agricultura_zones.setName("Clúster agricultura")
+
 
 # Addició de capes al projecte
 QgsProject.instance().addMapLayer(basemap_layer)
 QgsProject.instance().addMapLayer(layer_districtes)
 QgsProject.instance().addMapLayer(layer_barris)
 QgsProject.instance().addMapLayer(layer_edificis)
-QgsProject.instance().addMapLayer(zones_residential)
-QgsProject.instance().addMapLayer(zones_office)
-QgsProject.instance().addMapLayer(zones_retail)
-QgsProject.instance().addMapLayer(zones_public)
-QgsProject.instance().addMapLayer(zones_industrial)
 
 
 ## Concentració activitat comercial
+layer_cluster_agriculture = simbologia_unica.simbologia_unica(layer=agricultura_zones,
+                                                              **config.SIMBOLOGIA["Clusters_agriculture"]
+                                                              )
+
+layer_cluster_industrial = simbologia_unica.simbologia_unica(layer=industrial_zones,
+                                                            **config.SIMBOLOGIA["Clusters_industrial"]
+                                                            )
+
+layer_cluster_office = simbologia_unica.simbologia_unica(layer=office_zones,
+                                                        **config.SIMBOLOGIA["Clusters_office"]
+                                                        )
+
+layer_cluster_retail = simbologia_unica.simbologia_unica(layer=retail_zones,
+                                                             **config.SIMBOLOGIA["Clusters_retail"]
+                                                             )
+
+layer_cluster_public = simbologia_unica.simbologia_unica(layer=public_zones,
+                                                        **config.SIMBOLOGIA["Clusters_public"]
+                                                        )
+
+# Addició de capes al projecte
+#QgsProject.instance().addMapLayer(zones_residential)
+QgsProject.instance().addMapLayer(layer_cluster_agriculture)
+QgsProject.instance().addMapLayer(layer_cluster_industrial)
+QgsProject.instance().addMapLayer(layer_cluster_office)
+QgsProject.instance().addMapLayer(layer_cluster_retail)
+QgsProject.instance().addMapLayer(layer_cluster_public)
+
+###
 layer_graf = simbologia_unica.simbologia_unica_linia(layer=dict_layers_clean["Graf"]["Graf_trams"],
                                                          **config.SIMBOLOGIA["Graf"]
                                                          )
-
-layer_cluster_retail = simbologia_unica.simbologia_unica(layer=zones_retail,
-                                                             **config.SIMBOLOGIA["Clusters_retail"]
-                                                             )
 
 layer_isoarees = simbologia_graduada.simbologia_graduada_QGIS(layer=isoarees,
                                                                   **config.SIMBOLOGIA["Isoarees"]
@@ -426,6 +459,60 @@ layout_general.exportar_layout(
     layout=layout,
     **cfg_layout_analisi["Exportacio"]
 )
+
+
+## Composició clusters
+cfg_layout_clusters = config.LAYOUT["CLUSTERS"]
+
+layout = layout_common.generar_layout(nom_layout="Agrupacions espacials dels usos dels edificis a Barcelona")
+
+mapa_clusters = layout_general.afegir_mapa(
+    layout=layout,
+    capes=[
+        layer_cluster_public, layer_cluster_office, layer_cluster_retail, layer_cluster_industrial, layer_cluster_agriculture,
+        layer_edificis, layer_districtes, basemap_layer],
+    capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"]
+)
+
+titol_clusters = layout_common.afegir_titol(
+    layout=layout,
+    **cfg_layout_clusters["Titol"]
+)
+
+llegenda_clusters = layout_common.afegir_llegenda(
+    layout=layout,
+    mapa=mapa_clusters,
+    **cfg_layout_clusters["Llegenda"]
+)
+
+escala_clusters = layout_common.afegir_escala(
+    layout=layout,
+    mapa=mapa_clusters,
+    **cfg_layout_clusters["Escala"]
+)
+
+nord_clusters = layout_common.afegir_nord(
+    layout=layout,
+    mapa=mapa_clusters,
+    **cfg_layout_clusters["Nord"]
+)
+
+imatge_nombre = layout_common.afegir_grafic(
+    layout=layout,
+    **cfg_layout_clusters["Grafic_clusters"]
+)
+
+imatge_mida = layout_common.afegir_grafic(
+    layout=layout,
+    **cfg_layout_clusters["Grafic_mida"]
+)
+
+layout_general.exportar_layout(
+    layout=layout,
+    **cfg_layout_clusters["Exportacio"]
+)
+
+
 
 
 ## Unió de composicions

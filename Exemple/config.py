@@ -145,10 +145,30 @@ SIMBOLOGIA = {
        "outline_width": 0.1,
        "stroke_color": "white" 
     },
+    "Clusters_agriculture": {
+        "fill_color": (170, 255, 115, 125),
+        "outline_width": 0.2,
+        "stroke_color": (170, 255, 115, 255)
+    },
+    "Clusters_industrial": {
+        "fill_color": (178, 178, 178, 125),
+        "outline_width": 0.2,
+        "stroke_color": (178, 178, 178, 255)
+    },
+    "Clusters_office": {
+        "fill_color": (255, 170, 0, 125),
+        "outline_width": 0.2,
+        "stroke_color": (255, 170, 0, 255)
+    },
     "Clusters_retail": {
         "fill_color": (255, 127, 0, 125),
         "outline_width": 0.2,
         "stroke_color": (255, 127, 0, 255)
+    },
+    "Clusters_public": {
+        "fill_color": (200, 170, 220, 125),
+        "outline_width": 0.2,
+        "stroke_color": (200, 170, 220, 255)
     },
     "Isoarees": {
         "atribut": 'cost_level',
@@ -261,6 +281,49 @@ LAYOUT = {
         },
         "Exportacio": {
             "output_path": "C:/projectes_git/PyQGIS_practic/Resultats/Analisi_edificis.pdf",
+            "dpi": 300
+        }
+    },
+
+    "CLUSTERS": {
+        "Titol": {
+            "titol": "Concentracions espacials dels usos dels edificis de la ciutat de Barcelona - font: Cadastre",
+            "font": "Calibri",
+            "size": 20,
+            "font_color": (0,0,0,255),
+            "backg_color": (100,100,100,180),
+            "frame_color": (255, 255, 255, 200)
+        },
+        "Llegenda": {
+            "titol": "Agrupacions espacials",
+            "font": "Calibri",
+            "size": 10,
+            "font_color": (0,0,0,255),
+            "backg_color": (100,100,100,180)
+        },
+        "Escala": {
+            "font": "Calibri",
+            "font_color": (0,0,0,255)
+        },
+        "Nord": {
+            "path": "C:/projectes_git/Dades/nord2.png"
+        },
+        "Grafic_clusters": {
+            "path": "C:/projectes_git/PyQGIS_practic/Resultats/Grafic_nombreClusters.png",
+            "x_s": 120,
+            "y_s": 60,
+            "x_m": 15,
+            "y_m": 145
+        },
+        "Grafic_mida": {
+            "path": "C:/projectes_git/PyQGIS_practic/Resultats/Grafic_midaClusters.png",
+            "x_s": 120,
+            "y_s": 60,
+            "x_m": 145,
+            "y_m": 145
+        },
+        "Exportacio": {
+            "output_path": "C:/projectes_git/PyQGIS_practic/Resultats/Analisi_clusters.pdf",
             "dpi": 300
         }
     }
