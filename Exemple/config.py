@@ -180,6 +180,15 @@ SIMBOLOGIA = {
     }
 }
 
+
+RESULTATS = {
+    "Grafic_usos_districtes": "C:/projectes_git/PyQGIS_practic/Resultats/Grafic_nombreEdificis_districte.png",
+    "Grafic_usos_percentatges_districtes": "C:/projectes_git/PyQGIS_practic/Resultats/Grafic_percentatgeEdificis_districte.png",
+    "Grafic_nombre_clusters":"C:/projectes_git/PyQGIS_practic/Resultats/Grafic_nombreClusters.png",
+    "Grafic_mida_clusters": "C:/projectes_git/PyQGIS_practic/Resultats/Grafic_midaClusters.png"
+}
+
+
 LAYOUT = {
     "GENERAL":{
         "Titol": {

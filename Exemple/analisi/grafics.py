@@ -76,6 +76,22 @@ def grafic_percentatge_usos_districtes(df, output_path):
     return fig
 
 
+def generar_grafics_districtes(df_usos, df_perc):
+    """
+    Funció d'alt nivell que genera els gràfics relacionats amb les dades agrupades d'usos per districtes
+    """
+
+    grafic_usos_districtes(
+        df=df_usos,
+        output_path=config.RESULTATS["Grafic_usos_districtes"]
+    )
+
+    grafic_percentatge_usos_districtes(
+        df=df_perc,
+        output_path=config.RESULTATS["Grafic_usos_percentatges_districtes"]
+    )
+
+
 def grafic_clusters_n(df, output_path):
     """
     Funció per a generar un gràfic de barres a partir d'un DataFrame de la informació dels clústers
@@ -146,3 +162,20 @@ def grafic_clusters_mida(df, output_path):
     plt.close(fig)
 
     return fig
+
+
+def generar_grafics_clusters(df):
+    """
+    Funció d'alt nivell que genera els gràfics relacionats amb les agrupacions espacials per usos
+    """
+
+    grafic_clusters_n(
+        df=df["n_clusters"],
+        output_path=config.RESULTATS["Grafic_nombre_clusters"]
+    )
+
+    grafic_clusters_mida(
+        df=df["mitjana_edificis_cluster"],
+        output_path=config.RESULTATS["Grafic_mida_clusters"]
+    )
+

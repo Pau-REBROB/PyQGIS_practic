@@ -143,18 +143,13 @@ taula_percentatges = agregacions.percentatge_usos_districtes(taula_districtes)
 print(taula_percentatges)
 
 # Visualització dels resultats
-grafics.grafic_usos_districtes(
-    df=taula_districtes,
-    output_path="C:/projectes_git/PyQGIS_practic/Resultats/Grafic_nombreEdificis_districte.png"
-)
-
-grafics.grafic_percentatge_usos_districtes(
-    df=taula_percentatges,
-    output_path="C:/projectes_git/PyQGIS_practic/Resultats/Grafic_percentatgeEdificis_districte.png"
+grafics.generar_grafics_districtes(
+    df_usos=taula_districtes,
+    df_perc=taula_percentatges
 )
 
 
-####
+# Anàlisi d'agrupacions espacials (clústers)
 dict_clusters = clusters.analisi_clusters(
     layer=dict_layers_clean["Cadastre"]["Edificis"],
     usos=config.USOS
@@ -165,15 +160,9 @@ taula_clusters = clusters.taula_general(
 )
 
 
-
 # Visualització dels resultats
-grafics.grafic_clusters_n(
-    df=taula_usos["n_clusters"],
-    output_path="C:/projectes_git/PyQGIS_practic/Resultats/Grafic_nombreClusters.png"
-)
-grafics.grafic_clusters_mida(
-    df=taula_usos["mitjana_edificis_cluster"],
-    output_path="C:/projectes_git/PyQGIS_practic/Resultats/Grafic_midaClusters.png"
+grafics.generar_grafics_clusters(
+    df=taula_clusters
 )
 
 ####################
