@@ -131,21 +131,15 @@ dict_layers_clean = preparacio_dades.netejar_grup(dict_layers=dict_layers, confi
 # 5. Anàlisi espacial
 
 # Agregació de dades per districtes
-dades_districtes = agregacions.resum_usos_districtes(
+dict_districtes = agregacions.analisi_districtes(
     edificis=dict_layers_clean["Cadastre"]["Edificis"],
     districtes=dict_layers_clean["Limits_administratius"]["Districtes"]
 )
 
-taula_districtes = agregacions.taula_usos_districtes(dades_districtes)
-print(taula_districtes)
-
-taula_percentatges = agregacions.percentatge_usos_districtes(taula_districtes)
-print(taula_percentatges)
-
 # Visualització dels resultats
 grafics.generar_grafics_districtes(
-    df_usos=taula_districtes,
-    df_perc=taula_percentatges
+    df_usos=dict_districtes["taula"],
+    df_perc=dict_districtes["percentatges"]
 )
 
 
@@ -158,7 +152,6 @@ dict_clusters = clusters.analisi_clusters(
 taula_clusters = clusters.taula_general(
     resultats=dict_clusters
 )
-
 
 # Visualització dels resultats
 grafics.generar_grafics_clusters(

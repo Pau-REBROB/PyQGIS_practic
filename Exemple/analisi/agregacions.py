@@ -89,3 +89,26 @@ def percentatge_usos_districtes(df):
     df_pct = df.div(df_totals, axis=0) * 100
 
     return df_pct
+
+
+def analisi_districtes(edificis, districtes):
+    """
+    Funció d'alt nivell que retorna un diccionari dels diferents productes de l'anàlisi per districtes
+    """
+
+    resultats_districtes = {}
+
+    resultats_districtes["dades"] = resum_usos_districtes(
+        edificis=edificis,
+        districtes=districtes
+    )
+
+    resultats_districtes["taula"] = taula_usos_districtes(
+        resultats=resultats_districtes["dades"]
+    )
+
+    resultats_districtes["percentatges"]= percentatge_usos_districtes(
+        df=resultats_districtes["taula"]
+    )
+
+    return resultats_districtes
