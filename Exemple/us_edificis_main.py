@@ -155,69 +155,16 @@ grafics.grafic_percentatge_usos_districtes(
 
 
 ####
-# Clústers -> Anàlisi
-# Zones -> Representació
-retail = clusters.zones_cluster(layer=dict_layers_clean["Cadastre"]["Edificis"],
-                                expressio=''' "currentUse" = '4_2_retail' ''',
-                                eps=100,
-                                min_size=5)
-retail_clusters = retail["clusters"]
-retail_zones = retail["zones"]
+dict_clusters = clusters.analisi_clusters(
+    layer=dict_layers_clean["Cadastre"]["Edificis"],
+    usos=config.USOS
+)
 
-office = clusters.zones_cluster(layer=dict_layers_clean["Cadastre"]["Edificis"],
-                                expressio='"currentUse" = \'4_1_office\'',
-                                eps=100,
-                                min_size=5)
-office_clusters = office["clusters"]
-office_zones = office["zones"]
-
-public = clusters.zones_cluster(layer=dict_layers_clean["Cadastre"]["Edificis"],
-                                expressio='"currentUse" = \'4_3_publicServices\'',
-                                eps=100,
-                                min_size=5)
-public_clusters = public["clusters"]
-public_zones = public["zones"]
-
-## RESIDENCIAL VA UNA MICA APART
-zones_residential = clusters.zones_cluster(layer=dict_layers_clean["Cadastre"]["Edificis"],
-                                              expressio='"currentUse" = \'1_residential\'',
-                                              eps=100,
-                                              min_size=5) #EN AQUEST CAS, S'HAURIA DE MIRAR ELS PARÀMETRES
-
-industrial = clusters.zones_cluster(layer=dict_layers_clean["Cadastre"]["Edificis"],
-                                    expressio='"currentUse" = \'3_industrial\'',
-                                    eps=100,
-                                    min_size=5)
-industrial_clusters = industrial["clusters"]
-industrial_zones = industrial["zones"]
-
-agricultura = clusters.zones_cluster(layer=dict_layers_clean["Cadastre"]["Edificis"],
-                                     expressio='"currentUse" = \'2_agriculture\'',
-                                     eps=100,
-                                     min_size=5)
-agricultura_clusters = agricultura["clusters"]
-agricultura_zones = agricultura["zones"]
+taula_clusters = clusters.taula_general(
+    resultats=dict_clusters
+)
 
 
-# Anàlisi de clústers
-dict_clusters = {
-    #"1_residential":,
-    "2_agriculture": agricultura_clusters,
-    "3_industrial": industrial_clusters,
-    "4_1_office": office_clusters,
-    "4_2_retail": retail_clusters,
-    "4_3_publicServices": public_clusters
-}
-
-taules = []
-
-for us, layer in dict_clusters.items():
-    resum = clusters.resum_clusters(layer)
-    df = clusters.taula_clusters(resum, us)
-    taules.append(df)
-
-taula_usos = pd.concat(taules)
-print(taula_usos)
 
 # Visualització dels resultats
 grafics.grafic_clusters_n(
@@ -229,7 +176,7 @@ grafics.grafic_clusters_mida(
     output_path="C:/projectes_git/PyQGIS_practic/Resultats/Grafic_midaClusters.png"
 )
 
-###
+####################
 isoarees = clusters.isoarees_qneat3(graf_layer=dict_layers_clean["Graf"]["Graf_trams"],
                                             points_layer=zones_retail,
                                             strat=0,
@@ -300,7 +247,7 @@ QgsProject.instance().addMapLayer(layer_cluster_office)
 QgsProject.instance().addMapLayer(layer_cluster_retail)
 QgsProject.instance().addMapLayer(layer_cluster_public)
 
-###
+##############################
 layer_graf = simbologia_unica.simbologia_unica_linia(layer=dict_layers_clean["Graf"]["Graf_trams"],
                                                          **config.SIMBOLOGIA["Graf"]
                                                          )
@@ -308,11 +255,6 @@ layer_graf = simbologia_unica.simbologia_unica_linia(layer=dict_layers_clean["Gr
 layer_isoarees = simbologia_graduada.simbologia_graduada_QGIS(layer=isoarees,
                                                                   **config.SIMBOLOGIA["Isoarees"]
                                                                   )
-
-## Comparativa concentracions diferents usos
-# layer_cluster_retail - feta
-#layer_cluster_office
-#layer_cluster_public
 
 #============================================================================================
 # 7. Composició

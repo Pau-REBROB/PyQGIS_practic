@@ -5,6 +5,7 @@
 from qgis.core import (QgsFeatureRequest, QgsVectorLayer)
 import processing
 import pandas as pd
+import config
 
 # 1 - Clusterització
 
@@ -146,6 +147,44 @@ def taula_clusters(resultats, us):
     df = pd.DataFrame(resultats, index=[us])
 
     return df
+
+
+def analisi_clusters(layer, usos):
+    """
+    Funció d'alt nivell que retorna un diccionari dels diferents productes de l'anàlisi d'agregacions especials per cada ús
+    """
+    
+    resultats_clusters = {}
+
+    for us in usos:
+        resultats_clusters[us] = zones_cluster(
+            layer=layer,
+            expressio=f'"currentUse" = \'{us}\'',
+            eps=100,
+            min_size=5
+        )
+
+        resultats_clusters[us]["resum"] = resum_clusters(
+            layer=resultats_clusters[us]["clusters"]
+        )
+        resultats_clusters[us]["taula"] = taula_clusters(
+            resultats=resultats_clusters[us]["resum"],
+            us=us
+        )
+
+    return resultats_clusters
+
+
+def taula_general(resultats):
+    """
+    Funció que retorna una dataframe amb els resultats estadístics dels clústers per ús
+    """
+    
+    taules = [value["taula"] for value in resultats.values()]
+    
+    taula_usos = pd.concat(taules)
+
+    return taula_usos
 
 
 ################## 2 - Anàlisi de xarxes
