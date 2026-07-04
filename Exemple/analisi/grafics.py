@@ -76,18 +76,18 @@ def grafic_percentatge_usos_districtes(df, output_path):
     return fig
 
 
-def generar_grafics_districtes(df_usos, df_perc):
+def generar_grafics_districtes(resultats):
     """
     Funció d'alt nivell que genera els gràfics relacionats amb les dades agrupades d'usos per districtes
     """
 
     grafic_usos_districtes(
-        df=df_usos,
+        df=resultats["taula"],
         output_path=config.RESULTATS["Grafic_usos_districtes"]
     )
 
     grafic_percentatge_usos_districtes(
-        df=df_perc,
+        df=resultats["percentatges"],
         output_path=config.RESULTATS["Grafic_usos_percentatges_districtes"]
     )
 

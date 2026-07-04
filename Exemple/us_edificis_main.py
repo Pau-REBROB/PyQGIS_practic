@@ -76,7 +76,7 @@ import preparacio_dades
 import analisi.agregacions as agregacions
 import analisi.grafics as grafics
 import analisi.clusters as clusters
-import simbologia.simbologia_unica as simbologia_unica
+import simbologia.simbologia_general as simbologia_general
 import simbologia.simbologia_categorica as simbologia_categorica
 import simbologia.simbologia_graduada as simbologia_graduada
 import layouts.layout_common as layout_common
@@ -101,7 +101,7 @@ importlib.reload(preparacio_dades)
 importlib.reload(agregacions)
 importlib.reload(grafics)
 importlib.reload(clusters)
-importlib.reload(simbologia_unica)
+importlib.reload(simbologia_general)
 importlib.reload(simbologia_categorica)
 importlib.reload(simbologia_graduada)
 importlib.reload(layout_common)
@@ -138,8 +138,7 @@ dict_districtes = agregacions.analisi_districtes(
 
 # Visualització dels resultats
 grafics.generar_grafics_districtes(
-    df_usos=dict_districtes["taula"],
-    df_perc=dict_districtes["percentatges"]
+    resultats=dict_districtes
 )
 
 
@@ -167,67 +166,25 @@ isoarees = clusters.isoarees_qneat3(graf_layer=dict_layers_clean["Graf"]["Graf_t
 
 #============================================================================================
 # 6. Simbologia
-## Composició general (general + atles)
-layer_districtes = simbologia_unica.simbologia_unica(layer=dict_layers_clean["Limits_administratius"]["Districtes"],
-                                                         **config.SIMBOLOGIA["Districtes"]
-                                                         )
-
-layer_barris = simbologia_unica.simbologia_unica(layer=dict_layers_clean["Limits_administratius"]["Barris"],
-                                                     **config.SIMBOLOGIA["Barris"]
-                                                     )
-
-layer_edificis = simbologia_categorica.simbologia_categorica(layer=dict_layers_clean["Cadastre"]["Edificis"],
-                                                                 **config.SIMBOLOGIA["Edificis"]
-                                                                 )
-
-# Modificació dels noms
-basemap_layer.setName("Fons cartogràfic CartoDB")
-layer_districtes.setName("Districtes")
-layer_barris.setName("Barris")
-layer_edificis.setName("Ús dels edificis")
-office_zones.setName("Clúster oficines")
-public_zones.setName("Clúster serveis públics")
-retail_zones.setName("Clúster comerços")
-#residential_zones.setName("Clúster residencial")
-industrial_zones.setName("Clúster industrial")
-agricultura_zones.setName("Clúster agricultura")
-
+# Capes de base cartogràfica
+layers_simbologia_base = simbologia_general.simbologia_base(
+    dict_layers=dict_layers_clean
+)
 
 # Addició de capes al projecte
-QgsProject.instance().addMapLayer(basemap_layer)
-QgsProject.instance().addMapLayer(layer_districtes)
-QgsProject.instance().addMapLayer(layer_barris)
-QgsProject.instance().addMapLayer(layer_edificis)
+for layer in layers_simbologia_base.values():
+    QgsProject.instance().addMapLayer(layer)
 
 
-## Concentració activitat comercial
-layer_cluster_agriculture = simbologia_unica.simbologia_unica(layer=agricultura_zones,
-                                                              **config.SIMBOLOGIA["Clusters_agriculture"]
-                                                              )
-
-layer_cluster_industrial = simbologia_unica.simbologia_unica(layer=industrial_zones,
-                                                            **config.SIMBOLOGIA["Clusters_industrial"]
-                                                            )
-
-layer_cluster_office = simbologia_unica.simbologia_unica(layer=office_zones,
-                                                        **config.SIMBOLOGIA["Clusters_office"]
-                                                        )
-
-layer_cluster_retail = simbologia_unica.simbologia_unica(layer=retail_zones,
-                                                             **config.SIMBOLOGIA["Clusters_retail"]
-                                                             )
-
-layer_cluster_public = simbologia_unica.simbologia_unica(layer=public_zones,
-                                                        **config.SIMBOLOGIA["Clusters_public"]
-                                                        )
+# Simbologia de les capes d'agrupacions espacials (clústers)
+layers_simbologia_clusters = simbologia_general.simbologia_clusters(
+    resultats=dict_clusters
+)
 
 # Addició de capes al projecte
-#QgsProject.instance().addMapLayer(zones_residential)
-QgsProject.instance().addMapLayer(layer_cluster_agriculture)
-QgsProject.instance().addMapLayer(layer_cluster_industrial)
-QgsProject.instance().addMapLayer(layer_cluster_office)
-QgsProject.instance().addMapLayer(layer_cluster_retail)
-QgsProject.instance().addMapLayer(layer_cluster_public)
+for layer in layers_simbologia_clusters.values():
+    QgsProject.instance().addMapLayer(layer)
+
 
 ##############################
 layer_graf = simbologia_unica.simbologia_unica_linia(layer=dict_layers_clean["Graf"]["Graf_trams"],

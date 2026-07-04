@@ -145,30 +145,8 @@ SIMBOLOGIA = {
        "outline_width": 0.1,
        "stroke_color": "white" 
     },
-    "Clusters_agriculture": {
-        "fill_color": (170, 255, 115, 125),
+    "Clusters": {
         "outline_width": 0.2,
-        "stroke_color": (170, 255, 115, 255)
-    },
-    "Clusters_industrial": {
-        "fill_color": (178, 178, 178, 125),
-        "outline_width": 0.2,
-        "stroke_color": (178, 178, 178, 255)
-    },
-    "Clusters_office": {
-        "fill_color": (255, 170, 0, 125),
-        "outline_width": 0.2,
-        "stroke_color": (255, 170, 0, 255)
-    },
-    "Clusters_retail": {
-        "fill_color": (255, 127, 0, 125),
-        "outline_width": 0.2,
-        "stroke_color": (255, 127, 0, 255)
-    },
-    "Clusters_public": {
-        "fill_color": (200, 170, 220, 125),
-        "outline_width": 0.2,
-        "stroke_color": (200, 170, 220, 255)
     },
     "Isoarees": {
         "atribut": 'cost_level',
