@@ -126,6 +126,11 @@ SIMBOLOGIA = {
         "outline_width": 0.5,
         "stroke_color": (255,200,50,255)
     },
+    "TermeMunicipal": {
+        "fill_color": (255,255,255,0),
+        "outline_width": 0.75,
+        "stroke_color": (255,200,50,255)
+    },
     "Graf": {
         "fill_color": (0,0,0,255),
         "width": 0.1,

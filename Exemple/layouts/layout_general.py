@@ -11,6 +11,8 @@ from qgis.core import (
 )
 
 import os
+import config
+import layout_common
 
 
 def afegir_mapa(layout, capes, capa_extent):
@@ -74,4 +76,47 @@ def exportar_layout(layout, output_path, dpi):
     
     # Exportació a PDF
     exporter.exportToPdf(output_path, pdf_settings)
-    
+
+
+def composicio_general(capes, capa_extent):
+    """
+    Funció d'alt nivell per generar la composició de mapa general
+    """
+
+    cfg_layout_general = config.LAYOUT["GENERAL"]
+
+    layout = layout_common.generar_layout(nom_layout="Ús dels edificis a Barcelona")
+
+    mapa = afegir_mapa(
+        layout=layout,
+        capes=capes,
+        capa_extent=capa_extent
+    )
+
+    layout_common.afegir_titol(
+        layout=layout,
+        **cfg_layout_general["Titol"]
+    )
+
+    layout_common.afegir_llegenda(
+        layout=layout,
+        mapa=mapa,
+        **cfg_layout_general["Llegenda"]
+    )
+
+    layout_common.afegir_escala(
+        layout=layout,
+        mapa=mapa,
+        **cfg_layout_general["Escala"]
+    )
+
+    layout_common.afegir_nord(
+        layout=layout,
+        mapa=mapa,
+        **cfg_layout_general["Nord"]
+    )
+
+    exportar_layout(
+        layout=layout,
+        **cfg_layout_general["Exportacio"]
+    )

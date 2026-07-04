@@ -77,7 +77,6 @@ import analisi.agregacions as agregacions
 import analisi.grafics as grafics
 import analisi.clusters as clusters
 import simbologia.simbologia_general as simbologia_general
-import simbologia.simbologia_categorica as simbologia_categorica
 import simbologia.simbologia_graduada as simbologia_graduada
 import layouts.layout_common as layout_common
 import layouts.layout_general as layout_general
@@ -102,7 +101,6 @@ importlib.reload(agregacions)
 importlib.reload(grafics)
 importlib.reload(clusters)
 importlib.reload(simbologia_general)
-importlib.reload(simbologia_categorica)
 importlib.reload(simbologia_graduada)
 importlib.reload(layout_common)
 importlib.reload(layout_general)
@@ -199,44 +197,14 @@ layer_isoarees = simbologia_graduada.simbologia_graduada_QGIS(layer=isoarees,
 # 7. Composició
 
 ## Composició general
-cfg_layout_general = config.LAYOUT["GENERAL"]
-
-layout = layout_common.generar_layout(nom_layout="Ús dels edificis a Barcelona")
-
-mapa_general = layout_general.afegir_mapa(
-    layout=layout,
-    capes=[layer_edificis, layer_barris, layer_districtes, basemap_layer],
+layout_general.composicio_general(
+    capes=[layers_simbologia_base["Edificis"],
+           layers_simbologia_base["Barris"],
+           layers_simbologia_base["Districtes"],
+           basemap_layer
+           ],
     capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"]
 )
-
-titol_general = layout_common.afegir_titol(
-    layout=layout,
-    **cfg_layout_general["Titol"]
-)
-
-llegenda_general = layout_common.afegir_llegenda(
-    layout=layout,
-    mapa=mapa_general,
-    **cfg_layout_general["Llegenda"]
-)
-
-escala_general = layout_common.afegir_escala(
-    layout=layout,
-    mapa=mapa_general,
-    **cfg_layout_general["Escala"]
-)
-
-nord_general = layout_common.afegir_nord(
-    layout=layout,
-    mapa=mapa_general,
-    **cfg_layout_general["Nord"]
-)
-
-layout_general.exportar_layout(
-    layout=layout,
-    **cfg_layout_general["Exportacio"]
-)
-
 
 ## Composició atles
 cfg_layout_atles = config.LAYOUT["ATLES"]
