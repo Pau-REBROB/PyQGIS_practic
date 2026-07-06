@@ -4,6 +4,7 @@
 
 from qgis.core import (
     QgsProject,
+    QgsLayerTree,
     QgsPrintLayout,
     QgsLayoutSize,
     QgsLayoutMeasurement,
@@ -101,7 +102,7 @@ def afegir_titol(layout, titol, font, size, font_color, backg_color, frame_color
     return title
 
 
-def afegir_llegenda(layout, mapa, titol, font, size, font_color, backg_color):
+def afegir_llegenda(layout, mapa, capes, titol, font, size, font_color, backg_color):
     """
      Funció que
         Afegeix una llegenda a la composició
@@ -120,14 +121,14 @@ def afegir_llegenda(layout, mapa, titol, font, size, font_color, backg_color):
     legend.setLinkedMap(mapa)
     
     # Construcció de la llegenda
-    # Actualització automàtica de la llegenda
-    legend.setAutoUpdateModel(True)
-    #root = QgsLayerTree()
+    legend.setAutoUpdateModel(False)
+    
+    root = QgsLayerTree()
 
-    #for layer in mapa.layers():
-    #    root.addLayer(layer)
+    for layer in capes:
+        root.addLayer(layer)
 
-    #legend.model().setRootGroup(root) 
+    legend.model().setRootGroup(root) 
 
 
     # Definició d'un títol

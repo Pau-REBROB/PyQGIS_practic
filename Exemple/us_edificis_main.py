@@ -59,6 +59,14 @@ layouts/
 4. Comparació clústers (un per pàgina, o potser tots junts)
 5. Heatmap / Malla hexagonal
 """
+
+"""
+estructura:
+    Importació → retorna capes.
+    Anàlisi → retorna diccionaris de resultats.
+    Simbologia → retorna capes simbolitzades.
+    Layouts → consumeixen capes i exporten PDFs.
+"""
 # =============================================================================
 # 1. Importació de mòduls
 
@@ -81,6 +89,8 @@ import simbologia.simbologia_graduada as simbologia_graduada
 import layouts.layout_common as layout_common
 import layouts.layout_general as layout_general
 import layouts.layout_atles as layout_atles
+import layouts.layout_analisi as layout_analisi
+import layouts.layout_clusters as layout_clusters
 import layouts.fusionar_layouts as fusionar_layouts
 
 
@@ -105,6 +115,8 @@ importlib.reload(simbologia_graduada)
 importlib.reload(layout_common)
 importlib.reload(layout_general)
 importlib.reload(layout_atles)
+importlib.reload(layout_analisi)
+importlib.reload(layout_clusters)
 importlib.reload(fusionar_layouts)
 
 
@@ -198,167 +210,48 @@ layer_isoarees = simbologia_graduada.simbologia_graduada_QGIS(layer=isoarees,
 
 ## Composició general
 layout_general.composicio_general(
-    capes=[layers_simbologia_base["Edificis"],
-           layers_simbologia_base["Barris"],
-           layers_simbologia_base["Districtes"],
-           basemap_layer
-           ],
+    capes=[
+        layers_simbologia_base["Edificis"],
+        layers_simbologia_base["Barris"],
+        layers_simbologia_base["Districtes"],
+        basemap_layer
+    ],
     capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"]
 )
 
 ## Composició atles
-cfg_layout_atles = config.LAYOUT["ATLES"]
-
-layout_a = layout_common.generar_layout(nom_layout="Ús dels edificis a Barcelona per districte")
-
-mapa_atles = layout_atles.afegir_mapa(
-    layout=layout_a,
-    capes=[layer_edificis, layer_barris, layer_districtes, basemap_layer],
-    capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"]
+layout_atles.composicio_atles(
+    capes=[
+        layers_simbologia_base["Edificis"],
+        layers_simbologia_base["Barris"],
+        layers_simbologia_base["Districtes"],
+        basemap_layer
+    ],
+    capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"],
+    capa_cobertura=layers_simbologia_base["Districtes"]
 )
-
-mapa_localitzador = layout_atles.afegir_mapa_localitzador(
-    layout=layout_a,
-    layer_location=layer_districtes,
-    capa_extensio=dict_layers_clean["Limits_administratius"]["TermeMunicipal"],
-    mapa=mapa_atles
-)
-
-titol_atles = layout_common.afegir_titol(
-    layout=layout_a,
-    **cfg_layout_atles["Titol"]
-)
-
-llegenda_atles = layout_common.afegir_llegenda(
-    layout=layout_a,
-    mapa=mapa_atles,
-    **cfg_layout_atles["Llegenda"]
-)
-
-escala_general = layout_common.afegir_escala(
-    layout=layout_a,
-    mapa=mapa_atles,
-    **cfg_layout_atles["Escala"]
-)
-
-nord_general = layout_common.afegir_nord(
-    layout=layout_a,
-    mapa=mapa_atles,
-    **cfg_layout_atles["Nord"]
-)
-
-atles = layout_atles.generar_atles(
-    layout=layout_a,
-    capa_cobertura=dict_layers_clean["Limits_administratius"]["Districtes"],
-    mapa=mapa_atles,
-    **cfg_layout_atles["Generacio"]
-)
-
-layout_atles.exportar_atles(
-    atlas=atles,
-    **cfg_layout_atles["Exportacio"]
-)
-
 
 ## Composició anàlisi
-cfg_layout_analisi = config.LAYOUT["ANALISI"]
-
-layout = layout_common.generar_layout(nom_layout="Anàlisi dels usos dels edificis a Barcelona")
-
-mapa_analisi = layout_general.afegir_mapa(
-    layout=layout,
-    capes=[layer_edificis, layer_barris, layer_districtes, basemap_layer],
+layout_analisi.composicio_analisi(
+    capes=[
+        layers_simbologia_base["Edificis"],
+        layers_simbologia_base["Barris"],
+        layers_simbologia_base["Districtes"],
+        basemap_layer
+    ],
     capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"]
 )
-
-titol_analisi = layout_common.afegir_titol(
-    layout=layout,
-    **cfg_layout_analisi["Titol"]
-)
-
-llegenda_analisi = layout_common.afegir_llegenda(
-    layout=layout,
-    mapa=mapa_analisi,
-    **cfg_layout_analisi["Llegenda"]
-)
-
-escala_analisi = layout_common.afegir_escala(
-    layout=layout,
-    mapa=mapa_analisi,
-    **cfg_layout_analisi["Escala"]
-)
-
-nord_analisi = layout_common.afegir_nord(
-    layout=layout,
-    mapa=mapa_analisi,
-    **cfg_layout_analisi["Nord"]
-)
-
-imatge_totals = layout_common.afegir_grafic(
-    layout=layout,
-    **cfg_layout_analisi["Grafic_total"]
-)
-
-imatge_percentatges = layout_common.afegir_grafic(
-    layout=layout,
-    **cfg_layout_analisi["Grafic_percentatge"]
-)
-
-layout_general.exportar_layout(
-    layout=layout,
-    **cfg_layout_analisi["Exportacio"]
-)
-
 
 ## Composició clusters
-cfg_layout_clusters = config.LAYOUT["CLUSTERS"]
-
-layout = layout_common.generar_layout(nom_layout="Agrupacions espacials dels usos dels edificis a Barcelona")
-
-mapa_clusters = layout_general.afegir_mapa(
-    layout=layout,
+layout_clusters.composicio_clusters(
     capes=[
-        layer_cluster_public, layer_cluster_office, layer_cluster_retail, layer_cluster_industrial, layer_cluster_agriculture,
-        layer_edificis, layer_districtes, basemap_layer],
+        *layers_simbologia_clusters.values,
+        layers_simbologia_base["Edificis"],
+        layers_simbologia_base["Barris"],
+        layers_simbologia_base["Districtes"],
+        basemap_layer
+    ],
     capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"]
-)
-
-titol_clusters = layout_common.afegir_titol(
-    layout=layout,
-    **cfg_layout_clusters["Titol"]
-)
-
-llegenda_clusters = layout_common.afegir_llegenda(
-    layout=layout,
-    mapa=mapa_clusters,
-    **cfg_layout_clusters["Llegenda"]
-)
-
-escala_clusters = layout_common.afegir_escala(
-    layout=layout,
-    mapa=mapa_clusters,
-    **cfg_layout_clusters["Escala"]
-)
-
-nord_clusters = layout_common.afegir_nord(
-    layout=layout,
-    mapa=mapa_clusters,
-    **cfg_layout_clusters["Nord"]
-)
-
-imatge_nombre = layout_common.afegir_grafic(
-    layout=layout,
-    **cfg_layout_clusters["Grafic_clusters"]
-)
-
-imatge_mida = layout_common.afegir_grafic(
-    layout=layout,
-    **cfg_layout_clusters["Grafic_mida"]
-)
-
-layout_general.exportar_layout(
-    layout=layout,
-    **cfg_layout_clusters["Exportacio"]
 )
 
 

@@ -101,6 +101,7 @@ def composicio_general(capes, capa_extent):
     layout_common.afegir_llegenda(
         layout=layout,
         mapa=mapa,
+        capes=capes,
         **cfg_layout_general["Llegenda"]
     )
 

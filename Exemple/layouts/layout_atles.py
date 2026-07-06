@@ -11,6 +11,9 @@ from qgis.core import (
     QgsLayoutExporter
 )
 
+import config
+import layout_common
+
 
 def afegir_mapa(layout, capes, capa_extent):
     """
@@ -135,3 +138,62 @@ def exportar_atles(atlas, output_path, dpi):
         pdf_settings)
     
     return result
+
+
+def composicio_atles(capes, capa_extent, capa_cobertura):
+    """
+    Funció d'alt nivell per generar la composició tipus atles de cada districte 
+    """
+
+    cfg_layout_atles = config.LAYOUT["ATLES"]
+
+    layout = layout_common.generar_layout(nom_layout="Ús dels edificis a Barcelona per districte")
+
+    mapa = afegir_mapa(
+        layout=layout,
+        capes=capes,
+        capa_extent=capa_extent
+    )
+
+    afegir_mapa_localitzador(
+        layout=layout,
+        layer_location=capa_cobertura,
+        capa_extensio=capa_extent,
+        mapa=mapa
+    )
+
+    layout_common.afegir_titol(
+        layout=layout,
+        **cfg_layout_atles["Titol"]
+    )
+
+    layout_common.afegir_llegenda(
+        layout=layout,
+        mapa=mapa,
+        capes=capes,
+        **cfg_layout_atles["Llegenda"]
+    )
+    
+    layout_common.afegir_escala(
+        layout=layout,
+        mapa=mapa,
+        **cfg_layout_atles["Escala"]
+    )
+
+    layout_common.afegir_nord(
+        layout=layout,
+        mapa=mapa,
+        **cfg_layout_atles["Nord"]
+    )
+
+    atles = generar_atles(
+        layout=layout,
+        capa_cobertura=capa_cobertura,
+        mapa=mapa,
+        **cfg_layout_atles["Generacio"]
+    )
+
+    exportar_atles(
+        atlas=atles,
+        **cfg_layout_atles["Exportacio"]
+    )

@@ -5,15 +5,16 @@ import layout_common
 import layout_general
 
 
-def composicio_analisi(capes, capa_extent):
+def composicio_clusters(capes, capa_extent):
     """
-    Funció d'alt nivell per generar la composició del mapa general amb l'anàlisi dels diferents usos
+    Funció d'alt nivell per generar la composició del mapa general amb les agrupacions espacials per usos 
+    i l'anàlisi estadístic
     """
 
-    cfg_layout_analisi = config.LAYOUT["ANALISI"]
+    cfg_layout_clusters = config.LAYOUT["CLUSTERS"]
 
     layout = layout_common.generar_layout(
-        nom_layout="Anàlisi dels usos dels edificis a Barcelona"
+        nom_layout="Agrupacions espacials dels usos dels edificis a Barcelona"
     )
 
     mapa = layout_general.afegir_mapa(
@@ -24,40 +25,39 @@ def composicio_analisi(capes, capa_extent):
 
     layout_common.afegir_titol(
         layout=layout,
-        **cfg_layout_analisi["Titol"]
+        **cfg_layout_clusters["Titol"]
     )
 
     layout_common.afegir_llegenda(
         layout=layout,
         mapa=mapa,
         capes=capes,
-        **cfg_layout_analisi["Llegenda"]
+        **cfg_layout_clusters["Llegenda"]
     )
 
     layout_common.afegir_escala(
         layout=layout,
         mapa=mapa,
-        **cfg_layout_analisi["Escala"]
+        **cfg_layout_clusters["Escala"]
     )
 
     layout_common.afegir_nord(
         layout=layout,
         mapa=mapa,
-        **cfg_layout_analisi["Nord"]
+        **cfg_layout_clusters["Nord"]
     )
 
     layout_common.afegir_grafic(
         layout=layout,
-        **cfg_layout_analisi["Grafic_total"]
+        **cfg_layout_clusters["Grafic_clusters"]
     )
 
     layout_common.afegir_grafic(
         layout=layout,
-        **cfg_layout_analisi["Grafic_percentatge"]
+        **cfg_layout_clusters["Grafic_mida"]
     )
 
     layout_general.exportar_layout(
         layout=layout,
-        **cfg_layout_analisi["Exportacio"]
+        **cfg_layout_clusters["Exportacio"]
     )
-    
