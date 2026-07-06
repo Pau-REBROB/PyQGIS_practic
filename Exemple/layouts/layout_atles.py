@@ -12,7 +12,7 @@ from qgis.core import (
 )
 
 import config
-import layout_common
+import layouts.layout_common as layout_common
 
 
 def afegir_mapa(layout, capes, capa_extent):

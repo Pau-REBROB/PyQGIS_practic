@@ -1,8 +1,8 @@
 """SIMBOLOGIA DE LES CAPES GENERADES"""
 
 import config
-import simbologia_unica
-import simbologia_categorica
+import simbologia.simbologia_unica as simbologia_unica
+import simbologia.simbologia_categorica as simbologia_categorica
 
 
 def simbologia_base(dict_layers):
@@ -52,7 +52,7 @@ def simbologia_clusters(resultats):
         layer = simbologia_unica.simbologia_unica(
             layer=dades["zones"],
             fill_color=config.COLORS_USOS[us],
-            outline_width=config.SIMBOLOGIA["Clusters"],
+            outline_width=config.SIMBOLOGIA["Clusters"]["outline_width"],
             stroke_color=config.COLORS_USOS[us]
         )
 

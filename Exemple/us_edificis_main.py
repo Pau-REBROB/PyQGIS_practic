@@ -182,6 +182,8 @@ layers_simbologia_base = simbologia_general.simbologia_base(
 )
 
 # Addició de capes al projecte
+QgsProject.instance().addMapLayer(basemap_layer)
+
 for layer in layers_simbologia_base.values():
     QgsProject.instance().addMapLayer(layer)
 
@@ -245,7 +247,7 @@ layout_analisi.composicio_analisi(
 ## Composició clusters
 layout_clusters.composicio_clusters(
     capes=[
-        *layers_simbologia_clusters.values,
+        *layers_simbologia_clusters.values(),
         layers_simbologia_base["Edificis"],
         layers_simbologia_base["Barris"],
         layers_simbologia_base["Districtes"],
@@ -255,14 +257,14 @@ layout_clusters.composicio_clusters(
 )
 
 
-
-
-## Unió de composicions
+## Unió de composicions en un informe final
 fusionar_layouts.fusionar_pdf(
     pdfs=[
         config.EXPORTACIO["Mapa_general"],
-        config.EXPORTACIO["Atles"]
-        ],
+        config.EXPORTACIO["Atles"],
+        config.EXPORTACIO["Anàlisi"],
+        config.EXPORTACIO["Clústers"]
+    ],
     output_path=config.EXPORTACIO["Informe"]
 )
 

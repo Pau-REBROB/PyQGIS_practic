@@ -4,7 +4,7 @@
 
 from qgis.core import (
     QgsProject,
-    QgsLayerTree,
+    QgsLayerTreeGroup,
     QgsPrintLayout,
     QgsLayoutSize,
     QgsLayoutMeasurement,
@@ -113,6 +113,8 @@ def afegir_llegenda(layout, mapa, capes, titol, font, size, font_color, backg_co
 
     # Creació de la llegenda
     legend = QgsLayoutItemLegend(layout)
+
+    print("AUTO:", legend.autoUpdateModel())
     
     # Addició de la llegenda a la composició
     layout.addLayoutItem(legend)
@@ -122,14 +124,23 @@ def afegir_llegenda(layout, mapa, capes, titol, font, size, font_color, backg_co
     
     # Construcció de la llegenda
     legend.setAutoUpdateModel(False)
+   
+    print("AUTO:", legend.autoUpdateModel())
     
-    root = QgsLayerTree()
+    root = legend.model().rootGroup()
+    print("ABANS")
+    for n in root.findLayers():
+        print(n.layer().name())
 
-    for layer in capes:
-        root.addLayer(layer)
-
-    legend.model().setRootGroup(root) 
-
+    # Filtre de capes visibles
+    ids = {layer.id() for layer in capes}
+    for node in list(root.findLayers()):
+        if node.layerId() not in ids:
+            root.removeLayer(node.layer())
+    
+    print("DESPRÉS")
+    for n in root.findLayers():
+        print(n.layer().name())
 
     # Definició d'un títol
     legend.setTitle(titol)

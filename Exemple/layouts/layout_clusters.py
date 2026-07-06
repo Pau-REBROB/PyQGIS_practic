@@ -1,8 +1,8 @@
 """COMPOSICIÓ GENERAL"""
 
 import config
-import layout_common
-import layout_general
+import layouts.layout_common as layout_common
+import layouts.layout_general as layout_general
 
 
 def composicio_clusters(capes, capa_extent):
