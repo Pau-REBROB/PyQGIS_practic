@@ -1,10 +1,13 @@
 """CONFIGURACIÓ"""
 
-# Arxiu de configuració
+PATH_PROJECTE = "C:/projectes_git/PyQGIS_practic"
 
-PATH_DADES_LIMITS = "C:/projectes_git/Dades/PyQGIS_Repo/Limits_administratius_BCN"
-PATH_DADES_CADASTRE = "C:/projectes_git/Dades/PyQGIS_Repo/Cadastre"
-PATH_DADES_GRAF = "C:/projectes_git/Dades/PyQGIS_Repo/Graf_viari"
+PATH_DADES = "C:/projectes_git/Dades"
+PATH_RESULTATS = f"{PATH_PROJECTE}/Resultats"
+
+PATH_DADES_LIMITS = f"{PATH_DADES}/PyQGIS_Repo/Limits_administratius_BCN"
+PATH_DADES_CADASTRE = f"{PATH_DADES}/PyQGIS_Repo/Cadastre"
+PATH_DADES_GRAF = f"{PATH_DADES}/PyQGIS_Repo/Graf_viari"
 
 
 LAYERS = {
