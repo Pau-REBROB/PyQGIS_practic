@@ -260,12 +260,12 @@ layout_clusters.composicio_clusters(
 ## Unió de composicions en un informe final
 fusionar_layouts.fusionar_pdf(
     pdfs=[
-        config.EXPORTACIO["Mapa_general"],
-        config.EXPORTACIO["Atles"],
-        config.EXPORTACIO["Anàlisi"],
-        config.EXPORTACIO["Clústers"]
+        config.LAYOUTS["GENERAL"]["Exportacio"]["output_path"],
+        config.LAYOUTS["ATLES"]["Exportacio"]["output_path"],
+        config.LAYOUTS["ANALISI"]["Exportacio"]["output_path"],
+        config.LAYOUTS["CLUSTERS"]["Exportacio"]["output_path"]
     ],
-    output_path=config.EXPORTACIO["Informe"]
+    output_path=f"{config.PATH_RESULTATS}/Informe_final.pdf"
 )
 
 #============================================================================================

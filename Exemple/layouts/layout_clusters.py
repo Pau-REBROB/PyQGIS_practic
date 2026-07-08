@@ -11,7 +11,7 @@ def composicio_clusters(capes, capa_extent):
     i l'anàlisi estadístic
     """
 
-    cfg_layout_clusters = config.LAYOUT["CLUSTERS"]
+    cfg_layout_clusters = config.LAYOUTS["CLUSTERS"]
 
     layout = layout_common.generar_layout(
         nom_layout="Agrupacions espacials dels usos dels edificis a Barcelona"

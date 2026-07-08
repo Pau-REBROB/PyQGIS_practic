@@ -83,7 +83,7 @@ def composicio_general(capes, capa_extent):
     Funció d'alt nivell per generar la composició de mapa general
     """
 
-    cfg_layout_general = config.LAYOUT["GENERAL"]
+    cfg_layout_general = config.LAYOUTS["GENERAL"]
 
     layout = layout_common.generar_layout(nom_layout="Ús dels edificis a Barcelona")
 

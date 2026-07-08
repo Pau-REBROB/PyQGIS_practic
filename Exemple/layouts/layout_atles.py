@@ -145,7 +145,7 @@ def composicio_atles(capes, capa_extent, capa_cobertura):
     Funció d'alt nivell per generar la composició tipus atles de cada districte 
     """
 
-    cfg_layout_atles = config.LAYOUT["ATLES"]
+    cfg_layout_atles = config.LAYOUTS["ATLES"]
 
     layout = layout_common.generar_layout(nom_layout="Ús dels edificis a Barcelona per districte")
 

@@ -83,12 +83,12 @@ def generar_grafics_districtes(resultats):
 
     grafic_usos_districtes(
         df=resultats["taula"],
-        output_path=config.RESULTATS["Grafic_usos_districtes"]
+        output_path=config.EXPORTACIO_GRAFICS["Grafic_usos_districtes"]
     )
 
     grafic_percentatge_usos_districtes(
         df=resultats["percentatges"],
-        output_path=config.RESULTATS["Grafic_usos_percentatges_districtes"]
+        output_path=config.EXPORTACIO_GRAFICS["Grafic_usos_percentatges_districtes"]
     )
 
 
@@ -171,11 +171,11 @@ def generar_grafics_clusters(df):
 
     grafic_clusters_n(
         df=df["n_clusters"],
-        output_path=config.RESULTATS["Grafic_nombre_clusters"]
+        output_path=config.EXPORTACIO_GRAFICS["Grafic_nombre_clusters"]
     )
 
     grafic_clusters_mida(
         df=df["mitjana_edificis_cluster"],
-        output_path=config.RESULTATS["Grafic_mida_clusters"]
+        output_path=config.EXPORTACIO_GRAFICS["Grafic_mida_clusters"]
     )
 

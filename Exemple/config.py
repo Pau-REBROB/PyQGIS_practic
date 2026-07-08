@@ -1,4 +1,4 @@
-"""CONFIGURACIÓ"""
+"""Arxiu de configuració"""
 
 PATH_PROJECTE = "C:/projectes_git/PyQGIS_practic"
 
@@ -26,6 +26,7 @@ LAYERS = {
     "Graf_trams": f"{PATH_DADES_GRAF}/BCN_GrafVial_Trams_ETRS89_SHP.shp",
     #"Graf_nodes": f"{PATH_DADES_GRAF}/BCN_GrafVial_Nodes_ETRS89_SHP.shp"
 }}
+
 
 CAMPS_MANTENIR = {
     "Limits_administratius": {
@@ -77,6 +78,7 @@ CAMPS_MANTENIR = {
     }
 }
 
+
 USOS = [
     "1_residential",
     "2_agriculture",
@@ -118,6 +120,19 @@ def colors_mpl(us):
     )
 
 
+ANALISI = {
+    "Clusters": {
+        "eps": 100,
+        "min_size": 5
+    },
+
+    "Isoarees": {
+        "distancia": 5000,
+        "interval": 250
+    }
+}
+
+
 SIMBOLOGIA = {
     "Barris": {
         "fill_color": (255,255,255,0),
@@ -142,14 +157,7 @@ SIMBOLOGIA = {
     },
     "Edificis": {
         "atribut": 'currentUse',
-        "colors": {
-            "1_residential": (255, 235, 175, 255),
-            "2_agriculture": (170, 255, 115, 255),
-            "3_industrial": (178, 178, 178, 255),
-            "4_1_office": (255, 170, 0, 255),
-            "4_2_retail": (255, 127, 0, 255),
-            "4_3_publicServices": (200, 170, 220, 255)
-        },
+        "colors": COLORS_USOS,
        "outline_width": 0.1,
        "stroke_color": "white" 
     },
@@ -167,15 +175,15 @@ SIMBOLOGIA = {
 }
 
 
-RESULTATS = {
-    "Grafic_usos_districtes": "C:/projectes_git/PyQGIS_practic/Resultats/Grafic_nombreEdificis_districte.png",
-    "Grafic_usos_percentatges_districtes": "C:/projectes_git/PyQGIS_practic/Resultats/Grafic_percentatgeEdificis_districte.png",
-    "Grafic_nombre_clusters":"C:/projectes_git/PyQGIS_practic/Resultats/Grafic_nombreClusters.png",
-    "Grafic_mida_clusters": "C:/projectes_git/PyQGIS_practic/Resultats/Grafic_midaClusters.png"
+EXPORTACIO_GRAFICS = {
+    "Grafic_usos_districtes": f"{PATH_RESULTATS}/Grafic_nombreEdificis_districte.png",
+    "Grafic_usos_percentatges_districtes": f"{PATH_RESULTATS}/Grafic_percentatgeEdificis_districte.png",
+    "Grafic_nombre_clusters": f"{PATH_RESULTATS}/Grafic_nombreClusters.png",
+    "Grafic_mida_clusters": f"{PATH_RESULTATS}/Grafic_midaClusters.png"
 }
 
 
-LAYOUT = {
+LAYOUTS = {
     "GENERAL":{
         "Titol": {
             "titol": "Ús dels edificis de la ciutat de Barcelona - font: Cadastre",
@@ -200,7 +208,7 @@ LAYOUT = {
             "path": "C:/projectes_git/Dades/nord2.png"
         },
         "Exportacio": {
-            "output_path": "C:/projectes_git/PyQGIS_practic/Resultats/Classificacio_edificis.pdf",
+            "output_path": f"{PATH_RESULTATS}/Classificacio_edificis.pdf",
             "dpi": 300
         }
     },
@@ -232,7 +240,7 @@ LAYOUT = {
             "camp": '"NOM"'
         },
         "Exportacio": {
-            "output_path": "C:/projectes_git/PyQGIS_practic/Resultats/AtlesDistrictes.pdf",
+            "output_path": f"{PATH_RESULTATS}/AtlesDistrictes.pdf",
             "dpi": 300
         }
     },
@@ -261,21 +269,21 @@ LAYOUT = {
             "path": "C:/projectes_git/Dades/nord2.png"
         },
         "Grafic_total": {
-            "path": "C:/projectes_git/PyQGIS_practic/Resultats/Grafic_nombreEdificis_districte.png",
+            "path": f"{PATH_RESULTATS}/Grafic_nombreEdificis_districte.png",
             "x_s": 120,
             "y_s": 60,
             "x_m": 15,
             "y_m": 145
         },
         "Grafic_percentatge": {
-            "path": "C:/projectes_git/PyQGIS_practic/Resultats/Grafic_percentatgeEdificis_districte.png",
+            "path": f"{PATH_RESULTATS}/Grafic_percentatgeEdificis_districte.png",
             "x_s": 120,
             "y_s": 60,
             "x_m": 145,
             "y_m": 145
         },
         "Exportacio": {
-            "output_path": "C:/projectes_git/PyQGIS_practic/Resultats/Analisi_edificis.pdf",
+            "output_path": f"{PATH_RESULTATS}/Analisi_edificis.pdf",
             "dpi": 300
         }
     },
@@ -304,32 +312,22 @@ LAYOUT = {
             "path": "C:/projectes_git/Dades/nord2.png"
         },
         "Grafic_clusters": {
-            "path": "C:/projectes_git/PyQGIS_practic/Resultats/Grafic_nombreClusters.png",
+            "path": f"{PATH_RESULTATS}/Grafic_nombreClusters.png",
             "x_s": 120,
             "y_s": 60,
             "x_m": 15,
             "y_m": 145
         },
         "Grafic_mida": {
-            "path": "C:/projectes_git/PyQGIS_practic/Resultats/Grafic_midaClusters.png",
+            "path": f"{PATH_RESULTATS}/Grafic_midaClusters.png",
             "x_s": 120,
             "y_s": 60,
             "x_m": 145,
             "y_m": 145
         },
         "Exportacio": {
-            "output_path": "C:/projectes_git/PyQGIS_practic/Resultats/Analisi_clusters.pdf",
+            "output_path": f"{PATH_RESULTATS}/Analisi_clusters.pdf",
             "dpi": 300
         }
     }
 }
-
-EXPORTACIO = {
-    "Mapa_general": "C:/projectes_git/PyQGIS_practic/Resultats/Classificacio_edificis.pdf",
-    "Atles": "C:/projectes_git/PyQGIS_practic/Resultats/AtlesDistrictes.pdf",
-    "Anàlisi": "C:/projectes_git/PyQGIS_practic/Resultats/Analisi_edificis.pdf",
-    "Clústers": "C:/projectes_git/PyQGIS_practic/Resultats/Analisi_clusters.pdf",
-
-    "Informe": "C:/projectes_git/PyQGIS_practic/Resultats/Informe_final.pdf"
-}
-

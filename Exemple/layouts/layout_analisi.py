@@ -10,7 +10,7 @@ def composicio_analisi(capes, capa_extent):
     Funció d'alt nivell per generar la composició del mapa general amb l'anàlisi dels diferents usos
     """
 
-    cfg_layout_analisi = config.LAYOUT["ANALISI"]
+    cfg_layout_analisi = config.LAYOUTS["ANALISI"]
 
     layout = layout_common.generar_layout(
         nom_layout="Anàlisi dels usos dels edificis a Barcelona"
