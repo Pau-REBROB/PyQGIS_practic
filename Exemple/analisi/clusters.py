@@ -1,98 +1,160 @@
-"""ANÀLISI ESPACIAL"""
+from qgis.core import QgsFeatureRequest, QgsVectorLayer
 
-# Definició de funcions per a les diferents operacions d'anàlisi espacial
-
-from qgis.core import (QgsFeatureRequest, QgsVectorLayer)
 import processing
 import pandas as pd
+
 import config
 
-# 1 - Clusterització
+# =============================================================================
+# CLÚSTERS
+# =============================================================================
 
-def seleccio_atribut(layer, expressio):
+def filtrar_capa(layer, expressio):
     """
-    Funció que aplica una selecció dels elements d'una capa passada com a argument segons una expressió passada com a argument 
+    Genera una nova capa en memòria amb les entitats que compleixen una expressió.
+
+    Paràmetres
+    ----------
+    layer: QgsVectorLayer
+        Capa vectorial sobre la qual s'aplica el filtratge.
+    expressio: str
+        Expressió de filtratge escrita amb la sintaxi d'expressions de QGIS.
+
+    Retorna
+    -------
+    QgsVectorLayer
+        Nova capa en memòria que conté únicament les entitats seleccionades.
     """
     
-    # Generació de la consulta a partir de l'expressió argument
     request = QgsFeatureRequest().setFilterExpression(expressio)
 
-    # Retorn dels elements de la capa que compleixen amb la condició, com a nova capa 
     return layer.materialize(request)
 
 
 def clusters_dbscan(layer, eps, min_size):
     """
-    Funció que a partir d'una capa vectorial genera els centroides dels seus elements i la seva agrupació en clústers
-    Mètode de clusterització: DBSCAN
-    Els paràmetres de la funció DBSCAN son introduïts com a paràmetres de la funció
+    Genera una capa de clústers aplicant l'algoritme DBSCAN als centroides d'una capa.
+
+    La funció genera primer els centroides de les entitats de la capa d'entrada i
+    posteriorment aplica l'algoritme DBSCAN per identificar agrupacions espacials.
+
+    Paràmetres
+    ----------
+    layer: QgsVectorLayer
+        Capa vectorial sobre la qual es calcula la clusterització
+    eps: float
+        Distància màxima entre dos centroides perquè es considerin veïns.
+    min_size: int
+        Nombre mínim de centroides necessaris per a formar un clúster.
+
+    Retorna
+    -------
+    QgsVectorLayer
+        Capa en memòria amb els centroides classificats en clústers.
     """
 
     # Generació dels centroides
-    centroids = processing.run("native:centroids", {
+    layer_centroides = processing.run("native:centroids", {
         'INPUT': layer,
         'ALL_PARTS': False,
         'OUTPUT': 'memory:'
-    })
+    })["OUTPUT"]
     
     # Generació de clústers amb el mètode DBSCAN a partir dels centroides
-    clusters = processing.run("native:dbscanclustering", {
-        'INPUT': centroids['OUTPUT'],
-        'EPS': eps,                 # 100 metres de distància màxima entre edificis
-        'MINSIZE': min_size,        # mínim 5 edificis per formar un clúster
+    resultat_clusters = processing.run("native:dbscanclustering", {
+        'INPUT': layer_centroides,
+        'EPS': eps,                 
+        'MINSIZE': min_size,        
         'FIELD_NAME': 'CLUSTER_ID',
         'SIZE_FIELD_NAME': 'CLUSTER_SIZE',
         'OUTPUT': 'memory:'
     })
     
-    return clusters['OUTPUT']
+    return resultat_clusters["OUTPUT"]
 
 
 def envolvent_clusters(layer):
     """
-    Funció que, prèviament a un filtratge dels clústers no nuls, genera la geometria mínima envolvent per cada clúster
-    De la geometria resultant, s'uneixen i es disolen
+    Genera les zones - geometria mínima envolvent - que delimiten els clústers identificats.
+
+    La funció elimina els elements que no pertanyen a cap clúster identificat,
+    calcula la geometria mínima envolvent de cada agrupació i 
+    dissol les geometries resultants.
+
+    Paràmetres
+    ----------
+    layer: QgsVectorLayer
+        Capa de centroides classificada en clústers.
+
+    Retorna
+    -------
+    QgsVectorLayer
+        Capa en memòria amb les zones que delimiten els clústers.
     """
 
     # Filtratge dels clústers
-    # Generació d'una consulta per filtrar la capa de clústers a aquells no nuls
-    request_clusters = QgsFeatureRequest().setFilterExpression('"CLUSTER_ID" is not \'NULL\' AND "CLUSTER_ID" != -1')
+    request = QgsFeatureRequest().setFilterExpression('"CLUSTER_ID" is not \'NULL\' AND "CLUSTER_ID" != -1')
     
-    clusters_notNull = layer.materialize(request_clusters)
+    layer_clusters_valids = layer.materialize(request)
 
     # Generacio geometria mínima envolvent per cada clúster
-    hull = processing.run("qgis:minimumboundinggeometry", {
-        'INPUT': clusters_notNull,
+    resultat_hull = processing.run("qgis:minimumboundinggeometry", {
+        'INPUT': layer_clusters_valids,
         'FIELD': 'CLUSTER_ID',
         'TYPE': 2,
         'OUTPUT': 'memory:'
     })
 
     # Dissolució de les geometria de les envolents per unificar-les
-    dissolved = processing.run("native:dissolve", {
-        'INPUT': hull['OUTPUT'],
+    resultat_dissolved = processing.run("native:dissolve", {
+        'INPUT': resultat_hull['OUTPUT'],
         'FIELD': [],
         'SEPARATE_DISJOINT': True,
         'OUTPUT': 'memory:'
     })
     
-    # Desat del resultat en una capa
-    layer_zones = dissolved['OUTPUT']
+    layer_zones = resultat_dissolved['OUTPUT']
 
     return layer_zones
 
 
 def zones_cluster(layer, expressio, eps, min_size):
     """
-    Funció d'alt nivell que
-        Selecciona d'una capa vectorial els elements que compleixen amb una condició en una nova capa
-        Genera els seus centroides i aplica una anàlisi de clusterització DBSCAN
-        Genera la geometria mínima envolent de cada clúster i dissol totes les geometries
+    Genera les agrupacions espacials corresponents a un ús determinat.
+
+    La funció filtra les entitats que compleixen amb una expressió,
+    aplica una clusterització mitjançant DBSCAN
+    i calcula les zones que delimiten cada agrupació.
+
+    Paràmetres
+    ----------
+    layer: QgsVectorLayer
+        Capa vectorial sobre la qual es realitza l'anàlisi.
+    expressio: str
+        Expressió de filtratge.
+    eps: float
+        Distància màxima entre dos elements perquè es considerin veïns.
+    min_size: int
+        Nombre mínim d'elements per a formar un clúster.
+
+    Retorna
+    -------
+    dict
+        Diccionari amb dues capes:
+            - "clusters": centroides classificats per clústers.
+            - "zones": zones envolvents dels clústers.
     """
 
-    layer_request = seleccio_atribut(layer, expressio)
+    layer_filtrada = filtrar_capa(
+        layer,
+        expressio
+    )
 
-    clusters = clusters_dbscan(layer_request, eps, min_size)
+    clusters = clusters_dbscan(
+        layer_filtrada,
+        eps,
+        min_size
+    )
 
     layer_zones = envolvent_clusters(clusters)
 
@@ -104,10 +166,24 @@ def zones_cluster(layer, expressio, eps, min_size):
 
 def resum_clusters(layer):
     """
-    Funció que retorna el resum estadístic bàsic d'una capa de clusters
+    Retorna el resum estadístic dels clústers d'una capa.
+
+    A partir d'una capa de clústers obtinguda amb DBSCAN, calcula
+    el nombre de clústers identificats, el nombre total d'elements agrupats,
+    i la mida mínima, màxima i mitjana dels clústers.
+
+    Paràmetres
+    ----------
+    layer: QgsVectorLayer
+        Capa vectorial de centroides classificats en clústers.
+
+    Retorna
+    -------
+    dict
+        Diccionari amb les estadístiques resum dels clústers. 
     """
 
-    clusters = {}
+    cluster_sizes = {}
 
     for feat in layer.getFeatures():
         cluster_id = feat["CLUSTER_ID"]
@@ -116,42 +192,73 @@ def resum_clusters(layer):
         if cluster_id is None or cluster_size is None:
             continue
         
-        clusters[cluster_id] = cluster_size
+        cluster_sizes[cluster_id] = cluster_size
     
-    if not clusters:
-        dict_resum_noCluster = {
+    if not cluster_sizes:
+        return {
             "n_clusters": 0,
             "n_edificis_totals": 0,
             "max_edificis_cluster": 0,
             "min_edificis_cluster": 0,
             "mitjana_edificis_cluster": 0
         }
-        return dict_resum_noCluster
+    
+    sizes = list(cluster_sizes.values())
     
     dict_resum = {
-        "n_clusters": len(clusters),
-        "n_edificis_totals": sum(clusters.values()),
-        "max_edificis_cluster": max(clusters.values()),
-        "min_edificis_cluster": min(clusters.values()),
-        "mitjana_edificis_cluster": sum(clusters.values())/len(clusters)
+        "n_clusters": len(cluster_sizes),
+        "n_edificis_totals": sum(sizes),
+        "max_edificis_cluster": max(sizes),
+        "min_edificis_cluster": min(sizes),
+        "mitjana_edificis_cluster": sum(sizes)/len(cluster_sizes)
     }
+
     return dict_resum
 
 
-def taula_clusters(resultats, us):
+def taula_resum_clusters(resultats, us):
     """
-    Funció que retorna una taula DataFrame a partir d'un diccionari de valors
+    Retorna el resum estadístic d'un ús en un DataFrame.
+
+    Paràmetres
+    ----------
+    resultats: dict
+        Diccionari amb les estadístiques resum dels clústers
+    us: str
+        Identificador de l'ús corresponent.
+
+    Retorna
+    -------
+    pandas.DataFrame
+        DataFrame amb una única fila indexada pel nom de l'ús.
     """
 
     # Transformació de diccionari a DataFrame
-    df = pd.DataFrame(resultats, index=[us])
-
-    return df
+    return pd.DataFrame(resultats, index=[us])
 
 
 def analisi_clusters(layer, usos):
     """
-    Funció d'alt nivell que retorna un diccionari dels diferents productes de l'anàlisi d'agregacions especials per cada ús
+    Executa l'anàlisi de clústers per als diferents usos dels edificis.
+
+    Per a cada ús:
+        - filtra els edificis corresponents,
+        - calcula els clústers espacials mitjançant l'algoritme DBSCAN,
+        - genera les zones envolvents,
+        - calcula el resum estadístic,
+        - construeix una taula resum.
+
+    Paràmetres
+    ----------
+    layer: QgsVectorLayer
+        Capa vecctorial dels edificis.
+    usos: list[str]
+        Llista dels usos que s'han d'analitzar.
+
+    Retorna
+    -------
+    dict
+        Diccionari amb els resultats de cada ús.
     """
     
     resultats_clusters = {}
@@ -160,14 +267,14 @@ def analisi_clusters(layer, usos):
         resultats_clusters[us] = zones_cluster(
             layer=layer,
             expressio=f'"currentUse" = \'{us}\'',
-            eps=100,
-            min_size=5
+            eps=config.ANALISI["Clusters"]["eps"],
+            min_size=config.ANALISI["Clusters"]["min_size"]
         )
 
         resultats_clusters[us]["resum"] = resum_clusters(
             layer=resultats_clusters[us]["clusters"]
         )
-        resultats_clusters[us]["taula"] = taula_clusters(
+        resultats_clusters[us]["taula"] = taula_resum_clusters(
             resultats=resultats_clusters[us]["resum"],
             us=us
         )
@@ -175,19 +282,33 @@ def analisi_clusters(layer, usos):
     return resultats_clusters
 
 
-def taula_general(resultats):
+def taula_general_clusters(resultats):
     """
-    Funció que retorna una dataframe amb els resultats estadístics dels clústers per ús
+    Construeix una taula resum amb els resultats de tots els usos.
+
+    Combina els DataFrames individuals generats per cada ús en una única
+    taula resum.
+
+    Paràmetres
+    ----------
+    resultats: dict
+        Diccionari retornat per la funció `analisi_clusters()`.
+    
+    Retorna
+    -------
+    pandas.DataFrame
+        Taula resum amb les estadístiques dels clústers per cada ús.
     """
     
-    taules = [value["taula"] for value in resultats.values()]
+    taules = [resultat["taula"] for resultat in resultats.values()]
     
-    taula_usos = pd.concat(taules)
-
-    return taula_usos
+    return pd.concat(taules)
 
 
-################## 2 - Anàlisi de xarxes
+
+# =============================================================================
+# ISOÀREES
+# =============================================================================
 
 def generacio_centroides(layer):
     """

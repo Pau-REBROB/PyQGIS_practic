@@ -158,7 +158,7 @@ dict_clusters = clusters.analisi_clusters(
     usos=config.USOS
 )
 
-taula_clusters = clusters.taula_general(
+taula_clusters = clusters.taula_general_clusters(
     resultats=dict_clusters
 )
 
