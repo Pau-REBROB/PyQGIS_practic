@@ -1,4 +1,16 @@
-"""NETEJA DE CAPES"""
+"""
+Preparació de dades
+==================
+
+Mòdul que agrupa les funcions de preparació de les capes vectorials del projecte.
+
+Organització
+------------
+
+- Eliminació dels camps no necessaris.
+- Emmagatzematge de les capes preparades.
+- Construcció del conjunt de dades preparades.
+"""
 
 from qgis.core import (
     QgsFeatureRequest,
@@ -10,40 +22,57 @@ from qgis.core import (
 
 import os
 
-def netejar_capa(layer, camps):
+import config
+
+def preparar_capa(layer, camps):
     """
-    Funció que elimina els camps especificats de la capa
+    Prepara una capa vectorial eliminant els camps no necessaris.
+
+    La funció crea una còpia de la capa original i
+    elimina tots els atributs que no formen part de la llista de camps a conservar.
+
+    Paràmetres
+    ----------
+    layer: QgsVectorLayer
+        Capa vectorial d'entrada.
+
+    camps: list[str]
+        Llista de camps que s'han de conservar.
+
+    Retorna
+    -------
+    QgsVectorLayer
+        Nova capa en memòria amb únicament els camps a conservar especificats.
     """
 
-    # Clonació de la capa original per no modificar-la
     layer_clone = layer.materialize(QgsFeatureRequest())
 
-    # Llista buida que contindrà els índex dels camps a eliminar
-    index_eliminar = []
+    indexs_eliminar = []
 
     # Cerca dels índexs dels camps a eliminar
-    for i, field in enumerate(layer_clone.fields()):
+    for i, camp in enumerate(layer_clone.fields()):
         # Si el nom del camp no es troba a la llista de camps a mantenir passada com a paràmetre
         # Afegir el seu índex a la llista buida
-        if field.name() not in camps:
-            index_eliminar.append(i)
+        if camp.name() not in camps:
+            indexs_eliminar.append(i)
     
     # Edició de la capa i eliminació dels camps
     with edit(layer_clone):
-        layer_clone.deleteAttributes(index_eliminar)
+        layer_clone.deleteAttributes(indexs_eliminar)
 
     layer_clone.updateFields()
-
 
     return layer_clone
 
 
-def desar_carregar_capa(layer_clone):
+def desar_i_carregar_capa(layer_clone):
     """
-    Funció que desa la capa neta per la funció `netejar_capa()` en un arxiu GPKG i carrega la capa al projecte
+    Desa una capa preparada en format GeoPackage i la torna a carregar al projecte.
+
+    Si l'arxiu ja existeix, no es torna a escriure i simplement es carrega des de local.
     """
 
-    clean_path = f"C:/projectes_git/Dades/PyQGIS_Repo/Dades_netes/{layer_clone.name()}_clean.gpkg"
+    clean_path = f"{config.PATH_DADES_NETES}/{layer_clone.name()}_clean.gpkg"
 
     if not os.path.exists(clean_path):
         # Desat de la capa neta
@@ -62,37 +91,67 @@ def desar_carregar_capa(layer_clone):
         print(f"La capa {layer_clone.name()} ja existeix")
 
     # Importació de la capa al projecte
-    layer_clean = QgsVectorLayer(f"C:/projectes_git/Dades/PyQGIS_Repo/Dades_netes/{layer_clone.name()}_clean.gpkg|layername={layer_clone.name()}",
+    layer_clean = QgsVectorLayer(f"{config.PATH_DADES_NETES}/{layer_clone.name()}_clean.gpkg|layername={layer_clone.name()}",
                                  layer_clone.name(),
                                  "ogr")
 
     return layer_clean 
     
 
-def netejar_grup(dict_layers, configuracio):
+def preparar_grup(dict_layers, configuracio):
     """
-    Funció d'alt nivell que genera un nou diccionari de capes a partir de les funcions `netejar_capa()` i `desar_carregar_capa()`
-    La funció 
-        Agafa el diccionari de diccionaris de capes generat al mòdul d'importació.py
-        Itera sobre cada capa QgsVectorLayer present
-            Neteja la capa dels camps no desitjats
-            Desa la capa neta en un arxiu nou
-            Carrega la nova capa
-        Agafa la nova capa neta carregada i l'utilitza per suplir una nova QgsVectorLayer en el diccionari de diccionaris de capes
+    Prepara les capes d'un conjunt de dades.
+
+    Per a cada capa:
+        - selecciona els camps a conservar,
+        - genera una capa preparada,
+        - la desa en format GeoPackage,
+        - la recarrega al projecte,
+        - actualitza el diccionari de capes.
+
+    Paràmetres
+    ----------
+    dict_layers: dict
+        Diccionari de capes agrupades per temàtica amb l'estructura:
+        {
+            "Nom_grup": {
+                "Nom_capa": QgsVectorLayer,
+                ...
+            },
+
+            ...
+        }
+
+    configuracio: dict
+        Diccionari que defineix els camps que s'han de conservar per a cada capa.
+
+    Retorna
+    -------
+    dict
+        Diccionari de capes amb la mateixa estructura que la capa d'entrada, però
+        on cada capa ha estat substituïda per la seva versió preparada.
+        {
+            "Nom_grup": {
+                "Nom_capa": QgsVectorLayer,
+                ...
+            },
+
+            ...
+        }
     """
 
     for grup, capes in dict_layers.items():
         
-        for nom, layer in capes.items():
+        for nom, capa in capes.items():
             
             if nom in configuracio[grup]:
                 camps = configuracio[grup][nom]
             else:
                 camps = configuracio[grup]["*"]
             
-            layer_clone = netejar_capa(layer, camps)
+            layer_clone = preparar_capa(capa, camps)
 
-            layer_clean = desar_carregar_capa(layer_clone)
+            layer_clean = desar_i_carregar_capa(layer_clone)
             
             dict_layers[grup][nom] = layer_clean 
 

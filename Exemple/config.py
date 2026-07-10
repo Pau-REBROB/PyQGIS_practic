@@ -3,6 +3,7 @@
 PATH_PROJECTE = "C:/projectes_git/PyQGIS_practic"
 
 PATH_DADES = "C:/projectes_git/Dades"
+PATH_DADES_NETES = "C:/projectes_git/Dades/PyQGIS_Repo/Dades_netes"
 PATH_RESULTATS = f"{PATH_PROJECTE}/Resultats"
 
 PATH_DADES_LIMITS = f"{PATH_DADES}/PyQGIS_Repo/Limits_administratius_BCN"
