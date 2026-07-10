@@ -1,35 +1,82 @@
-"""IMPORTACIÓ DE CAPES"""
+"""
+Importació de dades
+===================
+
+Mòdul que agrupa les funcions d'importació de les dades del projecte.
+
+Organització
+------------
+
+- Importació de capes vectorials.
+- Importació del mapa base.
+"""
 
 from qgis.core import (
     QgsProject,
-    QgsVectorLayer,
     QgsRasterLayer,
-    QgsSpatialIndex
+    QgsSpatialIndex,
+    QgsVectorLayer
 )
 
 def carregar_capes(layers):
     """
-    Funció que, a partir d'un diccionari de capes - nom:ruta - retorna un diccionari de diccionaris de capes per temàtica
-    La funció també retorna un diccionari equivalent d'índexs espacials
+    Importa les capes vectorials del projecte i genera els seus índex espacials.
 
-    Comprovació del SRC de cada capa importada
+    Per a cada capa:
+        - crea la capa vectorial,
+        - comprova que sigui vàlida,
+        - l'afegeix al projecte (sense mostrar-la al canvas),
+        - genera el seu índex espacial,
+        - comprova que el sistema de referència sigui EPSG:25831.
+
+    Paràmetres
+    ----------
+    layers: dict
+        Diccionari de capes amb l'estructura:
+        {
+            "Grup": {
+                "Nom_capa": ruta,
+                ...
+            },
+
+            ...
+        }
+
+    Retorna
+    -------
+    tupla
+        (
+            dict_layers,
+            dict_indexs_espacials
+        )
+    
+    on:
+        dict_layers = {
+            "Grup": {
+                "Nom_capa": QgsVectorLayer
+            }
+        }
+
+        dict_indexs_espacials = {
+            "Grup": {
+                "Nom_capa": QgsSpatialIndex
+            }
+        }
     """
 
     # Diccionari buit de diccionaris de capes per temàtica
     dict_layers = {}
 
     # Diccionari buit dels índex de les capes
-    dict_indexs = {}
+    dict_indexs_espacials = {}
 
-    for grup, capes in layers.items():
+    for grup, grup_capes in layers.items():
         dict_layers.setdefault(grup, {})
-        dict_indexs.setdefault(grup, {})
+        dict_indexs_espacials.setdefault(grup, {})
         
-        for nom, path in capes.items():
-            # Creació de la capa vectorial amb la ruta i el nom especificats
+        for nom, path in grup_capes.items():
             layer = QgsVectorLayer(path, nom, "ogr")
             
-            # Comprovació de la validesa de la capa creada
             if not layer.isValid():
                 print(f"Error al carregar la capa {nom}")
             
@@ -42,12 +89,8 @@ def carregar_capes(layers):
                 # Per cada grup, el key és el nom de la capa, i el value és la capa vectorial pròpiament (QgsVectorLayer)
                 dict_layers[grup][nom] = layer
 
-                # Generació de l'índex de cada capa i addició al diccionari d'índexs de manera anàloga a les capes
-                dict_indexs[grup][nom] = QgsSpatialIndex(layer.getFeatures())
+                dict_indexs_espacials[grup][nom] = QgsSpatialIndex(layer.getFeatures())
 
-                # Impresió per pantalla del SRC de cada capa, en codi EPSG
-                print(f"El SRC de la capa {layer.name()} és {layer.crs().authid()}")
-        
                 # Comparació amb el SRC del projecte
                 if layer.crs().authid() == "EPSG:25831":
                     print(f"La capa {layer.name()} està en el SRC correcte")
@@ -55,12 +98,17 @@ def carregar_capes(layers):
                     print(f"La capa {layer.name()} està en el SRC {layer.crs().authid()} i necessita ser reprojectada a EPSG:25831!")
 
 
-    return dict_layers, dict_indexs
+    return dict_layers, dict_indexs_espacials
 
 
 def carregar_basemap():
     """
-    Funció per a carregar un mapa de fons
+    Carrega el mapa base del projecte.
+
+    Retorna
+    -------
+    QgsRasterLayer
+        Capa ràster XYZ corresponent al mapa base CartoDB Positron No Labels.
     """
     uri = ("type=xyz&url=https://basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png&zmax=19&zmin=0")
 

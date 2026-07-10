@@ -67,6 +67,39 @@ estructura:
     Simbologia → retorna capes simbolitzades.
     Layouts → consumeixen capes i exporten PDFs.
 """
+
+"""
+el mateix ordre per a cada script:
+
+Docstring inicial del mòdul
+Responsabilitat del mòdul.
+Organització interna.
+(Sense entrar en detalls d'implementació.)
+Imports
+Ordenats i sense import *.
+Un element per línia si són molts.
+Agrupats:
+llibreries estàndard;
+tercers (QGIS, pandas...);
+mòduls propis.
+Noms de funcions
+Que siguin coherents amb la resta del projecte.
+Verbs clars (carregar_, filtrar_, generar_, analisi_, exportar_...).
+Variables internes
+Només canviar-les si realment milloren la llegibilitat.
+Evitar abreviatures poc clares.
+Docstrings de les funcions
+Mateix format a tot el projecte.
+Especial atenció als dict i DataFrame, documentant-ne l'estructura.
+Comentaris
+Eliminar els que expliquen una línia evident.
+Mantenir els que expliquen el perquè o un pas important de l'algoritme.
+Petits refactors
+Eliminar variables intermèdies innecessàries.
+Simplificar retorns.
+Evitar duplicació.
+"""
+
 # =============================================================================
 # 1. Importació de mòduls
 

@@ -1,3 +1,25 @@
+"""
+Anàlisi espacial
+================
+
+Mòdul que agrupa les funcions d'anàlisi espacial del projecte.
+
+Organització
+------------
+
+- Clústers
+    Funcions per a la generació de clústers espacials d'edificis,
+    obtenció de les seves envolvents i càlcul d'estadístiques.
+
+- Anàlisi de xarxes
+    (En desenvolupament.)
+
+Les funcions s'organitzen en tres nivells:
+    - funcions bàsiques de processament;
+    - funcions de resum dels resultats;
+    - funcions d'alt nivell que orquestren el procés complet.
+"""
+
 from qgis.core import QgsFeatureRequest, QgsVectorLayer
 
 import processing
@@ -140,7 +162,13 @@ def zones_cluster(layer, expressio, eps, min_size):
     Retorna
     -------
     dict
-        Diccionari amb dues capes:
+        Diccionari de dues capes amb l'estructura:
+        {
+            "clusters": QgsVectorLayer,
+            "zones": QgsVectorLayer
+        }
+
+        on:
             - "clusters": centroides classificats per clústers.
             - "zones": zones envolvents dels clústers.
     """
@@ -180,7 +208,21 @@ def resum_clusters(layer):
     Retorna
     -------
     dict
-        Diccionari amb les estadístiques resum dels clústers. 
+        Diccionari amb les estadístiques resum dels clústers amb l'estructura:
+        {
+        "n_clusters": int,
+        "n_edificis_totals": int,
+        "max_edificis_cluster": int,
+        "min_edificis_cluster": int,
+        "mitjana_edificis_cluster": float
+        }
+
+        on:
+        "n_clusters": nombre total de clústers,
+        "n_edificis_totals": nombre total d'edificis inclosos en els clústers,
+        "max_edificis_cluster": nombre màxim d'edificis inclosos en un clúster,
+        "min_edificis_cluster": nombre mínim d'edificis inclosos en un clúster,
+        "mitjana_edificis_cluster": mitjana del nombre d'edificis inclosos en els clústers
     """
 
     cluster_sizes = {}
@@ -231,6 +273,15 @@ def taula_resum_clusters(resultats, us):
     -------
     pandas.DataFrame
         DataFrame amb una única fila indexada pel nom de l'ús.
+
+        Índex
+            ús
+        Columnes
+            - n_clusters,
+            - n_edificis_totals,
+            - max_edificis_cluster,
+            - min_edificis_cluster,
+            - mitjana_edificis_cluster
     """
 
     # Transformació de diccionari a DataFrame
@@ -251,7 +302,7 @@ def analisi_clusters(layer, usos):
     Paràmetres
     ----------
     layer: QgsVectorLayer
-        Capa vecctorial dels edificis.
+        Capa vectorial dels edificis.
     usos: list[str]
         Llista dels usos que s'han d'analitzar.
 
@@ -259,6 +310,21 @@ def analisi_clusters(layer, usos):
     -------
     dict
         Diccionari amb els resultats de cada ús.
+
+        {
+        "1_residential": {
+            "clusters": QgsVectorLayer,
+            "zones": QgsVectorLayer,
+            "resum": dict,
+            "taula": pandas.DataFrame
+        },
+
+        "2_agriculture": {
+            ...
+        },
+
+        ...
+        }
     """
     
     resultats_clusters = {}
@@ -286,7 +352,7 @@ def taula_general_clusters(resultats):
     """
     Construeix una taula resum amb els resultats de tots els usos.
 
-    Combina els DataFrames individuals generats per cada ús en una única
+    Combina les taules resum individuals en format DataFrames generats per cada ús en una única
     taula resum.
 
     Paràmetres
