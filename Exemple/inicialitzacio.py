@@ -1,4 +1,12 @@
-"""INICIALITZACIÓ DEL PROJECTE"""
+"""
+Inicialització del projecte
+===========================
+
+Conté les funcions necessàries per preparar l'entorn de treball de QGIS.
+
+El mòdul defineix les funcions encarregades de crear l'entorn inicial
+del projecte abans d'executar la resta del flux de treball.
+"""
 
 from qgis.core import (
     QgsProject,
@@ -7,23 +15,39 @@ from qgis.core import (
 
 def inicialitzar_projecte():
     """
-    Funció 
-        Defineix una instància del projecte (project) i del panell de capes (root)
-        Neteja totes les capes i grups de capes preexistents al projecte
-        Estableix el SRC del projecte
+    Inicialitza el projecte de QGIS.
+
+    La funció:
+        - obté la instància del projecte,
+        - elimina totes les capes i grups preexistents,
+        - estableix el sistema de referència de coordenades del projecte.
+
+    Paràmetres
+    ----------
+    None
+
+    Retorna
+    -------
+    tupla
+        (
+            QgsProject,
+            QgsLayerTree
+        )
+        
+        on:
+            - QgsProject correspon a la instància del projecte,
+            - QgsLayerTree correspon a l'arrel del panell de capes del projecte.
     """
     
-    # Generar instància del projecte
     project = QgsProject.instance()
 
-    # Generar instància del panell de capes
     root = project.layerTreeRoot()
 
     # Netejar totes les capes i grups existents al projecte
     project.removeAllMapLayers()
     root.removeAllChildren()
 
-    # Establiment del SRC
+    # Definició del SRC del projecte
     project.setCrs(QgsCoordinateReferenceSystem("EPSG:25831"))
 
     return project, root
