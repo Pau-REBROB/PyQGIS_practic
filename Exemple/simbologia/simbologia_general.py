@@ -1,9 +1,13 @@
-"""SIMBOLOGIA DE LES CAPES GENERADES"""
+"""
+Simbologia
+==========
+
+Funcions d'alt nivell per aplicar la simbologia a les capes generades
+durant el projecte.
+"""
 
 import config
-import simbologia.simbologia_unica as simbologia_unica
-import simbologia.simbologia_categorica as simbologia_categorica
-
+import simbologia.simbologies as simbologies
 
 def simbologia_base(dict_layers):
     """
@@ -28,7 +32,7 @@ def simbologia_base(dict_layers):
             )
 
         else:
-            layer = simbologia_unica.simbologia_unica(
+            layer = simbologies.simbologia_unica(
                 layer=layer,
                 **config.SIMBOLOGIA[nom]
             )
@@ -49,7 +53,7 @@ def simbologia_clusters(resultats):
     layers_clusters = {}
 
     for us, dades in resultats.items():
-        layer = simbologia_unica.simbologia_unica(
+        layer = simbologies.simbologia_unica(
             layer=dades["zones"],
             fill_color=config.COLORS_USOS[us],
             outline_width=config.SIMBOLOGIA["Clusters"]["outline_width"],

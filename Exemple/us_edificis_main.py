@@ -117,8 +117,8 @@ import preparacio_dades
 import analisi.agregacions as agregacions
 import analisi.grafics as grafics
 import analisi.clusters as clusters
+import simbologia.simbologies as simbologies
 import simbologia.simbologia_general as simbologia_general
-import simbologia.simbologia_graduada as simbologia_graduada
 import layouts.layout_common as layout_common
 import layouts.layout_general as layout_general
 import layouts.layout_atles as layout_atles
@@ -143,8 +143,8 @@ importlib.reload(preparacio_dades)
 importlib.reload(agregacions)
 importlib.reload(grafics)
 importlib.reload(clusters)
+importlib.reload(simbologies)
 importlib.reload(simbologia_general)
-importlib.reload(simbologia_graduada)
 importlib.reload(layout_common)
 importlib.reload(layout_general)
 importlib.reload(layout_atles)
