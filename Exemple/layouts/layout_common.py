@@ -1,59 +1,70 @@
-"""COMPOSICIONS - LAYOUTS"""
+"""
+Layouts
+=======
 
-# Mòdul de funcions comunes
+Funcions comunes per a la construcció de composicions d'impressió.
+"""
 
 from qgis.core import (
-    QgsProject,
-    QgsLayerTreeGroup,
-    QgsPrintLayout,
-    QgsLayoutSize,
+    QgsBasicNumericFormat,
+    QgsLayoutItemLabel,
+    QgsLayoutItemLegend,
+    QgsLayoutItemPicture,
+    QgsLayoutItemScaleBar,
     QgsLayoutMeasurement,
     QgsLayoutPoint,
-    QgsUnitTypes,
-    QgsLayoutItemLabel,
-    QgsTextFormat,
-    QgsLayoutItemLegend,
+    QgsLayoutSize,
     QgsLegendStyle,
-    QgsLayoutItemScaleBar,
-    QgsBasicNumericFormat,
-    QgsLayoutItemPicture,
+    QgsPrintLayout,
+    QgsProject,
+    QgsTextFormat,
+    QgsUnitTypes
 )
+
+from qgis.PyQt.QtCore import Qt
 
 from qgis.PyQt.QtGui import (
     QFont,
     QColor
 )
 
-from qgis.PyQt.QtCore import Qt
-
-
 def generar_layout(nom_layout):
     """
-    Funció que 
-        Inicialitza la composició
-        Estableix uns paràmetres incials per defecte
-        Estableix un nom 
-        Desa la composició al gestor de composicions 
+    Crea una nova composició d'impressió del projecte.
+
+    Si ja existeix una composició amb el mateix nom, s'elimina
+    abans de crear-ne una de nova.
+
+    La composició s'inicialitza amb els valors per defecte de QGIS,
+    rep el nom indicat i s'afegeix al gestor de composicions del 
+    projecte.
+
+    Paràmetres
+    ----------
+    nom_layout: str
+        Nom que s'assignarà a la composició.
+
+    Retorna
+    -------
+    QgsPrintLayout
+        Nova composició registrada al gestor de composicions del projecte. 
     """
     
-    # Creació del gestor de composicions
+    # Gestor de composicions
     manager = QgsProject.instance().layoutManager()
 
-    # Comprovació d'existència prèvia del layout
+    # Si hi ha existència prèvia del layout, s'elimina
     for layout in manager.printLayouts():
         if layout.name() == nom_layout:
             manager.removeLayout(layout)
     
-    # Creació del layout
+    # Creació i inicialització del layout
     layout = QgsPrintLayout(QgsProject.instance())
-
-    # Inicialització
     layout.initializeDefaults()
     
-    # Assignació d'un nom
     layout.setName(nom_layout)
 
-    # Addició del layout al gestor
+    # Registre del layout al projecte
     manager.addLayout(layout)
 
     return layout
@@ -61,27 +72,47 @@ def generar_layout(nom_layout):
 
 def afegir_titol(layout, titol, font, size, font_color, backg_color, frame_color):
     """
-    Funció que
-        Afegeix un element títol a la composició
-        Estableix el text a mostrar
-        Estableix el format, alineació, la posició i mida del text
-        Estableix un fons
+    Afegeix un títol a la composició.
+
+    La funció crea una etiqueta de text, configura el seu contingut,
+    el format tipogràfic, la posició, la mida i l'estil del marc,
+    i l'afegeix a la composició indicada.
+
+    Paràmetres
+    ----------
+    layout: QgsPrintLayout
+        Composició on s'insereix el títol.
+    titol: str
+        Text que es mostrarà com a títol.
+    font: str
+        Nom de la família tipogràfica.
+    size: float
+        Mida del text, en punts.
+    font_color: tuple[int,int,int,int]
+        Color del text, en format (RGBA).
+    backg_color: tuple[int,int,int,int]
+        Color del fons, en format (RGBA).
+    frame_color: tuple[int,int,int,int]
+        Color del marc, en format (RGBA).
+
+    Retorna
+    -------
+    QgsLayoutItemLabel
+        Element de tipus etiqueta.
     """
 
-    # Creació del títol
     title = QgsLayoutItemLabel(layout)
     
-    # Addició del títol a la composició
     layout.addLayoutItem(title)
 
     # Definició del text i el seu format
     title.setText(titol)
-    title_format = QgsTextFormat()
-    title_format.setFont(QFont(font))
-    title_format.setSize(size)
-    title_format.setSizeUnit(QgsUnitTypes.RenderPoints)
-    title_format.setColor(QColor(*font_color))
-    title.setTextFormat(title_format)
+    text_format = QgsTextFormat()
+    text_format.setFont(QFont(font))
+    text_format.setSize(size)
+    text_format.setSizeUnit(QgsUnitTypes.RenderPoints)
+    text_format.setColor(QColor(*font_color))
+    title.setTextFormat(text_format)
     
     # Definició de posició i mida
     title.attemptMove(QgsLayoutPoint(10, 5, QgsUnitTypes.LayoutMillimeters))
@@ -104,48 +135,59 @@ def afegir_titol(layout, titol, font, size, font_color, backg_color, frame_color
 
 def afegir_llegenda(layout, mapa, capes, titol, font, size, font_color, backg_color):
     """
-     Funció que
-        Afegeix una llegenda a la composició
-        Estableix el seu títol
-        Estableix el format del text contingut
-        Estableix un fons
+     Afegeix una llegenda a una composició.
+
+     La funció crea una llegenda vinculada al mapa indicat,
+     elimina les capes que no s'han de representar, configura
+     el format del text, i aplica el fons corresponent.
+
+     Paràmetres
+     ----------
+     layout: QgsPrintLayout
+        Composició on s'insereix la llegenda.
+     mapa: QgsLayoutItemMap
+        Element mapa al qual queda vinculada la llegenda.
+     capes: list[QgsMapLayer]
+        Llistat de capes que ha de mostrar la llegenda.
+     titol: str
+        Títol de la llegenda.
+     font: str
+        Nom de la família tipogràfica.
+     size: float
+        Mida del text, en punts.
+     font_color: tuple[int,int,int,int]
+        Color del text, en format (RGBA).
+     backg_color: tuple[int,int,int,int]
+        Color del fons, en format (RGBA).
+
+     Retorna
+     -------
+     QgsLayoutItemLegend
+        Element llegenda.
     """
 
     # Creació de la llegenda
     legend = QgsLayoutItemLegend(layout)
-
-    print("AUTO:", legend.autoUpdateModel())
-    
-    # Addició de la llegenda a la composició
     layout.addLayoutItem(legend)
 
-    # Vinculació de la llegenda amb el mapa
+    # Vinculació amb el mapa
     legend.setLinkedMap(mapa)
     
-    # Construcció de la llegenda
+    # Construcció manual del contingut
     legend.setAutoUpdateModel(False)
-   
-    print("AUTO:", legend.autoUpdateModel())
     
     root = legend.model().rootGroup()
-    print("ABANS")
-    for n in root.findLayers():
-        print(n.layer().name())
 
-    # Filtre de capes visibles
-    ids = {layer.id() for layer in capes}
+    ids_capes = {capa.id() for capa in capes}
+
     for node in list(root.findLayers()):
-        if node.layerId() not in ids:
+        if node.layerId() not in ids_capes:
             root.removeLayer(node.layer())
     
-    print("DESPRÉS")
-    for n in root.findLayers():
-        print(n.layer().name())
-
-    # Definició d'un títol
+    # Títol
     legend.setTitle(titol)
 
-    # Definició de posició i mida
+    # Posició i mida
     legend.attemptMove(QgsLayoutPoint(240, 60, QgsUnitTypes.LayoutMillimeters))
     legend.adjustBoxSize()
 
@@ -174,58 +216,89 @@ def afegir_llegenda(layout, mapa, capes, titol, font, size, font_color, backg_co
 
 def afegir_escala(layout, mapa, font, font_color):
     """
-    Funció que defineix l'escala
+    Afegeix una escala numèrica a una composició.
+
+    La funció crea una escala vinculada al mapa indicat i configura
+    la seva posició, mida, el format numèric i l'estil del text.
+
+    Paràmetres
+    ----------
+    layout: QgsPrintLayout
+        Composició on s'insereix l'escala.
+    mapa: QgsLayoutItemMap
+        Element mapa al qual queda vinculada l'escala.
+    font: str
+        Nom de la família tipogràfica.
+    font_color: tuple[int,int,int,int]
+        Color del text, en format (RGBA).
+
+    Retorna
+    -------
+    QgsLayoutItemScaleBar
+        Element escala.
     """
     
     # Creació de l'escala
     scale = QgsLayoutItemScaleBar(layout)
-    
-    # Addició de l'escala a la composició
     layout.addLayoutItem(scale)
 
-    # Vinculació de l'escala amb el mapa
+    # Vinculació amb el mapa
     scale.setLinkedMap(mapa)
 
     # Definició de mida
-    #scale.attemptResize(QgsLayoutSize(15,15,QgsUnitTypes.LayoutMillimeters))
     scale.attemptMove(QgsLayoutPoint(15, 190, QgsUnitTypes.LayoutMillimeters))
 
-    # Definició del tipus numèric
+    # Format numèric
     scale.setStyle("Numeric")
     numeric_format = QgsBasicNumericFormat()
     numeric_format.setShowThousandsSeparator(True)
     numeric_format.setNumberDecimalPlaces(0)
     scale.setNumericFormat(numeric_format)
 
-    # Definició del format de text
-    scale_format = QgsTextFormat()
-    scale_format.setFont(QFont(font))
-    scale_format.setSize(16)
-    scale_format.setSizeUnit(QgsUnitTypes.RenderPoints)
-    scale_format.setColor(QColor(*font_color))
-    scale.setTextFormat(scale_format)
+    # Format de text
+    text_format = QgsTextFormat()
+    text_format.setFont(QFont(font))
+    text_format.setSize(16)
+    text_format.setSizeUnit(QgsUnitTypes.RenderPoints)
+    text_format.setColor(QColor(*font_color))
+    scale.setTextFormat(text_format)
 
     return scale
 
 
-def afegir_nord(layout, mapa, path):
+def afegir_nord(layout, mapa, image_path):
     """
-    Funció que defineix la fletxa del nord a partir d'una imatge guardada en local
+    Afegeix una fletxa del nord a una composició.
+
+    La funció crea un element d'imatge vinculat al mapa indicat,
+    carrega la imatge especificada i en configura la posició i mida.
+
+    Paràmetres
+    ----------
+    layout: QgsPrintLayout
+        Composició on s'insereix la fletxa del nord.
+    mapa: QgsLayoutItemMap
+        Element mapa al qual queda vinculada la fletxa.
+    image_path: str
+        Ruta local de la imatge utilitzada com a símbol de la fletxa del nord.
+    
+    Retorna
+    -------
+    QgsLayoutItemPicture
+        Element gràfic.
     """
 
     # Creació de la fletxa del nord
     north = QgsLayoutItemPicture(layout)
-
-    # Addició del nord a la composició
     layout.addLayoutItem(north)
 
-    # Vinculació de la imatge amb el mapa
+    # Vinculació amb el mapa
     north.setLinkedMap(mapa)
 
-    # Cerca de la imatge
-    north.setPicturePath(path)
+    # Imatge
+    north.setPicturePath(image_path)
     
-    # Definició de posició i mida
+    # Posició i mida
     north.attemptResize(QgsLayoutSize(10, 10, QgsUnitTypes.LayoutMillimeters))
     north.attemptMove(QgsLayoutPoint(15, 180, QgsUnitTypes.LayoutMillimeters))
 
