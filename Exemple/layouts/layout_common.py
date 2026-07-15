@@ -305,22 +305,43 @@ def afegir_nord(layout, mapa, image_path):
     return north
 
 
-def afegir_grafic(layout, path, x_s, y_s, x_m, y_m):
+def afegir_grafic(layout, path, width, height, x, y):
     """
-    Funció que insereix un gràfic en forma d'imatge a la composició
+    Afegeix una imatge a una composició.
+
+    La funció crea un element d'imatge, carrega el fitxer indicat,
+    i en configura la posició i mida dins la composició.
+
+    Paràmetres
+    ----------
+    layout: QgsPrintLayout
+        Composició on s'insereix la imatge.
+    path: str
+        Ruta de la imatge.
+    width: float
+        Amplada de la imatge, en mil·límetres.
+    height: float
+        Alçada de la imatge, en mil·límetres.
+    x: float
+        Coordenada X de la imatge - cantonada superior esquerra - en mil·límetres.
+    y: float
+        Coordenada Y de la imatge - cantonada superior esquerra - en mil·límetres.
+
+    Retorna
+    -------
+    QgsLayoutItemPicture
+        Element gràfic. 
     """
 
     # Creació de la imatge
     image = QgsLayoutItemPicture(layout)
-
-    # Addició de la imatge a la composició
     layout.addLayoutItem(image)
 
-    # Cerca de la imatge
+    # Imatge
     image.setPicturePath(path)
     
     # Definició de posició i mida
-    image.attemptResize(QgsLayoutSize(x_s, y_s, QgsUnitTypes.LayoutMillimeters))
-    image.attemptMove(QgsLayoutPoint(x_m, y_m, QgsUnitTypes.LayoutMillimeters))
+    image.attemptResize(QgsLayoutSize(width, height, QgsUnitTypes.LayoutMillimeters))
+    image.attemptMove(QgsLayoutPoint(x, y, QgsUnitTypes.LayoutMillimeters))
 
     return image
