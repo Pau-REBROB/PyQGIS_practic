@@ -1,6 +1,32 @@
-"""COMPOSICIONS - LAYOUTS"""
+"""
+Composició tipus atles
+======================
 
-# Composició en atles
+Funcions per generar una composició en format atles.
+
+Cada entitat de la capa de cobertura genera una pàgina
+independent de l'atles.
+
+La composició inclou:
+
+- mapa principal
+- mapa localitzador
+- títol
+- llegenda
+- escala gràfica
+- fletxa del nord
+- configuració de l'atles
+- exportació a PDF
+
+Organització
+------------
+
+- afegir_mapa()
+- afegir_mapa_localitzador()
+- generar_atles()
+- exportar_atles()
+- composicio_atles()
+"""
 
 from qgis.core import (
     QgsLayoutItemMap,
@@ -14,76 +40,99 @@ from qgis.core import (
 import config
 import layouts.layout_common as layout_common
 
-
 def afegir_mapa(layout, capes, capa_extent):
     """
-    Funció que 
-        Afegeix un element mapa a la composició
-        Estableix les capes que es mostraran
-        Estableix una extensió
-        Estableix unes mides predefinides segons la composició general
+    Afegeix el mapa principal a la composició.
+
+    La funció crea un element de mapa, configura les capes visibles,
+    estableix la seva posició, mida, rotació i extensió inicial.
+
+    Paràmetres
+    ----------
+    layout : QgsPrintLayout
+        Composició sobre la qual s'afegeix el mapa.
+    capes : list[QgsMapLayer]
+        Capes visibles del mapa.
+    capa_referencia : QgsVectorLayer
+        Capa utilitzada per calcular l'extensió inicial.
+
+    Retorna
+    -------
+    QgsLayoutItemMap
+        Element mapa.
     """
 
     # Creació del mapa
     layout_map = QgsLayoutItemMap(layout)
-    
-    # Addició del mapa a la composició
     layout.addLayoutItem(layout_map)
 
-    # Addició de les capes
     layout_map.setLayers(capes)
+
+    # Mantenir el conjunt de capes fix perquè el layout no canvïi
     layout_map.setKeepLayerSet(True)
 
-    # Definició de posició i mida
-    layout_map.attemptResize(QgsLayoutSize(280, 190, QgsUnitTypes.LayoutMillimeters))    #DIN A4 apaisat 297x210mm
+    layout_map.attemptResize(QgsLayoutSize(280, 190, QgsUnitTypes.LayoutMillimeters))
     layout_map.attemptMove(QgsLayoutPoint(10, 10, QgsUnitTypes.LayoutMillimeters))
 
-    # Rotació del mapa
     layout_map.setMapRotation(45)
 
-    # Definició de l'extensió i vista
-    extent = capa_extent.extent() 
+    extent = capa_extent.extent()
+    
+    # Apropa la vista abans d'aplicar els desplaçaments manuals
     extent.scale(0.5)
-    #extent.setXMinimum(extent.xMinimum() + 500)
-    #extent.setXMaximum(extent.xMaximum() + 500)
-    #extent.setYMinimum(extent.yMinimum() + 250)
-    #extent.setYMaximum(extent.yMaximum() + 250)
+
     layout_map.zoomToExtent(extent)
     
     return layout_map
 
 
-def afegir_mapa_localitzador(layout, layer_location, capa_extensio, mapa):
+def afegir_mapa_localitzador(layout, capa_localitzador, capa_extensio, mapa):
     """
-    Funció per a afegir un mapa localitzador a cada pàgina de l'atles
+    Afegeix un mapa localitzador a la composició de l'atles.
+
+    El mapa localitzador mostra una vista general del municipi i 
+    ressalta, mitjançant un "overview", l'extensió que representa 
+    el mapa principal de cada pàgina de l'atles.
+
+    Paràmetres
+    ----------
+    layout: QgsPrintLayout
+        Composició sobre la qual s'afegeix el mapa localitzador.
+    capa_localitzador: QgsVectorLayer
+        Capa utilitzada per a representar el mapa localitzador.
+    capa_extensio: QgsVectorLayer
+        Capa utilitzada per a definir l'extensió fixa del mapa localitzador.
+    mapa: QgsLayoutItemMap
+        Mapa principal de la composició, que servirà de referència per a
+        generar l'overview.
+
+    Retorna
+    -------
+    QgsLayoutItemMap
+        Element de mapa corresponent al localitzador.
     """
 
-    # Creació del mapa
+    # Crear del mapa
     locator = QgsLayoutItemMap(layout)
-
-    # Addició del mapa a la composició
     layout.addLayoutItem(locator)
 
-    # Addició de les capes
-    locator.setLayers([layer_location])
+    # Afegir la capa que farà de localitzador
+    locator.setLayers([capa_localitzador])
     locator.setKeepLayerSet(True)
 
-    # Definició de posició i mida
     locator.attemptResize(QgsLayoutSize(50, 50, QgsUnitTypes.LayoutMillimeters))
     locator.attemptMove(QgsLayoutPoint(240, 140, QgsUnitTypes.LayoutMillimeters))
 
-    # Definició de l'extensió - fixa
+    # Extensió fixa del mapa localitzador
     locator.zoomToExtent(capa_extensio.extent())
 
-    # Definir l'overview
+    # L'overview representa sobre el mapa localitzador
+    # l'extensió visible del mapa principal
     overview = locator.overview()
-
-    print(overview)
-
     overview.setLinkedMap(mapa)
     overview.setEnabled(True)
     
-    # Definició d'un marc
+    # Afegir un marc per diferenciar visualment el mapa localitzador
     locator.setFrameEnabled(True)
     locator.setFrameStrokeWidth(QgsLayoutMeasurement(0.5, QgsUnitTypes.LayoutMillimeters))
 
@@ -92,28 +141,57 @@ def afegir_mapa_localitzador(layout, layer_location, capa_extensio, mapa):
 
 def generar_atles(layout, capa_cobertura, camp, mapa):
     """
-    Funció per generar l'atles
+    Configura l'atles d'una composició.
+
+    La funció activa el mode Atles del layout, defineix la capa de
+    cobertura i el camp que identifica cada pàgina, i configura
+    el mapa principal perquè s'ajusti automàticament a cada entitat
+    de la capa de cobertura.
+
+    Paràmetres
+    ----------
+    layout: QgsPrintLayout
+        Composició sobre la qual es configura l'atles.
+    capa_cobertura: QgsVectorLayer
+        Capa utilitzada per a generar les diferents pàgines de
+        l'atles.
+    camp: str
+        Camp utilitzat tant per al nom de les pàgines com per al
+        nom dels fitxers exportats.
+    mapa: QgsLayoutItemMap
+        Element mapa que es controlarà automàticament
+        durant la generació de l'atles.
+
+    Retorna
+    -------
+    QgsLayoutAtlas
+        Objecte atles preparat i configurat per a exportar.
     """
 
-    # Activar l'atlas com a layout
+    # Obtenir el gestor de l'atlas de la composició
     atlas = layout.atlas()
     atlas.setEnabled(True)
 
     # Definir la capa de cobertura
+    # Cada entitat d'aquesta capa generarà una pàgina de l'atles
     atlas.setCoverageLayer(capa_cobertura)
 
-    # Establir el camp que genera els fulls - el nom de cada full
+    # El valor del camp s'utilitzarà com a nom de la pàgina i com
+    # a nom de fitxer exportat
     atlas.setPageNameExpression(camp) 
     atlas.setFilenameExpression(camp) 
 
-    # Ajustar la composició amb diferents mètodes
-    # Fer que el mapa s'ajusti automàticament a cada feature
+    # El mapa principal passa a ser controlat per l'atles
     mapa.setAtlasDriven(True)
-    # Establir zoom automàtic a cada element
+
+    # Cada pàgina ajustarà automàticament el nivell de zoom a la 
+    # geometria de l'entitat corresponent
     mapa.setAtlasScalingMode(QgsLayoutItemMap.Auto)
-    # Establir un marge percentual al voltant del mapa
+    
+    # S'estableix un marge del 10% al voltant de cada entitat
     mapa.setAtlasMargin(0.1)
 
+    # Actualitzar la llista d'entitats que formaran l'Atlas
     atlas.updateFeatures()
 
     return atlas
@@ -121,28 +199,59 @@ def generar_atles(layout, capa_cobertura, camp, mapa):
 
 def exportar_atles(atlas, output_path, dpi):
     """
-    Funció per exportar la composició com a atles
+    Exporta un atles a un únic document PDF.
+
+    Paràmetres
+    ----------
+    atlas: QgsLayoutAtlas
+        Atles prèviament configurat.
+    output_path: str
+        Ruta del fitxer PDF de sortida.
+    dpi: int
+        Resolució d'exportació.
+    
+    Retorna
+    -------
+    None
     """
-    
-    # Exportar tots els fulls
-    #exporter = QgsLayoutExporter(layout)
-    
+
+    # Configuració dels paràmetres d'exportació    
     pdf_settings = QgsLayoutExporter.PdfExportSettings()
     pdf_settings.dpi = dpi
     pdf_settings.forceVectorOutput = True
     pdf_settings.rasterizeWholeImage = False
     
-    result, error = QgsLayoutExporter.exportToPdf(
+    result, missatge_error = QgsLayoutExporter.exportToPdf(
         atlas,
         output_path,
         pdf_settings)
     
-    return result
-
+    if result != QgsLayoutExporter.Success:
+        raise RuntimeError(f"No s'ha pogut exportar l'atles.\n{missatge_error}")
+    
 
 def composicio_atles(capes, capa_extent, capa_cobertura):
     """
-    Funció d'alt nivell per generar la composició tipus atles de cada districte 
+    Genera la composició tipus atles del projecte.
+
+    La funció crea una composició en format atles, incorpora
+    els diferents elements cartogràfics, configura l'atles i 
+    l'exporta a un document PDF.
+
+    Paràmetres
+    ----------
+    capes: list[QgsMapLayer]
+        Capes que es mostraran al mapa principal.
+    capa_extent: QgsVectorLayer
+        Capa utilitzada per a definir l'extensió general del mapa
+        principal i l'extensió fixa del mapa localitzador.
+    capa_cobertura: QgsVectorLayer
+        Capa de cobertura de l'atles.
+        Cada entitat genera una pàgina independent.
+
+    Retorna
+    -------
+    None
     """
 
     cfg_layout_atles = config.LAYOUTS["ATLES"]

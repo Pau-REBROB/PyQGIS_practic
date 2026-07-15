@@ -1,14 +1,52 @@
-"""COMPOSICIÓ GENERAL"""
+"""
+Composició de les agrupacions espacials
+=======================================
+
+Generació de la composició cartogràfica del mapa d'agrupacions espacials.
+
+La composició inclou:
+
+- mapa principal
+- títol
+- llegenda
+- escala gràfica
+- fletxa del nord
+- gràfics estadístics
+- exportació a PDF
+
+Organització
+------------
+- afegir la composició
+- exportar la composició
+"""
 
 import config
 import layouts.layout_common as layout_common
 import layouts.layout_general as layout_general
 
-
 def composicio_clusters(capes, capa_extent):
     """
-    Funció d'alt nivell per generar la composició del mapa general amb les agrupacions espacials per usos 
-    i l'anàlisi estadístic
+    Genera la composició del mapa d'agrupacions espacials.
+
+    La composició inclou:
+        - mapa principal
+        - títol
+        - llegenda
+        - escala numèrica
+        - fletxa del nord
+        - gràfic del nombre d'agrupacions per ús
+        - gràfic de la mida mitjana de les agrupacions
+
+    Paràmetres
+    ----------
+    capes: list[QgsMapLayer]
+        Llista ordenada de capes que es mostraran al mapa.
+    capa_extent: QgsVectorLayer
+        Capa utilitzada per a definir l'extensió inicial del mapa.
+
+    Retorna
+    -------
+    None
     """
 
     cfg_layout_clusters = config.LAYOUTS["CLUSTERS"]

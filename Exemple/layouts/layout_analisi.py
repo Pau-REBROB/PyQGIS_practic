@@ -1,13 +1,41 @@
-"""COMPOSICIÓ GENERAL"""
+"""
+Composició de l'anàlisi dels usos
+=================================
+
+Generació de la composició cartogràfica de l'anàlisi dels usos dels edificis.
+
+Organització
+------------
+- funció principal de composició
+"""
 
 import config
 import layouts.layout_common as layout_common
 import layouts.layout_general as layout_general
 
-
 def composicio_analisi(capes, capa_extent):
     """
-    Funció d'alt nivell per generar la composició del mapa general amb l'anàlisi dels diferents usos
+    Genera la composició cartogràfica de l'anàlisi dels usos dels edificis.
+
+    La composició inclou:
+        - mapa principal
+        - títol
+        - llegenda
+        - escala gràfica
+        - fletxa del nord
+        - gràfics de l'anàlisi
+        - exportació a PDF
+
+    Paràmetres
+    ----------
+    capes: list[QgsMapLayer]
+        Llista de capes que es representaran al mapa.
+    capa_extent: QgsVectorLayer
+        Capa utilitzada per definir l'extensió inicial del mapa.
+
+    Retorna
+    -------
+    None
     """
 
     cfg_layout_analisi = config.LAYOUTS["ANALISI"]

@@ -1,8 +1,24 @@
 """
-Layouts
-=======
+Composició general
+==================
 
-Funcions comunes per a la construcció de composicions d'impressió.
+Funcions per generar la composició principal del projecte.
+
+La composició inclou:
+
+- mapa principal
+- títol
+- llegenda
+- escala gràfica
+- fletxa del nord
+- exportació a PDF
+
+Organització
+------------
+
+- afegir_mapa()
+- exportar_layout()
+- composicio_general()
 """
 
 from qgis.core import (
@@ -56,7 +72,7 @@ def afegir_mapa(layout, capes, capa_extent):
     layout_map.setMapRotation(45)
 
     extent = capa_extent.extent()
-    # Apropa la vista abans d'aplicar els desplaçaments manuals.
+    # Apropa la vista abans d'aplicar els desplaçaments manuals
     extent.scale(0.5)
     # Ajust manual del centre del mapa
     # per compensar l'espai ocupat per la llegenda
