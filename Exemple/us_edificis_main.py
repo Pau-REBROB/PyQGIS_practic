@@ -117,6 +117,7 @@ import preparacio_dades
 import analisi.agregacions as agregacions
 import analisi.grafics as grafics
 import analisi.clusters as clusters
+import analisi.espacialitzacio as especialitzacio
 import simbologia.simbologies as simbologies
 import simbologia.simbologia_general as simbologia_general
 import layouts.layout_common as layout_common
@@ -143,6 +144,7 @@ importlib.reload(preparacio_dades)
 importlib.reload(agregacions)
 importlib.reload(grafics)
 importlib.reload(clusters)
+importlib.reload(especialitzacio)
 importlib.reload(simbologies)
 importlib.reload(simbologia_general)
 importlib.reload(layout_common)
@@ -199,6 +201,33 @@ taula_clusters = clusters.taula_general_clusters(
 grafics.generar_grafics_clusters(
     df=taula_clusters
 )
+
+### DOMINANCIA
+especialitzacio_total = especialitzacio.calcular_especialitzacio(
+    edificis=dict_layers_clean["Cadastre"]["Edificis"]
+)
+print(especialitzacio_total)
+
+especialitzacio_no_residencial = especialitzacio.calcular_especialitzacio(
+    edificis=dict_layers_clean["Cadastre"]["Edificis"],
+    usos_exclosos=["1_residential"]
+)
+print(especialitzacio_no_residencial)
+
+# ALT NIVELL
+especialitzacio.analisi_especialitzacio(
+    districtes=dict_layers_clean["Limits_administratius"]["Districtes"],
+    edificis=dict_layers_clean["Cadastre"]["Edificis"]
+)
+
+especialitzacio.analisi_especialitzacio(
+    districtes=dict_layers_clean["Limits_administratius"]["Districtes"],
+    edificis=dict_layers_clean["Cadastre"]["Edificis"],
+    usos_exclosos=["1_residential"]
+)
+
+
+
 
 ####################
 isoarees = clusters.isoarees_qneat3(graf_layer=dict_layers_clean["Graf"]["Graf_trams"],
