@@ -34,7 +34,7 @@ import os
 import config
 import layouts.layout_common as layout_common
 
-def afegir_mapa(layout, capes, capa_extent):
+def afegir_mapa(layout, capes, capa_extent, size, position):
     """
     Afegeix l'element mapa principal a una composició.
 
@@ -50,6 +50,10 @@ def afegir_mapa(layout, capes, capa_extent):
         Capes que es mostraran al mapa, en ordre de representació.
     capa_extent: QgsVectorLayer
         Capa utilitzada per a definir l'extensió inicial del mapa.
+    size: tuple[int,int]
+        Amplada i alçada de la imatge, en mil·límetres.
+    position: tuple[int,int]
+        Coordenada X i Y de la imatge - cantonada superior esquerra - en mil·límetres.
 
     Retorna
     -------
@@ -66,8 +70,8 @@ def afegir_mapa(layout, capes, capa_extent):
     # Mantenir el conjunt de capes fix perquè el layout no canvïi
     layout_map.setKeepLayerSet(True)
 
-    layout_map.attemptResize(QgsLayoutSize(270, 190, QgsUnitTypes.LayoutMillimeters))
-    layout_map.attemptMove(QgsLayoutPoint(10, 10, QgsUnitTypes.LayoutMillimeters))
+    layout_map.attemptResize(QgsLayoutSize(*size, QgsUnitTypes.LayoutMillimeters))
+    layout_map.attemptMove(QgsLayoutPoint(*position, QgsUnitTypes.LayoutMillimeters))
 
     layout_map.setMapRotation(45)
 
@@ -152,41 +156,47 @@ def composicio_general(capes, capa_extent):
         La composició s'exporta directament en local.
     """
 
-    cfg_layout_general = config.LAYOUTS["GENERAL"]
+    cfg_layout = config.LAYOUTS["GENERAL"]
+    cfg_estructura = config.LAYOUTS["ESTRUCTURA"]
 
     layout = layout_common.generar_layout(nom_layout="Ús dels edificis a Barcelona")
 
     mapa = afegir_mapa(
         layout=layout,
         capes=capes,
-        capa_extent=capa_extent
+        capa_extent=capa_extent,
+        **cfg_estructura["Mapa"]
     )
 
     layout_common.afegir_titol(
         layout=layout,
-        **cfg_layout_general["Titol"]
+        **cfg_layout["Titol"],
+        **cfg_estructura["Titol"]
     )
 
     layout_common.afegir_llegenda(
         layout=layout,
         mapa=mapa,
         capes=capes,
-        **cfg_layout_general["Llegenda"]
+        **cfg_layout["Llegenda"],
+        **cfg_estructura["Llegenda"]
     )
 
     layout_common.afegir_escala(
         layout=layout,
         mapa=mapa,
-        **cfg_layout_general["Escala"]
+        **cfg_layout["Escala"],
+        **cfg_estructura["Escala"]
     )
 
     layout_common.afegir_nord(
         layout=layout,
         mapa=mapa,
-        **cfg_layout_general["Nord"]
+        **cfg_layout["Nord"],
+        **cfg_estructura["Nord"]
     )
 
     exportar_layout(
         layout=layout,
-        **cfg_layout_general["Exportacio"]
+        **cfg_layout["Exportacio"]
     )

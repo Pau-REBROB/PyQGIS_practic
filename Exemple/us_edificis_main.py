@@ -168,7 +168,7 @@ basemap_layer = importacio.carregar_basemap()
 # ==============================================================================
 # 4. Neteja de les dades
 
-dict_layers_clean = preparacio_dades.preparar_grup(dict_layers=dict_layers, configuracio=config.CAMPS_MANTENIR)
+dict_layers_clean = preparacio_dades.preparar_grup(dict_layers=dict_layers, configuracio=config.CAMPS_CAPES)
 
 # ==============================================================================
 # 5. Anàlisi espacial

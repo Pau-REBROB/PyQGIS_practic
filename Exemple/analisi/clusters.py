@@ -333,8 +333,8 @@ def analisi_clusters(layer, usos):
         resultats_clusters[us] = zones_cluster(
             layer=layer,
             expressio=f'"currentUse" = \'{us}\'',
-            eps=config.ANALISI["Clusters"]["eps"],
-            min_size=config.ANALISI["Clusters"]["min_size"]
+            eps=config.CONFIG_ANALISI["Clusters"]["eps"],
+            min_size=config.CONFIG_ANALISI["Clusters"]["min_size"]
         )
 
         resultats_clusters[us]["resum"] = resum_clusters(

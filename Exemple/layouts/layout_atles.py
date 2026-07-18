@@ -40,7 +40,7 @@ from qgis.core import (
 import config
 import layouts.layout_common as layout_common
 
-def afegir_mapa(layout, capes, capa_extent):
+def afegir_mapa(layout, capes, capa_extent, size, position):
     """
     Afegeix el mapa principal a la composició.
 
@@ -55,6 +55,10 @@ def afegir_mapa(layout, capes, capa_extent):
         Capes visibles del mapa.
     capa_referencia : QgsVectorLayer
         Capa utilitzada per calcular l'extensió inicial.
+    size: tuple[int,int]
+        Amplada i alçada de la imatge, en mil·límetres.
+    position: tuple[int,int]
+        Coordenada X i Y de la imatge - cantonada superior esquerra - en mil·límetres.
 
     Retorna
     -------
@@ -71,8 +75,8 @@ def afegir_mapa(layout, capes, capa_extent):
     # Mantenir el conjunt de capes fix perquè el layout no canvïi
     layout_map.setKeepLayerSet(True)
 
-    layout_map.attemptResize(QgsLayoutSize(280, 190, QgsUnitTypes.LayoutMillimeters))
-    layout_map.attemptMove(QgsLayoutPoint(10, 10, QgsUnitTypes.LayoutMillimeters))
+    layout_map.attemptResize(QgsLayoutSize(*size, QgsUnitTypes.LayoutMillimeters))
+    layout_map.attemptMove(QgsLayoutPoint(*position, QgsUnitTypes.LayoutMillimeters))
 
     layout_map.setMapRotation(45)
 
@@ -86,7 +90,7 @@ def afegir_mapa(layout, capes, capa_extent):
     return layout_map
 
 
-def afegir_mapa_localitzador(layout, capa_localitzador, capa_extensio, mapa):
+def afegir_mapa_localitzador(layout, capa_localitzador, capa_extensio, mapa, size, position):
     """
     Afegeix un mapa localitzador a la composició de l'atles.
 
@@ -105,6 +109,10 @@ def afegir_mapa_localitzador(layout, capa_localitzador, capa_extensio, mapa):
     mapa: QgsLayoutItemMap
         Mapa principal de la composició, que servirà de referència per a
         generar l'overview.
+    size: tuple[int,int]
+        Amplada i alçada de la imatge, en mil·límetres.
+    position: tuple[int,int]
+        Coordenada X i Y de la imatge - cantonada superior esquerra - en mil·límetres.
 
     Retorna
     -------
@@ -120,8 +128,8 @@ def afegir_mapa_localitzador(layout, capa_localitzador, capa_extensio, mapa):
     locator.setLayers([capa_localitzador])
     locator.setKeepLayerSet(True)
 
-    locator.attemptResize(QgsLayoutSize(50, 50, QgsUnitTypes.LayoutMillimeters))
-    locator.attemptMove(QgsLayoutPoint(240, 140, QgsUnitTypes.LayoutMillimeters))
+    locator.attemptResize(QgsLayoutSize(*size, QgsUnitTypes.LayoutMillimeters))
+    locator.attemptMove(QgsLayoutPoint(*position, QgsUnitTypes.LayoutMillimeters))
 
     # Extensió fixa del mapa localitzador
     locator.zoomToExtent(capa_extensio.extent())
@@ -254,55 +262,62 @@ def composicio_atles(capes, capa_extent, capa_cobertura):
     None
     """
 
-    cfg_layout_atles = config.LAYOUTS["ATLES"]
+    cfg_layout = config.LAYOUTS["ATLES"]
+    cfg_estructura = config.LAYOUTS["ESTRUCTURA"]
 
     layout = layout_common.generar_layout(nom_layout="Ús dels edificis a Barcelona per districte")
 
     mapa = afegir_mapa(
         layout=layout,
         capes=capes,
-        capa_extent=capa_extent
+        capa_extent=capa_extent,
+        **cfg_estructura["Mapa"]
     )
 
     afegir_mapa_localitzador(
         layout=layout,
         layer_location=capa_cobertura,
         capa_extensio=capa_extent,
-        mapa=mapa
+        mapa=mapa,
+        **cfg_estructura["Localitzador"]
     )
 
     layout_common.afegir_titol(
         layout=layout,
-        **cfg_layout_atles["Titol"]
+        **cfg_layout["Titol"],
+        **cfg_estructura["Titol"]
     )
 
     layout_common.afegir_llegenda(
         layout=layout,
         mapa=mapa,
         capes=capes,
-        **cfg_layout_atles["Llegenda"]
+        **cfg_layout["Llegenda"],
+        **cfg_estructura["Llegenda"]
     )
     
     layout_common.afegir_escala(
         layout=layout,
         mapa=mapa,
-        **cfg_layout_atles["Escala"]
+        **cfg_layout["Escala"],
+        **cfg_estructura["Escala"]
     )
 
     layout_common.afegir_nord(
         layout=layout,
         mapa=mapa,
-        **cfg_layout_atles["Nord"]
+        **cfg_layout["Nord"],
+        **cfg_estructura["Nord"]
     )
 
     atles = generar_atles(
         layout=layout,
         capa_cobertura=capa_cobertura,
         mapa=mapa,
-        **cfg_layout_atles["Generacio"]
+        **cfg_layout["Generacio"]
     )
 
     exportar_atles(
         atlas=atles,
-        **cfg_layout_atles["Exportacio"]
+        **cfg_layout["Exportacio"]
     )

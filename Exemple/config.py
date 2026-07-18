@@ -1,5 +1,9 @@
 """Arxiu de configuració"""
 
+# =============================================================================
+# RUTES
+# =============================================================================
+
 PATH_PROJECTE = "C:/projectes_git/PyQGIS_practic"
 
 PATH_DADES = "C:/projectes_git/Dades"
@@ -10,26 +14,32 @@ PATH_DADES_LIMITS = f"{PATH_DADES}/PyQGIS_Repo/Limits_administratius_BCN"
 PATH_DADES_CADASTRE = f"{PATH_DADES}/PyQGIS_Repo/Cadastre"
 PATH_DADES_GRAF = f"{PATH_DADES}/PyQGIS_Repo/Graf_viari"
 
+# =============================================================================
+# DADES D'ENTRADA
+# =============================================================================
 
 LAYERS = {
-"Limits_administratius": {
-    "Barris": f"{PATH_DADES_LIMITS}/0301040100_Barris_UNITATS_ADM.shp",
-    "Districtes": f"{PATH_DADES_LIMITS}/0301040100_Districtes_UNITATS_ADM.shp",
-    "TermeMunicipal": f"{PATH_DADES_LIMITS}/0301040100_TermeMunicipal_UNITATS_ADM.shp"
-},
-"Cadastre": {
-    "Edificis": f"{PATH_DADES_CADASTRE}/08900/A.ES.SDGC.BU.08900.building.gml",
-    "Edificis_part": f"{PATH_DADES_CADASTRE}/08900/A.ES.SDGC.BU.08900.buildingpart.gml",
-    "Parcelles": f"{PATH_DADES_CADASTRE}/08900/A.ES.SDGC.CP.08900.cadastralparcel.gml",
-    "Illes": f"{PATH_DADES_CADASTRE}/08900/A.ES.SDGC.CP.08900.cadastralzoning.gml"
-},
-"Graf": {
-    "Graf_trams": f"{PATH_DADES_GRAF}/BCN_GrafVial_Trams_ETRS89_SHP.shp",
-    #"Graf_nodes": f"{PATH_DADES_GRAF}/BCN_GrafVial_Nodes_ETRS89_SHP.shp"
-}}
+    "Limits_administratius": {
+        "Barris": f"{PATH_DADES_LIMITS}/0301040100_Barris_UNITATS_ADM.shp",
+        "Districtes": f"{PATH_DADES_LIMITS}/0301040100_Districtes_UNITATS_ADM.shp",
+        "TermeMunicipal": f"{PATH_DADES_LIMITS}/0301040100_TermeMunicipal_UNITATS_ADM.shp"
+    },
+    "Cadastre": {
+        "Edificis": f"{PATH_DADES_CADASTRE}/08900/A.ES.SDGC.BU.08900.building.gml",
+        "Edificis_part": f"{PATH_DADES_CADASTRE}/08900/A.ES.SDGC.BU.08900.buildingpart.gml",
+        "Parcelles": f"{PATH_DADES_CADASTRE}/08900/A.ES.SDGC.CP.08900.cadastralparcel.gml",
+        "Illes": f"{PATH_DADES_CADASTRE}/08900/A.ES.SDGC.CP.08900.cadastralzoning.gml"
+    },
+    "Graf": {
+        "Graf_trams": f"{PATH_DADES_GRAF}/BCN_GrafVial_Trams_ETRS89_SHP.shp"
+    }
+}
 
+# =============================================================================
+# PREPARACIÓ DE LES CAPES
+# =============================================================================
 
-CAMPS_MANTENIR = {
+CAMPS_CAPES = {
     "Limits_administratius": {
         "*": ['DISTRICTE', 'BARRI', 'PERIMETRE', 'AREA', 'TIPUS_UA', 'NOM']
                 # 'DISTRICTE' codi del districte
@@ -79,6 +89,9 @@ CAMPS_MANTENIR = {
     }
 }
 
+# =============================================================================
+# CONSTANTS DEL PROJECTE
+# =============================================================================
 
 USOS = [
     "1_residential",
@@ -120,8 +133,11 @@ def colors_mpl(us):
         a/255
     )
 
+# =============================================================================
+# ANÀLISI
+# =============================================================================
 
-ANALISI = {
+CONFIG_ANALISI = {
     "Clusters": {
         "eps": 100,
         "min_size": 5
@@ -133,6 +149,9 @@ ANALISI = {
     }
 }
 
+# =============================================================================
+# SIMBOLOGIA
+# =============================================================================
 
 SIMBOLOGIA = {
     "Barris": {
@@ -159,8 +178,8 @@ SIMBOLOGIA = {
     "Edificis": {
         "atribut": 'currentUse',
         "colors": COLORS_USOS,
-       "outline_width": 0.1,
-       "stroke_color": "white" 
+        "outline_width": 0.1,
+        "stroke_color": "white" 
     },
     "Clusters": {
         "outline_width": 0.2,
@@ -175,6 +194,9 @@ SIMBOLOGIA = {
     }
 }
 
+# =============================================================================
+# EXPORTACIÓ
+# =============================================================================
 
 EXPORTACIO_GRAFICS = {
     "Grafic_usos_districtes": f"{PATH_RESULTATS}/Grafic_nombreEdificis_districte.png",
@@ -183,13 +205,41 @@ EXPORTACIO_GRAFICS = {
     "Grafic_mida_clusters": f"{PATH_RESULTATS}/Grafic_midaClusters.png"
 }
 
+# =============================================================================
+# COMPOSICIONS
+# =============================================================================
 
 LAYOUTS = {
+    "ESTRUCTURA": {
+        "Mapa": {
+            "size": (280, 190),
+            "position": (10, 10)
+        },
+        "Localitzador": {
+            "size": (50, 50),
+            "position": (240, 140)
+        },
+        "Titol": {
+            "size": (10, 5),
+            "position": (280, 10)
+        },
+        "Llegenda": {
+            "position": (240, 60)
+        },
+        "Escala": {
+            "position": (15, 190)
+        },
+        "Nord": {
+            "size": (10, 10),
+            "position": (15, 180)
+        }
+    },
+
     "GENERAL":{
         "Titol": {
             "titol": "Ús dels edificis de la ciutat de Barcelona - font: Cadastre",
             "font": "Calibri",
-            "size": 20,
+            "font_size": 20,
             "font_color": (0,0,0,255),
             "backg_color": (100,100,100,180),
             "frame_color": (255, 255, 255, 200)
@@ -197,7 +247,7 @@ LAYOUTS = {
         "Llegenda": {
             "titol": "Classificació dels edificis",
             "font": "Calibri",
-            "size": 10,
+            "font_size": 10,
             "font_color": (0,0,0,255),
             "backg_color": (100,100,100,180)
         },
@@ -218,7 +268,7 @@ LAYOUTS = {
         "Titol": {
             "titol": "Ús dels edificis de la ciutat de Barcelona - Districte: [% \"NOM\" %]",
             "font": "Calibri",
-            "size": 20,
+            "font_size": 20,
             "font_color": (0,0,0,255),
             "backg_color": (100,100,100,180),
             "frame_color": (255, 255, 255, 200)
@@ -226,7 +276,7 @@ LAYOUTS = {
         "Llegenda": {
             "titol": "Classificació dels edificis",
             "font": "Calibri",
-            "size": 10,
+            "font_size": 10,
             "font_color": (0,0,0,255),
             "backg_color": (100,100,100,180)
         },
@@ -250,7 +300,7 @@ LAYOUTS = {
         "Titol": {
             "titol": "Anàlisi dels usos dels edificis de la ciutat de Barcelona - font: Cadastre",
             "font": "Calibri",
-            "size": 20,
+            "font_size": 20,
             "font_color": (0,0,0,255),
             "backg_color": (100,100,100,180),
             "frame_color": (255, 255, 255, 200)
@@ -258,7 +308,7 @@ LAYOUTS = {
         "Llegenda": {
             "titol": "Classificació dels edificis",
             "font": "Calibri",
-            "size": 10,
+            "font_size": 10,
             "font_color": (0,0,0,255),
             "backg_color": (100,100,100,180)
         },
@@ -271,17 +321,13 @@ LAYOUTS = {
         },
         "Grafic_total": {
             "path": f"{PATH_RESULTATS}/Grafic_nombreEdificis_districte.png",
-            "x_s": 120,
-            "y_s": 60,
-            "x_m": 15,
-            "y_m": 145
+            "size": (120, 60),
+            "position": (15, 145)
         },
         "Grafic_percentatge": {
             "path": f"{PATH_RESULTATS}/Grafic_percentatgeEdificis_districte.png",
-            "x_s": 120,
-            "y_s": 60,
-            "x_m": 145,
-            "y_m": 145
+            "size": (120, 60),
+            "position": (145, 145)
         },
         "Exportacio": {
             "output_path": f"{PATH_RESULTATS}/Analisi_edificis.pdf",
@@ -293,7 +339,7 @@ LAYOUTS = {
         "Titol": {
             "titol": "Concentracions espacials dels usos dels edificis de la ciutat de Barcelona - font: Cadastre",
             "font": "Calibri",
-            "size": 20,
+            "font_size": 20,
             "font_color": (0,0,0,255),
             "backg_color": (100,100,100,180),
             "frame_color": (255, 255, 255, 200)
@@ -301,7 +347,7 @@ LAYOUTS = {
         "Llegenda": {
             "titol": "Agrupacions espacials",
             "font": "Calibri",
-            "size": 10,
+            "font_size": 10,
             "font_color": (0,0,0,255),
             "backg_color": (100,100,100,180)
         },
@@ -314,17 +360,13 @@ LAYOUTS = {
         },
         "Grafic_clusters": {
             "path": f"{PATH_RESULTATS}/Grafic_nombreClusters.png",
-            "x_s": 120,
-            "y_s": 60,
-            "x_m": 15,
-            "y_m": 145
+            "size": (120, 60),
+            "position": (15, 145)
         },
         "Grafic_mida": {
             "path": f"{PATH_RESULTATS}/Grafic_midaClusters.png",
-            "x_s": 120,
-            "y_s": 60,
-            "x_m": 145,
-            "y_m": 145
+            "size": (120, 60),
+            "position": (145, 145)
         },
         "Exportacio": {
             "output_path": f"{PATH_RESULTATS}/Analisi_clusters.pdf",
