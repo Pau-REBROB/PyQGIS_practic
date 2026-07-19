@@ -1,3 +1,10 @@
+from qgis.core import (
+    QgsFeatureRequest,
+    QgsField
+)
+
+from PyQt5.QtCore import QVariant
+
 import math
 
 def agrupar_edificis_per_districte(districtes, edificis):
@@ -60,7 +67,7 @@ def comptar_usos(edificis, usos_exclosos=None):
 
     Paràmetres
     ----------
-    edificis: list[QgsFeatures]
+    edificis: list[QgsFeature]
         Edificis sobre els quals es calcula el recompte per ús.
     usos_exclosos: list[str], opcional
         Usos a no tenir en compte.
@@ -171,6 +178,23 @@ def calcular_shannon(comptador):
     presents. Valors elevats indiquen una distribució més 
     equilibrada dels usos, mentre que valors més baixos
     indiquen una major especialització.
+
+    Paràmetres
+    ----------
+    comptador: dict
+        Diccionari amb el nombre d'edificis per cada ús.
+
+    Retorna
+    -------
+    dict
+        Diccionari amb els indicadors de diversitat, amb l'estructura:
+        {
+            "shannon": float,
+            "shannon_normalitzat": float
+        }
+        on:
+            - "shannon" és l'índex de Shannon
+            - "shannon_normalitzat" és l'índex de Shannon normalitzat 
     """
 
     # Total d'edificis    
@@ -183,7 +207,10 @@ def calcular_shannon(comptador):
 
         shannon -= p * math.log(p)
 
+    if len(comptador) > 1:
         shannon_normalitzat = shannon / math.log(len(comptador))
+    else:
+        shannon_normalitzat = 0
     
     return {
         "shannon": shannon,
@@ -207,7 +234,7 @@ def analisi_especialitzacio(districtes, edificis, usos_exclosos=None):
         Capa vectorial dels districtes.
     edificis: QgsVectorLayer
         Capa vectorial dels edificis.
-    usos_exlosos: list[str], opcional
+    usos_exclosos: list[str], opcional
         Llista d'usos que no es volen considerar en l'anàlisi.
 
     Retorna
@@ -251,10 +278,82 @@ def analisi_especialitzacio(districtes, edificis, usos_exclosos=None):
             comptador=comptador
         )
 
-        especialitzacio["shannon"] = calcular_shannon(
-            comptador=comptador
+        especialitzacio.update(
+            calcular_shannon(comptador=comptador)
         )
 
         resultats[nom] = especialitzacio
     
     return resultats
+
+
+def afegir_resultats_especialitzacio(districtes, resultats):
+    """
+    Genera una nova capa de districtes incorporant els indicadors
+    d'especialització funcional calculats.
+
+    A partir de la capa original de districtes, crea una còpia
+    i afegeix els nous atributs.
+
+    Paràmetres
+    ----------
+    districtes: QgsVectorLayer
+        Capa vectorial dels districtes.
+    resultats: dict
+        Diccionari retornat de `analisi_especialitzacio()`.
+
+    Retorna
+    -------
+    QgsVectorLayer
+        Nova capa de districtes amb els camps d'anàlisi incorporats.
+    """
+
+    layer = districtes.materialize(QgsFeatureRequest())
+
+    provider = layer.dataProvider()
+
+    provider.addAttributes([
+        QgsField("us_predominant", QVariant.String),
+        QgsField("perc_predominant", QVariant.Double),
+        QgsField("dominancia", QVariant.Double),
+        QgsField("shannon", QVariant.Double),
+        QgsField("shannon_norm", QVariant.Double)
+    ])
+
+    layer.updateFields()
+
+    idx_us = layer.fields().indexOf("us_predominant")
+    idx_perc = layer.fields().indexOf("perc_predominant")
+    idx_dominancia = layer.fields().indexOf("dominancia")
+    idx_shannon = layer.fields().indexOf("shannon")
+    idx_shan_norm = layer.fields().indexOf("shannon_norm")
+
+    layer.startEditing()
+
+    for feature in layer.getFeatures():
+        nom = feature["NOM"]
+
+        dades = resultats.get(nom)
+
+        if dades is None:
+            continue
+
+        feature[idx_us] = dades["us_predominant"]
+        feature[idx_perc] = dades["percentatge"]
+        feature[idx_dominancia] = dades["dominancia"]
+        feature[idx_shannon] = dades["shannon"]
+        feature[idx_shan_norm] = dades["shannon_normalitzat"]
+
+        layer.updateFeature(feature)
+    
+    layer.commitChanges()
+
+    return layer
+
+
+def classificar_especialitzacio():
+    """
+    Classifica qualitativament el grau de diversitat funcional
+    d'un districte a partir de l'índex de Shannon normalitzat.
+
+    """

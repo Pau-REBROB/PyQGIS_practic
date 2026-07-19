@@ -191,6 +191,28 @@ SIMBOLOGIA = {
         "mode": "Jenks",
         "stroke_color": (255,255,255,100),
         "stroke_width": 0.2
+    },
+    "Districtes_us_predominant": {
+        "atribut": 'us_predominant',
+        "colors_categories": COLORS_USOS,
+        "outline_width": 0.5,
+        "stroke_color": (120,120,120,255)
+    },
+    "Districtes_dominancia": {
+        "atribut": 'dominancia',
+        "num_classes": 5,
+        "color_ramp": "YlOrRd",
+        "mode": "Jenks",
+        "stroke_color": (120,120,120,255),
+        "stroke_width": 0.5
+    },
+    "Districtes_shannon": {
+        "atribut": 'shannon_normalitzat',
+        "num_classes": 5,
+        "color_ramp": "GrYlRd",
+        "mode": "Jenks",
+        "stroke_color": (120,120,120,255),
+        "stroke_width": 0.5
     }
 }
 

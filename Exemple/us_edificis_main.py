@@ -119,6 +119,7 @@ import analisi.grafics as grafics
 import analisi.clusters as clusters
 import analisi.espacialitzacio as especialitzacio
 import simbologia.simbologies as simbologies
+import simbologia.simbologia_especialitzacio as simbologia_especialitzacio
 import simbologia.simbologia_general as simbologia_general
 import layouts.layout_common as layout_common
 import layouts.layout_general as layout_general
@@ -146,6 +147,7 @@ importlib.reload(grafics)
 importlib.reload(clusters)
 importlib.reload(especialitzacio)
 importlib.reload(simbologies)
+importlib.reload(simbologia_especialitzacio)
 importlib.reload(simbologia_general)
 importlib.reload(layout_common)
 importlib.reload(layout_general)
@@ -215,18 +217,26 @@ especialitzacio_no_residencial = especialitzacio.calcular_especialitzacio(
 print(especialitzacio_no_residencial)
 
 # ALT NIVELL
-especialitzacio.analisi_especialitzacio(
+resultats_especialitzacio = especialitzacio.analisi_especialitzacio(
     districtes=dict_layers_clean["Limits_administratius"]["Districtes"],
     edificis=dict_layers_clean["Cadastre"]["Edificis"]
 )
 
-especialitzacio.analisi_especialitzacio(
+resultats_especialitzacio_no_residencial = especialitzacio.analisi_especialitzacio(
     districtes=dict_layers_clean["Limits_administratius"]["Districtes"],
     edificis=dict_layers_clean["Cadastre"]["Edificis"],
     usos_exclosos=["1_residential"]
 )
 
+districtes_especialitzacio = especialitzacio.afegir_resultats_especialitzacio(
+    districtes=dict_layers_clean["Limits_administratius"]["Districtes"],
+    resultats=resultats_especialitzacio
+)
 
+districtes_especialitzacio_no_residencial = especialitzacio.afegir_resultats_especialitzacio(
+    districtes=dict_layers_clean["Limits_administratius"]["Districtes"],
+    resultats=resultats_especialitzacio_no_residencial
+)
 
 
 ####################
@@ -258,6 +268,47 @@ layers_simbologia_clusters = simbologia_general.simbologia_clusters(
 # Addició de capes al projecte
 for layer in layers_simbologia_clusters.values():
     QgsProject.instance().addMapLayer(layer)
+
+
+####
+# Simbologia d'anàlisi d'especialització per districtes
+layers_especialitzacio = simbologia_general.simbologia_especialitzacio_funcional(
+    districtes=districtes_especialitzacio
+)
+
+# Addició de capes al projecte
+for layer in layers_especialitzacio.values():
+    QgsProject.instance().addMapLayer(layer)
+
+layers_especialitzacio_no_residencial = simbologia_general.simbologia_especialitzacio_funcional(
+    districtes=districtes_especialitzacio_no_residencial
+)
+
+# Addició de capes al projecte
+for layer in layers_especialitzacio_no_residencial.values():
+    QgsProject.instance().addMapLayer(layer)
+
+
+##############
+layer = simbologia_especialitzacio.simbologia_us_predominant(
+    districtes_especialitzacio
+)
+
+QgsProject.instance().addMapLayer(layer)
+
+layer = simbologia_especialitzacio.simbologia_dominancia(
+    districtes_especialitzacio
+)
+
+QgsProject.instance().addMapLayer(layer)
+
+layer = simbologia_especialitzacio.simbologia_shannon(
+    districtes_especialitzacio
+)
+
+QgsProject.instance().addMapLayer(layer)
+
+
 
 
 ##############################

@@ -8,6 +8,7 @@ durant el projecte.
 
 import config
 import simbologia.simbologies as simbologies
+import simbologia.simbologia_especialitzacio as simbologia_especialitzacio
 
 def simbologia_base(dict_layers):
     """
@@ -115,3 +116,47 @@ def simbologia_clusters(resultats):
         layers_clusters[us] = layer_simb
     
     return layers_clusters
+
+
+def simbologia_especialitzacio_funcional(districtes):
+    """
+    Aplica les diferents simbologies d'especialització
+    a la capa de districtes.
+
+    Paràmetres
+    ----------
+    districtes: QgsVectorLayer
+        Capa vectorial de districtes.
+    
+    Retorna
+    -------
+    dict
+        Diccionari amb les capes simbolitzades, amb l'estructura:
+        {
+            "us_predominant": QgsVectorLayer,
+            "dominancia": QgsVectorLayer,
+            "shannon": QgsVectorLayer
+        }
+    """
+
+    layers_especialitzacio = {}
+
+    districtes_us_pred = simbologia_especialitzacio.simbologia_us_predominant(
+        districtes=districtes
+    )
+
+    layers_especialitzacio["Districtes_us_predominant"] = districtes_us_pred
+
+    districtes_domin = simbologia_especialitzacio.simbologia_dominancia(
+        districtes=districtes
+    )
+
+    layers_especialitzacio["Districtes_dominancia"] = districtes_domin
+
+    districtes_shan = simbologia_especialitzacio.simbologia_shannon(
+        districtes=districtes
+    )
+    
+    layers_especialitzacio["Districtes_shannon"] = districtes_shan
+    
+    return layers_especialitzacio
