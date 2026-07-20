@@ -149,6 +149,20 @@ CONFIG_ANALISI = {
     }
 }
 
+CLASSIFICACIO_DOMINANCIA = {
+    "Molt baixa": 5,
+    "Baixa": 15,
+    "Mitjana": 30,
+    "Alta": 50
+}
+
+CLASSIFICACIO_SHANNON = {
+    "Molt baixa": 0.40,
+    "Baixa": 0.55,
+    "Mitjana": 0.70,
+    "Alta": 0.85
+}
+
 # =============================================================================
 # SIMBOLOGIA
 # =============================================================================
@@ -207,9 +221,9 @@ SIMBOLOGIA = {
         "stroke_width": 0.5
     },
     "Districtes_shannon": {
-        "atribut": 'shannon_normalitzat',
+        "atribut": 'shannon_norm',
         "num_classes": 5,
-        "color_ramp": "GrYlRd",
+        "color_ramp": "Blues",
         "mode": "Jenks",
         "stroke_color": (120,120,120,255),
         "stroke_width": 0.5
@@ -254,6 +268,53 @@ LAYOUTS = {
         "Nord": {
             "size": (10, 10),
             "position": (15, 180)
+        }
+    },
+
+    "ESTRUCTURA_ESPECIALITZACIO": {
+        "Mapa_us": {
+            "size": (85, 85),
+            "position": (10, 30)
+        },
+        "Mapa_dominancia": {
+            "size": (85, 85),
+            "position": (106, 30)
+        },
+        "Mapa_shannon": {
+            "size": (85, 85),
+            "position": (202, 10)
+        },
+        "Titol": {
+            "size": (280, 10),
+            "position": (10, 5)
+        },
+        "Titol_us": {
+            "size": (85, 85),
+            "position": (10, 170)
+        },
+        "Titol_dominancia": {
+            "size": (85, 85),
+            "position": (106, 170)
+        },
+        "Titol_shannon": {
+            "size": (85, 85),
+            "position": (202, 170)
+        },
+        "Llegenda_us": {
+            "position": (10, 120)
+        },
+        "Llegenda_dominancia": {
+            "position": (106, 120)
+        },
+        "Llegenda_shannon": {
+            "position": (202, 120)
+        },
+        "Escala": {
+            "position": (110, 160)
+        },
+        "Nord": {
+            "size": (10, 10),
+            "position": (245, 155)
         }
     },
 
@@ -392,6 +453,35 @@ LAYOUTS = {
         },
         "Exportacio": {
             "output_path": f"{PATH_RESULTATS}/Analisi_clusters.pdf",
+            "dpi": 300
+        }
+    },
+
+    "ESPECIALITZACIO":{
+        "Titol": {
+            "titol": "Especialització funcional de Barcelona",
+            "font": "Calibri",
+            "font_size": 20,
+            "font_color": (0,0,0,255),
+            "backg_color": (100,100,100,180),
+            "frame_color": (255, 255, 255, 200)
+        },
+        "Llegenda": {
+            "titol": "Classificació dels edificis",
+            "font": "Calibri",
+            "font_size": 10,
+            "font_color": (0,0,0,255),
+            "backg_color": (100,100,100,180)
+        },
+        "Escala": {
+            "font": "Calibri",
+            "font_color": (0,0,0,255)
+        },
+        "Nord": {
+            "path": "C:/projectes_git/Dades/nord2.png"
+        },
+        "Exportacio": {
+            "output_path": f"{PATH_RESULTATS}/Especialitzacio_districtes.pdf",
             "dpi": 300
         }
     }

@@ -293,18 +293,24 @@ for layer in layers_especialitzacio_no_residencial.values():
 layer = simbologia_especialitzacio.simbologia_us_predominant(
     districtes_especialitzacio
 )
+print(layer.renderer())
+print(type(layer.renderer()))
 
 QgsProject.instance().addMapLayer(layer)
 
 layer = simbologia_especialitzacio.simbologia_dominancia(
     districtes_especialitzacio
 )
+print(layer.renderer())
+print(type(layer.renderer()))
 
 QgsProject.instance().addMapLayer(layer)
 
 layer = simbologia_especialitzacio.simbologia_shannon(
     districtes_especialitzacio
 )
+print(layer.renderer())
+print(type(layer.renderer()))
 
 QgsProject.instance().addMapLayer(layer)
 

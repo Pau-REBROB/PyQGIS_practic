@@ -248,7 +248,7 @@ def simbologia_graduada(layer, atribut, num_classes, color_ramp, mode, stroke_co
         symbol,
         QgsStyle().defaultStyle().colorRamp(color_ramp)
     )
-    
+   
     layer_clone.setRenderer(renderer)
 
     return layer_clone

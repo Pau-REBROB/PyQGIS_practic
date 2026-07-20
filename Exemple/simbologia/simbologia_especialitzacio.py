@@ -7,14 +7,14 @@ def simbologia_us_predominant(districtes):
     segons el seu ús predominant.
     """
 
-    districtes_clone = districtes.clone()
-
-    simbologies.simbologia_categorica(
-        layer=districtes_clone,
+    layer = simbologies.simbologia_categorica(
+        layer=districtes,
         **config.SIMBOLOGIA["Districtes_us_predominant"]
     )
 
-    return districtes_clone
+    layer.setName("Districtes_us_predominant")
+
+    return layer
 
 
 def simbologia_dominancia(districtes):
@@ -23,14 +23,14 @@ def simbologia_dominancia(districtes):
     segons el grau de dominància funcional.
     """
 
-    districtes_clone = districtes.clone()
-
-    simbologies.simbologia_graduada(
-        layer=districtes_clone,
+    layer = simbologies.simbologia_graduada(
+        layer=districtes,
         **config.SIMBOLOGIA["Districtes_dominancia"]
     )
 
-    return districtes_clone
+    layer.setName("Districtes_dominancia")
+
+    return layer
 
 
 def simbologia_shannon(districtes):
@@ -39,11 +39,11 @@ def simbologia_shannon(districtes):
     segons l'índex de diversitat de Shannon.
     """
 
-    districtes_clone = districtes.clone()
-
-    simbologies.simbologia_graduada(
-        layer=districtes_clone,
+    layer = simbologies.simbologia_graduada(
+        layer=districtes,
         **config.SIMBOLOGIA["Districtes_shannon"]
     )
 
-    return districtes_clone
+    layer.setName("Districtes_shannon_norm")
+
+    return layer

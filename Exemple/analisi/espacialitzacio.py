@@ -7,6 +7,8 @@ from PyQt5.QtCore import QVariant
 
 import math
 
+import config
+
 def agrupar_edificis_per_districte(districtes, edificis):
     """
     Agrupa els edificis segons el districte on es troba el seu centroide.
@@ -351,9 +353,106 @@ def afegir_resultats_especialitzacio(districtes, resultats):
     return layer
 
 
-def classificar_especialitzacio():
+def classificar_especialitzacio(resultats):
     """
-    Classifica qualitativament el grau de diversitat funcional
-    d'un districte a partir de l'índex de Shannon normalitzat.
+    Classifica qualitativament els indicadors d'especialització
+    funcional.
 
+    A partir dels indicadors calculats assigna una
+    categoria qualitativa al grau de dominància i de diversitat
+    funcional, així com una breu interpretació automàtica.
+
+    Paràmetres
+    ----------
+    resultats: dict
+        Diccionari retornat per `analisi_especialitzacio()`.
+    
+    Retorna
+    -------
+    dict
+        Diccionari d'entrada actualitzat amb els camps
+        {
+            "classe_dominancia": str,
+            "classe_diversitat": str,
+            "interpretacio": str
+        }
     """
+
+    for nom, dades in resultats.items():
+        # Classificar dominància
+        dominancia = dades["dominancia"]
+
+        if dominancia >= config.CLASSIFICACIO_DOMINANCIA["Alta"]:
+            classe_dominancia = "Alta"
+        
+        elif dominancia >= config.CLASSIFICACIO_DOMINANCIA["Mitjana"]:
+            classe_dominancia = "Mitjana"
+
+        elif dominancia >= config.CLASSIFICACIO_DOMINANCIA["Baixa"]:
+            classe_dominancia = "Baixa"
+
+        else:
+            classe_dominancia = "Molt baixa"
+
+        # Classificar índex Shannon
+        shannon = dades["shannon_normalitzat"]
+
+        if shannon >= config.CLASSIFICACIO_SHANNON["Alta"]:
+            classe_diversitat = "Alta"
+        
+        elif shannon >= config.CLASSIFICACIO_SHANNON["Mitjana"]:
+            classe_diversitat = "Mitjana"
+        
+        elif shannon >= config.CLASSIFICACIO_SHANNON["Baixa"]:
+            classe_diversitat = "Baixa"
+        
+        else:
+            classe_diversitat = "Molt baixa"
+
+        # Generar interpretació
+        us = config.ETIQUETES_USOS[dades["us_predominant"]]
+
+        if classe_dominancia == "Alta":
+            if classe_diversitat == "Alta":
+                interpretacio = (
+                    f"Districte de {nom} clarament especialitzat en ús {us} "
+                    f"({dades['percentatge']:.1f}% dels edificis)"
+                    f" amb una alta diversitat d'usos"
+                )
+            else:
+                interpretacio = (
+                    f"Districte de {nom} clarament especialitzat en ús {us} "
+                    f"({dades['percentatge']:.1f}% dels edificis)"
+                    f" però amb baixa diversitat d'usos"
+                )
+        
+        elif classe_dominancia == "Mitjana":
+            interpretacio = (
+                f"Districte de {nom} mostra una especialització moderada "
+                f"en ús {us} ({dades['percentatge']:.1f}% dels edificis)"
+            )
+
+        elif classe_dominancia == "Baixa":
+            if classe_diversitat == "Alta":
+                interpretacio = (
+                    f"Districte de {nom} presenta una distribució bastant equilibrada entre els usos "
+                    f" amb una alta diversitat d'usos"
+                )
+            else:
+                interpretacio = (
+                    f"Districte de {nom} presenta una distribució bastant equilibrada entre "
+                    f"els usos, amb poca diversitat d'aquests"
+                )
+
+        else:
+            interpretacio = (
+                f"Districte {nom} no presenta cap especialització clara "
+                f"i mostra una estructura funcional molt diversa"
+            )
+        
+        # Assignar classificacions
+        dades["classe_dominancia"] = classe_dominancia
+        dades["classe_diversitat"] = classe_diversitat
+        dades["interpretacio"] = interpretacio
+
+    return resultats
