@@ -273,48 +273,54 @@ LAYOUTS = {
 
     "ESTRUCTURA_ESPECIALITZACIO": {
         "Mapa_us": {
-            "size": (85, 85),
-            "position": (10, 30)
+            "factor_escala": 0.90,
+            "size": (88, 88),
+            "position": (10, 20)
         },
         "Mapa_dominancia": {
-            "size": (85, 85),
-            "position": (106, 30)
+            "factor_escala": 0.90,
+            "size": (88, 88),
+            "position": (105, 20)
         },
         "Mapa_shannon": {
-            "size": (85, 85),
-            "position": (202, 10)
+            "factor_escala": 0.90,
+            "size": (88, 88),
+            "position": (200, 20)
         },
         "Titol": {
             "size": (280, 10),
             "position": (10, 5)
         },
         "Titol_us": {
-            "size": (85, 85),
-            "position": (10, 170)
+            "size": (85, 25),
+            "position": (10, 100)
         },
         "Titol_dominancia": {
-            "size": (85, 85),
-            "position": (106, 170)
+            "size": (85, 25),
+            "position": (105, 100)
         },
         "Titol_shannon": {
-            "size": (85, 85),
-            "position": (202, 170)
+            "size": (85, 25),
+            "position": (200, 100)
         },
         "Llegenda_us": {
-            "position": (10, 120)
+            "titol": "Ús majoritari dels edificis",
+            "position": (10, 150)
         },
         "Llegenda_dominancia": {
-            "position": (106, 120)
+            "titol": "Diferència (%) entre usos",
+            "position": (106, 150)
         },
         "Llegenda_shannon": {
-            "position": (202, 120)
+            "titol": "Índex de Shannon normalitzat",
+            "position": (202, 150)
         },
         "Escala": {
-            "position": (110, 160)
+            "position": (110, 180)
         },
         "Nord": {
-            "size": (10, 10),
-            "position": (245, 155)
+            "size": (20, 20),
+            "position": (260, 180)
         }
     },
 
@@ -339,7 +345,7 @@ LAYOUTS = {
             "font_color": (0,0,0,255)
         },
         "Nord": {
-            "path": "C:/projectes_git/Dades/nord2.png"
+            "image_path": "C:/projectes_git/Dades/nord2.png"
         },
         "Exportacio": {
             "output_path": f"{PATH_RESULTATS}/Classificacio_edificis.pdf",
@@ -368,7 +374,7 @@ LAYOUTS = {
             "font_color": (0,0,0,255)
         },
         "Nord": {
-            "path": "C:/projectes_git/Dades/nord2.png"
+            "image_path": "C:/projectes_git/Dades/nord2.png"
         },
         "Generacio": {
             "camp": '"NOM"'
@@ -400,7 +406,7 @@ LAYOUTS = {
             "font_color": (0,0,0,255)
         },
         "Nord": {
-            "path": "C:/projectes_git/Dades/nord2.png"
+            "image_path": "C:/projectes_git/Dades/nord2.png"
         },
         "Grafic_total": {
             "path": f"{PATH_RESULTATS}/Grafic_nombreEdificis_districte.png",
@@ -439,7 +445,7 @@ LAYOUTS = {
             "font_color": (0,0,0,255)
         },
         "Nord": {
-            "path": "C:/projectes_git/Dades/nord2.png"
+            "image_path": "C:/projectes_git/Dades/nord2.png"
         },
         "Grafic_clusters": {
             "path": f"{PATH_RESULTATS}/Grafic_nombreClusters.png",
@@ -466,8 +472,31 @@ LAYOUTS = {
             "backg_color": (100,100,100,180),
             "frame_color": (255, 255, 255, 200)
         },
+        "Titol_us": {
+            "titol": "Us predominant\nÚs majoritari dels edificis del districte",
+            "font": "Calibri",
+            "font_size": 16,
+            "font_color": (0,0,0,255),
+            "backg_color": (100,100,100,180),
+            "frame_color": (255, 255, 255, 200)
+        },
+        "Titol_dominancia": {
+            "titol": "Dominancia funcional\nDiferència percentual entre el primer i el segon ús",
+            "font": "Calibri",
+            "font_size": 16,
+            "font_color": (0,0,0,255),
+            "backg_color": (100,100,100,180),
+            "frame_color": (255, 255, 255, 200)
+        },
+        "Titol_shannon": {
+            "titol": "Diversitat funcional\nÍndex de Shannon normalitzat",
+            "font": "Calibri",
+            "font_size": 16,
+            "font_color": (0,0,0,255),
+            "backg_color": (100,100,100,180),
+            "frame_color": (255, 255, 255, 200)
+        },
         "Llegenda": {
-            "titol": "Classificació dels edificis",
             "font": "Calibri",
             "font_size": 10,
             "font_color": (0,0,0,255),
@@ -478,7 +507,7 @@ LAYOUTS = {
             "font_color": (0,0,0,255)
         },
         "Nord": {
-            "path": "C:/projectes_git/Dades/nord2.png"
+            "image_path": "C:/projectes_git/Dades/nord2.png"
         },
         "Exportacio": {
             "output_path": f"{PATH_RESULTATS}/Especialitzacio_districtes.pdf",

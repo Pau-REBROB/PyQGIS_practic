@@ -11,7 +11,7 @@ import os
 import config
 import layouts.layout_common as layout_common
 
-def afegir_mapa(layout, capes, capa_extent, size, position):
+def afegir_mapa(layout, capes, capa_extent, factor_escala, size, position):
     """
     Afegeix l'element mapa principal a una composició.
 
@@ -27,6 +27,8 @@ def afegir_mapa(layout, capes, capa_extent, size, position):
         Capes que es mostraran al mapa, en ordre de representació.
     capa_extent: QgsVectorLayer
         Capa utilitzada per a definir l'extensió inicial del mapa.
+    factor_escala: float
+        Factor escala per apropar o allunyar el mapa.
     size: tuple[int,int]
         Amplada i alçada de la imatge, en mil·límetres.
     position: tuple[int,int]
@@ -54,7 +56,7 @@ def afegir_mapa(layout, capes, capa_extent, size, position):
 
     extent = capa_extent.extent()
     # Apropa la vista abans d'aplicar els desplaçaments manuals
-    extent.scale(0.5)
+    extent.scale(factor_escala)
     # Ajust manual del centre del mapa
     # per compensar l'espai ocupat per la llegenda
     # i aconseguir una millor composició visual 
@@ -133,29 +135,28 @@ def composicio_especialitzacio(capes, capa_extent):
         La composició s'exporta directament en local.
     """
 
-    cfg_layout = config.LAYOUTS["GENERAL"]
+    cfg_layout = config.LAYOUTS["ESPECIALITZACIO"]
     cfg_estructura = config.LAYOUTS["ESTRUCTURA_ESPECIALITZACIO"]
-    cfg_especialitzacio = config.LAYOUTS["ESPECIALITZACIO"]
 
     layout = layout_common.generar_layout(nom_layout="Especialitzacio funcional per districtes")
 
     mapa_us = afegir_mapa(
         layout=layout,
-        capes=capes,
+        capes=[capes["us_predominant"]],
         capa_extent=capa_extent,
         **cfg_estructura["Mapa_us"]
     )
 
     mapa_dominancia = afegir_mapa(
         layout=layout,
-        capes=capes,
+        capes=[capes["dominancia"]],
         capa_extent=capa_extent,
         **cfg_estructura["Mapa_dominancia"]
     )
 
     mapa_shannon = afegir_mapa(
         layout=layout,
-        capes=capes,
+        capes=[capes["index_shannon"]],
         capa_extent=capa_extent,
         **cfg_estructura["Mapa_shannon"]
     )
@@ -166,24 +167,58 @@ def composicio_especialitzacio(capes, capa_extent):
         **cfg_estructura["Titol"]
     )
 
+    layout_common.afegir_titol(
+        layout=layout,
+        **cfg_layout["Titol_us"],
+        **cfg_estructura["Titol_us"]
+    )
+
+    layout_common.afegir_titol(
+        layout=layout,
+        **cfg_layout["Titol_dominancia"],
+        **cfg_estructura["Titol_dominancia"]
+    )
+
+    layout_common.afegir_titol(
+        layout=layout,
+        **cfg_layout["Titol_shannon"],
+        **cfg_estructura["Titol_shannon"]
+    )
+
     layout_common.afegir_llegenda(
         layout=layout,
-        mapa=mapa,
-        capes=capes,
+        mapa=mapa_us,
+        capes=[capes["us_predominant"]],
         **cfg_layout["Llegenda"],
-        **cfg_estructura["Llegenda"]
+        **cfg_estructura["Llegenda_us"]
+    )
+
+    layout_common.afegir_llegenda(
+        layout=layout,
+        mapa=mapa_dominancia,
+        capes=[capes["dominancia"]],
+        **cfg_layout["Llegenda"],
+        **cfg_estructura["Llegenda_dominancia"]
+    )
+
+    layout_common.afegir_llegenda(
+        layout=layout,
+        mapa=mapa_shannon,
+        capes=[capes["index_shannon"]],
+        **cfg_layout["Llegenda"],
+        **cfg_estructura["Llegenda_shannon"]
     )
 
     layout_common.afegir_escala(
         layout=layout,
-        mapa=mapa,
+        mapa=mapa_us,
         **cfg_layout["Escala"],
         **cfg_estructura["Escala"]
     )
 
     layout_common.afegir_nord(
         layout=layout,
-        mapa=mapa,
+        mapa=mapa_us,
         **cfg_layout["Nord"],
         **cfg_estructura["Nord"]
     )

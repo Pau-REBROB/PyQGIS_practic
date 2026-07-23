@@ -126,6 +126,7 @@ import layouts.layout_general as layout_general
 import layouts.layout_atles as layout_atles
 import layouts.layout_analisi as layout_analisi
 import layouts.layout_clusters as layout_clusters
+import layouts.layout_especialitzacio as layout_especialitzacio
 import layouts.fusionar_layouts as fusionar_layouts
 
 
@@ -154,6 +155,7 @@ importlib.reload(layout_general)
 importlib.reload(layout_atles)
 importlib.reload(layout_analisi)
 importlib.reload(layout_clusters)
+importlib.reload(layout_especialitzacio)
 importlib.reload(fusionar_layouts)
 
 
@@ -372,6 +374,12 @@ layout_clusters.composicio_clusters(
         layers_simbologia_base["Districtes"],
         basemap_layer
     ],
+    capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"]
+)
+
+## Composició especialització
+layout_especialitzacio.composicio_especialitzacio(
+    capes=layers_especialitzacio_no_residencial,
     capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"]
 )
 

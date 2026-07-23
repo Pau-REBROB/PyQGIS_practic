@@ -135,7 +135,7 @@ def simbologia_especialitzacio_funcional(districtes):
         {
             "us_predominant": QgsVectorLayer,
             "dominancia": QgsVectorLayer,
-            "shannon": QgsVectorLayer
+            "index_shannon": QgsVectorLayer
         }
     """
 
@@ -145,18 +145,18 @@ def simbologia_especialitzacio_funcional(districtes):
         districtes=districtes
     )
 
-    layers_especialitzacio["Districtes_us_predominant"] = districtes_us_pred
+    layers_especialitzacio["us_predominant"] = districtes_us_pred
 
     districtes_domin = simbologia_especialitzacio.simbologia_dominancia(
         districtes=districtes
     )
 
-    layers_especialitzacio["Districtes_dominancia"] = districtes_domin
+    layers_especialitzacio["dominancia"] = districtes_domin
 
     districtes_shan = simbologia_especialitzacio.simbologia_shannon(
         districtes=districtes
     )
     
-    layers_especialitzacio["Districtes_shannon"] = districtes_shan
+    layers_especialitzacio["index_shannon"] = districtes_shan
     
     return layers_especialitzacio
