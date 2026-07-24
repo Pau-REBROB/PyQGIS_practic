@@ -273,50 +273,66 @@ LAYOUTS = {
 
     "ESTRUCTURA_ESPECIALITZACIO": {
         "Mapa_us": {
-            "factor_escala": 0.90,
-            "size": (88, 88),
-            "position": (10, 20)
+            "factor_escala": 1.00,
+            "size": (90, 90),
+            "position": (10, 25)
         },
         "Mapa_dominancia": {
-            "factor_escala": 0.90,
-            "size": (88, 88),
-            "position": (105, 20)
+            "factor_escala": 1.00,
+            "size": (90, 90),
+            "position": (105, 25)
         },
         "Mapa_shannon": {
-            "factor_escala": 0.90,
-            "size": (88, 88),
-            "position": (200, 20)
+            "factor_escala": 1.00,
+            "size": (90, 90),
+            "position": (200, 25)
+        },
+        "Fons": {
+            "size": (280, 180),
+            "position": (10, 20)
         },
         "Titol": {
             "size": (280, 10),
             "position": (10, 5)
         },
         "Titol_us": {
-            "size": (85, 25),
-            "position": (10, 100)
+            "size": (90, 10),
+            "position": (10, 120)
+        },
+        "Subtitol_us": {
+            "size": (90, 15),
+            "position": (10, 130)
         },
         "Titol_dominancia": {
-            "size": (85, 25),
-            "position": (105, 100)
+            "size": (90, 10),
+            "position": (105, 120)
+        },
+        "Subtitol_dominancia": {
+            "size": (90, 15),
+            "position": (105, 130)
         },
         "Titol_shannon": {
-            "size": (85, 25),
-            "position": (200, 100)
+            "size": (90, 10),
+            "position": (200, 120)
+        },
+        "Subtitol_shannon": {
+            "size": (90, 15),
+            "position": (200, 130)
         },
         "Llegenda_us": {
             "titol": "Ús majoritari dels edificis",
-            "position": (10, 150)
+            "position": (10, 140)
         },
         "Llegenda_dominancia": {
             "titol": "Diferència (%) entre usos",
-            "position": (106, 150)
+            "position": (106, 140)
         },
         "Llegenda_shannon": {
             "titol": "Índex de Shannon normalitzat",
-            "position": (202, 150)
+            "position": (202, 140)
         },
         "Escala": {
-            "position": (110, 180)
+            "position": (200, 180)
         },
         "Nord": {
             "size": (20, 20),
@@ -330,6 +346,7 @@ LAYOUTS = {
             "font": "Calibri",
             "font_size": 20,
             "font_color": (0,0,0,255),
+            "alineacio": "left",
             "backg_color": (100,100,100,180),
             "frame_color": (255, 255, 255, 200)
         },
@@ -359,6 +376,7 @@ LAYOUTS = {
             "font": "Calibri",
             "font_size": 20,
             "font_color": (0,0,0,255),
+            "alineacio": "left",
             "backg_color": (100,100,100,180),
             "frame_color": (255, 255, 255, 200)
         },
@@ -391,6 +409,7 @@ LAYOUTS = {
             "font": "Calibri",
             "font_size": 20,
             "font_color": (0,0,0,255),
+            "alineacio": "left",
             "backg_color": (100,100,100,180),
             "frame_color": (255, 255, 255, 200)
         },
@@ -430,6 +449,7 @@ LAYOUTS = {
             "font": "Calibri",
             "font_size": 20,
             "font_color": (0,0,0,255),
+            "alineacio": "left",
             "backg_color": (100,100,100,180),
             "frame_color": (255, 255, 255, 200)
         },
@@ -464,35 +484,69 @@ LAYOUTS = {
     },
 
     "ESPECIALITZACIO":{
+        "Fons": {
+            "color": (240,240,240,255)
+        },
         "Titol": {
             "titol": "Especialització funcional de Barcelona",
             "font": "Calibri",
             "font_size": 20,
             "font_color": (0,0,0,255),
+            "alineacio": "center",
             "backg_color": (100,100,100,180),
             "frame_color": (255, 255, 255, 200)
         },
         "Titol_us": {
-            "titol": "Us predominant\nÚs majoritari dels edificis del districte",
-            "font": "Calibri",
+            "titol": "Us predominant",
+            "font": "Calibri Bold",
             "font_size": 16,
             "font_color": (0,0,0,255),
+            "alineacio": "left",
+            "backg_color": (100,100,100,180),
+            "frame_color": (255, 255, 255, 200)
+        },
+        "Subtitol_us": {
+            "subtitol": "Ús majoritari dels edificis del districte",
+            "font": "Calibri Bold",
+            "font_size": 12,
+            "font_color": (10,10,10,255),
+            "alineacio": "left",
             "backg_color": (100,100,100,180),
             "frame_color": (255, 255, 255, 200)
         },
         "Titol_dominancia": {
-            "titol": "Dominancia funcional\nDiferència percentual entre el primer i el segon ús",
-            "font": "Calibri",
+            "titol": "Dominancia funcional",
+            "font": "Calibri Bold",
             "font_size": 16,
             "font_color": (0,0,0,255),
+            "alineacio": "left",
+            "backg_color": (100,100,100,180),
+            "frame_color": (255, 255, 255, 200)
+        },
+        "Subtitol_dominancia": {
+            "subtitol": "Diferència percentual entre el primer i el segon ús",
+            "font": "Calibri Bold",
+            "font_size": 12,
+            "font_color": (10,10,10,255),
+            "alineacio": "left",
             "backg_color": (100,100,100,180),
             "frame_color": (255, 255, 255, 200)
         },
         "Titol_shannon": {
-            "titol": "Diversitat funcional\nÍndex de Shannon normalitzat",
-            "font": "Calibri",
+            "titol": "Diversitat funcional",
+            "font": "Calibri Bold",
             "font_size": 16,
             "font_color": (0,0,0,255),
+            "alineacio": "left",
+            "backg_color": (100,100,100,180),
+            "frame_color": (255, 255, 255, 200)
+        },
+        "Subtitol_shannon": {
+            "subtitol": "Índex de Shannon normalitzat",
+            "font": "Calibri Bold",
+            "font_size": 12,
+            "font_color": (10,10,10,255),
+            "alineacio": "left",
             "backg_color": (100,100,100,180),
             "frame_color": (255, 255, 255, 200)
         },
@@ -502,13 +556,13 @@ LAYOUTS = {
             "font_color": (0,0,0,255),
             "backg_color": (100,100,100,180)
         },
-        "Escala": {
-            "font": "Calibri",
-            "font_color": (0,0,0,255)
-        },
-        "Nord": {
-            "image_path": "C:/projectes_git/Dades/nord2.png"
-        },
+        #"Escala": {
+        #    "font": "Calibri",
+        #    "font_color": (0,0,0,255)
+        #},
+        #"Nord": {
+        #    "image_path": "C:/projectes_git/Dades/nord2.png"
+        #},
         "Exportacio": {
             "output_path": f"{PATH_RESULTATS}/Especialitzacio_districtes.pdf",
             "dpi": 300

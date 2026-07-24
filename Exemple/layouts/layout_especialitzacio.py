@@ -1,9 +1,17 @@
 from qgis.core import (
     QgsLayoutExporter,
+    QgsLayoutItemLegend,
     QgsLayoutItemMap,
     QgsLayoutPoint,
     QgsLayoutSize,
+    QgsLegendStyle,
+    QgsTextFormat,
     QgsUnitTypes,
+)
+
+from qgis.PyQt.QtGui import (
+    QFont,
+    QColor
 )
 
 import os
@@ -52,7 +60,7 @@ def afegir_mapa(layout, capes, capa_extent, factor_escala, size, position):
     layout_map.attemptResize(QgsLayoutSize(*size, QgsUnitTypes.LayoutMillimeters))
     layout_map.attemptMove(QgsLayoutPoint(*position, QgsUnitTypes.LayoutMillimeters))
 
-    layout_map.setMapRotation(45)
+    #layout_map.setMapRotation(45)
 
     extent = capa_extent.extent()
     # Apropa la vista abans d'aplicar els desplaçaments manuals
@@ -67,6 +75,92 @@ def afegir_mapa(layout, capes, capa_extent, factor_escala, size, position):
     layout_map.zoomToExtent(extent)
     
     return layout_map
+
+
+def afegir_llegenda(layout, mapa, capes, titol, font, font_size, font_color, position, backg_color):
+    """
+    Afegeix una llegenda a una composició.
+
+    La funció crea una llegenda vinculada al mapa indicat,
+    elimina les capes que no s'han de representar, configura
+    el format del text, i aplica el fons corresponent.
+
+    Paràmetres
+    ----------
+    layout: QgsPrintLayout
+        Composició on s'insereix la llegenda.
+    mapa: QgsLayoutItemMap
+        Element mapa al qual queda vinculada la llegenda.
+    capes: list[QgsMapLayer]
+        Llistat de capes que ha de mostrar la llegenda.
+    titol: str
+        Títol de la llegenda.
+    font: str
+        Nom de la família tipogràfica.
+    font_size: float
+        Mida del text, en punts.
+    font_color: tuple[int,int,int,int]
+        Color del text, en format (RGBA).
+    position: tuple[int,int]
+        Coordenada X i Y de la imatge - cantonada superior esquerra - en mil·límetres.
+    backg_color: tuple[int,int,int,int]
+        Color del fons, en format (RGBA).
+
+    Retorna
+    -------
+    QgsLayoutItemLegend
+        Element llegenda.
+    """
+
+    # Creació de la llegenda
+    legend = QgsLayoutItemLegend(layout)
+    layout.addLayoutItem(legend)
+
+    # Vinculació amb el mapa
+    legend.setLinkedMap(mapa)
+    
+    # Construcció manual del contingut
+    legend.setAutoUpdateModel(False)
+    
+    root = legend.model().rootGroup()
+
+    for layer_node in root.findLayers():
+        layer_node.setName("")     
+
+    ids_capes = {capa.id() for capa in capes}
+
+    for node in list(root.findLayers()):
+        if node.layerId() not in ids_capes:
+            root.removeLayer(node.layer())
+    
+    # Títol
+    legend.setTitle(titol)
+
+    # Posició i mida
+    legend.attemptMove(QgsLayoutPoint(*position, QgsUnitTypes.LayoutMillimeters))
+    legend.adjustBoxSize()
+
+    # Definició del format de text - tot igual
+    text_format = QgsTextFormat()
+    text_format.setFont(QFont(font))
+    text_format.setSize(font_size)
+    text_format.setSizeUnit(QgsUnitTypes.RenderPoints)
+    text_format.setColor(QColor(*font_color))
+    # Títol
+    legend.rstyle(QgsLegendStyle.Title).setTextFormat(text_format)
+    # Grups
+    legend.rstyle(QgsLegendStyle.Group).setTextFormat(text_format)
+    # Subgrups
+    legend.rstyle(QgsLegendStyle.Subgroup).setTextFormat(text_format)
+    # Elements individuals
+    legend.rstyle(QgsLegendStyle.SymbolLabel).setTextFormat(text_format)
+
+    # Definició del fons i el marc
+    legend.setBackgroundEnabled(True)
+    legend.setBackgroundColor(QColor(*backg_color))
+    legend.setFrameEnabled(False)
+
+    return legend
 
 
 def exportar_layout(layout, output_path, dpi):
@@ -140,6 +234,12 @@ def composicio_especialitzacio(capes, capa_extent):
 
     layout = layout_common.generar_layout(nom_layout="Especialitzacio funcional per districtes")
 
+    layout_common.afegir_fons(
+            layout=layout,
+            **cfg_layout["Fons"],
+            **cfg_estructura["Fons"]
+        )
+    
     mapa_us = afegir_mapa(
         layout=layout,
         capes=[capes["us_predominant"]],
@@ -173,10 +273,22 @@ def composicio_especialitzacio(capes, capa_extent):
         **cfg_estructura["Titol_us"]
     )
 
+    layout_common.afegir_subtitol(
+        layout=layout,
+        **cfg_layout["Subtitol_us"],
+        **cfg_estructura["Subtitol_us"]
+    )
+
     layout_common.afegir_titol(
         layout=layout,
         **cfg_layout["Titol_dominancia"],
         **cfg_estructura["Titol_dominancia"]
+    )
+
+    layout_common.afegir_subtitol(
+        layout=layout,
+        **cfg_layout["Subtitol_dominancia"],
+        **cfg_estructura["Subtitol_dominancia"]
     )
 
     layout_common.afegir_titol(
@@ -185,7 +297,13 @@ def composicio_especialitzacio(capes, capa_extent):
         **cfg_estructura["Titol_shannon"]
     )
 
-    layout_common.afegir_llegenda(
+    layout_common.afegir_subtitol(
+        layout=layout,
+        **cfg_layout["Subtitol_shannon"],
+        **cfg_estructura["Subtitol_shannon"]
+    )
+
+    afegir_llegenda(
         layout=layout,
         mapa=mapa_us,
         capes=[capes["us_predominant"]],
@@ -193,7 +311,7 @@ def composicio_especialitzacio(capes, capa_extent):
         **cfg_estructura["Llegenda_us"]
     )
 
-    layout_common.afegir_llegenda(
+    afegir_llegenda(
         layout=layout,
         mapa=mapa_dominancia,
         capes=[capes["dominancia"]],
@@ -201,7 +319,7 @@ def composicio_especialitzacio(capes, capa_extent):
         **cfg_estructura["Llegenda_dominancia"]
     )
 
-    layout_common.afegir_llegenda(
+    afegir_llegenda(
         layout=layout,
         mapa=mapa_shannon,
         capes=[capes["index_shannon"]],
@@ -209,19 +327,19 @@ def composicio_especialitzacio(capes, capa_extent):
         **cfg_estructura["Llegenda_shannon"]
     )
 
-    layout_common.afegir_escala(
-        layout=layout,
-        mapa=mapa_us,
-        **cfg_layout["Escala"],
-        **cfg_estructura["Escala"]
-    )
+    #layout_common.afegir_escala(
+    #    layout=layout,
+    #    mapa=mapa_us,
+    #    **cfg_layout["Escala"],
+    #    **cfg_estructura["Escala"]
+    #)
 
-    layout_common.afegir_nord(
-        layout=layout,
-        mapa=mapa_us,
-        **cfg_layout["Nord"],
-        **cfg_estructura["Nord"]
-    )
+    #layout_common.afegir_nord(
+    #    layout=layout,
+    #    mapa=mapa_us,
+    #    **cfg_layout["Nord"],
+    #    **cfg_estructura["Nord"]
+    #)
 
     exportar_layout(
         layout=layout,

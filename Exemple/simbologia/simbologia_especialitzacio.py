@@ -28,6 +28,20 @@ def simbologia_dominancia(districtes):
         **config.SIMBOLOGIA["Districtes_dominancia"]
     )
 
+    renderer = layer.renderer()
+
+    rangs = renderer.ranges()
+
+    for rang in rangs:
+        lower = round(rang.lowerValue(), 1)
+        upper = round(rang.upperValue(), 1)
+
+        rang.setLabel(f"{lower:.1f} - {upper:.1f}%")
+
+    renderer.updateRanges(rangs)
+
+    layer.triggerRepaint()
+
     layer.setName("Districtes_dominancia")
 
     return layer
@@ -43,6 +57,20 @@ def simbologia_shannon(districtes):
         layer=districtes,
         **config.SIMBOLOGIA["Districtes_shannon"]
     )
+
+    renderer = layer.renderer()
+
+    rangs = renderer.ranges()
+
+    for rang in rangs:
+        lower = round(rang.lowerValue(), 2)
+        upper = round(rang.upperValue(), 2)
+
+        rang.setLabel(f"{lower:.2f} - {upper:.2f}")
+
+    renderer.updateRanges(rangs)
+
+    layer.triggerRepaint()
 
     layer.setName("Districtes_shannon_norm")
 
