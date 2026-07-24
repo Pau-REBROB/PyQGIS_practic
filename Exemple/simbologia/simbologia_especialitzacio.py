@@ -30,15 +30,13 @@ def simbologia_dominancia(districtes):
 
     renderer = layer.renderer()
 
-    rangs = renderer.ranges()
-
-    for rang in rangs:
+    for i, rang in enumerate(renderer.ranges()):
         lower = round(rang.lowerValue(), 1)
         upper = round(rang.upperValue(), 1)
 
-        rang.setLabel(f"{lower:.1f} - {upper:.1f}%")
+        ok = renderer.updateRangeLabel(i, f"{lower:.1f} - {upper:.1f}%")
 
-    renderer.updateRanges(rangs)
+        print(i, ok)
 
     layer.triggerRepaint()
 
@@ -60,15 +58,13 @@ def simbologia_shannon(districtes):
 
     renderer = layer.renderer()
 
-    rangs = renderer.ranges()
-
-    for rang in rangs:
+    for i, rang in enumerate(renderer.ranges()):
         lower = round(rang.lowerValue(), 2)
         upper = round(rang.upperValue(), 2)
 
-        rang.setLabel(f"{lower:.2f} - {upper:.2f}")
+        ok = renderer.updateRangeLabel(i, f"{lower:.2f} - {upper:.2f}")
 
-    renderer.updateRanges(rangs)
+        print(i, ok)
 
     layer.triggerRepaint()
 
