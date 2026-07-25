@@ -1,50 +1,6 @@
 """ÚS EDIFICIS DE BARCELONA"""
 """Detecció automàtica de clústers comercials i anàlisi d'accessibilitat viària a Barcelona mitjançant PyQGIS i QNEAT3"""
 
-"""
-00_inicialitzacio.py
-01_importacio.py
-02_analisi.py
-03_simbologia.py
-04_layout.py
-main.py
- -----
- main.py
-
-config.py              # rutes, colors, paràmetres DBSCAN...
-
-carrega_dades.py
-analisi_retail.py
-analisi_usos.py
-
-simbologia_unica.py
-simbologia_categorica.py
-simbologia_graduada.py
-
-layout_general.py
-layout_clusters.py
-
---------
-
-PyQGIS_practic/
-
-main.py
-
-config.py
-
-inicialitzacio.py
-importacio.py
-analisi.py
-
-simbologia/
-    simbol_unic.py
-    simbol_categoric.py
-    simbol_graduat.py
-
-layouts/
-    layout_general.py
-    layout_clusters.py
-"""
 
 """
 1. Visió general: composició de la distribució dels usos dels edificis
@@ -206,19 +162,7 @@ grafics.generar_grafics_clusters(
     df=taula_clusters
 )
 
-### DOMINANCIA
-especialitzacio_total = especialitzacio.calcular_especialitzacio(
-    edificis=dict_layers_clean["Cadastre"]["Edificis"]
-)
-print(especialitzacio_total)
-
-especialitzacio_no_residencial = especialitzacio.calcular_especialitzacio(
-    edificis=dict_layers_clean["Cadastre"]["Edificis"],
-    usos_exclosos=["1_residential"]
-)
-print(especialitzacio_no_residencial)
-
-# ALT NIVELL
+# Funcions d'especialització funcional
 resultats_especialitzacio = especialitzacio.analisi_especialitzacio(
     districtes=dict_layers_clean["Limits_administratius"]["Districtes"],
     edificis=dict_layers_clean["Cadastre"]["Edificis"]
@@ -230,16 +174,26 @@ resultats_especialitzacio_no_residencial = especialitzacio.analisi_especialitzac
     usos_exclosos=["1_residential"]
 )
 
+# Anàlisi bivariant 
+#### CANVIAR NOMS
+classificacio_no_residencial = especialitzacio.classificar_especialitzacio(
+    resultats=resultats_especialitzacio_no_residencial
+)
+
+bivariant_no_residencial = especialitzacio.classificar_bivariant(
+    resultats=classificacio_no_residencial
+)
+
+# Addició dels camps d'especialització a la capa de districtes
 districtes_especialitzacio = especialitzacio.afegir_resultats_especialitzacio(
     districtes=dict_layers_clean["Limits_administratius"]["Districtes"],
-    resultats=resultats_especialitzacio
+    resultats=bivariant_no_residencial
 )
 
 districtes_especialitzacio_no_residencial = especialitzacio.afegir_resultats_especialitzacio(
     districtes=dict_layers_clean["Limits_administratius"]["Districtes"],
-    resultats=resultats_especialitzacio_no_residencial
+    resultats=bivariant_no_residencial
 )
-
 
 ####################
 isoarees = clusters.isoarees_qneat3(graf_layer=dict_layers_clean["Graf"]["Graf_trams"],
@@ -289,33 +243,6 @@ layers_especialitzacio_no_residencial = simbologia_general.simbologia_especialit
 # Addició de capes al projecte
 for layer in layers_especialitzacio_no_residencial.values():
     QgsProject.instance().addMapLayer(layer)
-
-
-##############
-layer = simbologia_especialitzacio.simbologia_us_predominant(
-    districtes_especialitzacio
-)
-print(layer.renderer())
-print(type(layer.renderer()))
-
-QgsProject.instance().addMapLayer(layer)
-
-layer = simbologia_especialitzacio.simbologia_dominancia(
-    districtes_especialitzacio
-)
-print(layer.renderer())
-print(type(layer.renderer()))
-
-QgsProject.instance().addMapLayer(layer)
-
-layer = simbologia_especialitzacio.simbologia_shannon(
-    districtes_especialitzacio
-)
-print(layer.renderer())
-print(type(layer.renderer()))
-
-QgsProject.instance().addMapLayer(layer)
-
 
 
 

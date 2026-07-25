@@ -12,6 +12,16 @@ def simbologia_us_predominant(districtes):
         **config.SIMBOLOGIA["Districtes_us_predominant"]
     )
 
+    renderer = layer.renderer()
+
+    for i, categoria in enumerate(renderer.categories()):
+        valor = categoria.value()
+        etiqueta = config.ETIQUETES_USOS.get(valor, valor)
+        ok = renderer.updateCategoryLabel(i, etiqueta)
+        print(i, ok)
+
+    layer.triggerRepaint()
+    
     layer.setName("Districtes_us_predominant")
 
     return layer
@@ -34,9 +44,7 @@ def simbologia_dominancia(districtes):
         lower = round(rang.lowerValue(), 1)
         upper = round(rang.upperValue(), 1)
 
-        ok = renderer.updateRangeLabel(i, f"{lower:.1f} - {upper:.1f}%")
-
-        print(i, ok)
+        renderer.updateRangeLabel(i, f"{lower:.1f} - {upper:.1f}%")
 
     layer.triggerRepaint()
 
@@ -62,9 +70,7 @@ def simbologia_shannon(districtes):
         lower = round(rang.lowerValue(), 2)
         upper = round(rang.upperValue(), 2)
 
-        ok = renderer.updateRangeLabel(i, f"{lower:.2f} - {upper:.2f}")
-
-        print(i, ok)
+        renderer.updateRangeLabel(i, f"{lower:.2f} - {upper:.2f}")
 
     layer.triggerRepaint()
 

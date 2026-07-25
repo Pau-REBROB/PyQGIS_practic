@@ -191,9 +191,9 @@ SIMBOLOGIA = {
     },
     "Edificis": {
         "atribut": 'currentUse',
-        "colors": COLORS_USOS,
+        "colors_categories": COLORS_USOS,
         "outline_width": 0.1,
-        "stroke_color": "white" 
+        "stroke_color": (255,255,255,255) 
     },
     "Clusters": {
         "outline_width": 0.2,
@@ -300,7 +300,7 @@ LAYOUTS = {
             "position": (10, 120)
         },
         "Subtitol_us": {
-            "size": (90, 15),
+            "size": (90, 12),
             "position": (10, 130)
         },
         "Titol_dominancia": {
@@ -308,7 +308,7 @@ LAYOUTS = {
             "position": (105, 120)
         },
         "Subtitol_dominancia": {
-            "size": (90, 15),
+            "size": (90, 12),
             "position": (105, 130)
         },
         "Titol_shannon": {
@@ -316,27 +316,20 @@ LAYOUTS = {
             "position": (200, 120)
         },
         "Subtitol_shannon": {
-            "size": (90, 15),
+            "size": (90, 12),
             "position": (200, 130)
         },
         "Llegenda_us": {
             "titol": "Ús majoritari dels edificis",
-            "position": (10, 140)
+            "position": (10, 145)
         },
         "Llegenda_dominancia": {
             "titol": "Diferència (%) entre usos",
-            "position": (106, 140)
+            "position": (106, 145)
         },
         "Llegenda_shannon": {
             "titol": "Índex de Shannon normalitzat",
-            "position": (202, 140)
-        },
-        "Escala": {
-            "position": (200, 180)
-        },
-        "Nord": {
-            "size": (20, 20),
-            "position": (260, 180)
+            "position": (202, 145)
         }
     },
 

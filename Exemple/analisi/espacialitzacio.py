@@ -289,70 +289,6 @@ def analisi_especialitzacio(districtes, edificis, usos_exclosos=None):
     return resultats
 
 
-def afegir_resultats_especialitzacio(districtes, resultats):
-    """
-    Genera una nova capa de districtes incorporant els indicadors
-    d'especialització funcional calculats.
-
-    A partir de la capa original de districtes, crea una còpia
-    i afegeix els nous atributs.
-
-    Paràmetres
-    ----------
-    districtes: QgsVectorLayer
-        Capa vectorial dels districtes.
-    resultats: dict
-        Diccionari retornat de `analisi_especialitzacio()`.
-
-    Retorna
-    -------
-    QgsVectorLayer
-        Nova capa de districtes amb els camps d'anàlisi incorporats.
-    """
-
-    layer = districtes.materialize(QgsFeatureRequest())
-
-    provider = layer.dataProvider()
-
-    provider.addAttributes([
-        QgsField("us_predominant", QVariant.String),
-        QgsField("perc_predominant", QVariant.Double),
-        QgsField("dominancia", QVariant.Double),
-        QgsField("shannon", QVariant.Double),
-        QgsField("shannon_norm", QVariant.Double)
-    ])
-
-    layer.updateFields()
-
-    idx_us = layer.fields().indexOf("us_predominant")
-    idx_perc = layer.fields().indexOf("perc_predominant")
-    idx_dominancia = layer.fields().indexOf("dominancia")
-    idx_shannon = layer.fields().indexOf("shannon")
-    idx_shan_norm = layer.fields().indexOf("shannon_norm")
-
-    layer.startEditing()
-
-    for feature in layer.getFeatures():
-        nom = feature["NOM"]
-
-        dades = resultats.get(nom)
-
-        if dades is None:
-            continue
-
-        feature[idx_us] = dades["us_predominant"]
-        feature[idx_perc] = dades["percentatge"]
-        feature[idx_dominancia] = dades["dominancia"]
-        feature[idx_shannon] = dades["shannon"]
-        feature[idx_shan_norm] = dades["shannon_normalitzat"]
-
-        layer.updateFeature(feature)
-    
-    layer.commitChanges()
-
-    return layer
-
-
 def classificar_especialitzacio(resultats):
     """
     Classifica qualitativament els indicadors d'especialització
@@ -456,3 +392,120 @@ def classificar_especialitzacio(resultats):
         dades["interpretacio"] = interpretacio
 
     return resultats
+
+
+def classificar_bivariant(resultats):
+    """
+    Genera una classificació bivariant combinant les
+    classificacions de dominància i diversitat funcional.
+
+    Paràmetres
+    ----------
+    resultats: dict
+        Diccionari retornat per `analisi_especialitzacio()`.
+    
+    Retorna
+    -------
+    dict
+        Diccionari d'entrada amb la combinació
+        de totes les entrades de diversitat i dominància.
+        {
+            "classe_bivariant": str
+        }
+    """
+
+    for dades in resultats.values():
+        # Classificació de la dominància 
+        dominancia = dades["dominancia"]
+
+        if dominancia >= 20:
+            classe_dominancia = "Alta"
+        elif dominancia >= 10:
+            classe_dominancia = "Mitjana"
+        else:
+            classe_dominancia = "Baixa"
+
+        # Classificació de la diversitat funcional (Shannon)
+        diversitat = dades["shannon_normalitzat"]
+
+        if diversitat >= 0.85:
+            classe_diversitat = "Alta"
+        elif diversitat >= 0.75:
+            classe_diversitat = "Mitjana"
+        else:
+            classe_diversitat = "Baixa"
+
+        # Creació de la classificació bivariant
+        dades["classe_bivariant"] = (
+            f"{classe_dominancia}_{classe_diversitat}"
+        )
+
+    return resultats
+
+
+def afegir_resultats_especialitzacio(districtes, resultats):
+    """
+    Genera una nova capa de districtes incorporant els indicadors
+    d'especialització funcional calculats.
+
+    A partir de la capa original de districtes, crea una còpia
+    i afegeix els nous atributs.
+
+    Paràmetres
+    ----------
+    districtes: QgsVectorLayer
+        Capa vectorial dels districtes.
+    resultats: dict
+        Diccionari retornat de `analisi_especialitzacio()`.
+
+    Retorna
+    -------
+    QgsVectorLayer
+        Nova capa de districtes amb els camps d'anàlisi incorporats.
+    """
+
+    layer = districtes.materialize(QgsFeatureRequest())
+
+    provider = layer.dataProvider()
+
+    provider.addAttributes([
+        QgsField("us_predominant", QVariant.String),
+        QgsField("perc_predominant", QVariant.Double),
+        QgsField("dominancia", QVariant.Double),
+        QgsField("shannon", QVariant.Double),
+        QgsField("shannon_norm", QVariant.Double),
+        QgsField("classe_bivariant", QVariant.String)
+    ])
+
+    layer.updateFields()
+
+    idx_us = layer.fields().indexOf("us_predominant")
+    idx_perc = layer.fields().indexOf("perc_predominant")
+    idx_dominancia = layer.fields().indexOf("dominancia")
+    idx_shannon = layer.fields().indexOf("shannon")
+    idx_shan_norm = layer.fields().indexOf("shannon_norm")
+    idx_bivariant = layer.fields().indexOf("classe_bivariant")
+
+    layer.startEditing()
+
+    for feature in layer.getFeatures():
+        nom = feature["NOM"]
+
+        dades = resultats.get(nom)
+
+        if dades is None:
+            continue
+
+        feature[idx_us] = dades["us_predominant"]
+        feature[idx_perc] = dades["percentatge"]
+        feature[idx_dominancia] = dades["dominancia"]
+        feature[idx_shannon] = dades["shannon"]
+        feature[idx_shan_norm] = dades["shannon_normalitzat"]
+        feature[idx_bivariant] = dades["classe_bivariant"]
+
+        layer.updateFeature(feature)
+    
+    layer.commitChanges()
+
+    return layer
+    
