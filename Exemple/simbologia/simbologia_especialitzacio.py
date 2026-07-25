@@ -17,8 +17,8 @@ def simbologia_us_predominant(districtes):
     for i, categoria in enumerate(renderer.categories()):
         valor = categoria.value()
         etiqueta = config.ETIQUETES_USOS.get(valor, valor)
-        ok = renderer.updateCategoryLabel(i, etiqueta)
-        print(i, ok)
+
+        renderer.updateCategoryLabel(i, etiqueta)
 
     layer.triggerRepaint()
     
@@ -76,4 +76,30 @@ def simbologia_shannon(districtes):
 
     layer.setName("Districtes_shannon_norm")
 
+    return layer
+
+
+def simbologia_bivariant(districtes):
+    """
+    Aplica una simbologia categòrica als districtes
+    segons una variable bivariant. 
+    """
+
+    layer = simbologies.simbologia_categorica(
+            layer=districtes,
+            **config.SIMBOLOGIA["Districtes_bivariant"]
+    )
+    
+    # renderer = layer.renderer()
+    
+    # for i, categoria in enumerate(renderer.categories()):
+    #     valor = categoria.value()
+    #     etiqueta = config.ETIQUETES_USOS.get(valor, valor)
+
+    #     renderer.updateCategoryLabel(i, etiqueta)
+    
+    # layer.triggerRepaint()
+        
+    layer.setName("Districtes_bivariància")
+    
     return layer

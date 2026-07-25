@@ -135,7 +135,8 @@ def simbologia_especialitzacio_funcional(districtes):
         {
             "us_predominant": QgsVectorLayer,
             "dominancia": QgsVectorLayer,
-            "index_shannon": QgsVectorLayer
+            "index_shannon": QgsVectorLayer,
+            "classe_bivariant: QgsVectorLayer
         }
     """
 
@@ -158,5 +159,11 @@ def simbologia_especialitzacio_funcional(districtes):
     )
     
     layers_especialitzacio["index_shannon"] = districtes_shan
+
+    districtes_bivariant = simbologia_especialitzacio.simbologia_bivariant(
+        districtes=districtes
+    )
+
+    layers_especialitzacio["bivariant"] = districtes_bivariant
     
     return layers_especialitzacio

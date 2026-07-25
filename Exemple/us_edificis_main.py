@@ -226,7 +226,7 @@ for layer in layers_simbologia_clusters.values():
     QgsProject.instance().addMapLayer(layer)
 
 
-####
+
 # Simbologia d'anàlisi d'especialització per districtes
 layers_especialitzacio = simbologia_general.simbologia_especialitzacio_funcional(
     districtes=districtes_especialitzacio

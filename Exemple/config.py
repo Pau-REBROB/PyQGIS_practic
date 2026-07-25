@@ -133,6 +133,23 @@ def colors_mpl(us):
         a/255
     )
 
+COLORS_BIVARIANT = {
+    # Diversitat baixa / # Dominància variant
+    "Baixa_Baixa": (247, 244, 235, 255),
+    "Mitjana_Baixa": (255, 198, 150, 255),
+    "Alta_Baixa": (255, 127, 39, 255),
+
+    # Diversitat mitjana / # Dominància variant
+    "Baixa_Mitjana": (150, 205, 228, 255),
+    "Mitjana_Mitjana": (206, 186, 170, 255),
+    "Alta_Mitjana": (215, 134, 74, 255),
+
+    # Diversitat alta / # Dominància variant
+    "Baixa_Alta": (48, 165, 214, 255),
+    "Mitjana_Alta": (94, 142, 166, 255),
+    "Alta_Alta": (145, 110, 82, 255)
+}
+
 # =============================================================================
 # ANÀLISI
 # =============================================================================
@@ -227,6 +244,12 @@ SIMBOLOGIA = {
         "mode": "Jenks",
         "stroke_color": (120,120,120,255),
         "stroke_width": 0.5
+    },
+    "Districtes_bivariant": {
+        "atribut": 'classe_bivariant',
+        "colors_categories": COLORS_BIVARIANT,
+        "outline_width": 0.5,
+        "stroke_color": (120,120,120,255)    
     }
 }
 
