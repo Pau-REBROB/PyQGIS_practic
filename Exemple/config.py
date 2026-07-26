@@ -245,7 +245,7 @@ SIMBOLOGIA = {
         "stroke_color": (120,120,120,255),
         "stroke_width": 0.5
     },
-    "Districtes_bivariant": {
+    "Barris_bivariant": {
         "atribut": 'classe_bivariant',
         "colors_categories": COLORS_BIVARIANT,
         "outline_width": 0.5,
@@ -353,6 +353,34 @@ LAYOUTS = {
         "Llegenda_shannon": {
             "titol": "Índex de Shannon normalitzat",
             "position": (202, 145)
+        }
+    },
+
+    "ESTRUCTURA_BIVARIANT": {
+        "Fons": {
+            "size": (280, 190),
+            "position": (10, 10)
+        },
+        "Mapa": {
+            "factor_escala": 1.00,
+            "size": (280, 190),
+            "position": (10, 20)
+        },
+        "Titol": {
+            "size": (10, 5),
+            "position": (10, 10)
+        },
+        "Llegenda": {
+            "cell": 8,
+            "gap": 1,
+            "position": (240, 60)
+        },
+        "Escala": {
+            "position": (15, 190)
+        },
+        "Nord": {
+            "size": (10, 10),
+            "position": (15, 180)
         }
     },
 
@@ -572,15 +600,41 @@ LAYOUTS = {
             "font_color": (0,0,0,255),
             "backg_color": (100,100,100,180)
         },
-        #"Escala": {
-        #    "font": "Calibri",
-        #    "font_color": (0,0,0,255)
-        #},
-        #"Nord": {
-        #    "image_path": "C:/projectes_git/Dades/nord2.png"
-        #},
         "Exportacio": {
             "output_path": f"{PATH_RESULTATS}/Especialitzacio_districtes.pdf",
+            "dpi": 300
+        }
+    },
+
+    "BIVARIANT": {
+        "Fons": {
+            "color": (240,240,240,255)
+        },
+        "Titol": {
+            "titol": "Especialització funcional bivariant dels barris de Barcelona",
+            "font": "Calibri",
+            "font_size": 20,
+            "font_color": (0,0,0,255),
+            "alineacio": "left",
+            "backg_color": (100,100,100,180),
+            "frame_color": (255, 255, 255, 200)
+        },
+        # "Llegenda": {
+        #     "titol": "Classificació dels edificis",
+        #     "font": "Calibri",
+        #     "font_size": 10,
+        #     "font_color": (0,0,0,255),
+        #     "backg_color": (100,100,100,180)
+        # },
+        "Escala": {
+            "font": "Calibri",
+            "font_color": (0,0,0,255)
+        },
+        "Nord": {
+            "image_path": "C:/projectes_git/Dades/nord2.png"
+        },
+        "Exportacio": {
+            "output_path": f"{PATH_RESULTATS}/Analisi_bivariant_barris.pdf",
             "dpi": 300
         }
     }

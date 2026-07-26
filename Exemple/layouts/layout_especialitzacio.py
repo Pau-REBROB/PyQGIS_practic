@@ -327,20 +327,6 @@ def composicio_especialitzacio(capes, capa_extent):
         **cfg_estructura["Llegenda_shannon"]
     )
 
-    #layout_common.afegir_escala(
-    #    layout=layout,
-    #    mapa=mapa_us,
-    #    **cfg_layout["Escala"],
-    #    **cfg_estructura["Escala"]
-    #)
-
-    #layout_common.afegir_nord(
-    #    layout=layout,
-    #    mapa=mapa_us,
-    #    **cfg_layout["Nord"],
-    #    **cfg_estructura["Nord"]
-    #)
-
     exportar_layout(
         layout=layout,
         **cfg_layout["Exportacio"]

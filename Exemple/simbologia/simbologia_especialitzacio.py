@@ -87,7 +87,7 @@ def simbologia_bivariant(districtes):
 
     layer = simbologies.simbologia_categorica(
             layer=districtes,
-            **config.SIMBOLOGIA["Districtes_bivariant"]
+            **config.SIMBOLOGIA["Barris_bivariant"]
     )
     
     # renderer = layer.renderer()

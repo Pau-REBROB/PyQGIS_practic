@@ -65,8 +65,6 @@ sys.path.append("C:/projectes_git/PyQGIS_practic/Exemple/simbologia")
 sys.path.append("C:/projectes_git/PyQGIS_practic/Exemple/layouts")
 sys.path.append("C:/projectes_git/PyQGIS_practic/Exemple/analisi")
 
-import pandas as pd
-
 import inicialitzacio
 import importacio
 import preparacio_dades
@@ -83,6 +81,7 @@ import layouts.layout_atles as layout_atles
 import layouts.layout_analisi as layout_analisi
 import layouts.layout_clusters as layout_clusters
 import layouts.layout_especialitzacio as layout_especialitzacio
+import layouts.layout_bivariant_barris as layout_bivariant_barris
 import layouts.fusionar_layouts as fusionar_layouts
 
 
@@ -112,6 +111,7 @@ importlib.reload(layout_atles)
 importlib.reload(layout_analisi)
 importlib.reload(layout_clusters)
 importlib.reload(layout_especialitzacio)
+importlib.reload(layout_bivariant_barris)
 importlib.reload(fusionar_layouts)
 
 
@@ -163,6 +163,7 @@ grafics.generar_grafics_clusters(
 )
 
 # Funcions d'especialització funcional
+## Districtes
 resultats_especialitzacio = especialitzacio.analisi_especialitzacio(
     districtes=dict_layers_clean["Limits_administratius"]["Districtes"],
     edificis=dict_layers_clean["Cadastre"]["Edificis"]
@@ -194,6 +195,47 @@ districtes_especialitzacio_no_residencial = especialitzacio.afegir_resultats_esp
     districtes=dict_layers_clean["Limits_administratius"]["Districtes"],
     resultats=bivariant_no_residencial
 )
+
+## Barris
+resultats_especialitzacio = especialitzacio.analisi_especialitzacio(
+    districtes=dict_layers_clean["Limits_administratius"]["Barris"],
+    edificis=dict_layers_clean["Cadastre"]["Edificis"]
+)
+
+resultats_especialitzacio_no_residencial = especialitzacio.analisi_especialitzacio(
+    districtes=dict_layers_clean["Limits_administratius"]["Barris"],
+    edificis=dict_layers_clean["Cadastre"]["Edificis"],
+    usos_exclosos=["1_residential"]
+)
+
+# Anàlisi bivariant 
+#### CANVIAR NOMS
+classificacio = especialitzacio.classificar_especialitzacio(
+    resultats=resultats_especialitzacio
+)
+classificacio_no_residencial = especialitzacio.classificar_especialitzacio(
+    resultats=resultats_especialitzacio_no_residencial
+)
+
+bivariant = especialitzacio.classificar_bivariant(
+    resultats=classificacio
+)
+bivariant_no_residencial = especialitzacio.classificar_bivariant(
+    resultats=classificacio_no_residencial
+)
+
+# Addició dels camps d'especialització a la capa de barris
+barris_especialitzacio = especialitzacio.afegir_resultats_especialitzacio(
+    districtes=dict_layers_clean["Limits_administratius"]["Barris"],
+    resultats=bivariant
+)
+
+barris_especialitzacio_no_residencial = especialitzacio.afegir_resultats_especialitzacio(
+    districtes=dict_layers_clean["Limits_administratius"]["Barris"],
+    resultats=bivariant_no_residencial
+)
+
+
 
 ####################
 isoarees = clusters.isoarees_qneat3(graf_layer=dict_layers_clean["Graf"]["Graf_trams"],
@@ -243,6 +285,25 @@ layers_especialitzacio_no_residencial = simbologia_general.simbologia_especialit
 # Addició de capes al projecte
 for layer in layers_especialitzacio_no_residencial.values():
     QgsProject.instance().addMapLayer(layer)
+
+
+# Simbologia d'anàlisi d'especialització per barris
+layers_especialitzacio = simbologia_general.simbologia_especialitzacio_funcional(
+    districtes=barris_especialitzacio
+)
+
+# Addició de capes al projecte
+for layer in layers_especialitzacio.values():
+    QgsProject.instance().addMapLayer(layer)
+
+layers_especialitzacio_no_residencial = simbologia_general.simbologia_especialitzacio_funcional(
+    districtes=barris_especialitzacio_no_residencial
+)
+
+# Addició de capes al projecte
+for layer in layers_especialitzacio_no_residencial.values():
+    QgsProject.instance().addMapLayer(layer)
+
 
 
 
@@ -304,9 +365,18 @@ layout_clusters.composicio_clusters(
     capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"]
 )
 
-## Composició especialització
+## Composició especialització districtes
 layout_especialitzacio.composicio_especialitzacio(
     capes=layers_especialitzacio_no_residencial,
+    capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"]
+)
+
+## Composició bivariant barris
+layout_bivariant_barris.composicio_bivariant_barris(
+    capes=[
+        layers_simbologia_base["Districtes"],
+        layers_especialitzacio_no_residencial["bivariant"]
+    ],
     capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"]
 )
 
