@@ -357,23 +357,37 @@ LAYOUTS = {
     },
 
     "ESTRUCTURA_BIVARIANT": {
-        "Fons": {
-            "size": (280, 190),
-            "position": (10, 10)
-        },
         "Mapa": {
             "factor_escala": 1.00,
             "size": (280, 190),
             "position": (10, 20)
         },
-        "Titol": {
-            "size": (10, 5),
-            "position": (10, 10)
+        "Capçalera": {
+            "text_size": (280, 5),
+            "text_position": (10, 10),
+            "backg_size": (280, 3),
+            "backg_position": (10, 20)
         },
         "Llegenda": {
             "cell": 8,
             "gap": 1,
             "position": (240, 60)
+        },
+        "Eix_dominancia_llegenda": {
+            "position": (240, 52),
+            "size": (26, 6),
+            "alineacio": "center",
+            "rotacio": 0
+        },
+        "Eix_diversitat_llegenda": {
+            "position": (228, 86),
+            "size": (26, 6),
+            "alineacio": "center",
+            "rotacio": -90
+        },
+        "Labels_llegenda": {
+            "position": (240, 60),
+            "size": (26, 6)
         },
         "Escala": {
             "position": (15, 190)
@@ -607,25 +621,35 @@ LAYOUTS = {
     },
 
     "BIVARIANT": {
-        "Fons": {
-            "color": (240,240,240,255)
-        },
-        "Titol": {
-            "titol": "Especialització funcional bivariant dels barris de Barcelona",
+        "Capçalera": {
+            "color":(100,100,100,180),
+            "text": "Especialització funcional bivariant dels barris de Barcelona",
             "font": "Calibri",
             "font_size": 20,
             "font_color": (0,0,0,255),
-            "alineacio": "left",
-            "backg_color": (100,100,100,180),
-            "frame_color": (255, 255, 255, 200)
         },
-        # "Llegenda": {
-        #     "titol": "Classificació dels edificis",
-        #     "font": "Calibri",
-        #     "font_size": 10,
-        #     "font_color": (0,0,0,255),
-        #     "backg_color": (100,100,100,180)
-        # },
+        "Llegenda": {
+            "colors": COLORS_BIVARIANT
+        },
+        "Eix_dominancia_llegenda": {
+            "text": "Dominància funcional",
+            "font": "Calibri",
+            "font_size": 12,
+            "font_color": (0,0,0,255)
+        },
+        "Eix_diversitat_llegenda": {
+            "text": "Diversitat funcional",
+            "font": "Calibri",
+            "font_size": 12,
+            "font_color": (0,0,0,255)
+        },
+        "Labels_llegenda": {
+            "cell": 8,
+            "gap": 1,
+            "font": "Calibri",
+            "font_size": 10,
+            "font_color": (0,0,0,255)
+        },
         "Escala": {
             "font": "Calibri",
             "font_color": (0,0,0,255)

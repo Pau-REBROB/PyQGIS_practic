@@ -19,7 +19,8 @@ from qgis.core import (
     QgsPrintLayout,
     QgsProject,
     QgsTextFormat,
-    QgsUnitTypes
+    QgsUnitTypes,
+    QgsFillSymbol
 )
 
 from qgis.PyQt.QtCore import Qt
@@ -88,19 +89,106 @@ def afegir_fons(layout, size, position, color):
     """
 
     rectangle = QgsLayoutItemShape(layout)
-
     layout.addLayoutItem(rectangle)
 
     rectangle.setShapeType(QgsLayoutItemShape.Rectangle)
 
+    symbol = QgsFillSymbol.createSimple({
+        "color": f"{color[0]}, {color[1]}, {color[2]}, {color[3]}",
+        "outline_style": "no"
+    })
+
+    rectangle.setSymbol(symbol)
+
     rectangle.attemptMove(QgsLayoutPoint(*position, QgsUnitTypes.LayoutMillimeters))
     rectangle.attemptResize(QgsLayoutSize(*size, QgsUnitTypes.LayoutMillimeters))
 
-    rectangle.setBackgroundColor(QColor(*color))
-
-    rectangle.setFrameEnabled(False)
-
     return rectangle
+
+
+def afegir_text(layout, text, font, font_size, font_color, size, position, alineacio="left", rotacio=0,
+                backg_enabled=False, backg_color=None, frame_enabled=False, frame_color=None):
+    """
+    Afegeix un text a la composició.
+
+    La funció crea una etiqueta de text, configura el seu contingut,
+    el format tipogràfic, la posició, la mida i l'estil del marc,
+    i l'afegeix a la composició indicada.
+
+    Paràmetres
+    ----------
+    layout: QgsPrintLayout
+        Composició on s'insereix el títol.
+    text: str
+        Text que es mostrarà com a títol.
+    font: str
+        Nom de la família tipogràfica.
+    font_size: float
+        Mida del text, en punts.
+    font_color: tuple[int,int,int,int]
+        Color del text, en format (RGBA).
+    size: tuple[int,int]
+        Amplada i alçada de la imatge, en mil·límetres.
+    position: tuple[int,int]
+        Coordenada X i Y de la imatge - cantonada superior esquerra - en mil·límetres.
+    alineacio: str
+        Alineació del text respecte el full.
+    rotacio: float
+        Rotació del text respecte el full.
+    backg_enabled: bool
+        Activació del fons.    
+    backg_color: tuple[int,int,int,int]
+        Color del fons, en format (RGBA).
+    frame_enabled: bool
+        Activació del marc.
+    frame_color: tuple[int,int,int,int]
+        Color del marc, en format (RGBA).
+
+    Retorna
+    -------
+    QgsLayoutItemLabel
+        Element de tipus etiqueta.
+    """
+
+    layout_text = QgsLayoutItemLabel(layout)
+    
+    layout.addLayoutItem(layout_text)
+
+    # Definició del text i el seu format
+    layout_text.setText(text)
+    text_format = QgsTextFormat()
+    text_format.setFont(QFont(font))
+    text_format.setSize(font_size)
+    text_format.setSizeUnit(QgsUnitTypes.RenderPoints)
+    text_format.setColor(QColor(*font_color))
+    layout_text.setTextFormat(text_format)
+    
+    # Definició de posició i mida
+    layout_text.attemptMove(QgsLayoutPoint(*position, QgsUnitTypes.LayoutMillimeters))
+    layout_text.attemptResize(QgsLayoutSize(*size, QgsUnitTypes.LayoutMillimeters))
+
+    # Definició de l'alineació
+    layout_text.setMarginX(5)
+    layout_text.setMarginY(1)
+    alineacions = {
+        "left": Qt.AlignLeft,
+        "right": Qt.AlignRight,
+        "center": Qt.AlignCenter
+    }
+    layout_text.setHAlign(alineacions[alineacio])
+
+    layout_text.setItemRotation(rotacio)
+
+    # Definició del fons i el marc
+    layout_text.setBackgroundEnabled(backg_enabled)
+    if backg_color is not None:
+        layout_text.setBackgroundColor(QColor(*backg_color))
+    layout_text.setFrameEnabled(frame_enabled)
+    if frame_color is not None:
+        layout_text.setFrameStrokeColor(QColor(*frame_color))
+        layout_text.setFrameStrokeWidth(QgsLayoutMeasurement(0.75, QgsUnitTypes.LayoutMillimeters))
+
+    return layout_text
 
 
 def afegir_titol(layout, titol, font, font_size, font_color, size, position, alineacio, backg_color, frame_color):
@@ -117,7 +205,7 @@ def afegir_titol(layout, titol, font, font_size, font_color, size, position, ali
         Composició on s'insereix el títol.
     titol: str
         Text que es mostrarà com a títol.
-    font: str
+        font: str
         Nom de la família tipogràfica.
     font_size: float
         Mida del text, en punts.
@@ -128,53 +216,33 @@ def afegir_titol(layout, titol, font, font_size, font_color, size, position, ali
     position: tuple[int,int]
         Coordenada X i Y de la imatge - cantonada superior esquerra - en mil·límetres.
     alineacio: str
-        Alineació del text respecte el full.    
+        Alineació del text respecte el full. 
     backg_color: tuple[int,int,int,int]
         Color del fons, en format (RGBA).
     frame_color: tuple[int,int,int,int]
         Color del marc, en format (RGBA).
-
+    
     Retorna
     -------
     QgsLayoutItemLabel
         Element de tipus etiqueta.
     """
 
-    title = QgsLayoutItemLabel(layout)
-    
-    layout.addLayoutItem(title)
-
-    # Definició del text i el seu format
-    title.setText(titol)
-    text_format = QgsTextFormat()
-    text_format.setFont(QFont(font))
-    text_format.setSize(font_size)
-    text_format.setSizeUnit(QgsUnitTypes.RenderPoints)
-    text_format.setColor(QColor(*font_color))
-    title.setTextFormat(text_format)
-    
-    # Definició de posició i mida
-    title.attemptMove(QgsLayoutPoint(*position, QgsUnitTypes.LayoutMillimeters))
-    title.attemptResize(QgsLayoutSize(*size, QgsUnitTypes.LayoutMillimeters))
-
-    # Definició de l'alineació
-    title.setMarginX(5)
-    title.setMarginY(1)
-    alineacions = {
-        "left": Qt.AlignLeft,
-        "right": Qt.AlignRight,
-        "center": Qt.AlignCenter
-    }
-    title.setHAlign(alineacions[alineacio])
-
-    # Definició del fons i el marc
-    title.setBackgroundEnabled(True)
-    title.setBackgroundColor(QColor(*backg_color))
-    title.setFrameEnabled(True)
-    title.setFrameStrokeColor(QColor(*frame_color))
-    title.setFrameStrokeWidth(QgsLayoutMeasurement(0.75, QgsUnitTypes.LayoutMillimeters))
-
-    return title
+    return afegir_text(
+        layout=layout,
+        text=titol,
+        font=font,
+        font_size=font_size,
+        font_color=font_color,
+        size=size,
+        position=position,
+        alineacio=alineacio,
+        rotacio=0,
+        backg_enabled=True,
+        backg_color=backg_color,
+        frame_enabled=True,
+        frame_color=frame_color
+    )
 
 
 def afegir_subtitol(layout, subtitol, font, font_size, font_color, size, position, alineacio, backg_color, frame_color):
@@ -214,41 +282,43 @@ def afegir_subtitol(layout, subtitol, font, font_size, font_color, size, positio
         Element de tipus etiqueta.
     """
 
-    subtitle = QgsLayoutItemLabel(layout)
-    
-    layout.addLayoutItem(subtitle)
+    return afegir_text(
+        layout=layout,
+        text=subtitol,
+        font=font,
+        font_size=font_size,
+        font_color=font_color,
+        size=size,
+        position=position,
+        alineacio=alineacio,
+        rotacio=0,
+        backg_enabled=True,
+        backg_color=backg_color,
+        frame_enabled=True,
+        frame_color=frame_color
+    )
 
-    # Definició del text i el seu format
-    subtitle.setText(subtitol)
-    text_format = QgsTextFormat()
-    text_format.setFont(QFont(font))
-    text_format.setSize(font_size)
-    text_format.setSizeUnit(QgsUnitTypes.RenderPoints)
-    text_format.setColor(QColor(*font_color))
-    subtitle.setTextFormat(text_format)
-    
-    # Definició de posició i mida
-    subtitle.attemptMove(QgsLayoutPoint(*position, QgsUnitTypes.LayoutMillimeters))
-    subtitle.attemptResize(QgsLayoutSize(*size, QgsUnitTypes.LayoutMillimeters))
 
-    # Definició de l'alineació
-    subtitle.setMarginX(5)
-    subtitle.setMarginY(1)
-    alineacions = {
-        "left": Qt.AlignLeft,
-        "right": Qt.AlignRight,
-        "center": Qt.AlignCenter
-    }
-    subtitle.setHAlign(alineacions[alineacio])
+def afegir_capçalera(layout, backg_size, backg_position, color, text, font, font_size, font_color, text_size, text_position):
+    """
+    """
 
-    # Definició del fons i el marc
-    subtitle.setBackgroundEnabled(True)
-    subtitle.setBackgroundColor(QColor(*backg_color))
-    subtitle.setFrameEnabled(True)
-    subtitle.setFrameStrokeColor(QColor(*frame_color))
-    subtitle.setFrameStrokeWidth(QgsLayoutMeasurement(0.75, QgsUnitTypes.LayoutMillimeters))
+    afegir_fons(
+        layout=layout,
+        size=backg_size,
+        position=backg_position,
+        color=color
+    )
 
-    return subtitle
+    afegir_text(
+        layout=layout,
+        text=text,
+        font=font,
+        font_size=font_size,
+        font_color=font_color,
+        size=text_size,
+        position=text_position
+    )
 
 
 def afegir_llegenda(layout, mapa, capes, titol, font, font_size, font_color, position, backg_color):

@@ -102,6 +102,34 @@ def afegir_llegenda_bivariant(layout, cell, gap, position, colors):
             )
 
 
+def afegir_labels_llegenda(layout, position, cell, gap, **cfg):
+    """
+    """
+
+    x0, y0 = position
+
+    labels = ["Baixa", "Mitjana", "Alta"]
+
+    # Columnes
+    for i, label in enumerate(labels):
+        layout_common.afegir_text(
+            layout=layout,
+            text=label,
+            position=(x0 + i*(cell + gap), y0 -5),
+            **cfg
+        )
+
+    # Files
+    for i, label in enumerate(reversed(labels)):
+        layout_common.afegir_text(
+            layout=layout,
+            text=label,
+            position=(x0 - 12, y0 + i*(cell + gap)),
+            **cfg
+        )
+
+
+
 def exportar_layout(layout, output_path, dpi):
     """
     Exporta una composició QGIS en format PDF.
@@ -172,12 +200,6 @@ def composicio_bivariant_barris(capes, capa_extent):
     cfg_estructura = config.LAYOUTS["ESTRUCTURA_BIVARIANT"]
 
     layout = layout_common.generar_layout(nom_layout="Anàlisi bivariant per barris")
-
-    layout_common.afegir_fons(
-            layout=layout,
-            **cfg_layout["Fons"],
-            **cfg_estructura["Fons"]
-        )
     
     mapa = afegir_mapa(
         layout=layout,
@@ -186,16 +208,34 @@ def composicio_bivariant_barris(capes, capa_extent):
         **cfg_estructura["Mapa"]
     )
 
-    layout_common.afegir_titol(
+    layout_common.afegir_capçalera(
         layout=layout,
-        **cfg_layout["Titol"],
-        **cfg_estructura["Titol"]
+        **cfg_layout["Capçalera"],
+        **cfg_estructura["Capçalera"]
     )
 
     afegir_llegenda_bivariant(
         layout=layout,
         **cfg_layout["Llegenda"],
         **cfg_estructura["Llegenda"]
+    )
+
+    layout_common.afegir_text(
+        layout=layout,
+        **cfg_layout["Eix_dominancia_llegenda"],
+        **cfg_estructura["Eix_dominancia_llegenda"]
+    )
+
+    layout_common.afegir_text(
+        layout=layout,
+        **cfg_layout["Eix_diversitat_llegenda"],
+        **cfg_estructura["Eix_diversitat_llegenda"]
+    )
+
+    afegir_labels_llegenda(
+        layout=layout,
+        **cfg_layout["Labels_llegenda"],
+        **cfg_estructura["Labels_llegenda"]
     )
 
     layout_common.afegir_escala(
