@@ -368,7 +368,7 @@ LAYOUTS = {
         "Capçalera": {
             "text_size": (280, 5),
             "text_position": (10, 10),
-            "backg_size": (280, 3),
+            "backg_size": (280, 2),
             "backg_position": (10, 20)
         },
         "Llegenda": {
@@ -627,7 +627,9 @@ LAYOUTS = {
 
     "BIVARIANT": {
         "Capçalera": {
-            "color":(100,100,100,180),
+            "color": (100,100,100,180),
+            "outline_color": (85,85,85,255),
+            "outline_width": 0.40,
             "text": "Especialització funcional bivariant dels barris de Barcelona",
             "font": "Calibri",
             "font_size": 20,

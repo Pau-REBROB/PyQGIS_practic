@@ -105,7 +105,7 @@ def transformar_offset(offset_x, offset_y, rotacio):
     return dx, dy
 
 
-def afegir_fons(layout, size, position, color):
+def afegir_fons(layout, size, position, color, outline_color=None, outline_width=0.26):
     """
     Afegeix un rectangle de fons a la composició.
 
@@ -119,6 +119,10 @@ def afegir_fons(layout, size, position, color):
         Coordenada X i Y de la imatge - cantonada superior esquerra - en mil·límetres.
     color: tuple[int,int,int,int]
         Color del fons, en format (RGBA).
+    outline_color: tuple[int,int,int,int]
+        ###
+    outline_width: float
+        ###
     """
 
     rectangle = QgsLayoutItemShape(layout)
@@ -126,10 +130,18 @@ def afegir_fons(layout, size, position, color):
 
     rectangle.setShapeType(QgsLayoutItemShape.Rectangle)
 
-    symbol = QgsFillSymbol.createSimple({
-        "color": f"{color[0]}, {color[1]}, {color[2]}, {color[3]}",
-        "outline_style": "no"
-    })
+    params = {
+        "color": f"{color[0]},{color[1]},{color[2]},{color[3]}"
+    }
+    if outline_color is None:
+        params["outline_style"] = "no"
+    else:
+        params["outline_color"] = f"{outline_color[0]},{outline_color[1]},{outline_color[2]},{outline_color[3]}"
+        params["outline_width"]= str(outline_width)
+
+    symbol = QgsFillSymbol.createSimple(
+        params
+    )
 
     rectangle.setSymbol(symbol)
 
@@ -342,7 +354,8 @@ def afegir_subtitol(layout, subtitol, font, font_size, font_color, size, positio
     )
 
 
-def afegir_capçalera(layout, backg_size, backg_position, color, text, font, font_size, font_color, text_size, text_position):
+def afegir_capçalera(layout, backg_size, backg_position, color, outline_color, outline_width,
+                     text, font, font_size, font_color, text_size, text_position):
     """
     """
 
@@ -350,7 +363,9 @@ def afegir_capçalera(layout, backg_size, backg_position, color, text, font, fon
         layout=layout,
         size=backg_size,
         position=backg_position,
-        color=color
+        color=color,
+        outline_color=outline_color,
+        outline_width=outline_width
     )
 
     afegir_text(
