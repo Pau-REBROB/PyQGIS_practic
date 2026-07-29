@@ -30,6 +30,8 @@ from qgis.PyQt.QtGui import (
     QColor
 )
 
+from math import radians, sin, cos
+
 def generar_layout(nom_layout):
     """
     Crea una nova composició d'impressió del projecte.
@@ -72,6 +74,36 @@ def generar_layout(nom_layout):
     return layout
 
 
+def transformar_offset(offset_x, offset_y, rotacio):
+    """
+    Transforma un desplaçament visual (en pantalla) a un desplaçament
+    en coordenades del mapa.
+
+    Paràmetres
+    ----------
+    offset_x: float
+        Desplaçament visual horitzontal.
+        Negatiu implica esquerra, positiu implica dreta.
+    offset_y: float
+        Desplaçament visual vertical.
+        Negatiu implica amunt, positiu implica avall.
+    rotacio: float
+        Rotació del mapa, en graus.
+
+    Retorna
+    -------
+    tuple[float,float]
+        Desplaçament X i Y en coordenades del projecte.
+    """
+
+    angle = radians(rotacio)
+
+    dx = offset_x * cos(angle) - offset_y * sin(angle)
+    dy = offset_x * sin (angle) + offset_y * cos(angle)
+
+    return dx, dy
+
+
 def afegir_fons(layout, size, position, color):
     """
     Afegeix un rectangle de fons a la composició.
@@ -106,7 +138,7 @@ def afegir_fons(layout, size, position, color):
     return rectangle
 
 
-def afegir_text(layout, text, font, font_size, font_color, size, position, alineacio="left", rotacio=0,
+def afegir_text(layout, text, font, font_size, font_color, size, position, marge_X=0, marge_Y=0, alineacio="left", rotacio=0,
                 backg_enabled=False, backg_color=None, frame_enabled=False, frame_color=None):
     """
     Afegeix un text a la composició.
@@ -131,6 +163,10 @@ def afegir_text(layout, text, font, font_size, font_color, size, position, aline
         Amplada i alçada de la imatge, en mil·límetres.
     position: tuple[int,int]
         Coordenada X i Y de la imatge - cantonada superior esquerra - en mil·límetres.
+    marge_X: float
+        ###
+    marge_Y: float
+        ###
     alineacio: str
         Alineació del text respecte el full.
     rotacio: float
@@ -162,22 +198,24 @@ def afegir_text(layout, text, font, font_size, font_color, size, position, aline
     text_format.setSizeUnit(QgsUnitTypes.RenderPoints)
     text_format.setColor(QColor(*font_color))
     layout_text.setTextFormat(text_format)
-    
+
     # Definició de posició i mida
     layout_text.attemptMove(QgsLayoutPoint(*position, QgsUnitTypes.LayoutMillimeters))
+    layout_text.setItemRotation(rotacio)
+    # IMPORTANT:
+    # A QGIS 3.44 la rotació s'ha d'aplicar abans de attemptMove().
+    # En cas contrari la posició final del label és incorrecta.
     layout_text.attemptResize(QgsLayoutSize(*size, QgsUnitTypes.LayoutMillimeters))
 
     # Definició de l'alineació
-    layout_text.setMarginX(5)
-    layout_text.setMarginY(1)
+    layout_text.setMarginX(marge_X)
+    layout_text.setMarginY(marge_Y)
     alineacions = {
         "left": Qt.AlignLeft,
         "right": Qt.AlignRight,
         "center": Qt.AlignCenter
     }
     layout_text.setHAlign(alineacions[alineacio])
-
-    layout_text.setItemRotation(rotacio)
 
     # Definició del fons i el marc
     layout_text.setBackgroundEnabled(backg_enabled)
@@ -236,6 +274,8 @@ def afegir_titol(layout, titol, font, font_size, font_color, size, position, ali
         font_color=font_color,
         size=size,
         position=position,
+        marge_X=5,
+        marge_Y=2,
         alineacio=alineacio,
         rotacio=0,
         backg_enabled=True,
@@ -290,6 +330,8 @@ def afegir_subtitol(layout, subtitol, font, font_size, font_color, size, positio
         font_color=font_color,
         size=size,
         position=position,
+        marge_X=5,
+        marge_Y=2,
         alineacio=alineacio,
         rotacio=0,
         backg_enabled=True,

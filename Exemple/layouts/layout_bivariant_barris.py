@@ -5,6 +5,7 @@ from qgis.core import (
     QgsLayoutPoint,
     QgsLayoutSize,
     QgsLegendStyle,
+    QgsRectangle,
     QgsTextFormat,
     QgsUnitTypes,
 )
@@ -19,7 +20,7 @@ import os
 import layouts.layout_common as layout_common
 import config
 
-def afegir_mapa(layout, capes, capa_extent, factor_escala, size, position):
+def afegir_mapa(layout, capes, capa_extent, factor_escala, size, position, rotacio, offset_x, offset_y):
     """
     Afegeix l'element mapa principal a una composició.
 
@@ -41,6 +42,12 @@ def afegir_mapa(layout, capes, capa_extent, factor_escala, size, position):
         Amplada i alçada de la imatge, en mil·límetres.
     position: tuple[int,int]
         Coordenada X i Y de la imatge - cantonada superior esquerra - en mil·límetres.
+    rotacio: int
+        ###
+    offset_x: int
+        ##
+    offset_y: int
+        ##
 
     Retorna
     -------
@@ -57,23 +64,30 @@ def afegir_mapa(layout, capes, capa_extent, factor_escala, size, position):
     # Mantenir el conjunt de capes fix perquè el layout no canvïi
     layout_map.setKeepLayerSet(True)
 
-    layout_map.attemptResize(QgsLayoutSize(*size, QgsUnitTypes.LayoutMillimeters))
     layout_map.attemptMove(QgsLayoutPoint(*position, QgsUnitTypes.LayoutMillimeters))
+    layout_map.attemptResize(QgsLayoutSize(*size, QgsUnitTypes.LayoutMillimeters))
 
-    #layout_map.setMapRotation(45)
+    layout_map.zoomToExtent(capa_extent.extent())
+    layout_map.setMapRotation(rotacio)
+    layout_map.setScale(layout_map.scale() * factor_escala)
 
-    extent = capa_extent.extent()
-    # Apropa la vista abans d'aplicar els desplaçaments manuals
-    extent.scale(factor_escala)
-    # Ajust manual del centre del mapa
-    # per compensar l'espai ocupat per la llegenda
-    # i aconseguir una millor composició visual 
-    extent.setXMinimum(extent.xMinimum() + 500)
-    extent.setXMaximum(extent.xMaximum() + 500)
-    extent.setYMinimum(extent.yMinimum() + 250)
-    extent.setYMaximum(extent.yMaximum() + 250)
-    layout_map.zoomToExtent(extent)
-    
+    # # Ajust manual del centre del mapa
+    # # per compensar l'espai ocupat per la llegenda
+    # # i aconseguir una millor composició visual 
+    extent = layout_map.extent()
+    dx, dy = layout_common.transformar_offset(
+        offset_x=offset_x,
+        offset_y=offset_y,
+        rotacio=rotacio
+    )
+    extent = QgsRectangle(
+        extent.xMinimum() + dx,
+        extent.yMinimum() + dy,
+        extent.xMaximum() + dx,
+        extent.yMaximum() + dy
+    )
+    layout_map.setExtent(extent)
+        
     return layout_map
 
 
@@ -102,32 +116,40 @@ def afegir_llegenda_bivariant(layout, cell, gap, position, colors):
             )
 
 
-def afegir_labels_llegenda(layout, position, cell, gap, **cfg):
+def afegir_labels_superiors_llegenda(layout, position, cell, gap, **cfg):
     """
+    Afegeix les etiquetes superiors de la llegenda bivariant.
     """
 
     x0, y0 = position
 
     labels = ["Baixa", "Mitjana", "Alta"]
 
-    # Columnes
     for i, label in enumerate(labels):
         layout_common.afegir_text(
             layout=layout,
             text=label,
-            position=(x0 + i*(cell + gap), y0 -5),
+            position=(x0 + i*(cell + gap), y0),
             **cfg
         )
 
-    # Files
-    for i, label in enumerate(reversed(labels)):
+
+def afegir_labels_laterals_llegenda(layout, position, cell, gap, **cfg):
+    """
+    Afegeix les etiquetes laterals de la llegenda bivariant.
+    """
+
+    x0, y0 = position
+
+    labels = ["Baixa", "Mitjana", "Alta"]
+
+    for i, label in enumerate(labels):
         layout_common.afegir_text(
             layout=layout,
             text=label,
-            position=(x0 - 12, y0 + i*(cell + gap)),
+            position=(x0, y0 + i*(cell + gap)),
             **cfg
         )
-
 
 
 def exportar_layout(layout, output_path, dpi):
@@ -232,10 +254,16 @@ def composicio_bivariant_barris(capes, capa_extent):
         **cfg_estructura["Eix_diversitat_llegenda"]
     )
 
-    afegir_labels_llegenda(
+    afegir_labels_superiors_llegenda(
         layout=layout,
-        **cfg_layout["Labels_llegenda"],
-        **cfg_estructura["Labels_llegenda"]
+        **cfg_layout["Labels_superiors_llegenda"],
+        **cfg_estructura["Labels_superiors_llegenda"]
+    )
+
+    afegir_labels_laterals_llegenda(
+        layout=layout,
+        **cfg_layout["Labels_laterals_llegenda"],
+        **cfg_estructura["Labels_laterals_llegenda"]
     )
 
     layout_common.afegir_escala(

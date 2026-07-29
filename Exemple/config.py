@@ -358,9 +358,12 @@ LAYOUTS = {
 
     "ESTRUCTURA_BIVARIANT": {
         "Mapa": {
-            "factor_escala": 1.00,
+            "factor_escala": 0.75,
             "size": (280, 190),
-            "position": (10, 20)
+            "position": (10, 20),
+            "rotacio": 45,
+            "offset_x": 3000,
+            "offset_y": 300
         },
         "Capçalera": {
             "text_size": (280, 5),
@@ -369,32 +372,34 @@ LAYOUTS = {
             "backg_position": (10, 20)
         },
         "Llegenda": {
-            "cell": 8,
-            "gap": 1,
-            "position": (240, 60)
+            "position": (238, 143)
         },
         "Eix_dominancia_llegenda": {
-            "position": (240, 52),
-            "size": (26, 6),
-            "alineacio": "center",
+            "position": (238, 131),
+            "size": (50, 10),
+            "alineacio": "left",
             "rotacio": 0
         },
         "Eix_diversitat_llegenda": {
-            "position": (228, 86),
-            "size": (26, 6),
-            "alineacio": "center",
+            "position": (221, 175),
+            "size": (50, 10),
+            "alineacio": "left",
             "rotacio": -90
         },
-        "Labels_llegenda": {
-            "position": (240, 60),
+        "Labels_superiors_llegenda": {
+            "position": (240, 137),
             "size": (26, 6)
         },
+        "Labels_laterals_llegenda": {
+            "position": (228, 145),
+            "size": (6, 26)
+        },
         "Escala": {
-            "position": (15, 190)
+            "position": (221, 180)
         },
         "Nord": {
             "size": (10, 10),
-            "position": (15, 180)
+            "position": (221, 190)
         }
     },
 
@@ -629,6 +634,8 @@ LAYOUTS = {
             "font_color": (0,0,0,255),
         },
         "Llegenda": {
+            "cell": 10,
+            "gap": 0.5,
             "colors": COLORS_BIVARIANT
         },
         "Eix_dominancia_llegenda": {
@@ -643,11 +650,18 @@ LAYOUTS = {
             "font_size": 12,
             "font_color": (0,0,0,255)
         },
-        "Labels_llegenda": {
-            "cell": 8,
-            "gap": 1,
+        "Labels_superiors_llegenda": {
+            "cell": 10,
+            "gap": 0.5,
             "font": "Calibri",
-            "font_size": 10,
+            "font_size": 8,
+            "font_color": (0,0,0,255)
+        },
+        "Labels_laterals_llegenda": {
+            "cell": 10,
+            "gap": 0.5,
+            "font": "Calibri",
+            "font_size": 8,
             "font_color": (0,0,0,255)
         },
         "Escala": {
