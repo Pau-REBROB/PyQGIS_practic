@@ -6,6 +6,7 @@ Funcions comunes per a la construcció de composicions d'impressió.
 """
 
 from qgis.core import (
+    Qgis,
     QgsBasicNumericFormat,
     QgsLayoutItemLabel,
     QgsLayoutItemLegend,
@@ -446,7 +447,7 @@ def afegir_llegenda(layout, mapa, capes, titol, font, font_size, font_color, pos
     return legend
 
 
-def afegir_escala(layout, mapa, position, font, font_color):
+def afegir_escala(layout, mapa, position, tipus, font, font_size, font_color):
     """
     Afegeix una escala numèrica a una composició.
 
@@ -461,8 +462,12 @@ def afegir_escala(layout, mapa, position, font, font_color):
         Element mapa al qual queda vinculada l'escala.
     position: tuple[int,int]
         Coordenada X i Y de la imatge - cantonada superior esquerra - en mil·límetres.
+    tipus: str
+        Format d'escala.
     font: str
         Nom de la família tipogràfica.
+    font_size: int
+        ##
     font_color: tuple[int,int,int,int]
         Color del text, en format (RGBA).
 
@@ -479,23 +484,41 @@ def afegir_escala(layout, mapa, position, font, font_color):
     # Vinculació amb el mapa
     scale.setLinkedMap(mapa)
 
+    # Unitats
+    scale.setUnits(Qgis.DistanceUnit.Meters)
+    scale.setUnitLabel("m")
+
     # Definició de mida
     scale.attemptMove(QgsLayoutPoint(*position, QgsUnitTypes.LayoutMillimeters))
-
-    # Format numèric
-    scale.setStyle("Numeric")
-    numeric_format = QgsBasicNumericFormat()
-    numeric_format.setShowThousandsSeparator(True)
-    numeric_format.setNumberDecimalPlaces(0)
-    scale.setNumericFormat(numeric_format)
 
     # Format de text
     text_format = QgsTextFormat()
     text_format.setFont(QFont(font))
-    text_format.setSize(16)
+    text_format.setSize(font_size)
     text_format.setSizeUnit(QgsUnitTypes.RenderPoints)
     text_format.setColor(QColor(*font_color))
     scale.setTextFormat(text_format)
+
+    # Format numèric
+    if tipus == "numeric":
+        scale.setStyle("Numeric")
+
+        # Format numèric
+        numeric_format = QgsBasicNumericFormat()
+        numeric_format.setShowThousandsSeparator(True)
+        numeric_format.setNumberDecimalPlaces(0)
+        scale.setNumericFormat(numeric_format)
+
+    # Format gràfic
+    elif tipus == "Single Box":
+        scale.setStyle("Single Box")
+
+        # Format de barra
+        scale.setNumberOfSegments(2)
+        scale.setNumberOfSegmentsLeft(0)
+        scale.setUnitsPerSegment(500)
+        scale.setHeight(2.5)
+
 
     return scale
 

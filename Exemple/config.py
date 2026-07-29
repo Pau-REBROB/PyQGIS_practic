@@ -395,11 +395,11 @@ LAYOUTS = {
             "size": (6, 26)
         },
         "Escala": {
-            "position": (221, 180)
+            "position": (221, 180),
         },
         "Nord": {
             "size": (10, 10),
-            "position": (221, 190)
+            "position": (221, 192)
         }
     },
 
@@ -665,7 +665,9 @@ LAYOUTS = {
             "font_color": (0,0,0,255)
         },
         "Escala": {
+            "tipus": "Single Box",
             "font": "Calibri",
+            "font_size": 10,
             "font_color": (0,0,0,255)
         },
         "Nord": {
