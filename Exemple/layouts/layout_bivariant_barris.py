@@ -1,32 +1,45 @@
 from qgis.core import (
     QgsLayoutExporter,
-    QgsLayoutItemLegend,
     QgsLayoutItemMap,
     QgsLayoutPoint,
     QgsLayoutSize,
-    QgsLegendStyle,
     QgsRectangle,
-    QgsTextFormat,
     QgsUnitTypes,
-)
-
-from qgis.PyQt.QtGui import (
-    QFont,
-    QColor
 )
 
 import os
 
 import layouts.layout_common as layout_common
+import simbologia.simbologies as simbologies
 import config
+
+# ------------------------------------------------------------------
+# MAPA
+# ------------------------------------------------------------------
 
 def afegir_mapa(layout, capes, capa_extent, factor_escala, size, position, rotacio, offset_x, offset_y):
     """
     Afegeix l'element mapa principal a una composició.
 
     La funció crea un element `QgsLayoutItemMap`, hi assocïa les capes
-    indicades, defineix la seva extensió, i n'estableix la seva
-    posició, mida i rotació dins de la composició.
+    indicades, ajusta l'extensió inicial a partir de la capa de 
+    referència i configura la seva posició, mida i rotació.
+
+    L'ordre de les operacions:
+        1. Definir la mida i posició del mapa,
+        2. Ajustar l'extensió al conjunt de dades,
+        3. Aplicar la rotació,
+        4. Modificar l'escala,
+        5. Aplicar un desplaçament manual del centre,
+    evita modificacions inesperades de l'escala o l'extensió quan el
+    mapa està rotat.
+
+    Observacions
+    ------------
+    Els desplaçaments `offset_x` i `offset_y` s'apliquen després
+    de la rotació mitjançant una funció auxiliar `transformar_offset()`
+    per mantenir la direcció visual del desplaçament de manera
+    independent a l'orientació del mapa.
 
     Paràmetres
     ----------
@@ -91,8 +104,72 @@ def afegir_mapa(layout, capes, capa_extent, factor_escala, size, position, rotac
     return layout_map
 
 
+def crear_capa_districtes_layout(districtes):
+    """
+    Crea una còpia de la capa de districtes específica pel layout.
+
+    La funció clona la capa original per evitar modificar-ne la
+    simbologia dins del projecte, i aplica una representació pròpia
+    per a la composició cartogràfica.
+
+    La capa resultant només s'utilitza durant la generació del layout.
+
+    Paràmetres
+    ----------
+    districtes: QgsVectorLayer
+        Capa vectorial dels districtes.
+    
+    Retorna
+    -------
+    QgsVectorLayer
+        Capa vectorial dels districtes simbolitzada.
+    """
+
+    districtes_clone = districtes.clone()
+
+    districtes_simbologia = simbologies.simbologia_unica(
+        layer=districtes_clone,
+        fill_color=(0,0,0,0),
+        outline_width=0.45,
+        stroke_color=(100,100,100,255)
+    )
+    # TODO
+    # El color i el gruix del contorn haurien de convertir-se en constants globals d'estil. 
+
+    return districtes_simbologia 
+
+
+# ------------------------------------------------------------------
+# LLEGENDA
+# ------------------------------------------------------------------
+
 def afegir_llegenda_bivariant(layout, cell, gap, position, colors):
     """
+    Construeix la llegenda gràfica del mapa bivariant.
+
+    La llegenda es genera a partir d'una matriu 3x3 de classes,
+    on les files representen dominància funcional i les columnes
+    representen diversitat funcional.
+
+    Cada cel·la es dibuixa individualment mitjançant la funció
+    `afegir_fons()`.
+
+    Paràmetres
+    ----------
+    layout: QgsPrintLayout
+        Composició que es vol exportar.
+    cell: float
+        Mida del costat de la cel·la, en mil·límetres.
+    gap: float
+        Separació entre cel·les, en mil·límetres.
+    position: tuple[int,int]
+        Coordenada X i Y de la llegenda - cantonada superior esquerra - en mil·límetres.
+    colors: dict
+        Diccionari de colors, en format RGBA, per a cada classe.
+
+    Retorna
+    -------
+    ### 
     """
 
     matriu = [
@@ -119,6 +196,28 @@ def afegir_llegenda_bivariant(layout, cell, gap, position, colors):
 def afegir_labels_superiors_llegenda(layout, position, cell, gap, **cfg):
     """
     Afegeix les etiquetes superiors de la llegenda bivariant.
+
+    Observacions
+    ------------
+    Les etiquetes es distribueixen automàticament segons
+    la mida de cada cel·la i la separació indicada.
+
+    Paràmetres
+    ----------
+    layout: QgsPrintLayout
+        Composició que es vol exportar.
+    position: tuple[int,int]
+        Coordenada X i Y de l'etiqueta superior esquerra, en mil·límetres.
+    cell: float
+        Mida del costat de la cel·la, en mil·límetres.
+    gap: float
+        Separació entre cel·les, en mil·límetres.
+    **cfg: dict
+        Diccionari de paràmetres de configuració.
+
+    Retorna
+    -------
+    ###     
     """
 
     x0, y0 = position
@@ -137,6 +236,28 @@ def afegir_labels_superiors_llegenda(layout, position, cell, gap, **cfg):
 def afegir_labels_laterals_llegenda(layout, position, cell, gap, **cfg):
     """
     Afegeix les etiquetes laterals de la llegenda bivariant.
+
+    Observacions
+    ------------
+    Les etiquetes es distribueixen automàticament segons
+    la mida de cada cel·la i la separació indicada.
+
+    Paràmetres
+    ----------
+    layout: QgsPrintLayout
+        Composició que es vol exportar.
+    position: tuple[int,int]
+        Coordenada X i Y de l'etiqueta superior, en mil·límetres.
+    cell: float
+        Mida del costat de la cel·la, en mil·límetres.
+    gap: float
+        Separació entre cel·les, en mil·límetres.
+    **cfg: dict
+        Diccionari de paràmetres de configuració.
+
+    Retorna
+    -------
+    ### 
     """
 
     x0, y0 = position
@@ -151,6 +272,10 @@ def afegir_labels_laterals_llegenda(layout, position, cell, gap, **cfg):
             **cfg
         )
 
+
+# ------------------------------------------------------------------
+# EXPORTACIÓ
+# ------------------------------------------------------------------
 
 def exportar_layout(layout, output_path, dpi):
     """
@@ -191,22 +316,31 @@ def exportar_layout(layout, output_path, dpi):
         raise RuntimeError(f"No s'ha pogut exportar el layout a '{output_path}'")
 
 
-def composicio_bivariant_barris(capes, capa_extent):
+# ------------------------------------------------------------------
+# COMPOSICIÓ
+# ------------------------------------------------------------------
+
+def composicio_bivariant_barris(districtes, capes, capa_extent):
     """
-    Genera la composició cartogràfica d'anàlisi bivariant del projecte.
+    Genera la composició cartogràfica d'anàlisi bivariant per
+    barris del projecte.
 
     La funció coordina totes les operacions necessàries per crear el
     layout:
         - crea la composició,
+        - prepara les capes auxiliars,
         - afegeix el mapa principal,
-        - incorpora el títol,
-        - incorpora la llegenda,
+        - afegeix la capçalera,
+        - construeix la llegenda bivariant,
+        - incorpora els eixos i etiquetes interpretatius de la llegenda,
         - incorpora l'escala gràfica,
         - incorpora la fletxa del nord,
         - i exporta el resultat a PDF.
     
     Paràmetres
     ----------
+    districtes: QgsVectorLayer
+        Capa vectorial de districtes.
     capes: list[QgsMapLayer]
         Llista ordenada de capes que es mostraran a la composició.
     capa_extent: QgsVectorLayer
@@ -221,11 +355,13 @@ def composicio_bivariant_barris(capes, capa_extent):
     cfg_layout = config.LAYOUTS["BIVARIANT"]
     cfg_estructura = config.LAYOUTS["ESTRUCTURA_BIVARIANT"]
 
+    layer_districtes = crear_capa_districtes_layout(districtes)
+
     layout = layout_common.generar_layout(nom_layout="Anàlisi bivariant per barris")
     
     mapa = afegir_mapa(
         layout=layout,
-        capes=capes,
+        capes=[layer_districtes, capes],
         capa_extent=capa_extent,
         **cfg_estructura["Mapa"]
     )

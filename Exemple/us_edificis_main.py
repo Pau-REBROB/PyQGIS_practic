@@ -373,10 +373,8 @@ layout_especialitzacio.composicio_especialitzacio(
 
 ## Composició bivariant barris
 layout_bivariant_barris.composicio_bivariant_barris(
-    capes=[
-        layers_simbologia_base["Districtes"],
-        layers_especialitzacio_no_residencial["bivariant"]
-    ],
+    districtes=dict_layers_clean["Limits_administratius"]["Districtes"],
+    capes=layers_especialitzacio_no_residencial["bivariant"],
     capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"]
 )
 
@@ -393,21 +391,3 @@ fusionar_layouts.fusionar_pdf(
 )
 
 #============================================================================================
-
-"""GENERACIÓ DE CARTOGRAFIA"""
-# QUINS LAYOUTS VULL CREAR?
-## simbologia única per tenir de fons les divisions administratives
-## simbologia categòrica --> ús dels edificis / barris,districtes
-## simbologia graduada --> altura dels edificis / àrea barris,districtes / població (CAL AFEGIR-LA)
-## simbologia regles --> els barris amb més,menys àrea o població / edificis amb més,menys plantes
-
-
-# Desactivar la visibilitat de totes les capes importades
-for layer in project.mapLayers().values():
-    node = root.findLayer(layer)
-    if node:
-        node.setItemVisibilityChecked(False)
-
-
-
-#========================================================================================

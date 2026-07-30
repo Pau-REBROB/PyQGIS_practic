@@ -248,7 +248,7 @@ SIMBOLOGIA = {
     "Barris_bivariant": {
         "atribut": 'classe_bivariant',
         "colors_categories": COLORS_BIVARIANT,
-        "outline_width": 0.5,
+        "outline_width": 0.35,
         "stroke_color": (120,120,120,255)    
     }
 }
