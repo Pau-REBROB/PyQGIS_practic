@@ -68,15 +68,16 @@ def afegir_mapa(layout, capes, capa_extent, factor_escala, size, position, rotac
         Element mapa.
     """
 
+    # Configuració inicial del mapa
     layout_map = QgsLayoutItemMap(layout)
     
     layout.addLayoutItem(layout_map)
 
     layout_map.setLayers(capes)
 
-    # Mantenir el conjunt de capes fix perquè el layout no canvïi
     layout_map.setKeepLayerSet(True)
 
+    # Ajust d'escala i rotació
     layout_map.attemptMove(QgsLayoutPoint(*position, QgsUnitTypes.LayoutMillimeters))
     layout_map.attemptResize(QgsLayoutSize(*size, QgsUnitTypes.LayoutMillimeters))
 
@@ -84,9 +85,7 @@ def afegir_mapa(layout, capes, capa_extent, factor_escala, size, position, rotac
     layout_map.setMapRotation(rotacio)
     layout_map.setScale(layout_map.scale() * factor_escala)
 
-    # # Ajust manual del centre del mapa
-    # # per compensar l'espai ocupat per la llegenda
-    # # i aconseguir una millor composició visual 
+    # Desplaçament manual del centre del mapa
     extent = layout_map.extent()
     dx, dy = layout_common.transformar_offset(
         offset_x=offset_x,
@@ -352,25 +351,41 @@ def composicio_bivariant_barris(districtes, capes, capa_extent):
         La composició s'exporta directament en local.
     """
 
+    # ------------------------------------------------------------------
+    # CONFIGURACIÓ
+    # ------------------------------------------------------------------
+
     cfg_layout = config.LAYOUTS["BIVARIANT"]
     cfg_estructura = config.LAYOUTS["ESTRUCTURA_BIVARIANT"]
 
-    layer_districtes = crear_capa_districtes_layout(districtes)
+    districtes_layout = crear_capa_districtes_layout(districtes)
 
     layout = layout_common.generar_layout(nom_layout="Anàlisi bivariant per barris")
+
+    # ------------------------------------------------------------------
+    # MAPA
+    # ------------------------------------------------------------------
     
     mapa = afegir_mapa(
         layout=layout,
-        capes=[layer_districtes, capes],
+        capes=[districtes_layout, capes],
         capa_extent=capa_extent,
         **cfg_estructura["Mapa"]
     )
+
+    # ------------------------------------------------------------------
+    # CAPÇALERA
+    # ------------------------------------------------------------------
 
     layout_common.afegir_capçalera(
         layout=layout,
         **cfg_layout["Capçalera"],
         **cfg_estructura["Capçalera"]
     )
+
+    # ------------------------------------------------------------------
+    # LLEGENDA
+    # ------------------------------------------------------------------
 
     afegir_llegenda_bivariant(
         layout=layout,
@@ -402,6 +417,10 @@ def composicio_bivariant_barris(districtes, capes, capa_extent):
         **cfg_estructura["Labels_laterals_llegenda"]
     )
 
+    # ------------------------------------------------------------------
+    # ESCALA I NORD
+    # ------------------------------------------------------------------
+
     layout_common.afegir_escala(
         layout=layout,
         mapa=mapa,
@@ -415,6 +434,10 @@ def composicio_bivariant_barris(districtes, capes, capa_extent):
         **cfg_layout["Nord"],
         **cfg_estructura["Nord"]
     )
+
+    # ------------------------------------------------------------------
+    # EXPORTACIÓ
+    # ------------------------------------------------------------------
 
     exportar_layout(
         layout=layout,

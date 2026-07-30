@@ -80,6 +80,11 @@ def transformar_offset(offset_x, offset_y, rotacio):
     Transforma un desplaçament visual (en pantalla) a un desplaçament
     en coordenades del mapa.
 
+    Quan el mapa està rotat, un desplaçament horitzontal o vertical sobre
+    el paper no coincideix amb els eixos del sistema de coordenades. Aquesta
+    funció aplica la transformació trigonomètrica necessària per a convertir
+    un desplaçament visual en un desplaçament real sobre l'extensió del mapa.
+
     Paràmetres
     ----------
     offset_x: float
