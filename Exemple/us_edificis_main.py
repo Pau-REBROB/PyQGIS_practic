@@ -72,6 +72,7 @@ import analisi.agregacions as agregacions
 import analisi.grafics as grafics
 import analisi.clusters as clusters
 import analisi.espacialitzacio as especialitzacio
+import analisi.hexagons as hexagons
 import simbologia.simbologies as simbologies
 import simbologia.simbologia_especialitzacio as simbologia_especialitzacio
 import simbologia.simbologia_general as simbologia_general
@@ -102,6 +103,7 @@ importlib.reload(agregacions)
 importlib.reload(grafics)
 importlib.reload(clusters)
 importlib.reload(especialitzacio)
+importlib.reload(hexagons)
 importlib.reload(simbologies)
 importlib.reload(simbologia_especialitzacio)
 importlib.reload(simbologia_general)
@@ -234,6 +236,18 @@ barris_especialitzacio_no_residencial = especialitzacio.afegir_resultats_especia
     districtes=dict_layers_clean["Limits_administratius"]["Barris"],
     resultats=bivariant_no_residencial
 )
+
+
+# Hexàgons
+malla_hex = hexagons.crear_malla_hexagonal(
+    capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"],
+    mida_hexagon=100
+)
+malla_hex_bcn = hexagons.retallar_malla_hexagonal(
+    malla=malla_hex,
+    capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"]
+)
+QgsProject.instance().addMapLayer(malla_hex_bcn)
 
 
 
