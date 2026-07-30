@@ -13,7 +13,7 @@ analisi_hexagonal.py
 └── generar_layout_hexagonal()
 """
 
-#from qgis.core import ()
+from qgis.core import (QgsFeatureRequest)
 
 import processing
 
@@ -68,3 +68,52 @@ def retallar_malla_hexagonal(malla, capa_extent):
     )
 
     return resultat["OUTPUT"]
+
+
+def filtrar_capa_edificis(layer, expressio):
+    """
+    Genera una nova capa en memòria amb les entitats que compleixen una expressió.
+
+    Paràmetres
+    ----------
+    layer: QgsVectorLayer
+        Capa vectorial sobre la qual s'aplica el filtratge.
+    expressio: str
+        Expressió de filtratge escrita amb la sintaxi d'expressions de QGIS.
+
+    Retorna
+    -------
+    QgsVectorLayer
+        Nova capa en memòria que conté únicament les entitats seleccionades.
+    """
+    
+    request = QgsFeatureRequest().setFilterExpression(expressio)
+
+    return layer.materialize(request)
+
+
+def agregar_usos_a_hexagons(edificis, malla, camp, expressio=None):
+    """
+    """
+
+    if expressio: 
+        edificis = filtrar_capa_edificis(
+            layer=edificis,
+            expressio=expressio
+        )
+
+    resultat = processing.run(
+        "native:joinattributesbylocation",
+        {
+            'INPUT': malla,
+            'JOIN': edificis,
+            'JOIN_FIELDS': camp,
+            'PREDICATE': 0, # Intersecció
+            'METHOD': 1, # 1 a 1
+            'DISCARD_NONMATCHING': False,
+            'OUTPUT': "memory:"
+        }
+    )
+
+    return resultat["OUTPUT"]
+

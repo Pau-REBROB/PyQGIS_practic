@@ -248,6 +248,20 @@ malla_hex_bcn = hexagons.retallar_malla_hexagonal(
     capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"]
 )
 QgsProject.instance().addMapLayer(malla_hex_bcn)
+malla_hex_usos = hexagons.agregar_usos_a_hexagons(
+    edificis=dict_layers_clean["Cadastre"]["Edificis"],
+    malla=malla_hex_bcn,
+    camp='currentUse'
+)
+QgsProject.instance().addMapLayer(malla_hex_usos)
+malla_hex_usos_no_resid = hexagons.agregar_usos_a_hexagons(
+    edificis=dict_layers_clean["Cadastre"]["Edificis"],
+    malla=malla_hex_bcn,
+    camp='currentUse',
+    expressio="\"currentUse\" <> '1_residential'"
+)
+QgsProject.instance().addMapLayer(malla_hex_usos_no_resid)
+
 
 
 
