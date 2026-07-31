@@ -248,21 +248,43 @@ malla_hex_bcn = hexagons.retallar_malla_hexagonal(
     capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"]
 )
 QgsProject.instance().addMapLayer(malla_hex_bcn)
-malla_hex_usos = hexagons.agregar_usos_a_hexagons(
+
+edificis_hex_usos = hexagons.assignar_hexagons_a_edificis(
     edificis=dict_layers_clean["Cadastre"]["Edificis"],
-    malla=malla_hex_bcn,
-    camp='currentUse'
+    malla=malla_hex_bcn
 )
-QgsProject.instance().addMapLayer(malla_hex_usos)
-malla_hex_usos_no_resid = hexagons.agregar_usos_a_hexagons(
+QgsProject.instance().addMapLayer(edificis_hex_usos)
+edificis_hex_usos_no_resid = hexagons.assignar_hexagons_a_edificis(
     edificis=dict_layers_clean["Cadastre"]["Edificis"],
     malla=malla_hex_bcn,
-    camp='currentUse',
     expressio="\"currentUse\" <> '1_residential'"
 )
-QgsProject.instance().addMapLayer(malla_hex_usos_no_resid)
+QgsProject.instance().addMapLayer(edificis_hex_usos_no_resid)
+
+resum_hex_no_resid = hexagons.agregar_usos_per_hexagons(
+    edificis_hex=edificis_hex_usos_no_resid
+)
+resum_hex_resid = hexagons.agregar_usos_per_hexagons(
+    edificis_hex=edificis_hex_usos
+)
 
 
+especialitzacio = hexagons.analisi_especialitzacio(
+    capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"],
+    mida_hexagon=100,
+    edificis=dict_layers_clean["Cadastre"]["Edificis"],
+    expressio="\"currentUse\" <> '1_residential'"
+)
+
+espec_classificat = hexagons.classificar_especialitzacio(
+    resultats=especialitzacio)
+bivariant_hex = hexagons.classificar_bivariant(
+    resultats=espec_classificat
+)
+hex_espec = hexagons.afegir_resultats_especialitzacio(
+    malla=malla_hex_bcn,
+    resultats=bivariant_hex
+)
 
 
 ####################
@@ -332,6 +354,15 @@ layers_especialitzacio_no_residencial = simbologia_general.simbologia_especialit
 for layer in layers_especialitzacio_no_residencial.values():
     QgsProject.instance().addMapLayer(layer)
 
+
+## Hexàgons
+hex_simb = simbologies.simbologia_categorica(
+    layer=hex_espec,
+    atribut='classe_bivariant',
+    colors_categories=config.COLORS_BIVARIANT,
+    outline_width=0.2,
+    stroke_color=(0,0,0,0)
+)
 
 
 
