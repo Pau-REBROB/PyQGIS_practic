@@ -75,6 +75,7 @@ import analisi.espacialitzacio as especialitzacio
 import analisi.hexagons as hexagons
 import simbologia.simbologies as simbologies
 import simbologia.simbologia_especialitzacio as simbologia_especialitzacio
+import simbologia.simbologia_hexagons as simbologia_hexagons
 import simbologia.simbologia_general as simbologia_general
 import layouts.layout_common as layout_common
 import layouts.layout_general as layout_general
@@ -106,6 +107,7 @@ importlib.reload(especialitzacio)
 importlib.reload(hexagons)
 importlib.reload(simbologies)
 importlib.reload(simbologia_especialitzacio)
+importlib.reload(simbologia_hexagons)
 importlib.reload(simbologia_general)
 importlib.reload(layout_common)
 importlib.reload(layout_general)
@@ -239,52 +241,44 @@ barris_especialitzacio_no_residencial = especialitzacio.afegir_resultats_especia
 
 
 # Hexàgons
-malla_hex = hexagons.crear_malla_hexagonal(
+malla_hex = hexagons.generar_malla_retallada(
     capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"],
-    mida_hexagon=100
+    mida_hexagon=150
 )
-malla_hex_bcn = hexagons.retallar_malla_hexagonal(
+
+especialitzacio_no_residencial = hexagons.analisi_especialitzacio(
     malla=malla_hex,
-    capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"]
-)
-QgsProject.instance().addMapLayer(malla_hex_bcn)
-
-edificis_hex_usos = hexagons.assignar_hexagons_a_edificis(
-    edificis=dict_layers_clean["Cadastre"]["Edificis"],
-    malla=malla_hex_bcn
-)
-QgsProject.instance().addMapLayer(edificis_hex_usos)
-edificis_hex_usos_no_resid = hexagons.assignar_hexagons_a_edificis(
-    edificis=dict_layers_clean["Cadastre"]["Edificis"],
-    malla=malla_hex_bcn,
-    expressio="\"currentUse\" <> '1_residential'"
-)
-QgsProject.instance().addMapLayer(edificis_hex_usos_no_resid)
-
-resum_hex_no_resid = hexagons.agregar_usos_per_hexagons(
-    edificis_hex=edificis_hex_usos_no_resid
-)
-resum_hex_resid = hexagons.agregar_usos_per_hexagons(
-    edificis_hex=edificis_hex_usos
-)
-
-
-especialitzacio = hexagons.analisi_especialitzacio(
-    capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"],
-    mida_hexagon=100,
     edificis=dict_layers_clean["Cadastre"]["Edificis"],
     expressio="\"currentUse\" <> '1_residential'"
 )
+especialitzacio_residencial = hexagons.analisi_especialitzacio(
+    malla=malla_hex,
+    edificis=dict_layers_clean["Cadastre"]["Edificis"]
+)
 
-espec_classificat = hexagons.classificar_especialitzacio(
-    resultats=especialitzacio)
-bivariant_hex = hexagons.classificar_bivariant(
-    resultats=espec_classificat
+espec_classificat_residencial = hexagons.classificar_especialitzacio(
+    resultats=especialitzacio_residencial
 )
-hex_espec = hexagons.afegir_resultats_especialitzacio(
-    malla=malla_hex_bcn,
-    resultats=bivariant_hex
+espec_classificat_no_residencial = hexagons.classificar_especialitzacio(
+    resultats=especialitzacio_no_residencial
 )
+
+bivariant_hex_residencial = hexagons.classificar_bivariant(
+    resultats=espec_classificat_residencial
+)
+bivariant_hex_no_residencial = hexagons.classificar_bivariant(
+    resultats=espec_classificat_no_residencial
+)
+
+hex_espec_residencial = hexagons.afegir_resultats_especialitzacio(
+    malla=malla_hex,
+    resultats=bivariant_hex_residencial
+)
+hex_espec_no_residencial = hexagons.afegir_resultats_especialitzacio(
+    malla=malla_hex,
+    resultats=bivariant_hex_no_residencial
+)
+
 
 
 ####################
@@ -356,6 +350,35 @@ for layer in layers_especialitzacio_no_residencial.values():
 
 
 ## Hexàgons
+# Distribució de les dades
+dominancies = []
+shannon = []
+
+for dades in especialitzacio.values():
+    dominancies.append(dades["dominancia"])
+    shannon.append(dades["shannon_normalitzat"])
+
+min(dominancies)
+max(dominancies)
+
+min(shannon)
+max(shannon)
+
+sorted(dominancies)
+sorted(shannon)
+
+total = len(especialitzacio_no_residencial)
+
+valids = sum(
+    1 for d in especialitzacio_no_residencial.values()
+    if d["n_edificis"] >= 3
+)
+
+print(valids, "/", total)
+print(f"{valids/total*100:.1f}%")
+
+
+
 hex_simb = simbologies.simbologia_categorica(
     layer=hex_espec,
     atribut='classe_bivariant',
@@ -363,6 +386,22 @@ hex_simb = simbologies.simbologia_categorica(
     outline_width=0.2,
     stroke_color=(0,0,0,0)
 )
+
+hex_us_pred = simbologia_hexagons.simbologia_us_predominant(
+    hexagons=hex_espec_no_residencial
+)
+QgsProject.instance().addMapLayer(hex_us_pred)
+
+hex_dom = simbologia_hexagons.simbologia_dominancia(
+    hexagons=hex_espec_no_residencial
+)
+QgsProject.instance().addMapLayer(hex_dom)
+
+hex_shan = simbologia_hexagons.simbologia_shannon(
+    hexagons=hex_espec_no_residencial
+)
+QgsProject.instance().addMapLayer(hex_shan)
+
 
 
 

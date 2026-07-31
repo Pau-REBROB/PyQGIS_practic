@@ -250,6 +250,28 @@ SIMBOLOGIA = {
         "colors_categories": COLORS_BIVARIANT,
         "outline_width": 0.35,
         "stroke_color": (120,120,120,255)    
+    },
+    "Hexagons_us_predominant": {
+        "atribut": 'us_predominant',
+        "colors_categories": COLORS_USOS,
+        "outline_width": 0.25,
+        "stroke_color": (120,120,120,255)
+    },
+    "Hexagons_dominancia": {
+        "atribut": 'dominancia',
+        "num_classes": 5,
+        "color_ramp": "YlOrRd",
+        "mode": "Jenks",
+        "stroke_color": (120,120,120,255),
+        "stroke_width": 0.25
+    },
+    "Hexagons_shannon": {
+        "atribut": 'shannon_norm',
+        "num_classes": 5,
+        "color_ramp": "Blues",
+        "mode": "Jenks",
+        "stroke_color": (120,120,120,255),
+        "stroke_width": 0.25
     }
 }
 

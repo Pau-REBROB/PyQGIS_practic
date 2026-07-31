@@ -77,6 +77,23 @@ def retallar_malla_hexagonal(malla, capa_extent):
     return resultat["OUTPUT"]
 
 
+def generar_malla_retallada(capa_extent, mida_hexagon):
+    """
+    """
+
+    malla = crear_malla_hexagonal(
+        capa_extent=capa_extent,
+        mida_hexagon=mida_hexagon
+    )
+
+    malla_retallada = retallar_malla_hexagonal(
+        malla=malla,
+        capa_extent=capa_extent
+    )
+
+    return malla_retallada
+
+
 def filtrar_capa_edificis(layer, expressio):
     """
     Genera una nova capa en memòria amb les entitats que compleixen una expressió.
@@ -301,7 +318,7 @@ def calcular_shannon(comptador):
     }
 
 
-def analisi_especialitzacio(capa_extent, mida_hexagon, edificis, expressio=None):
+def analisi_especialitzacio(malla, edificis, expressio=None):
     """
     Clacula els indicadors d'especialització funcional de cada hexagon.
 
@@ -348,19 +365,9 @@ def analisi_especialitzacio(capa_extent, mida_hexagon, edificis, expressio=None)
         }
     """
 
-    malla = crear_malla_hexagonal(
-        capa_extent=capa_extent,
-        mida_hexagon=mida_hexagon
-    )
-
-    malla_bcn = retallar_malla_hexagonal(
-        malla=malla,
-        capa_extent=capa_extent
-    )
-
     edificis_hex = assignar_hexagons_a_edificis(
         edificis=edificis,
-        malla=malla_bcn,
+        malla=malla,
         expressio=expressio
     )
 
@@ -544,7 +551,7 @@ def classificar_bivariant(resultats):
     return resultats
 
 
-def afegir_resultats_especialitzacio(malla, resultats):
+def afegir_resultats_especialitzacio(malla, resultats, min_edificis=3):
     """
     Genera una nova capa de malla hexagonal incorporant els indicadors
     d'especialització funcional calculats.
@@ -558,6 +565,8 @@ def afegir_resultats_especialitzacio(malla, resultats):
         Capa vectorial malla hexagonal.
     resultats: dict
         Diccionari retornat de `analisi_especialitzacio()`.
+    min_edificis: int
+        ###
 
     Retorna
     -------
@@ -575,7 +584,8 @@ def afegir_resultats_especialitzacio(malla, resultats):
         QgsField("dominancia", QVariant.Double),
         QgsField("shannon", QVariant.Double),
         QgsField("shannon_norm", QVariant.Double),
-        QgsField("classe_bivariant", QVariant.String)
+        QgsField("classe_bivariant", QVariant.String),
+        QgsField("n_edificis", QVariant.Int)
     ])
 
     layer.updateFields()
@@ -586,6 +596,7 @@ def afegir_resultats_especialitzacio(malla, resultats):
     idx_shannon = layer.fields().indexOf("shannon")
     idx_shan_norm = layer.fields().indexOf("shannon_norm")
     idx_bivariant = layer.fields().indexOf("classe_bivariant")
+    idx_n_edificis = layer.fields().indexOf("n_edificis")
 
     layer.startEditing()
 
@@ -597,15 +608,49 @@ def afegir_resultats_especialitzacio(malla, resultats):
         if dades is None:
             continue
 
+        if dades["n_edificis"] < min_edificis:
+            feature[idx_us] = None
+            feature[idx_perc] = None
+            feature[idx_dominancia] = None
+            feature[idx_shannon] = None
+            feature[idx_shan_norm] = None
+            feature[idx_bivariant] = None
+            feature[idx_n_edificis] = None
+
+            layer.updateFeature(feature)
+
+            continue
+
         feature[idx_us] = dades["us_predominant"]
         feature[idx_perc] = dades["percentatge"]
         feature[idx_dominancia] = dades["dominancia"]
         feature[idx_shannon] = dades["shannon"]
         feature[idx_shan_norm] = dades["shannon_normalitzat"]
         feature[idx_bivariant] = dades["classe_bivariant"]
+        feature[idx_n_edificis] = dades["n_edificis"]
 
         layer.updateFeature(feature)
     
     layer.commitChanges()
 
     return layer
+
+
+def escriure_capa_especialitzacio(malla, especialitzacio, min_edificis=3):
+    """
+    """
+
+    for feat in malla.getFeatures():
+        hex_id = feat["id"]
+
+        if hex_id not in especialitzacio:
+            continue
+
+        dades = especialitzacio[hex_id]
+
+        if dades["n_edificis"] < min_edificis:
+            continue
+
+        resultats = analisi_especialitzacio(malla, edificis_hex, expressio=None)
+
+    return resultats 
