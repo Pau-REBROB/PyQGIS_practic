@@ -1,17 +1,3 @@
-"""
-analisi_hexagonal.py
-
-│
-├── crear_malla_hexagonal()
-│
-├── eliminar_hexagons_buits()
-│
-├── agregar_activitats_hexagons()
-│
-├── calcular_indicadors_hexagons()
-│
-└── generar_layout_hexagonal()
-"""
 
 from qgis.core import (
     QgsFeatureRequest,
@@ -551,7 +537,7 @@ def classificar_bivariant(resultats):
     return resultats
 
 
-def afegir_resultats_especialitzacio(malla, resultats, min_edificis=3):
+def afegir_resultats_especialitzacio(malla, resultats, min_edificis=config.MIN_EDIFICIS):
     """
     Genera una nova capa de malla hexagonal incorporant els indicadors
     d'especialització funcional calculats.
@@ -635,22 +621,3 @@ def afegir_resultats_especialitzacio(malla, resultats, min_edificis=3):
 
     return layer
 
-
-def escriure_capa_especialitzacio(malla, especialitzacio, min_edificis=3):
-    """
-    """
-
-    for feat in malla.getFeatures():
-        hex_id = feat["id"]
-
-        if hex_id not in especialitzacio:
-            continue
-
-        dades = especialitzacio[hex_id]
-
-        if dades["n_edificis"] < min_edificis:
-            continue
-
-        resultats = analisi_especialitzacio(malla, edificis_hex, expressio=None)
-
-    return resultats 

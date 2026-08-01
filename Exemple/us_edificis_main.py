@@ -243,7 +243,7 @@ barris_especialitzacio_no_residencial = especialitzacio.afegir_resultats_especia
 # Hexàgons
 malla_hex = hexagons.generar_malla_retallada(
     capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"],
-    mida_hexagon=150
+    mida_hexagon=config.MIDA_HEXAGON
 )
 
 especialitzacio_no_residencial = hexagons.analisi_especialitzacio(
@@ -378,30 +378,12 @@ print(valids, "/", total)
 print(f"{valids/total*100:.1f}%")
 
 
-
-hex_simb = simbologies.simbologia_categorica(
-    layer=hex_espec,
-    atribut='classe_bivariant',
-    colors_categories=config.COLORS_BIVARIANT,
-    outline_width=0.2,
-    stroke_color=(0,0,0,0)
-)
-
-hex_us_pred = simbologia_hexagons.simbologia_us_predominant(
+layers_hexagons_especialitzacio_no_residencial = simbologia_general.simbologia_hexagons_especialitzacio_funcional(
     hexagons=hex_espec_no_residencial
 )
-QgsProject.instance().addMapLayer(hex_us_pred)
-
-hex_dom = simbologia_hexagons.simbologia_dominancia(
-    hexagons=hex_espec_no_residencial
-)
-QgsProject.instance().addMapLayer(hex_dom)
-
-hex_shan = simbologia_hexagons.simbologia_shannon(
-    hexagons=hex_espec_no_residencial
-)
-QgsProject.instance().addMapLayer(hex_shan)
-
+# Addició de capes al projecte
+for layer in layers_hexagons_especialitzacio_no_residencial.values():
+    QgsProject.instance().addMapLayer(layer)
 
 
 

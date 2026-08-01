@@ -150,6 +150,10 @@ COLORS_BIVARIANT = {
     "Alta_Alta": (145, 110, 82, 255)
 }
 
+MIDA_HEXAGON = 150
+
+MIN_EDIFICIS = 3
+
 # =============================================================================
 # ANÀLISI
 # =============================================================================
@@ -179,6 +183,23 @@ CLASSIFICACIO_SHANNON = {
     "Mitjana": 0.70,
     "Alta": 0.85
 }
+
+INTERVALS_DOMINANCIA = [
+    0.0,
+    14.3,
+    37.5,
+    57.1,
+    83.3,
+    100.0
+]
+
+INTERVALS_SHANNON = [
+    0.00,
+    0.65,
+    0.82,
+    0.95,
+    1.00
+]
 
 # =============================================================================
 # SIMBOLOGIA
@@ -258,21 +279,25 @@ SIMBOLOGIA = {
         "stroke_color": (120,120,120,255)
     },
     "Hexagons_dominancia": {
-        "atribut": 'dominancia',
-        "num_classes": 5,
         "color_ramp": "YlOrRd",
-        "mode": "Jenks",
+        "intervals": INTERVALS_DOMINANCIA,
+        "atribut": 'dominancia',
         "stroke_color": (120,120,120,255),
         "stroke_width": 0.25
     },
     "Hexagons_shannon": {
-        "atribut": 'shannon_norm',
-        "num_classes": 5,
         "color_ramp": "Blues",
-        "mode": "Jenks",
+        "intervals": INTERVALS_SHANNON,
+        "atribut": 'shannon_norm',
         "stroke_color": (120,120,120,255),
         "stroke_width": 0.25
-    }
+    },
+    "Hexagons_bivariant": {
+        "atribut": 'classe_bivariant',
+        "colors_categories": COLORS_BIVARIANT,
+        "outline_width": 0.25,
+        "stroke_color": (120,120,120,255)
+    }    
 }
 
 # =============================================================================

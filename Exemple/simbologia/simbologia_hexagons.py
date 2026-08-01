@@ -33,7 +33,7 @@ def simbologia_dominancia(hexagons):
     segons el grau de dominància funcional.
     """
 
-    layer = simbologies.simbologia_graduada(
+    layer = simbologies.simbologia_graduada_manual(
         layer=hexagons,
         **config.SIMBOLOGIA["Hexagons_dominancia"]
     )
@@ -59,9 +59,9 @@ def simbologia_shannon(hexagons):
     segons l'índex de diversitat de Shannon.
     """
 
-    layer = simbologies.simbologia_graduada(
+    layer = simbologies.simbologia_graduada_manual(
         layer=hexagons,
-        **config.SIMBOLOGIA["Districtes_shannon"]
+        **config.SIMBOLOGIA["Hexagons_shannon"]
     )
 
     renderer = layer.renderer()
@@ -76,4 +76,20 @@ def simbologia_shannon(hexagons):
 
     layer.setName("Hexagons_shannon_norm")
 
+    return layer
+
+
+def simbologia_bivariant(hexagons):
+    """
+    Aplica una simbologia categòrica als hexagons
+    segons una variable bivariant. 
+    """
+
+    layer = simbologies.simbologia_categorica(
+            layer=hexagons,
+            **config.SIMBOLOGIA["Hexagons_bivariant"]
+    )
+        
+    layer.setName("Districtes_bivariància")
+    
     return layer

@@ -19,6 +19,7 @@ from qgis.core import (
     QgsGraduatedSymbolRenderer,
     QgsLineSymbol,
     QgsRendererCategory,
+    QgsRendererRange,
     QgsSimpleLineSymbolLayer,
     QgsSingleSymbolRenderer,
     QgsStyle
@@ -249,6 +250,79 @@ def simbologia_graduada(layer, atribut, num_classes, color_ramp, mode, stroke_co
         QgsStyle().defaultStyle().colorRamp(color_ramp)
     )
    
+    layer_clone.setRenderer(renderer)
+
+    return layer_clone
+
+
+def simbologia_graduada_manual(layer, color_ramp, intervals, atribut, stroke_color, stroke_width):
+    """
+    Aplica simbologia graduada amb intervals definits manualment
+    a una capa vectorial.
+
+     La funció clona la capa d'entrada i hi aplica un renderer graduat
+    a partir d'un atribut, #####un mètode de classificació i una rampa de 
+    colors disponibles a QGIS.
+        
+    Paràmetres
+    ----------
+    layer: QgsVectorLayer
+        Capa vectorial sobre la qual s'aplica la simbologia.
+    color_ramp: str
+        Nom d'una rampa de color d'estil de QGIS.
+    intervals: list[int]
+        Llistat dels intervals de dades.
+    atribut: str
+        Camp utilitzat per a classificar els valors.
+    stroke_color: tuple[int,int,int,int]
+        Color del contorn, en format (RGBA).
+    stroke_width: float
+        Gruix del contorn.
+
+    Retorna
+    -------
+    QgsVectorLayer
+        Capa vectorial en memòria amb la simbologia aplicada.
+    """
+
+    layer_clone = layer.clone()
+    
+    layer_clone.setName(f"{layer_clone.name()}_simbGradManual")
+    
+    # S'estableix una variable de la rampa de colors passada com a argument
+    rampa = QgsStyle().defaultStyle().colorRamp(color_ramp)
+
+    # S'estableixen el nombre de salts de les dades, com al nombre d'intervals-1
+    salts = len(intervals)-1
+
+    rangs = []
+
+    for i in range(salts):
+        symbol = QgsFillSymbol()
+        
+        # S'estableix un color com el valor interpolat de la rampa de colors en funció del nombre d'intervals
+        if salts == 1:
+            fraccio = 0
+        else:
+            fraccio = float(i) / (salts-1)
+
+        color = rampa.color(fraccio)
+        
+        symbol.setColor(color)
+        symbol.symbolLayer(0).setStrokeColor(QColor(*stroke_color))
+        symbol.symbolLayer(0).setStrokeWidth(stroke_width)
+        
+        range_i = QgsRendererRange(
+            intervals[i],
+            intervals[i+1],
+            symbol,
+            f"{intervals[i]:.2f}-{intervals[i+1]:.2f}"
+        )
+        
+        rangs.append(range_i)
+
+    # S'estableix el renderer graduat de la capa, amb l'atribut i el llistat de rangs
+    renderer = QgsGraduatedSymbolRenderer(atribut, rangs)
     layer_clone.setRenderer(renderer)
 
     return layer_clone

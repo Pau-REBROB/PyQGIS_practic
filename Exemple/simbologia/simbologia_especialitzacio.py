@@ -89,16 +89,6 @@ def simbologia_bivariant(districtes):
             layer=districtes,
             **config.SIMBOLOGIA["Barris_bivariant"]
     )
-    
-    # renderer = layer.renderer()
-    
-    # for i, categoria in enumerate(renderer.categories()):
-    #     valor = categoria.value()
-    #     etiqueta = config.ETIQUETES_USOS.get(valor, valor)
-
-    #     renderer.updateCategoryLabel(i, etiqueta)
-    
-    # layer.triggerRepaint()
         
     layer.setName("Districtes_bivariància")
     

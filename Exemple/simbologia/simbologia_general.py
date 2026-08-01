@@ -9,6 +9,7 @@ durant el projecte.
 import config
 import simbologia.simbologies as simbologies
 import simbologia.simbologia_especialitzacio as simbologia_especialitzacio
+import simbologia.simbologia_hexagons as simbologia_hexagons
 
 def simbologia_base(dict_layers):
     """
@@ -167,3 +168,54 @@ def simbologia_especialitzacio_funcional(districtes):
     layers_especialitzacio["bivariant"] = districtes_bivariant
     
     return layers_especialitzacio
+
+
+def simbologia_hexagons_especialitzacio_funcional(hexagons):
+    """
+    Aplica les diferents simbologies d'especialització
+    a la malla hexagonal amb els atributs d'especialització funcional.
+
+    Paràmetres
+    ----------
+    hexagons: QgsVectorLayer
+        Capa vectorial de districtes.
+    
+    Retorna
+    -------
+    dict
+        Diccionari amb les capes simbolitzades, amb l'estructura:
+        {
+            "us_predominant": QgsVectorLayer,
+            "dominancia": QgsVectorLayer,
+            "index_shannon": QgsVectorLayer,
+            "classe_bivariant: QgsVectorLayer
+        }
+    """
+
+    layers_hexagons = {}
+
+    hexagons_us_pred = simbologia_hexagons.simbologia_us_predominant(
+        hexagons=hexagons
+    )
+
+    layers_hexagons["us_predominant"] = hexagons_us_pred
+
+    hexagons_domin = simbologia_hexagons.simbologia_dominancia(
+        hexagons=hexagons
+    )
+
+    layers_hexagons["dominancia"] = hexagons_domin
+
+    hexagons_shan = simbologia_hexagons.simbologia_shannon(
+        hexagons=hexagons
+    )
+    
+    layers_hexagons["index_shannon"] = hexagons_shan
+
+    hexagons_bivariant = simbologia_hexagons.simbologia_bivariant(
+        hexagons=hexagons
+    )
+
+    layers_hexagons["bivariant"] = hexagons_bivariant
+    
+    return layers_hexagons
