@@ -450,6 +450,53 @@ LAYOUTS = {
         }
     },
 
+    "ESTRUCTURA_HEXAGONS": {
+        "Mapa": {
+            "factor_escala": 0.75,
+            "size": (280, 190),
+            "position": (10, 20),
+            "rotacio": 45,
+            "offset_x": 3000,
+            "offset_y": 300
+        },
+        "Capçalera": {
+            "text_size": (280, 5),
+            "text_position": (10, 10),
+            "backg_size": (280, 2),
+            "backg_position": (10, 20)
+        },
+        "Llegenda": {
+            "position": (238, 143)
+        },
+        "Eix_dominancia_llegenda": {
+            "position": (238, 131),
+            "size": (50, 10),
+            "alineacio": "left",
+            "rotacio": 0
+        },
+        "Eix_diversitat_llegenda": {
+            "position": (221, 175),
+            "size": (50, 10),
+            "alineacio": "left",
+            "rotacio": -90
+        },
+        "Labels_superiors_llegenda": {
+            "position": (240, 137),
+            "size": (26, 6)
+        },
+        "Labels_laterals_llegenda": {
+            "position": (228, 145),
+            "size": (6, 26)
+        },
+        "Escala": {
+            "position": (221, 180),
+        },
+        "Nord": {
+            "size": (10, 10),
+            "position": (221, 192)
+        }
+    },
+
     "GENERAL":{
         "Titol": {
             "titol": "Ús dels edificis de la ciutat de Barcelona - font: Cadastre",
@@ -724,6 +771,71 @@ LAYOUTS = {
         },
         "Exportacio": {
             "output_path": f"{PATH_RESULTATS}/Analisi_bivariant_barris.pdf",
+            "dpi": 300
+        }
+    },
+
+    "BIVARIANT": {
+        "Capçalera": {
+            "color": (100,100,100,180),
+            "outline_color": (85,85,85,255),
+            "outline_width": 0.40,
+            "text": "Especialització funcional bivariant dels usos dels edificis Barcelona",
+            "font": "Calibri",
+            "font_size": 20,
+            "font_color": (0,0,0,255),
+        },
+        "Subtitol": {
+            "color": (100,100,100,180),
+            "outline_color": (85,85,85,255),
+            "outline_width": 0.40,
+            "text": "Malla hexagonal de 150 m. Només es representen els hexàgons amb un mínim de 3 edificis",
+            "font": "Calibri",
+            "font_size": 14,
+            "font_color": (0,0,0,255),
+        },
+        "Llegenda": {
+            "cell": 10,
+            "gap": 0.5,
+            "colors": COLORS_BIVARIANT
+        },
+        "Eix_dominancia_llegenda": {
+            "text": "Dominància funcional",
+            "font": "Calibri",
+            "font_size": 12,
+            "font_color": (0,0,0,255)
+        },
+        "Eix_diversitat_llegenda": {
+            "text": "Diversitat funcional",
+            "font": "Calibri",
+            "font_size": 12,
+            "font_color": (0,0,0,255)
+        },
+        "Labels_superiors_llegenda": {
+            "cell": 10,
+            "gap": 0.5,
+            "font": "Calibri",
+            "font_size": 8,
+            "font_color": (0,0,0,255)
+        },
+        "Labels_laterals_llegenda": {
+            "cell": 10,
+            "gap": 0.5,
+            "font": "Calibri",
+            "font_size": 8,
+            "font_color": (0,0,0,255)
+        },
+        "Escala": {
+            "tipus": "Single Box",
+            "font": "Calibri",
+            "font_size": 10,
+            "font_color": (0,0,0,255)
+        },
+        "Nord": {
+            "image_path": "C:/projectes_git/Dades/nord2.png"
+        },
+        "Exportacio": {
+            "output_path": f"{PATH_RESULTATS}/Analisi_bivariant_hexagons.pdf",
             "dpi": 300
         }
     }

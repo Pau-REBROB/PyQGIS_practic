@@ -84,6 +84,7 @@ import layouts.layout_analisi as layout_analisi
 import layouts.layout_clusters as layout_clusters
 import layouts.layout_especialitzacio as layout_especialitzacio
 import layouts.layout_bivariant_barris as layout_bivariant_barris
+import layouts.layout_hexagons as layout_hexagons
 import layouts.fusionar_layouts as fusionar_layouts
 
 
@@ -116,6 +117,7 @@ importlib.reload(layout_analisi)
 importlib.reload(layout_clusters)
 importlib.reload(layout_especialitzacio)
 importlib.reload(layout_bivariant_barris)
+importlib.reload(layout_hexagons)
 importlib.reload(fusionar_layouts)
 
 
@@ -350,34 +352,6 @@ for layer in layers_especialitzacio_no_residencial.values():
 
 
 ## Hexàgons
-# Distribució de les dades
-dominancies = []
-shannon = []
-
-for dades in especialitzacio.values():
-    dominancies.append(dades["dominancia"])
-    shannon.append(dades["shannon_normalitzat"])
-
-min(dominancies)
-max(dominancies)
-
-min(shannon)
-max(shannon)
-
-sorted(dominancies)
-sorted(shannon)
-
-total = len(especialitzacio_no_residencial)
-
-valids = sum(
-    1 for d in especialitzacio_no_residencial.values()
-    if d["n_edificis"] >= 3
-)
-
-print(valids, "/", total)
-print(f"{valids/total*100:.1f}%")
-
-
 layers_hexagons_especialitzacio_no_residencial = simbologia_general.simbologia_hexagons_especialitzacio_funcional(
     hexagons=hex_espec_no_residencial
 )
@@ -455,6 +429,13 @@ layout_especialitzacio.composicio_especialitzacio(
 layout_bivariant_barris.composicio_bivariant_barris(
     districtes=dict_layers_clean["Limits_administratius"]["Districtes"],
     capes=layers_especialitzacio_no_residencial["bivariant"],
+    capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"]
+)
+
+## Composició bivariant hexàgons
+layout_hexagons.composicio_bivariant_hexagons(
+    districtes=dict_layers_clean["Limits_administratius"]["Districtes"],
+    capes=layers_hexagons_especialitzacio_no_residencial["bivariant"],
     capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"]
 )
 

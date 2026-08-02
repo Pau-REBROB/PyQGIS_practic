@@ -1,3 +1,26 @@
+"""
+Composició de les especialitzacions funcionals dels edificis
+============================================================
+
+####TODO
+Generació de la composició cartogràfica del mapa d'agrupacions espacials.
+
+La composició inclou:
+
+- mapa principal
+- títol
+- llegenda
+- escala gràfica
+- fletxa del nord
+- gràfics estadístics
+- exportació a PDF
+
+Organització
+------------
+- afegir la composició
+- exportar la composició
+"""
+
 from qgis.core import (
     QgsLayoutExporter,
     QgsLayoutItemLegend,
