@@ -494,7 +494,6 @@ def classificar_especialitzacio(resultats):
         # Assignar classificacions
         dades["classe_dominancia"] = classe_dominancia
         dades["classe_diversitat"] = classe_diversitat
-        #dades["interpretacio"] = interpretacio
 
     return resultats
 
@@ -614,8 +613,8 @@ def afegir_resultats_especialitzacio(malla, resultats, min_edificis=config.MIN_E
             feature[idx_dominancia] = None
             feature[idx_shannon] = None
             feature[idx_shan_norm] = None
-            feature[idx_bivariant] = None
-            feature[idx_n_edificis] = None
+            feature[idx_bivariant] = "No_valid"
+            feature[idx_n_edificis] = dades["n_edificis"]
 
             layer.updateFeature(feature)
 

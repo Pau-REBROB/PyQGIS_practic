@@ -147,7 +147,10 @@ COLORS_BIVARIANT = {
     # Diversitat alta / # Dominància variant
     "Baixa_Alta": (48, 165, 214, 255),
     "Mitjana_Alta": (94, 142, 166, 255),
-    "Alta_Alta": (145, 110, 82, 255)
+    "Alta_Alta": (145, 110, 82, 255),
+
+    # Valors no vàlids
+    "No_valid": (220,220,220,80)
 }
 
 MIDA_HEXAGON = 150
@@ -459,11 +462,15 @@ LAYOUTS = {
             "offset_x": 3000,
             "offset_y": 300
         },
-        "Capçalera": {
+        "Text_titol": {
+            "size": (280, 5),
+            "position": (10, 7.5)
+        },
+        "Subtitol": {
             "text_size": (280, 5),
-            "text_position": (10, 10),
+            "text_position": (10, 17.5),
             "backg_size": (280, 2),
-            "backg_position": (10, 20)
+            "backg_position": (10, 27.5)
         },
         "Llegenda": {
             "position": (238, 143)
@@ -775,11 +782,11 @@ LAYOUTS = {
         }
     },
 
-    "BIVARIANT": {
-        "Capçalera": {
-            "color": (100,100,100,180),
-            "outline_color": (85,85,85,255),
-            "outline_width": 0.40,
+    "HEXAGONS": {
+        "Text_titol": {
+            #"color": (100,100,100,180),
+            #"outline_color": (85,85,85,255),
+            #"outline_width": 0.40,
             "text": "Especialització funcional bivariant dels usos dels edificis Barcelona",
             "font": "Calibri",
             "font_size": 20,

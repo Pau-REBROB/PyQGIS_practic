@@ -152,8 +152,8 @@ def crear_capa_districtes_layout(districtes):
     districtes_simbologia = simbologies.simbologia_unica(
         layer=districtes_clone,
         fill_color=(0,0,0,0),
-        outline_width=0.45,
-        stroke_color=(100,100,100,255)
+        outline_width=0.4,
+        stroke_color=(150,150,150,180)
     )
     # TODO
     # El color i el gruix del contorn haurien de convertir-se en constants globals d'estil. 
@@ -383,7 +383,7 @@ def composicio_bivariant_hexagons(districtes, capes, capa_extent):
 
     districtes_layout = crear_capa_districtes_layout(districtes)
 
-    layout = layout_common.generar_layout(nom_layout="Anàlisi bivariant per barris")
+    layout = layout_common.generar_layout(nom_layout="Anàlisi bivariant hexàgons")
 
     # ------------------------------------------------------------------
     # MAPA
@@ -400,16 +400,16 @@ def composicio_bivariant_hexagons(districtes, capes, capa_extent):
     # CAPÇALERA
     # ------------------------------------------------------------------
 
-    layout_common.afegir_capçalera(
+    layout_common.afegir_text(
         layout=layout,
-        **cfg_layout["Capçalera"],
-        **cfg_estructura["Capçalera"]
+        **cfg_layout["Text_titol"],
+        **cfg_estructura["Text_titol"]
     )
-    #subtitol
+    
     layout_common.afegir_capçalera(
         layout=layout,
-        **cfg_layout["Capçalera"],
-        **cfg_estructura["Capçalera"]
+        **cfg_layout["Subtitol"],
+        **cfg_estructura["Subtitol"]
     )
 
     # ------------------------------------------------------------------
