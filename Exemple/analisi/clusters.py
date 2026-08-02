@@ -20,7 +20,10 @@ Les funcions s'organitzen en tres nivells:
     - funcions d'alt nivell que orquestren el procés complet.
 """
 
-from qgis.core import QgsFeatureRequest, QgsVectorLayer
+from qgis.core import (
+    QgsFeatureRequest,
+    QgsVectorLayer
+)
 
 import processing
 import pandas as pd

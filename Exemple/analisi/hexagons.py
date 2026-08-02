@@ -1,3 +1,25 @@
+"""
+Anàlisi amb malla hexagonal (hexgrid)
+=====================================
+
+Mòdul que agrupa les funcions per a l'anàlisi funcional mitjançant malla hexagonal.
+
+Aquest mòdul permet:
+    - generar una malla hexagonal,
+    - assignar cada edifici al seu hexagon,
+    - agregar els usos dels edificis,
+    - calcular indicadors d'especialització funcional,
+    - classificar els indicadors,
+    - incorporar els indicadors a una nova malla hexagonal.
+
+Els indicadors calculats son:
+    - Ús predominant
+    - Percentatge de l'ús predominant
+    - Dominància
+    - Índex de Shannon
+    - Índex de Shannon normalitzat
+    - Classificació bivariant
+"""
 
 from qgis.core import (
     QgsFeatureRequest,
@@ -5,10 +27,10 @@ from qgis.core import (
 )
 from PyQt5.QtCore import QVariant
 
-import config
-
 import processing
 import math
+
+import config
 
 def crear_malla_hexagonal(capa_extent, mida_hexagon):
     """
@@ -49,6 +71,22 @@ def crear_malla_hexagonal(capa_extent, mida_hexagon):
 
 def retallar_malla_hexagonal(malla, capa_extent):
     """
+    Retalla una malla hexagonal segons l'àmbit d'estudi.
+
+    Elimina tots els hexàgons o parts d'hexàgons situats
+    fora del límit de la capa de referència.
+
+    Paràmetres
+    ----------
+    malla: QgsVectorLayer
+        Capa vectorial de la malla hexagonal.
+    capa_extent: QgsVectorLayer
+        Capa vectorial que defineix l'extensió d'estudi.
+
+    Retorna
+    -------
+    QgsVectorLayer
+        Malla hexagonal retallada.
     """
 
     resultat = processing.run(
@@ -65,6 +103,22 @@ def retallar_malla_hexagonal(malla, capa_extent):
 
 def generar_malla_retallada(capa_extent, mida_hexagon):
     """
+    Genera una malla hexagonal retallada a la capa d'estudi.
+
+    La funció crea la malla i, posteriorment, la retalla 
+    utilitzant una capa de referència.
+
+    Paràmetres
+    ----------
+    capa_extent: QgsVectorLayer
+        Capa vectorial que defineix l'extensió d'estudi.
+    mida_hexagon: int
+        Amplada de l'hexagon de la malla.
+
+    Retorna
+    -------
+    QgsVectorLayer
+        Malla hexagonal retallada.
     """
 
     malla = crear_malla_hexagonal(
@@ -116,8 +170,9 @@ def assignar_hexagons_a_edificis(edificis, malla, expressio=None):
         Capa vectorial dels edificis.
     malla: QgsVectorLayer
         Capa vectorial de la malla hexagonal.
-    expressio: str
-        ####
+    expressio: str, optional
+        Expressió de filtratge escrita amb la sintaxi d'expressions de QGIS.
+        Per defecte és None.
 
     Retorna
     -------
@@ -232,7 +287,6 @@ def calcular_especialitzacio(comptador):
         reverse=True
     )
 
-    # Total d'edificis    
     total = comptador["n_edificis"]
 
     us_predominant = usos_ordenats[0][0]
@@ -283,7 +337,6 @@ def calcular_shannon(comptador):
             - "shannon_normalitzat" és l'índex de Shannon normalitzat 
     """
 
-    # Total d'edificis    
     total = comptador["n_edificis"]
 
     shannon = 0
@@ -308,24 +361,23 @@ def analisi_especialitzacio(malla, edificis, expressio=None):
     """
     Clacula els indicadors d'especialització funcional de cada hexagon.
 
-    La funció crea una malla hexagonal i la retalla segons l'extensió de
-    la capa de referència.
-
     Per a cada hexagon:
-        - Compta el nombre d'edificis per a cada ús.
-        - Calcula els indicadors d'especialització.
+        - Agrega els usos dels edificis,
+        - Calcula l'ús predominant,
+        - Calcula el percentatge de l'ús predominant,  
+        - Compta el nombre d'edificis per a cada ús,
+        - Calcula la dominància,
         - Calcula els índex de Shannon.
 
     Paràmetres
     ----------
-    capa_extent: QgsVectorLayer
-        ~##
-    mida_hexagon: int
-        ###
     edificis: QgsVectorLayer
         Capa vectorial dels edificis.
+    malla: QgsVectorLayer
+        Malla hexagonal.
     expressio: str, opcional
-        ###
+        Expressió de filtratge escrita amb la sintaxi d'expressions de QGIS.
+        Per defecte és None.
 
     Retorna
     -------
@@ -438,47 +490,6 @@ def classificar_especialitzacio(resultats):
         
         else:
             classe_diversitat = "Molt baixa"
-
-        # # Generar interpretació
-        # us = config.ETIQUETES_USOS[dades["us_predominant"]]
-
-        # if classe_dominancia == "Alta":
-        #     if classe_diversitat == "Alta":
-        #         interpretacio = (
-        #             f"Districte de {nom} clarament especialitzat en ús {us} "
-        #             f"({dades['percentatge']:.1f}% dels edificis)"
-        #             f" amb una alta diversitat d'usos"
-        #         )
-        #     else:
-        #         interpretacio = (
-        #             f"Districte de {nom} clarament especialitzat en ús {us} "
-        #             f"({dades['percentatge']:.1f}% dels edificis)"
-        #             f" però amb baixa diversitat d'usos"
-        #         )
-        
-        # elif classe_dominancia == "Mitjana":
-        #     interpretacio = (
-        #         f"Districte de {nom} mostra una especialització moderada "
-        #         f"en ús {us} ({dades['percentatge']:.1f}% dels edificis)"
-        #     )
-
-        # elif classe_dominancia == "Baixa":
-        #     if classe_diversitat == "Alta":
-        #         interpretacio = (
-        #             f"Districte de {nom} presenta una distribució bastant equilibrada entre els usos "
-        #             f" amb una alta diversitat d'usos"
-        #         )
-        #     else:
-        #         interpretacio = (
-        #             f"Districte de {nom} presenta una distribució bastant equilibrada entre "
-        #             f"els usos, amb poca diversitat d'aquests"
-        #         )
-
-        # else:
-        #     interpretacio = (
-        #         f"Districte {nom} no presenta cap especialització clara "
-        #         f"i mostra una estructura funcional molt diversa"
-        #     )
         
         # Assignar classificacions
         dades["classe_dominancia"] = classe_dominancia
@@ -490,8 +501,8 @@ def classificar_especialitzacio(resultats):
 
 def classificar_bivariant(resultats):
     """
-    Genera una classificació bivariant combinant les
-    classificacions de dominància i diversitat funcional.
+    Assigna una categoria bivariant combinant les classificacions
+    de dominància i diversitat funcional.
 
     Paràmetres
     ----------
@@ -552,7 +563,10 @@ def afegir_resultats_especialitzacio(malla, resultats, min_edificis=config.MIN_E
     resultats: dict
         Diccionari retornat de `analisi_especialitzacio()`.
     min_edificis: int
-        ###
+        Nombre mínim d'edificis necessaris perquè un hexagon
+        incorpori els indicadors.
+        Els hexàgons amb menys edificis mantenen els camps
+        d'anàlisi a valor nul.
 
     Retorna
     -------
