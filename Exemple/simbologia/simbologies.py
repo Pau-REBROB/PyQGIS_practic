@@ -31,7 +31,7 @@ from qgis.PyQt.QtGui import QColor
 # SÍMBOL ÚNIC
 # =============================================================================
 
-def simbologia_unica(layer, fill_color, outline_width, stroke_color):
+def simbologia_unica(layer, nom, fill_color, outline_width, stroke_color):
     """
     Aplica una simbologia de símbol únic a una capa poligonal.
 
@@ -57,7 +57,7 @@ def simbologia_unica(layer, fill_color, outline_width, stroke_color):
 
     layer_clone = layer.clone()
     
-    layer_clone.setName(f"{layer_clone.name()}_simbUnica")
+    layer_clone.setName(nom)
        
     symbol = QgsFillSymbol()
     

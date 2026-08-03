@@ -150,7 +150,7 @@ COLORS_BIVARIANT = {
     "Alta_Alta": (145, 110, 82, 255),
 
     # Valors no vàlids
-    "No_valid": (220,220,220,80)
+    "No_valid": (225,225,225,60)
 }
 
 MIDA_HEXAGON = 150
@@ -215,6 +215,7 @@ SIMBOLOGIA = {
         "stroke_color": (180,220,230,255)
     },
     "Districtes": {
+        "nom": "Districtes",
         "fill_color": (255,255,255,0),
         "outline_width": 0.5,
         "stroke_color": (255,200,50,255)
@@ -300,6 +301,12 @@ SIMBOLOGIA = {
         "colors_categories": COLORS_BIVARIANT,
         "outline_width": 0.25,
         "stroke_color": (120,120,120,255)
+    },
+    "Hexagons_no_valids": {
+        "nom": "sense dades",
+        "fill_color": (225,225,225,60),
+        "outline_width": 0.2,
+        "stroke_color": (100,100,100,100)
     }    
 }
 
@@ -473,34 +480,37 @@ LAYOUTS = {
             "backg_position": (10, 27.5)
         },
         "Llegenda": {
-            "position": (238, 143)
+            "position": (238, 138)
         },
         "Eix_dominancia_llegenda": {
-            "position": (238, 131),
+            "position": (238, 126),
             "size": (50, 10),
             "alineacio": "left",
             "rotacio": 0
         },
         "Eix_diversitat_llegenda": {
-            "position": (221, 175),
+            "position": (221, 170),
             "size": (50, 10),
             "alineacio": "left",
             "rotacio": -90
         },
         "Labels_superiors_llegenda": {
-            "position": (240, 137),
+            "position": (240, 132),
             "size": (26, 6)
         },
         "Labels_laterals_llegenda": {
-            "position": (228, 145),
+            "position": (228, 140),
             "size": (6, 26)
         },
+        "Llegenda_no_valids": {
+            "position": (221, 170)
+        },
         "Escala": {
-            "position": (221, 180),
+            "position": (221, 185),
         },
         "Nord": {
             "size": (10, 10),
-            "position": (221, 192)
+            "position": (221, 197)
         }
     },
 
@@ -831,6 +841,16 @@ LAYOUTS = {
             "font": "Calibri",
             "font_size": 8,
             "font_color": (0,0,0,255)
+        },
+        "Llegenda_no_valids": {
+            "titol": "Hexàgons amb menys de 3 edificis",
+            "font": "Calibri",
+            "font_size": 12,
+            "font_color": (0,0,0,255),
+            "backg_color": (0,0,0,0)
+            # "cell": 10,
+            # "gap": 0.5,
+            # "colors": COLORS_BIVARIANT["No_valid"]
         },
         "Escala": {
             "tipus": "Single Box",

@@ -281,6 +281,11 @@ hex_espec_no_residencial = hexagons.afegir_resultats_especialitzacio(
     resultats=bivariant_hex_no_residencial
 )
 
+## Hexàgons no vàlids
+hexagons_no_valids = hexagons.filtrar_capa_edificis(
+    layer=hex_espec_no_residencial,
+    expressio='"classe_bivariant" = \'No_valid\''
+)
 
 
 ####################
@@ -359,6 +364,12 @@ layers_hexagons_especialitzacio_no_residencial = simbologia_general.simbologia_h
 for layer in layers_hexagons_especialitzacio_no_residencial.values():
     QgsProject.instance().addMapLayer(layer)
 
+## Hexàgons no vàlids
+layer_hexagons_no_valids = simbologies.simbologia_unica(
+    layer=hexagons_no_valids,
+    **config.SIMBOLOGIA["Hexagons_no_valids"]
+)
+QgsProject.instance().addMapLayer(layer_hexagons_no_valids)
 
 
 ##############################
@@ -435,7 +446,10 @@ layout_bivariant_barris.composicio_bivariant_barris(
 ## Composició bivariant hexàgons
 layout_hexagons.composicio_bivariant_hexagons(
     districtes=dict_layers_clean["Limits_administratius"]["Districtes"],
-    capes=layers_hexagons_especialitzacio_no_residencial["bivariant"],
+    capes=[
+        layers_hexagons_especialitzacio_no_residencial["bivariant"],
+        layer_hexagons_no_valids
+    ],
     capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"]
 )
 

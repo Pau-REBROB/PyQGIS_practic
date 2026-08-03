@@ -32,6 +32,7 @@ from qgis.core import (
 
 import os
 
+import analisi.hexagons as hexagons
 import layouts.layout_common as layout_common
 import simbologia.simbologies as simbologies
 import config
@@ -151,6 +152,7 @@ def crear_capa_districtes_layout(districtes):
 
     districtes_simbologia = simbologies.simbologia_unica(
         layer=districtes_clone,
+        nom="Districtes",
         fill_color=(0,0,0,0),
         outline_width=0.4,
         stroke_color=(150,150,150,180)
@@ -158,7 +160,7 @@ def crear_capa_districtes_layout(districtes):
     # TODO
     # El color i el gruix del contorn haurien de convertir-se en constants globals d'estil. 
 
-    return districtes_simbologia 
+    return districtes_simbologia
 
 
 # ------------------------------------------------------------------
@@ -391,7 +393,7 @@ def composicio_bivariant_hexagons(districtes, capes, capa_extent):
     
     mapa = afegir_mapa(
         layout=layout,
-        capes=[districtes_layout, capes],
+        capes=[districtes_layout] + capes,
         capa_extent=capa_extent,
         **cfg_estructura["Mapa"]
     )
@@ -444,6 +446,14 @@ def composicio_bivariant_hexagons(districtes, capes, capa_extent):
         layout=layout,
         **cfg_layout["Labels_laterals_llegenda"],
         **cfg_estructura["Labels_laterals_llegenda"]
+    )
+
+    layout_common.afegir_llegenda(
+        layout=layout,
+        mapa=mapa,
+        capes=[capes[1]],
+        **cfg_layout["Llegenda_no_valids"],
+        **cfg_estructura["Llegenda_no_valids"]
     )
 
     # ------------------------------------------------------------------
