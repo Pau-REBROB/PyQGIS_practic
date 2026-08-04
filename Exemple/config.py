@@ -150,7 +150,7 @@ COLORS_BIVARIANT = {
     "Alta_Alta": (145, 110, 82, 255),
 
     # Valors no vàlids
-    "No_valid": (225,225,225,60)
+    "No_valid": (200,200,200,80)
 }
 
 MIDA_HEXAGON = 150
@@ -300,13 +300,13 @@ SIMBOLOGIA = {
         "atribut": 'classe_bivariant',
         "colors_categories": COLORS_BIVARIANT,
         "outline_width": 0.25,
-        "stroke_color": (120,120,120,255)
+        "stroke_color": (255,255,255,100)
     },
     "Hexagons_no_valids": {
         "nom": "sense dades",
-        "fill_color": (225,225,225,60),
+        "fill_color": COLORS_BIVARIANT["No_valid"],
         "outline_width": 0.2,
-        "stroke_color": (100,100,100,100)
+        "stroke_color": (255,255,255,200)
     }    
 }
 
@@ -480,37 +480,37 @@ LAYOUTS = {
             "backg_position": (10, 27.5)
         },
         "Llegenda": {
-            "position": (238, 138)
+            "position": (243, 132)
         },
         "Eix_dominancia_llegenda": {
-            "position": (238, 126),
+            "position": (243, 120),
             "size": (50, 10),
             "alineacio": "left",
             "rotacio": 0
         },
         "Eix_diversitat_llegenda": {
-            "position": (221, 170),
+            "position": (226, 164),
             "size": (50, 10),
             "alineacio": "left",
             "rotacio": -90
         },
         "Labels_superiors_llegenda": {
-            "position": (240, 132),
+            "position": (245, 126),
             "size": (26, 6)
         },
         "Labels_laterals_llegenda": {
-            "position": (228, 140),
+            "position": (233, 134),
             "size": (6, 26)
         },
         "Llegenda_no_valids": {
-            "position": (221, 170)
+            "position": (226, 166)
         },
         "Escala": {
-            "position": (221, 185),
+            "position": (226, 185),
         },
         "Nord": {
             "size": (10, 10),
-            "position": (221, 197)
+            "position": (226, 197)
         }
     },
 
@@ -806,7 +806,7 @@ LAYOUTS = {
             "color": (100,100,100,180),
             "outline_color": (85,85,85,255),
             "outline_width": 0.40,
-            "text": "Malla hexagonal de 150 m. Només es representen els hexàgons amb un mínim de 3 edificis",
+            "text": "Malla hexagonal de 150 m. L'anàlisi bivariant només s'aplica als hexàgons amb un mínim de 3 edificis",
             "font": "Calibri",
             "font_size": 14,
             "font_color": (0,0,0,255),
@@ -848,9 +848,6 @@ LAYOUTS = {
             "font_size": 12,
             "font_color": (0,0,0,255),
             "backg_color": (0,0,0,0)
-            # "cell": 10,
-            # "gap": 0.5,
-            # "colors": COLORS_BIVARIANT["No_valid"]
         },
         "Escala": {
             "tipus": "Single Box",

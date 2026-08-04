@@ -281,8 +281,13 @@ hex_espec_no_residencial = hexagons.afegir_resultats_especialitzacio(
     resultats=bivariant_hex_no_residencial
 )
 
+## Hexàgons vàlids
+hexagons_valids_no_residencial = hexagons.filtrar_capa_edificis(
+    layer=hex_espec_no_residencial,
+    expressio='"classe_bivariant" <> \'No_valid\''
+)
 ## Hexàgons no vàlids
-hexagons_no_valids = hexagons.filtrar_capa_edificis(
+hexagons_no_valids_no_residencial = hexagons.filtrar_capa_edificis(
     layer=hex_espec_no_residencial,
     expressio='"classe_bivariant" = \'No_valid\''
 )
@@ -358,7 +363,7 @@ for layer in layers_especialitzacio_no_residencial.values():
 
 ## Hexàgons
 layers_hexagons_especialitzacio_no_residencial = simbologia_general.simbologia_hexagons_especialitzacio_funcional(
-    hexagons=hex_espec_no_residencial
+    hexagons=hexagons_valids_no_residencial
 )
 # Addició de capes al projecte
 for layer in layers_hexagons_especialitzacio_no_residencial.values():
@@ -366,7 +371,7 @@ for layer in layers_hexagons_especialitzacio_no_residencial.values():
 
 ## Hexàgons no vàlids
 layer_hexagons_no_valids = simbologies.simbologia_unica(
-    layer=hexagons_no_valids,
+    layer=hexagons_no_valids_no_residencial,
     **config.SIMBOLOGIA["Hexagons_no_valids"]
 )
 QgsProject.instance().addMapLayer(layer_hexagons_no_valids)
