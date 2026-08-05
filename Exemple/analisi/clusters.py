@@ -21,9 +21,12 @@ Les funcions s'organitzen en tres nivells:
 """
 
 from qgis.core import (
+    QgsField,
     QgsFeatureRequest,
+    QgsSpatialIndex,
     QgsVectorLayer
 )
+from PyQt5.QtCore import QVariant
 
 import processing
 import pandas as pd
@@ -379,41 +382,84 @@ def taula_general_clusters(resultats):
 # ISOÀREES
 # =============================================================================
 
-def generacio_centroides(layer):
+def generar_centroides_clusters(layer):
     """
-    Funció per a generar centroides
+    Genera els centroides d'una capa vectorial.
+    
+    Crea una nova capa en memòria formada pels centroides de les
+    geometries de la capa d'entrada.
+    
+    Paràmetres
+    ----------
+    layer: QgsVectorLayer
+        Capa vectorial de la qual es volen obtenir els centroides.
+
+    Retorna
+    -------
+    QgsVectorLayer
+        Capa vectorial dels centroides.
     """
 
-    centroids = processing.run("native:centroids", {
-        'INPUT': layer,
-        'ALL_PARTS': False,
-        'OUTPUT': 'memory:'
-    })
+    dissolucio = processing.run(
+        "native:dissolve",
+        {
+            "INPUT": layer,
+            "FIELD": ["CLUSTER_ID"],
+            "OUTPUT": "memory:"
+        }
+    )
+
+    centroids = processing.run(
+        "native:centroids",
+        {
+            'INPUT': dissolucio['OUTPUT'],
+            'ALL_PARTS': False,
+            'OUTPUT': 'memory:'
+        }
+    )
     
     return centroids['OUTPUT']
 
-def isoarees_qneat3(graf_layer, points_layer, strat, max_dist, interval):
+def generar_isoarees(graf, points, strat, max_dist, interval):
     """
-    Funció d'alt nivell per generar isoàrees de proximitat a partir del plugin QNEAT3
-    Es defineix com a paràmetes 
-        Capa vectorial que conté el graf viari
-        Capa vectorial amb els punts objectiu a la que s'aplica la funció `generacio_centroides()`
-        Estratègia: 0 shortest path - 1 shortest time
-        Distància màxima / Temps màxim
-        Interval (metres o segons)
+    Genera isoàrees de proximitat sobre la xarxa viària utilitzant
+    el complement QNEAT3.
+
+    La funció calcula àrees d'accessibilitat al voltant d'un conjunt de punts
+    utilitzant el graf viari.
+
+    Paràmetres
+    ----------
+    graf: QgsVectorLayer
+        Capa vectorial del graf viari.
+    points: QgsVectorLayer
+        Capa vectorial de punts que defineixen els orígens.
+    strat: int
+        Estratègia de càlcul.
+        0 - distància més curta.
+        1 - temps més curt.
+    max_dist: float
+        Distància o temps màxim de càlcul.
+    interval: float
+        Interval de distància o temps entre isoàrees consecutives.
+    
+    Retorna
+    -------
+    QgsVectorLayer
+        Capa vectorial amb les isoàrees generades.
     """
 
-    centroides = generacio_centroides(points_layer)
-
-    processing.run("qneat3:isoareaaspolygonsfromlayer", {
-        'INPUT': graf_layer,
-        'START_POINTS': centroides,
-        'ID_FIELD': "id",
-        'MAX_DIST': max_dist, # 5000 DISTÀNCIA MÀXIMA
-        'INTERVAL': interval,    # 100 interval
-        'STRATEGY': strat, # 0 SHORTEST PATH
-        'OUTPUT_INTERPOLATION': "C:/projectes_git/PyQGIS_practic/Resultats/output_interpolation.tif",
-        'OUTPUT_POLYGONS': "C:/projectes_git/PyQGIS_practic/Resultats/output_polygons.shp"
+    processing.run(
+        "qneat3:isoareaaspolygonsfromlayer",
+        {
+            'INPUT': graf,
+            'START_POINTS': points,
+            'ID_FIELD': "fid",
+            'MAX_DIST': max_dist,
+            'INTERVAL': interval,
+            'STRATEGY': strat,
+            'OUTPUT_INTERPOLATION': "C:/projectes_git/PyQGIS_practic/Resultats/output_interpolation.tif",
+            'OUTPUT_POLYGONS': "C:/projectes_git/PyQGIS_practic/Resultats/output_polygons.shp"
         }
     )
 
@@ -424,4 +470,119 @@ def isoarees_qneat3(graf_layer, points_layer, strat, max_dist, interval):
     )
 
     return layer_isoareas   
+
+
+def analisi_accessibilitat(graf, origen, estrategia=0, distancia_max=5000, interval=250):
+    """
+    Calcula les isoàrees d'accessibilitat a partir d'una capa d'origen.
+
+    La funció genera els centroides de la capa d'origen i crea les isoàrees
+    sobre el graf viari utilitzant QNEAT3.
+
+    Paràmetres
+    ----------
+    graf: QgsVectorLayer
+        Capa vectorial del graf viari.
+    origen: QgsVectorLayer
+        Capa vectorial de punts que defineixen els orígens.
+    estrategia: int
+        Estratègia de càlcul.
+        0 - distància més curta.
+        1 - temps més curt.
+    distancia_max: float
+        Distància o temps màxim de càlcul.
+    interval: float
+        Interval de distància o temps entre isoàrees consecutives.
     
+    Retorna
+    -------
+    QgsVectorLayer
+        Capa vectorial amb les isoàrees generades.
+    """
+
+    centroides = generar_centroides_clusters(origen)
+
+    isoarees = generar_isoarees(
+        graf=graf,
+        points=centroides,
+        strat=estrategia,
+        max_dist=distancia_max,
+        interval=interval
+    )
+
+    return isoarees
+
+
+def assignar_isoarees_a_edificis(edificis, isoarees):
+    """
+    Assigna a cada edifici el nivell d'accessibilitat corresponent
+    a la isoàrea on es troba.
+
+    Es crea l'índex espacial de les isoàrees i es copia el valor del
+    camp 'cost_level' al nou camp 'accessibilitat' dels edificis.
+
+    Paràmetres
+    ----------
+    edificis: QgsVectorLayer
+        Capa vectorial dels edificis.
+    isoarees: QgsVectorLayer
+        Capa vectorial de les isoàrees.
+    
+    Retorna
+    -------
+    QgsVectorLayer
+        Capa d'edificis amb el nou camp 'cost_level'.
+    """
+
+    # Crea la capa de sortida - còpia de la capa d'edificis
+    layer = edificis.materialize(QgsFeatureRequest())
+
+    provider = layer.dataProvider()
+
+    provider.addAttributes([
+        QgsField("accessibilitat", QVariant.Int)
+    ])
+
+    layer.updateFields()
+
+    # Ús d'índexs espacials
+    # Crea l'índex del camp accessibilitat d'edificis
+    idx_accessibilitat = layer.fields().indexOf("accessibilitat")
+    # Crea l'índex de les isoàrees
+    idx_isoarea = QgsSpatialIndex(isoarees.getFeatures())
+
+    # Crea un diccionari de cada isoàrea amb el seu id
+    # per poder recuperar cada isoàrea
+    dict_isoarees = {
+        feat.id(): feat 
+        for feat in isoarees.getFeatures()
+    }
+
+    layer.startEditing()
+
+    # Per cada edifici:
+    #   buscar les isoàrees candidates
+    #   recuperar-les
+    #   comprovar quines contenen l'edifici
+    #   guardar el cost
+    for feature in layer.getFeatures():
+        geom = feature.geometry()
+
+        candidats = idx_isoarea.intersects(geom.boundingBox())
+
+        cost_min = None
+
+        for candidat in candidats:
+            isoarea = dict_isoarees[candidat]
+            if isoarea.geometry().contains(geom):
+                cost = isoarea["cost_level"]
+                if cost_min is None or cost < cost_min:
+                    cost_min = cost
+
+        if cost_min is not None:
+            feature[idx_accessibilitat] = cost_min
+            layer.updateFeature(feature)
+
+    layer.commitChanges()
+
+    return layer

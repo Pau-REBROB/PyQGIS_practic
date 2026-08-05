@@ -294,11 +294,15 @@ hexagons_no_valids_no_residencial = hexagons.filtrar_capa_edificis(
 
 
 ####################
-isoarees = clusters.isoarees_qneat3(graf_layer=dict_layers_clean["Graf"]["Graf_trams"],
-                                            points_layer=zones_retail,
-                                            strat=0,
-                                            max_dist=5000,
-                                            interval=250)
+isoarees = clusters.analisi_accessibilitat(
+    graf=dict_layers_clean["Graf"]["Graf_trams"],
+    origen=dict_clusters["4_2_retail"]["clusters"]
+)
+edificis_isoarees = clusters.assignar_isoarees_a_edificis(
+    edificis=dict_layers_clean["Cadastre"]["Edificis"],
+    isoarees=isoarees
+)
+QgsProject.instance().addMapLayer(edificis_isoarees)
 
 #============================================================================================
 # 6. Simbologia
