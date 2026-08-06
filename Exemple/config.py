@@ -204,12 +204,23 @@ INTERVALS_SHANNON = [
     1.00
 ]
 
+INTERVALS_ACCESSIBILITAT = [
+    0,
+    250,
+    500,
+    1000,
+    2000,
+    3000,
+    5000
+]
+
 # =============================================================================
 # SIMBOLOGIA
 # =============================================================================
 
 SIMBOLOGIA = {
     "Barris": {
+        "nom": "Barris",
         "fill_color": (255,255,255,0),
         "outline_width": 0.15,
         "stroke_color": (180,220,230,255)
@@ -221,6 +232,7 @@ SIMBOLOGIA = {
         "stroke_color": (255,200,50,255)
     },
     "TermeMunicipal": {
+        "nom": "Terme municipal",
         "fill_color": (255,255,255,0),
         "outline_width": 0.75,
         "stroke_color": (255,200,50,255)
@@ -238,6 +250,7 @@ SIMBOLOGIA = {
         "stroke_color": (255,255,255,255) 
     },
     "Clusters": {
+        "nom": "clusters",
         "outline_width": 0.2,
     },
     "Isoarees": {
@@ -307,7 +320,21 @@ SIMBOLOGIA = {
         "fill_color": COLORS_BIVARIANT["No_valid"],
         "outline_width": 0.2,
         "stroke_color": (255,255,255,200)
-    }    
+    },
+    "Edificis_accessibilitat": {
+        "color_ramp": "RdBu",
+        "intervals": INTERVALS_ACCESSIBILITAT,
+        "atribut": 'accessibilitat',
+        "stroke_color": (200,200,200,255),
+        "stroke_width": 0.01,
+        "invert_ramp": True
+    } ,
+    "Graf_accessibilitat": {
+        "fill_color": (255,255,255,255),
+        "width": 0.1,
+        "outline_color": (50,50,50,255),
+        "outline_width": 0.2
+    } 
 }
 
 # =============================================================================
@@ -513,6 +540,32 @@ LAYOUTS = {
             "position": (226, 197)
         }
     },
+
+    "ESTRUCTURA_ACCESS": {
+        "Mapa": {
+            "factor_escala": 0.50,
+            "size": (280, 190),
+            "position": (10, 20),
+            "rotacio": 45,
+            "offset_x": 2000,
+            "offset_y": 0
+        },
+        "Titol": {
+            "size": (10, 5),
+            "position": (280, 10)
+        },
+        "Llegenda": {
+            "position": (15, 60)
+        },
+        "Escala": {
+            "position": (15, 190)
+        },
+        "Nord": {
+            "size": (10, 10),
+            "position": (15, 180)
+        }
+    },
+    
 
     "GENERAL":{
         "Titol": {
@@ -862,5 +915,36 @@ LAYOUTS = {
             "output_path": f"{PATH_RESULTATS}/Analisi_bivariant_hexagons.pdf",
             "dpi": 300
         }
-    }
+    },
+     "ACCESSIBILITAT":{
+        "Titol": {
+            "titol": "Accessibilitat als nuclis comercials de Barcelona",
+            "font": "Calibri",
+            "font_size": 20,
+            "font_color": (0,0,0,255),
+            "alineacio": "left",
+            "backg_color": (100,100,100,180),
+            "frame_color": (255, 255, 255, 200)
+        },
+        "Llegenda": {
+            "titol": "Distància mínima",
+            "font": "Calibri",
+            "font_size": 10,
+            "font_color": (0,0,0,255),
+            "backg_color": (100,100,100,180)
+        },
+        "Escala": {
+            "tipus": "Single Box",
+            "font": "Calibri",
+            "font_size": 10,
+            "font_color": (0,0,0,255)
+        },
+        "Nord": {
+            "image_path": "C:/projectes_git/Dades/nord2.png"
+        },
+        "Exportacio": {
+            "output_path": f"{PATH_RESULTATS}/Accessibilitat.pdf",
+            "dpi": 500
+        }
+    },
 }

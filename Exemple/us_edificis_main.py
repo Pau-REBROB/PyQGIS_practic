@@ -76,6 +76,7 @@ import analisi.hexagons as hexagons
 import simbologia.simbologies as simbologies
 import simbologia.simbologia_especialitzacio as simbologia_especialitzacio
 import simbologia.simbologia_hexagons as simbologia_hexagons
+import simbologia.simbologia_accessibilitat as simbologia_accessibilitat
 import simbologia.simbologia_general as simbologia_general
 import layouts.layout_common as layout_common
 import layouts.layout_general as layout_general
@@ -85,6 +86,7 @@ import layouts.layout_clusters as layout_clusters
 import layouts.layout_especialitzacio as layout_especialitzacio
 import layouts.layout_bivariant_barris as layout_bivariant_barris
 import layouts.layout_hexagons as layout_hexagons
+import layouts.layout_accessibilitat as layout_accessibilitat 
 import layouts.fusionar_layouts as fusionar_layouts
 
 
@@ -109,6 +111,7 @@ importlib.reload(hexagons)
 importlib.reload(simbologies)
 importlib.reload(simbologia_especialitzacio)
 importlib.reload(simbologia_hexagons)
+importlib.reload(simbologia_accessibilitat)
 importlib.reload(simbologia_general)
 importlib.reload(layout_common)
 importlib.reload(layout_general)
@@ -118,6 +121,7 @@ importlib.reload(layout_clusters)
 importlib.reload(layout_especialitzacio)
 importlib.reload(layout_bivariant_barris)
 importlib.reload(layout_hexagons)
+importlib.reload(layout_accessibilitat)
 importlib.reload(fusionar_layouts)
 
 
@@ -381,14 +385,15 @@ layer_hexagons_no_valids = simbologies.simbologia_unica(
 QgsProject.instance().addMapLayer(layer_hexagons_no_valids)
 
 
-##############################
-layer_graf = simbologia_unica.simbologia_unica_linia(layer=dict_layers_clean["Graf"]["Graf_trams"],
-                                                         **config.SIMBOLOGIA["Graf"]
-                                                         )
+# Accessibilitat
+layers_accessibilitat = simbologia_general.simbologia_edificis_accessibilitat(
+    edificis=edificis_isoarees,
+    graf=dict_layers_clean["Graf"]["Graf_trams"]
+)
+for layer in layers_accessibilitat.values():
+    QgsProject.instance().addMapLayer(layer)
 
-layer_isoarees = simbologia_graduada.simbologia_graduada_QGIS(layer=isoarees,
-                                                                  **config.SIMBOLOGIA["Isoarees"]
-                                                                  )
+
 
 #============================================================================================
 # 7. Composició
@@ -458,6 +463,16 @@ layout_hexagons.composicio_bivariant_hexagons(
     capes=[
         layers_hexagons_especialitzacio_no_residencial["bivariant"],
         layer_hexagons_no_valids
+    ],
+    capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"]
+)
+
+## Composició accessibilitat general
+layout_accessibilitat.composicio_accessibilitat(
+    capes=[
+        layers_simbologia_clusters["4_2_retail"],
+        layers_accessibilitat["accessibilitat"],
+        layers_accessibilitat["graf"]
     ],
     capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"]
 )

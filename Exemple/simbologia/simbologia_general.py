@@ -10,6 +10,7 @@ import config
 import simbologia.simbologies as simbologies
 import simbologia.simbologia_especialitzacio as simbologia_especialitzacio
 import simbologia.simbologia_hexagons as simbologia_hexagons
+import simbologia.simbologia_accessibilitat as simbologia_accessibilitat 
 
 def simbologia_base(dict_layers):
     """
@@ -106,6 +107,7 @@ def simbologia_clusters(resultats):
     for us, dades in resultats.items():
         layer_simb = simbologies.simbologia_unica(
             layer=dades["zones"],
+            nom="clusters",
             fill_color=config.COLORS_USOS[us],
             outline_width=config.SIMBOLOGIA["Clusters"]["outline_width"],
             stroke_color=config.COLORS_USOS[us]
@@ -219,3 +221,42 @@ def simbologia_hexagons_especialitzacio_funcional(hexagons):
     layers_hexagons["bivariant"] = hexagons_bivariant
     
     return layers_hexagons
+
+
+def simbologia_edificis_accessibilitat(edificis, graf):
+    """
+    Aplica les diferents simbologies d'accessibilitat a la
+    capa d'edificis i del graf viari.
+
+    Paràmetres
+    ----------
+    edificis: QgsVectorLayer
+        Capa vectorial dels edificis.
+    graf: QgsVectorLayer
+        Capa vectorial del graf viari.
+    
+    Retorna
+    -------
+    dict
+        Diccionari amb les capes simbolitzades, amb l'estructura:
+        {
+            "accessibilitat": QgsVectorLayer,
+            "graf": QgsVectorLayer
+        }
+    """
+
+    layers_access = {}
+
+    accessibilitat = simbologia_accessibilitat.simbologia_edificis(
+        edificis=edificis
+    )
+
+    layers_access["accessibilitat"] = accessibilitat
+
+    graf_viari = simbologia_accessibilitat.simbologia_graf(
+        graf=graf
+    )
+
+    layers_access["graf"] = graf_viari
+
+    return layers_access 

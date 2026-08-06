@@ -184,7 +184,7 @@ def simbologia_categorica(layer, atribut, colors_categories, outline_width, stro
 # SIMBOLOGIA GRADUADA
 # =============================================================================
 
-def simbologia_graduada(layer, atribut, num_classes, color_ramp, mode, stroke_color, stroke_width):
+def simbologia_graduada(layer, atribut, num_classes, color_ramp, mode, stroke_color, stroke_width, invert_ramp=False):
     """
     Aplica simbologia graduada a una capa vectorial.
  
@@ -216,6 +216,9 @@ def simbologia_graduada(layer, atribut, num_classes, color_ramp, mode, stroke_co
         Color del contorn, en format (RGBA).
     stroke_width: float
         Gruix del contorn.
+    invert_ramp: bool
+        Inversió de la rampa de colors.
+        Per defecte False.
 
     Retorna
     -------
@@ -240,6 +243,10 @@ def simbologia_graduada(layer, atribut, num_classes, color_ramp, mode, stroke_co
     symbol.symbolLayer(0).setStrokeColor(QColor(*stroke_color))
     symbol.symbolLayer(0).setStrokeWidth(stroke_width)
 
+    rampa = QgsStyle().defaultStyle().colorRamp(color_ramp)
+    if invert_ramp:
+        rampa.invert()
+
     # S'estableix el renderer graduat de la capa, amb els paràmetres entrats en la crida de la funció
     renderer = QgsGraduatedSymbolRenderer.createRenderer(
         layer_clone,
@@ -247,7 +254,7 @@ def simbologia_graduada(layer, atribut, num_classes, color_ramp, mode, stroke_co
         num_classes,
         mode_map[mode],
         symbol,
-        QgsStyle().defaultStyle().colorRamp(color_ramp)
+        rampa
     )
    
     layer_clone.setRenderer(renderer)
@@ -255,7 +262,7 @@ def simbologia_graduada(layer, atribut, num_classes, color_ramp, mode, stroke_co
     return layer_clone
 
 
-def simbologia_graduada_manual(layer, color_ramp, intervals, atribut, stroke_color, stroke_width):
+def simbologia_graduada_manual(layer, color_ramp, intervals, atribut, stroke_color, stroke_width, invert_ramp=False):
     """
     Aplica simbologia graduada amb intervals definits manualment
     a una capa vectorial.
@@ -278,6 +285,9 @@ def simbologia_graduada_manual(layer, color_ramp, intervals, atribut, stroke_col
         Color del contorn, en format (RGBA).
     stroke_width: float
         Gruix del contorn.
+    invert_ramp: bool
+        Inversió de la rampa de colors.
+        Per defecte False.
 
     Retorna
     -------
@@ -291,6 +301,8 @@ def simbologia_graduada_manual(layer, color_ramp, intervals, atribut, stroke_col
     
     # S'estableix una variable de la rampa de colors passada com a argument
     rampa = QgsStyle().defaultStyle().colorRamp(color_ramp)
+    if invert_ramp:
+        rampa.invert()
 
     # S'estableixen el nombre de salts de les dades, com al nombre d'intervals-1
     salts = len(intervals)-1
