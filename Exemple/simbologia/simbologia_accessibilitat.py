@@ -30,3 +30,17 @@ def simbologia_graf(graf):
     )
 
     return layer
+
+
+def simbologia_clusters(clusters):
+    """
+    Aplica una simbologia única a la capa d'agrupacions espacials
+    comercials.
+    """
+
+    layer = simbologies.simbologia_unica(
+        layer=clusters,
+        **config.SIMBOLOGIA["Clusters_accessibilitat"]
+    )
+
+    return layer

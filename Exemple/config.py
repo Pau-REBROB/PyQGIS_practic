@@ -334,7 +334,12 @@ SIMBOLOGIA = {
         "width": 0.1,
         "outline_color": (50,50,50,255),
         "outline_width": 0.2
-    } 
+    },
+    "Clusters_accessibilitat": {
+        "nom": "Agrupacions comercials",
+        "fill_color": (255, 127, 0, 100),
+        "outline_width": 0.25,
+        "stroke_color": (255, 127, 0, 100)
 }
 
 # =============================================================================
