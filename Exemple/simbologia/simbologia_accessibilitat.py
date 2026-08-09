@@ -44,3 +44,17 @@ def simbologia_clusters(clusters):
     )
 
     return layer
+
+
+def simbologia_terme_municipal(terme):
+    """
+    Aplica una simbologia única a la capa del terme municipal.
+    """
+
+    layer = simbologies.simbologia_unica(
+        layer=terme,
+        **config.SIMBOLOGIA["Terme_accessibilitat"]
+    )
+
+    return layer
+

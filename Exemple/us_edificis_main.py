@@ -388,7 +388,9 @@ QgsProject.instance().addMapLayer(layer_hexagons_no_valids)
 # Accessibilitat
 layers_accessibilitat = simbologia_general.simbologia_edificis_accessibilitat(
     edificis=edificis_isoarees,
-    graf=dict_layers_clean["Graf"]["Graf_trams"]
+    graf=dict_layers_clean["Graf"]["Graf_trams"],
+    clusters=dict_clusters["4_2_retail"]["zones"],
+    terme=dict_layers_clean["Limits_administratius"]["TermeMunicipal"]
 )
 for layer in layers_accessibilitat.values():
     QgsProject.instance().addMapLayer(layer)
@@ -470,11 +472,12 @@ layout_hexagons.composicio_bivariant_hexagons(
 ## Composició accessibilitat general
 layout_accessibilitat.composicio_accessibilitat(
     capes=[
-        layers_simbologia_clusters["4_2_retail"],
+        layers_accessibilitat["clusters"],
         layers_accessibilitat["accessibilitat"],
-        layers_accessibilitat["graf"]
+        layers_accessibilitat["terme"]
+        #layers_accessibilitat["graf"]
     ],
-    capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"]
+    capa_extent=layers_accessibilitat["clusters"]
 )
 
 

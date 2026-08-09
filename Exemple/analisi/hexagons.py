@@ -456,7 +456,6 @@ def classificar_especialitzacio(resultats):
         {
             "classe_dominancia": str,
             "classe_diversitat": str,
-            "interpretacio": str
         }
     """
 

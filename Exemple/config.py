@@ -325,7 +325,7 @@ SIMBOLOGIA = {
         "color_ramp": "RdBu",
         "intervals": INTERVALS_ACCESSIBILITAT,
         "atribut": 'accessibilitat',
-        "stroke_color": (200,200,200,255),
+        "stroke_color": (255,255,255,255),
         "stroke_width": 0.01,
         "invert_ramp": True
     } ,
@@ -337,9 +337,16 @@ SIMBOLOGIA = {
     },
     "Clusters_accessibilitat": {
         "nom": "Agrupacions comercials",
-        "fill_color": (255, 127, 0, 100),
+        "fill_color": (255, 127, 0, 50),
         "outline_width": 0.25,
-        "stroke_color": (255, 127, 0, 100)
+        "stroke_color": (255, 127, 0, 200)
+    },
+    "Terme_accessibilitat": {
+        "nom": "terme municipal",
+        "fill_color": (0,0,0,0),
+        "outline_width": 0.2,
+        "stroke_color": (255,255,255,255)
+    }
 }
 
 # =============================================================================
@@ -351,6 +358,11 @@ EXPORTACIO_GRAFICS = {
     "Grafic_usos_percentatges_districtes": f"{PATH_RESULTATS}/Grafic_percentatgeEdificis_districte.png",
     "Grafic_nombre_clusters": f"{PATH_RESULTATS}/Grafic_nombreClusters.png",
     "Grafic_mida_clusters": f"{PATH_RESULTATS}/Grafic_midaClusters.png"
+}
+
+EXPORTACIO_ISOAREES = {
+    "interpolation": f"{PATH_RESULTATS}/output_interpolation.tif",
+    "polygons": f"{PATH_RESULTATS}/output_polygons.shp"
 }
 
 # =============================================================================
@@ -548,26 +560,28 @@ LAYOUTS = {
 
     "ESTRUCTURA_ACCESS": {
         "Mapa": {
-            "factor_escala": 0.50,
-            "size": (280, 190),
-            "position": (10, 20),
+            "factor_escala": 0.70,
+            "size": (290, 200),
+            "position": (3.5, 5),
             "rotacio": 45,
-            "offset_x": 2000,
+            "offset_x": 0,
             "offset_y": 0
         },
-        "Titol": {
-            "size": (10, 5),
-            "position": (280, 10)
+        "Capçalera": {
+            "text_size": (280, 5),
+            "text_position": (10, 10),
+            "backg_size": (280, 2),
+            "backg_position": (10, 20)
         },
         "Llegenda": {
-            "position": (15, 60)
+            "position": (240, 115) #(15, 60)
         },
         "Escala": {
-            "position": (15, 190)
+            "position": (240, 190) #(15, 190)
         },
         "Nord": {
             "size": (10, 10),
-            "position": (15, 180)
+            "position": (240, 180) #(15, 180)
         }
     },
     
@@ -921,35 +935,38 @@ LAYOUTS = {
             "dpi": 300
         }
     },
-     "ACCESSIBILITAT":{
-        "Titol": {
-            "titol": "Accessibilitat als nuclis comercials de Barcelona",
+    "ACCESSIBILITAT":{
+        "Mapa": {
+            "color_fons": (60,60,60,255)
+        },
+        "Capçalera": {
+            "text": "Accessibilitat als nuclis comercials de Barcelona",
             "font": "Calibri",
             "font_size": 20,
-            "font_color": (0,0,0,255),
-            "alineacio": "left",
-            "backg_color": (100,100,100,180),
-            "frame_color": (255, 255, 255, 200)
+            "font_color": (255,255,255,255), #(0,0,0,255),
+            "color": (100,100,100,180),
+            "outline_color": (255, 255, 255, 200),
+            "outline_width": 0.5
         },
         "Llegenda": {
             "titol": "Distància mínima",
             "font": "Calibri",
             "font_size": 10,
-            "font_color": (0,0,0,255),
+            "font_color": (255,255,255,255), #(0,0,0,255),
             "backg_color": (100,100,100,180)
         },
         "Escala": {
             "tipus": "Single Box",
             "font": "Calibri",
             "font_size": 10,
-            "font_color": (0,0,0,255)
+            "font_color": (255,255,255,255) #(0,0,0,255)
         },
         "Nord": {
             "image_path": "C:/projectes_git/Dades/nord2.png"
         },
         "Exportacio": {
             "output_path": f"{PATH_RESULTATS}/Accessibilitat.pdf",
-            "dpi": 500
+            "dpi": 600
         }
-    },
+    }
 }

@@ -30,13 +30,14 @@ from qgis.core import (
     QgsRectangle,
     QgsUnitTypes,
 )
+from qgis.PyQt.QtGui import QColor
 
 import os
 
 import config
 import layouts.layout_common as layout_common
 
-def afegir_mapa(layout, capes, capa_extent, factor_escala, size, position, rotacio, offset_x, offset_y):
+def afegir_mapa(layout, capes, capa_extent, factor_escala, size, position, rotacio, offset_x, offset_y, color_fons=(0,0,0,0)):
     """
     Afegeix l'element mapa principal a una composició.
 
@@ -80,6 +81,8 @@ def afegir_mapa(layout, capes, capa_extent, factor_escala, size, position, rotac
         ##
     offset_y: int
         ##
+    color_fons: tuple[int,int,int,int]
+        Color de fons del mapa.
 
     Retorna
     -------
@@ -118,6 +121,9 @@ def afegir_mapa(layout, capes, capa_extent, factor_escala, size, position, rotac
         extent.yMaximum() + dy
     )
     layout_map.setExtent(extent)
+
+    layout_map.setBackgroundEnabled(True)
+    layout_map.setBackgroundColor(QColor(*color_fons))
         
     return layout_map
 
@@ -197,13 +203,14 @@ def composicio_accessibilitat(capes, capa_extent):
         layout=layout,
         capes=capes,
         capa_extent=capa_extent,
+        **cfg_layout["Mapa"],
         **cfg_estructura["Mapa"]
     )
  
-    layout_common.afegir_titol(
+    layout_common.afegir_capçalera(
         layout=layout,
-        **cfg_layout["Titol"],
-        **cfg_estructura["Titol"]
+        **cfg_layout["Capçalera"],
+        **cfg_estructura["Capçalera"]
     )
 
     layout_common.afegir_llegenda(

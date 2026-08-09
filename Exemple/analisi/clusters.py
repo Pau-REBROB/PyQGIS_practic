@@ -28,6 +28,7 @@ from qgis.core import (
 )
 from PyQt5.QtCore import QVariant
 
+from pathlib import Path
 import processing
 import pandas as pd
 
@@ -449,6 +450,19 @@ def generar_isoarees(graf, points, strat, max_dist, interval):
         Capa vectorial amb les isoàrees generades.
     """
 
+    output_interpolation = Path(config.EXPORTACIO_ISOAREES["interpolation"])
+    output_polygon = Path(config.EXPORTACIO_ISOAREES["polygons"])
+
+    # Netejar fitxers anteriors
+    for path in [output_interpolation, output_polygon]:
+        if path.is_file():
+            path.unlink()
+        elif path.is_dir():
+            for file in path.iterdir():
+                file.unlink()
+            path.rmdir()
+
+
     processing.run(
         "qneat3:isoareaaspolygonsfromlayer",
         {
@@ -560,6 +574,8 @@ def assignar_isoarees_a_edificis(edificis, isoarees):
 
     layer.startEditing()
 
+    canvis = {}
+
     # Per cada edifici:
     #   buscar les isoàrees candidates
     #   recuperar-les
@@ -570,19 +586,31 @@ def assignar_isoarees_a_edificis(edificis, isoarees):
 
         candidats = idx_isoarea.intersects(geom.boundingBox())
 
-        cost_min = None
+        costs = [
+            dict_isoarees[c]["cost_level"]
+            for c in candidats
+            if dict_isoarees[c].geometry().contains(geom.centroid())
+        ]
 
-        for candidat in candidats:
-            isoarea = dict_isoarees[candidat]
-            if isoarea.geometry().contains(geom):
-                cost = isoarea["cost_level"]
-                if cost_min is None or cost < cost_min:
-                    cost_min = cost
+        if costs:
+            canvis[feature.id()] = {idx_accessibilitat: min(costs)}
+        else:
+            None
 
-        if cost_min is not None:
-            feature[idx_accessibilitat] = cost_min
-            layer.updateFeature(feature)
+        # cost_min = None
 
+        # for candidat in candidats:
+        #     isoarea = dict_isoarees[candidat]
+        #     if isoarea.geometry().contains(geom.centroid()):
+        #         cost = isoarea["cost_level"]
+        #         if cost_min is None or cost < cost_min:
+        #             cost_min = cost
+
+        # if cost_min is not None:
+        #     feature[idx_accessibilitat] = cost_min
+        #     layer.updateFeature(feature)
+
+    provider.changeAttributeValues(canvis)
     layer.commitChanges()
 
     return layer

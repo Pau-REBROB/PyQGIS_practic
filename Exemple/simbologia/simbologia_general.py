@@ -223,7 +223,7 @@ def simbologia_hexagons_especialitzacio_funcional(hexagons):
     return layers_hexagons
 
 
-def simbologia_edificis_accessibilitat(edificis, graf):
+def simbologia_edificis_accessibilitat(edificis, graf, clusters, terme):
     """
     Aplica les diferents simbologies d'accessibilitat a la
     capa d'edificis i del graf viari.
@@ -258,5 +258,17 @@ def simbologia_edificis_accessibilitat(edificis, graf):
     )
 
     layers_access["graf"] = graf_viari
+
+    clusters_access = simbologia_accessibilitat.simbologia_clusters(
+        clusters=clusters
+    )
+
+    layers_access["clusters"] = clusters_access
+
+    terme_access = simbologia_accessibilitat.simbologia_terme_municipal(
+        terme=terme
+    )
+
+    layers_access["terme"] = terme_access
 
     return layers_access 
