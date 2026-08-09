@@ -297,7 +297,7 @@ hexagons_no_valids_no_residencial = hexagons.filtrar_capa_edificis(
 )
 
 
-####################
+# Accessibilitat
 isoarees = clusters.analisi_accessibilitat(
     graf=dict_layers_clean["Graf"]["Graf_trams"],
     origen=dict_clusters["4_2_retail"]["clusters"]
@@ -306,6 +306,11 @@ edificis_isoarees = clusters.assignar_isoarees_a_edificis(
     edificis=dict_layers_clean["Cadastre"]["Edificis"],
     isoarees=isoarees
 )
+edificis_total = clusters.afegir_accessibilitat_edificis(
+    edificis=,
+    edificis_access=edificis_isoarees
+)
+
 QgsProject.instance().addMapLayer(edificis_isoarees)
 
 #============================================================================================

@@ -614,3 +614,53 @@ def assignar_isoarees_a_edificis(edificis, isoarees):
     layer.commitChanges()
 
     return layer
+
+
+def afegir_accessibilitat_edificis(edificis, edificis_access):
+    """
+    Afegeix el valor d'accessibilitat als edificis a partir del 
+    seu identificador únic.
+
+    Paràmetres
+    ----------
+    edificis: QgsVectorLayer
+        Capa vectorial d'edificis que conté la informació funcional.
+    edificis_access: QgsVectorLayer
+        Capa vectorial d'edificis que conté el valor d'accessibilitat.
+
+    Retorna
+    -------
+    QgsVectorLayer
+        Capa vectorial d'edificis amb el valor d'accessibilitat incorporat.
+    """
+
+    layer = edificis.materialize(QgsFeatureRequest())
+
+    provider = layer.dataProvider()
+
+    provider.addAttributes([
+        QgsField("accessibilitat", QVariant.Int)
+    ])
+
+    layer.updateFields()
+
+    idx_accessibilitat = layer.fields().indexOf("accessibilitat")
+
+    # Diccionari id()-accessibilitat
+    dict_access = {
+        feature["fid"]: feature["accessibilitat"]
+        for feature in edificis_access.getFeatures()
+    }
+
+    layer.startEditing()
+
+    for feature in layer.getFeatures():
+        fid = feature["fid"]
+
+        if fid in dict_access:
+            feature[idx_accessibilitat] = dict_access[fid]
+            layer.updateFeature(feature)
+
+    layer.commitChanges()
+
+    return layer
