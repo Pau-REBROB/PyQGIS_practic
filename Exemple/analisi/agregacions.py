@@ -7,9 +7,9 @@ Mòdul que agrupa les funcions d'agregació estadística del projecte.
 Organització
 ------------
 
-- Agregació per districtes
+- Agregació per zones
     Funcions per calcular el nombre i el percentatge d'edificis
-    segons el seu ús dins de cada districte.
+    segons el seu ús dins de cada unitat administrativa.
 
 Les funcions s'organitzen en tres nivells:
     - funcions bàsiques d'agregació;
@@ -17,32 +17,31 @@ Les funcions s'organitzen en tres nivells:
     - funcions d'alt nivell que orquestren el procés complet.
 """
 
-import pandas as pd
 
 import config
 
 
-def agregar_usos_districtes(edificis, districtes):
+def agregar_usos_zones(edificis, zones):
     """
-    Agrupa el nombre d'edificis de cada ús per cada districte.
+    Agrupa el nombre d'edificis de cada ús per cada zona.
 
-    Per a cada edifici, determina el districte al qual pertany a partir del
-    centroide de la seva geometria i incrementa el comptador de l'ús
-    corresponent.
+    Per a cada edifici, determina la unitat administrativa al qual
+    pertany a partir del centroide de la seva geometria i
+    incrementa el comptador de l'ús corresponent.
 
     Paràmetres
     ----------
     edificis: QgsVectorLayer
         Capa vectorial dels edificis.
-    districtes: QgsVectorLayer
-        Capa vectorial dels districtes.
+    zona: QgsVectorLayer
+        Capa vectorial de les unitats administratives.
 
     Retorna
     -------
     dict
-        Diccionari amb el recompte d'edificis destinats a cada ús per districte
+        Diccionari amb el recompte d'edificis destinats a cada ús per zona
         {
-            "Nom_districte": {
+            "Nom_UA": {
                 "1_residential": int,
                 "2_agriculture": int,
                 ...
@@ -53,14 +52,14 @@ def agregar_usos_districtes(edificis, districtes):
 
     resultats = {}
 
-    districtes_llista = list(districtes.getFeatures())
+    zones_llista = list(zones.getFeatures())
 
-    # Iteració sobre cada districte
-    for districte in districtes_llista:
-        # Obtenció del nom del districte
-        nom = str(districte["NOM"]).strip()
+    # Iteració sobre cada zona
+    for zona in zones_llista:
         
-        # Creació de valors 0 inicials per cada categoria d'ús en el districte
+        nom = str(zona["NOM"]).strip()
+        
+        # Creació de valors 0 inicials per cada categoria d'ús a la zona
         resultats[nom] = {
             us: 0
             for us in config.USOS
@@ -78,11 +77,11 @@ def agregar_usos_districtes(edificis, districtes):
         if us == "NULL":
             continue
 
-        # Cerca del districte al qual pertany l'edifici
-        # amb la comprovació de a quin districte es troba el seu centroide
-        for districte in districtes_llista:
+        # Cerca de la zona a la qual pertany l'edifici
+        # amb la comprovació d'on es troba el seu centroide
+        for districte in zones_llista:
             if geom_edifici.centroid().within(districte.geometry()):
-                nom = districte["NOM"]
+                nom = zona["NOM"]
                 # Actualització del comptador d'usos
                 resultats[nom][us] += 1
 
@@ -91,75 +90,54 @@ def agregar_usos_districtes(edificis, districtes):
     return resultats
 
 
-def taula_usos_districtes(resultats):
+def calcular_percentatges_usos(resultats):
     """
-    Construeix una taula amb el nombre d'edificis de cada ús per districte.
+    Calcula el percentatge d'edificis de cada ús per unitat administrativa.
 
-    Transforma el diccionari retornat per `agregar_usos_districtes()` en un
-    DataFrame, on cada fila representa un districte i cada columna un ús
-    dels edificis.
+    A partir de la taula amb el nombre d'edificis de cada ús,
+    calcula el pes percentual de cada categoria respecte el total
+    d'edificis de la unitat administrativa.
 
     Paràmetres
     ----------
     resultats: dict
+        Diccionari amb el nombre d'edificis de cada ús per unitat administrativa.
 
     Retorna
     -------
-    pandas.DataFrame
-
-        Índex
-            Districte
-        Columnes
-            - 1_residential
-            - 2_agriculture
-            - 3_industrial
-            - 4_1_office
-            - 4_2_retail
-            - 4_3_publicServices   
-    """
-
-    df = pd.DataFrame(resultats)
-
-    df = df.T
-
-    df.index.name = "Districte"
-
-    return df
-
-
-def percentatge_usos_districtes(df):
-    """
-    Calcula el percentatge d'edificis de cada ús per districte.
-
-    A partir de la taula amb el nombre d'edificis de cada ús,
-    calcula el pes percentual de cada categoria respecte el total
-    d'edificis del districte.
-
-    Paràmetres
-    ----------
-    df: pandas.DataFrame
-
-    Retorna
-    -------
-    df_pct: pandas.DataFrame
-        Mateixa estructura que la taula d'entrada,
+    dict
+        Mateixa estructura que el diccionari d'entrada,
         però amb els valors expressats en percentatge.
     """
 
-    # Obtenció del número total d'edificis per districte
-    df_totals = df.sum(axis=1)
+    percentatges = {}
 
-    df_pct = df.div(df_totals, axis=0) * 100
+    for unitat, usos in resultats.items():
 
-    return df_pct
+        total = sum(usos.values())
+
+        if total == 0:
+            percentatges[unitat] = {
+                us: 0
+                for us in usos
+            }
+            continue
+
+        percentatges[unitat] = {
+            us: valor / total
+            for us, valor in usos.items()
+        }
+
+    return percentatges
 
 
-def analisi_districtes(edificis, districtes):
+def analisi_usos_zones(edificis, zones):
     """
-    Executa l'anàlisi dels usos dels edificis per districtes.
+    Executa l'anàlisi dels usos dels edificis per unitats
+    administratives.
 
     L'anàlisi genera, de forma consecutiva:
-        - el recompte d'edificis per ús i per districte,
+        - el recompte d'edificis per ús i per zona,
         - la taula resum amb els valors absoluts,
         - la taula amb els percentatges corresponents.
     
@@ -167,15 +145,15 @@ def analisi_districtes(edificis, districtes):
     ----------
     edificis: QgsVectorLayer
         Capa vectorial dels edificis.
-    districtes: QgsVectorLayer
-        Capa vectorial dels districtes.
+    zones: QgsVectorLayer
+        Capa vectorial de les unitats administratives.
     
     Retorna
     -------
     dict
         {
             "dades": {
-                "Nom_districte": {
+                "Nom_UA": {
                     "1_residential": int,
                     "2_agriculture": int,
                     "3_industrial": int,
@@ -186,25 +164,20 @@ def analisi_districtes(edificis, districtes):
                 ...
             },
 
-            "taula": pandas.DataFrame,
-
             "percentatges": pandas.DataFrame
         }
     """
 
-    resultats = {}
-
-    resultats["dades"] = agregar_usos_districtes(
+    dades = agregar_usos_zones(
         edificis=edificis,
-        districtes=districtes
+        zones=zones
     )
 
-    resultats["taula"] = taula_usos_districtes(
-        resultats=resultats["dades"]
+    percentatges = calcular_percentatges_usos(
+        resultats=dades
     )
 
-    resultats["percentatges"]= percentatge_usos_districtes(
-        df=resultats["taula"]
-    )
-
-    return resultats
+    return {
+        "dades": dades,
+        "percentatges": percentatges
+    }

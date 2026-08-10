@@ -3,17 +3,15 @@
 
 
 """
-1. Visió general: composició de la distribució dels usos dels edificis
-2. Dinàmica comercial: composició dels principals eixos comercials i el seu accés
-3. Comparació entre usos: mateix pipeline amb altres usos
-"""
-
-"""
-1. Composició general usos edificis (potser els residencials molt menys opacs)
-2. Atles per districte (10 pàgines)
-3. Concentració activitat comercial (graf, clústers i isoàrees)
-4. Comparació clústers (un per pàgina, o potser tots junts)
-5. Heatmap / Malla hexagonal
+1. Crear Edificis_base (materialitzar + camps bàsics)
+2. Join espacial Edificis_base ↔ Malla → afegir hex_id als edificis
+3. DBSCAN sobre edificis retail → clusters
+4. QNEAT3 sobre clusters → isoàrees
+5. Assignar accessibilitat als edificis (isoàrees → edificis)
+6. Calcular especialització per hexàgon (edificis → malla)
+7. Calcular accessibilitat per hexàgon (edificis → malla)
+8. Classificació bivariant (malla → malla)
+9. Cartografia final
 """
 
 """
@@ -56,8 +54,9 @@ Simplificar retorns.
 Evitar duplicació.
 """
 
-# =============================================================================
-# 1. Importació de mòduls
+# ==============================================================================
+# 1. IMPORTACIÓ DE MÒDULS
+# ==============================================================================
 
 import sys
 sys.path.append("C:/projectes_git/PyQGIS_practic/Exemple")
@@ -88,9 +87,6 @@ import layouts.layout_bivariant_barris as layout_bivariant_barris
 import layouts.layout_hexagons as layout_hexagons
 import layouts.layout_accessibilitat as layout_accessibilitat 
 import layouts.fusionar_layouts as fusionar_layouts
-
-
-## Funcions d'alt nivell en ANÀLISI i LAYOUT?
 
 ## Arxiu de configuració
 import config
@@ -126,35 +122,103 @@ importlib.reload(fusionar_layouts)
 
 
 # ==============================================================================
-# 2. Inicialització
+# 2. INICIALITZACIÓ
+# ==============================================================================
 
 project, root = inicialitzacio.inicialitzar_projecte()
 
+
 # ==============================================================================
-# 3. Importació de capes
+# 3. IMPORTACIÓ DE CAPES
+# ==============================================================================
 
 dict_layers, dict_indexs = importacio.carregar_capes(layers=config.LAYERS)
 
 basemap_layer = importacio.carregar_basemap()
 
-# ==============================================================================
-# 4. Neteja de les dades
-
-dict_layers_clean = preparacio_dades.preparar_grup(dict_layers=dict_layers, configuracio=config.CAMPS_CAPES)
 
 # ==============================================================================
-# 5. Anàlisi espacial
+# 4. NETEJA DE LES DADES
+# ==============================================================================
 
-# Agregació de dades per districtes
-dict_districtes = agregacions.analisi_districtes(
-    edificis=dict_layers_clean["Cadastre"]["Edificis"],
-    districtes=dict_layers_clean["Limits_administratius"]["Districtes"]
+dict_layers_clean = preparacio_dades.preparar_grup(
+    dict_layers=dict_layers,
+    configuracio=config.CAMPS_CAPES
 )
 
-# Visualització dels resultats
-grafics.generar_grafics_districtes(
-    resultats=dict_districtes
+
+# ==============================================================================
+# 5. ANÀLISI ESPACIAL
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 5.1. Capes base del projecte
+# ------------------------------------------------------------------------------
+
+## Districtes
+districtes_base = dict_layers_clean["Limits_administratius"]["Districtes"]
+
+## Barris
+barris_base = dict_layers_clean["Limits_administratius"]["Barris"]
+
+## Malla hexagonal
+malla_base = hexagons.generar_malla_retallada(
+    capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"],
+    mida_hexagon=config.MIDA_HEXAGON
 )
+
+## Edificis
+edificis = dict_layers_clean["Cadastre"]["Edificis"]
+
+## Edificis amb el seu hexagon associat
+edificis_base = hexagons.assignar_hexagons_a_edificis(
+    edificis=edificis,
+    malla=malla_base
+)
+
+
+# ------------------------------------------------------------------------------
+# 5.2. Agregacions zonals
+# ------------------------------------------------------------------------------
+
+districtes_agregacions = agregacions.analisi_usos_zones(
+    edificis=edificis_base,
+    zones=districtes_base
+)
+
+barris_agregacions = agregacions.analisi_usos_zones(
+    edificis=edificis_base,
+    zones=barris_base
+)
+
+
+# ------------------------------------------------------------------------------
+# 5.3. Agrupacions espacials - clústers
+# ------------------------------------------------------------------------------
+
+clusters_dict = clusters.analisi_clusters(
+    layer=edificis_base,
+    usos=config.USOS
+)
+
+
+# ------------------------------------------------------------------------------
+# 5.4. Especialització funcional
+# ------------------------------------------------------------------------------
+
+####
+
+
+# ------------------------------------------------------------------------------
+# 5.1. Accessibilitat
+# ------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
+# 5.1. Anàlisi bivariant
+# ------------------------------------------------------------------------------
+
+
+
 
 
 # Anàlisi d'agrupacions espacials (clústers)
