@@ -29,6 +29,7 @@ from qgis.core import (
 from PyQt5.QtCore import QVariant
 
 from pathlib import Path
+from statistics import median
 import processing
 import pandas as pd
 
@@ -597,19 +598,6 @@ def assignar_isoarees_a_edificis(edificis, isoarees):
         else:
             None
 
-        # cost_min = None
-
-        # for candidat in candidats:
-        #     isoarea = dict_isoarees[candidat]
-        #     if isoarea.geometry().contains(geom.centroid()):
-        #         cost = isoarea["cost_level"]
-        #         if cost_min is None or cost < cost_min:
-        #             cost_min = cost
-
-        # if cost_min is not None:
-        #     feature[idx_accessibilitat] = cost_min
-        #     layer.updateFeature(feature)
-
     provider.changeAttributeValues(canvis)
     layer.commitChanges()
 
@@ -661,6 +649,98 @@ def afegir_accessibilitat_edificis(edificis, edificis_access):
             feature[idx_accessibilitat] = dict_access[fid]
             layer.updateFeature(feature)
 
+    layer.commitChanges()
+
+    return layer
+
+
+def agregar_accessibilitat_per_hexagons(edificis, malla):
+    """
+    Agrega l'accessibilitat dels edificis a cada hexagon de la malla.
+
+    Aprofita el camp 'hex_id' dels edificis per evitar un join espacial
+    i fer un sol bucle sobre els edificis.
+
+    Paràmetres
+    ----------
+    edificis: QgsVectorLayer
+        Capa vectorial dels edificis amb el camp d'accessibilitat
+    malla: QgsVectorLayer
+        Capa vectorial de la malla hexagonal amb els camps de
+        funcionalitat.
+    
+    Retorna
+    -------
+    dict
+        Diccionari amb els resultats d'accessibilitat de cada
+        hexagon, amb l'estructura:
+        {
+            "hex_id": {
+                "n_edificis": int,
+                "accessibilitat": int
+            },
+            ...
+        }
+    """
+
+    # Agrupar els valors d'accessibilitat dels edificis
+    # per hexagon
+    # {
+    #     id_hex1: [cost1, cost2...costN], # N edificis dins l'hexagon
+    #     id_hex2: ...,
+    #     ...
+    # }
+    hex_access = {}
+
+    for edifici in edificis.getFeatures():
+        hex_id = edifici["hex_id"]
+        cost = edifici["accessibilitat"]
+
+        if hex_id is None or cost is None:
+            continue
+
+        if hex_id not in hex_access:
+            hex_access[hex_id] = []
+
+        hex_access[hex_id].append(cost)
+
+    # Crear la capa de sortida
+    layer = malla.materialize(QgsFeatureRequest())
+
+    provider = layer.dataProvider()
+
+    provider.addAttributes([
+        QgsField("accessibilitat", QVariant.Double)
+    ])
+
+    layer.updateFields()
+
+    idx_access = layer.fields().indexOf("accessibilitat")
+
+    # Escriure els resultats a la capa
+    ## Per cada hexagon, recullir el seu índex
+    ## comprovar que existeix en el diccionari anterior tret dels edificis
+    ## d'aquest diccionari, obtenir el llistat de costos de l'hexagon
+    ## establir el canvi en el diccionari de canvis com a
+    ## id_hexagon: {id_camp_accessibilitat: mediana(cost)}
+    ## Aplicar tots els canvis de cop
+    layer.startEditing()
+
+    canvis = {}
+
+    for feature in layer.getFeatures():
+        hex_id = feature["id"]
+
+        if hex_id not in hex_access:
+            continue
+
+        costs = hex_access[hex_id]
+
+        canvis[feature.id()] = {
+            idx_access : median(costs)
+        }
+
+    provider.changeAttributeValues(canvis)
     layer.commitChanges()
 
     return layer

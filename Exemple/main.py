@@ -306,12 +306,14 @@ edificis_isoarees = clusters.assignar_isoarees_a_edificis(
     edificis=dict_layers_clean["Cadastre"]["Edificis"],
     isoarees=isoarees
 )
-edificis_total = clusters.afegir_accessibilitat_edificis(
-    edificis=,
-    edificis_access=edificis_isoarees
+malla_total = clusters.agregar_accessibilitat_per_hexagons(
+    edificis=edificis_isoarees,
+    malla=hex_espec_residencial
 )
 
 QgsProject.instance().addMapLayer(edificis_isoarees)
+QgsProject.instance().addMapLayer(malla_total)
+
 
 #============================================================================================
 # 6. Simbologia
