@@ -1,13 +1,26 @@
-# =============================================================================
-# ISOÀREES
-# =============================================================================
+from qgis.core import (
+    QgsField,
+    QgsFeatureRequest,
+    QgsVectorLayer
+)
+
+from PyQt5.QtCore import QVariant
+
+
+import os
+from statistics import median
+import processing
+
+import config
+
 
 def generar_centroides_clusters(layer):
     """
-    Genera els centroides d'una capa vectorial.
+    Genera els centroides d'una capa vectorial de clústers.
     
-    Crea una nova capa en memòria formada pels centroides de les
-    geometries de la capa d'entrada.
+    Dissol els clústers a partir del seu identificador i crea
+    una nova capa en memòria formada pels centroides de les
+    geometries.
     
     Paràmetres
     ----------
@@ -40,6 +53,7 @@ def generar_centroides_clusters(layer):
     
     return centroids['OUTPUT']
 
+
 def generar_isoarees(graf, points, strat, max_dist, interval):
     """
     Genera isoàrees de proximitat sobre la xarxa viària utilitzant
@@ -69,17 +83,13 @@ def generar_isoarees(graf, points, strat, max_dist, interval):
         Capa vectorial amb les isoàrees generades.
     """
 
-    output_interpolation = Path(config.EXPORTACIO_ISOAREES["interpolation"])
-    output_polygon = Path(config.EXPORTACIO_ISOAREES["polygons"])
+    output_interpolation = config.EXPORTACIO_ISOAREES["interpolation"]
+    output_polygon = config.EXPORTACIO_ISOAREES["polygons"]
 
     # Netejar fitxers anteriors
     for path in [output_interpolation, output_polygon]:
-        if path.is_file():
-            path.unlink()
-        elif path.is_dir():
-            for file in path.iterdir():
-                file.unlink()
-            path.rmdir()
+        if os.path.exists(path):
+            os.remove(path)
 
 
     processing.run(
@@ -91,13 +101,13 @@ def generar_isoarees(graf, points, strat, max_dist, interval):
             'MAX_DIST': max_dist,
             'INTERVAL': interval,
             'STRATEGY': strat,
-            'OUTPUT_INTERPOLATION': "C:/projectes_git/PyQGIS_practic/Resultats/output_interpolation.tif",
-            'OUTPUT_POLYGONS': "C:/projectes_git/PyQGIS_practic/Resultats/output_polygons.shp"
+            'OUTPUT_INTERPOLATION': output_interpolation,
+            'OUTPUT_POLYGONS': output_polygon
         }
     )
 
     layer_isoareas = QgsVectorLayer(
-        "C:/projectes_git/PyQGIS_practic/Resultats/output_polygons.shp",
+        output_polygon,
         "Isoarees",
         "ogr"
     )
@@ -222,57 +232,57 @@ def assignar_isoarees_a_edificis(edificis, isoarees):
     return layer
 
 
-def afegir_accessibilitat_edificis(edificis, edificis_access):
-    """
-    Afegeix el valor d'accessibilitat als edificis a partir del 
-    seu identificador únic.
+# def afegir_accessibilitat_edificis(edificis, edificis_access):
+#     """
+#     Afegeix el valor d'accessibilitat als edificis a partir del 
+#     seu identificador únic.
 
-    Paràmetres
-    ----------
-    edificis: QgsVectorLayer
-        Capa vectorial d'edificis que conté la informació funcional.
-    edificis_access: QgsVectorLayer
-        Capa vectorial d'edificis que conté el valor d'accessibilitat.
+#     Paràmetres
+#     ----------
+#     edificis: QgsVectorLayer
+#         Capa vectorial d'edificis que conté la informació funcional.
+#     edificis_access: QgsVectorLayer
+#         Capa vectorial d'edificis que conté el valor d'accessibilitat.
 
-    Retorna
-    -------
-    QgsVectorLayer
-        Capa vectorial d'edificis amb el valor d'accessibilitat incorporat.
-    """
+#     Retorna
+#     -------
+#     QgsVectorLayer
+#         Capa vectorial d'edificis amb el valor d'accessibilitat incorporat.
+#     """
 
-    layer = edificis.materialize(QgsFeatureRequest())
+#     layer = edificis.materialize(QgsFeatureRequest())
 
-    provider = layer.dataProvider()
+#     provider = layer.dataProvider()
 
-    provider.addAttributes([
-        QgsField("accessibilitat", QVariant.Int)
-    ])
+#     provider.addAttributes([
+#         QgsField("accessibilitat", QVariant.Int)
+#     ])
 
-    layer.updateFields()
+#     layer.updateFields()
 
-    idx_accessibilitat = layer.fields().indexOf("accessibilitat")
+#     idx_accessibilitat = layer.fields().indexOf("accessibilitat")
 
-    # Diccionari id()-accessibilitat
-    dict_access = {
-        feature["fid"]: feature["accessibilitat"]
-        for feature in edificis_access.getFeatures()
-    }
+#     # Diccionari id()-accessibilitat
+#     dict_access = {
+#         feature["fid"]: feature["accessibilitat"]
+#         for feature in edificis_access.getFeatures()
+#     }
 
-    layer.startEditing()
+#     layer.startEditing()
 
-    for feature in layer.getFeatures():
-        fid = feature["fid"]
+#     for feature in layer.getFeatures():
+#         fid = feature["fid"]
 
-        if fid in dict_access:
-            feature[idx_accessibilitat] = dict_access[fid]
-            layer.updateFeature(feature)
+#         if fid in dict_access:
+#             feature[idx_accessibilitat] = dict_access[fid]
+#             layer.updateFeature(feature)
 
-    layer.commitChanges()
+#     layer.commitChanges()
 
-    return layer
+#     return layer
 
 
-def agregar_accessibilitat_per_hexagons(edificis, malla):
+def assignar_accessibilitat_per_hexagons(edificis, malla):
     """
     Agrega l'accessibilitat dels edificis a cada hexagon de la malla.
 

@@ -70,6 +70,7 @@ import preparacio_dades
 import analisi.agregacions as agregacions
 import analisi.grafics as grafics
 import analisi.clusters as clusters
+import analisi.accessibilitat as accessibilitat 
 import analisi.espacialitzacio as especialitzacio
 import analisi.hexagons as hexagons
 import simbologia.simbologies as simbologies
@@ -102,6 +103,7 @@ importlib.reload(preparacio_dades)
 importlib.reload(agregacions)
 importlib.reload(grafics)
 importlib.reload(clusters)
+importlib.reload(accessibilitat)
 importlib.reload(especialitzacio)
 importlib.reload(hexagons)
 importlib.reload(simbologies)
@@ -203,14 +205,31 @@ clusters_dict = clusters.analisi_clusters(
 
 
 # ------------------------------------------------------------------------------
-# 5.4. Especialització funcional
+# 5.4. Accessibilitat àrees comercials
 # ------------------------------------------------------------------------------
 
-####
+# Clústers comercials - 4_2_retail
+clusters_retail = clusters_dict["4_2_retail"]["clusters"]
+
+isoarees_retail = accessibilitat.analisi_accessibilitat(
+    graf=dict_layers_clean["Graf"]["Graf_trams"],
+    origen=clusters_retail
+)
+
+edificis_accessibilitat = accessibilitat.assignar_isoarees_a_edificis(
+    edificis=edificis_base,
+    isoarees=isoarees_retail
+)
+
+malla_accessibilitat = accessibilitat.agregar_accessibilitat_per_hexagons(
+    edificis=edificis_accessibilitat,
+    malla=malla_base
+)
+
 
 
 # ------------------------------------------------------------------------------
-# 5.1. Accessibilitat
+# 5.5. Especialització funcional
 # ------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
@@ -220,21 +239,6 @@ clusters_dict = clusters.analisi_clusters(
 
 
 
-
-# Anàlisi d'agrupacions espacials (clústers)
-dict_clusters = clusters.analisi_clusters(
-    layer=dict_layers_clean["Cadastre"]["Edificis"],
-    usos=config.USOS
-)
-
-taula_clusters = clusters.taula_general_clusters(
-    resultats=dict_clusters
-)
-
-# Visualització dels resultats
-grafics.generar_grafics_clusters(
-    df=taula_clusters
-)
 
 # Funcions d'especialització funcional
 ## Districtes
@@ -360,23 +364,6 @@ hexagons_no_valids_no_residencial = hexagons.filtrar_capa_edificis(
     expressio='"classe_bivariant" = \'No_valid\''
 )
 
-
-# Accessibilitat
-isoarees = clusters.analisi_accessibilitat(
-    graf=dict_layers_clean["Graf"]["Graf_trams"],
-    origen=dict_clusters["4_2_retail"]["clusters"]
-)
-edificis_isoarees = clusters.assignar_isoarees_a_edificis(
-    edificis=dict_layers_clean["Cadastre"]["Edificis"],
-    isoarees=isoarees
-)
-malla_total = clusters.agregar_accessibilitat_per_hexagons(
-    edificis=edificis_isoarees,
-    malla=hex_espec_residencial
-)
-
-QgsProject.instance().addMapLayer(edificis_isoarees)
-QgsProject.instance().addMapLayer(malla_total)
 
 
 #============================================================================================
