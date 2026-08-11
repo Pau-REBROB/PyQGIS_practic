@@ -1,6 +1,7 @@
 from qgis.core import (
     QgsField,
     QgsFeatureRequest,
+    QgsSpatialIndex,
     QgsVectorLayer
 )
 

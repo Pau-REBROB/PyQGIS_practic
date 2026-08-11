@@ -178,7 +178,6 @@ edificis_base = hexagons.assignar_hexagons_a_edificis(
     malla=malla_base
 )
 
-
 # ------------------------------------------------------------------------------
 # 5.2. Agregacions zonals
 # ------------------------------------------------------------------------------
@@ -193,7 +192,6 @@ barris_agregacions = agregacions.analisi_usos_zones(
     zones=barris_base
 )
 
-
 # ------------------------------------------------------------------------------
 # 5.3. Agrupacions espacials - clústers
 # ------------------------------------------------------------------------------
@@ -202,7 +200,6 @@ clusters_dict = clusters.analisi_clusters(
     layer=edificis_base,
     usos=config.USOS
 )
-
 
 # ------------------------------------------------------------------------------
 # 5.4. Accessibilitat àrees comercials
@@ -221,104 +218,105 @@ edificis_accessibilitat = accessibilitat.assignar_isoarees_a_edificis(
     isoarees=isoarees_retail
 )
 
-malla_accessibilitat = accessibilitat.agregar_accessibilitat_per_hexagons(
+malla_accessibilitat = accessibilitat.assignar_accessibilitat_per_hexagons(
     edificis=edificis_accessibilitat,
     malla=malla_base
 )
-
-
 
 # ------------------------------------------------------------------------------
 # 5.5. Especialització funcional
 # ------------------------------------------------------------------------------
 
+# Conservant l'ús residencial - 1_residential
+## Districtes
+resultats_especialitzacio_districtes = especialitzacio.analisi_especialitzacio(
+    zones=districtes_base,
+    edificis=edificis_base
+)
+
+## Barris
+resultats_especialitzacio_barris = especialitzacio.analisi_especialitzacio(
+    zones=barris_base,
+    edificis=edificis_base
+)
+
+# Addició dels camps d'especialització
+## Districtes
+districtes_especialitzacio = especialitzacio.afegir_resultats_especialitzacio(
+    zones=districtes_base,
+    resultats=resultats_especialitzacio_districtes
+)
+
+## Barris
+barris_especialitzacio = especialitzacio.afegir_resultats_especialitzacio(
+    zones=barris_base,
+    resultats=resultats_especialitzacio_barris
+)
+
+
+# Excloent l'ús residencial
+## Districtes
+resultats_especialitzacio_no_residencial_districtes = especialitzacio.analisi_especialitzacio(
+    zones=districtes_base,
+    edificis=edificis_base,
+    usos_exclosos=["1_residential"]
+)
+
+## Barris
+resultats_especialitzacio_no_residencial_barris = especialitzacio.analisi_especialitzacio(
+    zones=barris_base,
+    edificis=edificis_base,
+    usos_exclosos=["1_residential"]
+)
+
+# Addició dels camps d'especialització
+## Districtes
+districtes_especialitzacio_no_residencial = especialitzacio.afegir_resultats_especialitzacio(
+    zones=districtes_base,
+    resultats=resultats_especialitzacio_no_residencial_districtes
+)
+
+## Barris
+barris_especialitzacio_no_residencial = especialitzacio.afegir_resultats_especialitzacio(
+    zones=barris_base,
+    resultats=resultats_especialitzacio_no_residencial_barris
+)
+
+
+# Assignar l'especialització a la malla
+malla_especialitzacio = especialitzacio.assignar_especialitzacio_per_hexagons(
+    edificis=edificis_accessibilitat,
+    malla=malla_accessibilitat
+)
+
+## Excloent l'ús residencial
+malla_especialitzacio_no_residencial = especialitzacio.assignar_especialitzacio_per_hexagons(
+    edificis=edificis_accessibilitat,
+    malla=malla_accessibilitat,
+    usos_exclosos=['1_residential']
+)
+
 # ------------------------------------------------------------------------------
 # 5.1. Anàlisi bivariant
 # ------------------------------------------------------------------------------
 
-
-
-
-
-# Funcions d'especialització funcional
-## Districtes
-resultats_especialitzacio = especialitzacio.analisi_especialitzacio(
-    districtes=dict_layers_clean["Limits_administratius"]["Districtes"],
-    edificis=dict_layers_clean["Cadastre"]["Edificis"]
-)
-
-resultats_especialitzacio_no_residencial = especialitzacio.analisi_especialitzacio(
-    districtes=dict_layers_clean["Limits_administratius"]["Districtes"],
-    edificis=dict_layers_clean["Cadastre"]["Edificis"],
-    usos_exclosos=["1_residential"]
-)
-
-# Anàlisi bivariant 
-#### CANVIAR NOMS
-classificacio_no_residencial = especialitzacio.classificar_especialitzacio(
-    resultats=resultats_especialitzacio_no_residencial
-)
-
-bivariant_no_residencial = especialitzacio.classificar_bivariant(
-    resultats=classificacio_no_residencial
-)
-
-# Addició dels camps d'especialització a la capa de districtes
-districtes_especialitzacio = especialitzacio.afegir_resultats_especialitzacio(
-    districtes=dict_layers_clean["Limits_administratius"]["Districtes"],
-    resultats=bivariant_no_residencial
-)
-
-districtes_especialitzacio_no_residencial = especialitzacio.afegir_resultats_especialitzacio(
-    districtes=dict_layers_clean["Limits_administratius"]["Districtes"],
-    resultats=bivariant_no_residencial
-)
-
 ## Barris
-resultats_especialitzacio = especialitzacio.analisi_especialitzacio(
-    districtes=dict_layers_clean["Limits_administratius"]["Barris"],
-    edificis=dict_layers_clean["Cadastre"]["Edificis"]
+barris_bivariant = especialitzacio.afegir_classe_bivariant(
+    layer=barris_especialitzacio_no_residencial
 )
 
-resultats_especialitzacio_no_residencial = especialitzacio.analisi_especialitzacio(
-    districtes=dict_layers_clean["Limits_administratius"]["Barris"],
-    edificis=dict_layers_clean["Cadastre"]["Edificis"],
-    usos_exclosos=["1_residential"]
+## Malla
+malla_bivariant = especialitzacio.afegir_classe_bivariant(
+    layer=malla_especialitzacio_no_residencial
 )
 
-# Anàlisi bivariant 
-#### CANVIAR NOMS
-classificacio = especialitzacio.classificar_especialitzacio(
-    resultats=resultats_especialitzacio
-)
-classificacio_no_residencial = especialitzacio.classificar_especialitzacio(
-    resultats=resultats_especialitzacio_no_residencial
-)
 
-bivariant = especialitzacio.classificar_bivariant(
-    resultats=classificacio
-)
-bivariant_no_residencial = especialitzacio.classificar_bivariant(
-    resultats=classificacio_no_residencial
-)
 
-# Addició dels camps d'especialització a la capa de barris
-barris_especialitzacio = especialitzacio.afegir_resultats_especialitzacio(
-    districtes=dict_layers_clean["Limits_administratius"]["Barris"],
-    resultats=bivariant
-)
 
-barris_especialitzacio_no_residencial = especialitzacio.afegir_resultats_especialitzacio(
-    districtes=dict_layers_clean["Limits_administratius"]["Barris"],
-    resultats=bivariant_no_residencial
-)
+
 
 
 # Hexàgons
-malla_hex = hexagons.generar_malla_retallada(
-    capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"],
-    mida_hexagon=config.MIDA_HEXAGON
-)
 
 especialitzacio_no_residencial = hexagons.analisi_especialitzacio(
     malla=malla_hex,
