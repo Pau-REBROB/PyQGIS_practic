@@ -121,15 +121,17 @@ def simbologia_clusters(resultats):
     return layers_clusters
 
 
-def simbologia_especialitzacio_funcional(districtes):
+def simbologia_especialitzacio_funcional(zones, ua):
     """
     Aplica les diferents simbologies d'especialització
     a la capa de districtes.
 
     Paràmetres
     ----------
-    districtes: QgsVectorLayer
-        Capa vectorial de districtes.
+    zones: QgsVectorLayer
+        Capa vectorial de les unitats administratives.
+    ua: str
+        Nom de la unitat administrativa.
     
     Retorna
     -------
@@ -145,29 +147,33 @@ def simbologia_especialitzacio_funcional(districtes):
 
     layers_especialitzacio = {}
 
-    districtes_us_pred = simbologia_especialitzacio.simbologia_us_predominant(
-        districtes=districtes
+    zona_us_pred = simbologia_especialitzacio.simbologia_us_predominant(
+        zones=zones,
+        ua=ua
     )
 
-    layers_especialitzacio["us_predominant"] = districtes_us_pred
+    layers_especialitzacio["us_predominant"] = zona_us_pred
 
-    districtes_domin = simbologia_especialitzacio.simbologia_dominancia(
-        districtes=districtes
+    zona_domin = simbologia_especialitzacio.simbologia_dominancia(
+        zones=zones,
+        ua=ua
     )
 
-    layers_especialitzacio["dominancia"] = districtes_domin
+    layers_especialitzacio["dominancia"] = zona_domin
 
-    districtes_shan = simbologia_especialitzacio.simbologia_shannon(
-        districtes=districtes
+    zona_shan = simbologia_especialitzacio.simbologia_shannon(
+        zones=zones,
+        ua=ua
     )
     
-    layers_especialitzacio["index_shannon"] = districtes_shan
+    layers_especialitzacio["index_shannon"] = zona_shan
 
-    districtes_bivariant = simbologia_especialitzacio.simbologia_bivariant(
-        districtes=districtes
+    zona_bivariant = simbologia_especialitzacio.simbologia_bivariant(
+        zones=zones,
+        ua=ua
     )
 
-    layers_especialitzacio["bivariant"] = districtes_bivariant
+    layers_especialitzacio["bivariant"] = zona_bivariant
     
     return layers_especialitzacio
 

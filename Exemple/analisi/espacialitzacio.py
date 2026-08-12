@@ -677,9 +677,9 @@ def afegir_classe_bivariant(layer):
 
     layer_clone.updateFields()
 
-    idx_bivariant = layer.fields().indexOf("classe_bivariant")
+    idx_bivariant = layer_clone.fields().indexOf("classe_bivariant")
 
-    layer.startEditing()
+    layer_clone.startEditing()
 
     for feature in layer_clone.getFeatures():
         dominancia = feature["dominancia"]

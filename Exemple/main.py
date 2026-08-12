@@ -233,21 +233,18 @@ resultats_especialitzacio_districtes = especialitzacio.analisi_especialitzacio(
     zones=districtes_base,
     edificis=edificis_base
 )
-
-## Barris
-resultats_especialitzacio_barris = especialitzacio.analisi_especialitzacio(
-    zones=barris_base,
-    edificis=edificis_base
-)
-
 # Addició dels camps d'especialització
-## Districtes
 districtes_especialitzacio = especialitzacio.afegir_resultats_especialitzacio(
     zones=districtes_base,
     resultats=resultats_especialitzacio_districtes
 )
 
 ## Barris
+resultats_especialitzacio_barris = especialitzacio.analisi_especialitzacio(
+    zones=barris_base,
+    edificis=edificis_base
+)
+# Addició dels camps d'especialització
 barris_especialitzacio = especialitzacio.afegir_resultats_especialitzacio(
     zones=barris_base,
     resultats=resultats_especialitzacio_barris
@@ -261,6 +258,11 @@ resultats_especialitzacio_no_residencial_districtes = especialitzacio.analisi_es
     edificis=edificis_base,
     usos_exclosos=["1_residential"]
 )
+# Addició dels camps d'especialització
+districtes_especialitzacio_no_residencial = especialitzacio.afegir_resultats_especialitzacio(
+    zones=districtes_base,
+    resultats=resultats_especialitzacio_no_residencial_districtes
+)
 
 ## Barris
 resultats_especialitzacio_no_residencial_barris = especialitzacio.analisi_especialitzacio(
@@ -268,15 +270,7 @@ resultats_especialitzacio_no_residencial_barris = especialitzacio.analisi_especi
     edificis=edificis_base,
     usos_exclosos=["1_residential"]
 )
-
 # Addició dels camps d'especialització
-## Districtes
-districtes_especialitzacio_no_residencial = especialitzacio.afegir_resultats_especialitzacio(
-    zones=districtes_base,
-    resultats=resultats_especialitzacio_no_residencial_districtes
-)
-
-## Barris
 barris_especialitzacio_no_residencial = especialitzacio.afegir_resultats_especialitzacio(
     zones=barris_base,
     resultats=resultats_especialitzacio_no_residencial_barris
@@ -297,8 +291,13 @@ malla_especialitzacio_no_residencial = especialitzacio.assignar_especialitzacio_
 )
 
 # ------------------------------------------------------------------------------
-# 5.1. Anàlisi bivariant
+# 5.6. Anàlisi bivariant
 # ------------------------------------------------------------------------------
+
+## Districtes
+districtes_bivariant = especialitzacio.afegir_classe_bivariant(
+    layer=districtes_especialitzacio_no_residencial
+)
 
 ## Barris
 barris_bivariant = especialitzacio.afegir_classe_bivariant(
@@ -310,136 +309,101 @@ malla_bivariant = especialitzacio.afegir_classe_bivariant(
     layer=malla_especialitzacio_no_residencial
 )
 
+# ------------------------------------------------------------------------------
+# 5.7. Malla hexagonal - hexgrid
+# ------------------------------------------------------------------------------
 
-
-
-
-
-
-# Hexàgons
-
-especialitzacio_no_residencial = hexagons.analisi_especialitzacio(
-    malla=malla_hex,
-    edificis=dict_layers_clean["Cadastre"]["Edificis"],
-    expressio="\"currentUse\" <> '1_residential'"
-)
-especialitzacio_residencial = hexagons.analisi_especialitzacio(
-    malla=malla_hex,
-    edificis=dict_layers_clean["Cadastre"]["Edificis"]
-)
-
-espec_classificat_residencial = hexagons.classificar_especialitzacio(
-    resultats=especialitzacio_residencial
-)
-espec_classificat_no_residencial = hexagons.classificar_especialitzacio(
-    resultats=especialitzacio_no_residencial
-)
-
-bivariant_hex_residencial = hexagons.classificar_bivariant(
-    resultats=espec_classificat_residencial
-)
-bivariant_hex_no_residencial = hexagons.classificar_bivariant(
-    resultats=espec_classificat_no_residencial
-)
-
-hex_espec_residencial = hexagons.afegir_resultats_especialitzacio(
-    malla=malla_hex,
-    resultats=bivariant_hex_residencial
-)
-hex_espec_no_residencial = hexagons.afegir_resultats_especialitzacio(
-    malla=malla_hex,
-    resultats=bivariant_hex_no_residencial
-)
-
-## Hexàgons vàlids
-hexagons_valids_no_residencial = hexagons.filtrar_capa_edificis(
-    layer=hex_espec_no_residencial,
-    expressio='"classe_bivariant" <> \'No_valid\''
-)
-## Hexàgons no vàlids
-hexagons_no_valids_no_residencial = hexagons.filtrar_capa_edificis(
-    layer=hex_espec_no_residencial,
-    expressio='"classe_bivariant" = \'No_valid\''
+# Omissió ús residencial
+hexagons_valids, hexagons_no_valids = hexagons.separar_hexagons_valids(
+    malla=malla_bivariant
 )
 
 
+# ==============================================================================
+# 6. SIMBOLOGIA
+# ==============================================================================
 
-#============================================================================================
-# 6. Simbologia
-# Capes de base cartogràfica
+# ------------------------------------------------------------------------------
+# 6.1. Base cartogràfica
+# ------------------------------------------------------------------------------
+
 layers_simbologia_base = simbologia_general.simbologia_base(
     dict_layers=dict_layers_clean
 )
 
+# Capa base CartoDB Positron No Labels
+basemap_layer
+
 # Addició de capes al projecte
-QgsProject.instance().addMapLayer(basemap_layer)
-
 for layer in layers_simbologia_base.values():
-    QgsProject.instance().addMapLayer(layer)
+    project.addMapLayer(layer)
 
+project.addMapLayer(basemap_layer)
 
-# Simbologia de les capes d'agrupacions espacials (clústers)
+# ------------------------------------------------------------------------------
+# 6.2. Agrupacions espacials - clústers
+# ------------------------------------------------------------------------------
+
 layers_simbologia_clusters = simbologia_general.simbologia_clusters(
-    resultats=dict_clusters
+    resultats=clusters_dict
 )
 
 # Addició de capes al projecte
 for layer in layers_simbologia_clusters.values():
-    QgsProject.instance().addMapLayer(layer)
+    project.addMapLayer(layer)
 
+# ------------------------------------------------------------------------------
+# 6.3. Especialització funcional
+# ------------------------------------------------------------------------------
 
-
-# Simbologia d'anàlisi d'especialització per districtes
-layers_especialitzacio = simbologia_general.simbologia_especialitzacio_funcional(
-    districtes=districtes_especialitzacio
+# Omissió de l'ús residencial
+## Districtes
+layers_simbologia_especialitzacio_districtes = simbologia_general.simbologia_especialitzacio_funcional(
+    zones=districtes_bivariant,
+    ua="Districtes"
 )
 
 # Addició de capes al projecte
-for layer in layers_especialitzacio.values():
-    QgsProject.instance().addMapLayer(layer)
+for layer in layers_simbologia_especialitzacio_districtes.values():
+    project.addMapLayer(layer)
 
-layers_especialitzacio_no_residencial = simbologia_general.simbologia_especialitzacio_funcional(
-    districtes=districtes_especialitzacio_no_residencial
+
+## Barris
+layers_simbologia_especialitzacio_barris = simbologia_general.simbologia_especialitzacio_funcional(
+    zones=barris_bivariant,
+    ua="Barris"
 )
 
 # Addició de capes al projecte
-for layer in layers_especialitzacio_no_residencial.values():
-    QgsProject.instance().addMapLayer(layer)
+for layer in layers_simbologia_especialitzacio_barris.values():
+    project.addMapLayer(layer)
 
+# ------------------------------------------------------------------------------
+# 6.4. Malla hexagonal
+# ------------------------------------------------------------------------------
 
-# Simbologia d'anàlisi d'especialització per barris
-layers_especialitzacio = simbologia_general.simbologia_especialitzacio_funcional(
-    districtes=barris_especialitzacio
-)
-
-# Addició de capes al projecte
-for layer in layers_especialitzacio.values():
-    QgsProject.instance().addMapLayer(layer)
-
-layers_especialitzacio_no_residencial = simbologia_general.simbologia_especialitzacio_funcional(
-    districtes=barris_especialitzacio_no_residencial
-)
-
-# Addició de capes al projecte
-for layer in layers_especialitzacio_no_residencial.values():
-    QgsProject.instance().addMapLayer(layer)
-
-
+# Omissió de l'ús residencial
 ## Hexàgons
-layers_hexagons_especialitzacio_no_residencial = simbologia_general.simbologia_hexagons_especialitzacio_funcional(
-    hexagons=hexagons_valids_no_residencial
+layers_simbologia_hexagons = simbologia_general.simbologia_hexagons_especialitzacio_funcional(
+    hexagons=hexagons_valids
 )
+
 # Addició de capes al projecte
-for layer in layers_hexagons_especialitzacio_no_residencial.values():
-    QgsProject.instance().addMapLayer(layer)
+for layer in layers_simbologia_hexagons:
+    project.addMapLayer(layer)
 
 ## Hexàgons no vàlids
-layer_hexagons_no_valids = simbologies.simbologia_unica(
-    layer=hexagons_no_valids_no_residencial,
+layer_simbologia_hexagons_no_valids = simbologies.simbologia_unica(
+    layer=hexagons_no_valids,
     **config.SIMBOLOGIA["Hexagons_no_valids"]
 )
-QgsProject.instance().addMapLayer(layer_hexagons_no_valids)
 
+# Addició de capes al projecte
+project.addMapLayer(layer_simbologia_hexagons_no_valids)
+
+# ------------------------------------------------------------------------------
+# 6.5. Accessibilitat
+# ------------------------------------------------------------------------------
 
 # Accessibilitat
 layers_accessibilitat = simbologia_general.simbologia_edificis_accessibilitat(

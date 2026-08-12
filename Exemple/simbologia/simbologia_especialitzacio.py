@@ -1,15 +1,15 @@
 import config
 import simbologia.simbologies as simbologies
 
-def simbologia_us_predominant(districtes):
+def simbologia_us_predominant(zones, ua):
     """
-    Aplica una simbologia categòrica als districtes
-    segons el seu ús predominant.
+    Aplica una simbologia categòrica a les unitats
+    administratives segons el seu ús predominant.
     """
 
     layer = simbologies.simbologia_categorica(
-        layer=districtes,
-        **config.SIMBOLOGIA["Districtes_us_predominant"]
+        layer=zones,
+        **config.SIMBOLOGIA["Us_predominant"][f"{ua}"]
     )
 
     renderer = layer.renderer()
@@ -22,20 +22,20 @@ def simbologia_us_predominant(districtes):
 
     layer.triggerRepaint()
     
-    layer.setName("Districtes_us_predominant")
+    layer.setName("Ús_predominant")
 
     return layer
 
 
-def simbologia_dominancia(districtes):
+def simbologia_dominancia(zones, ua):
     """
-    Aplica una simbologia graduada als districtes
-    segons el grau de dominància funcional.
+    Aplica una simbologia graduada a les unitats
+    administratives segons el grau de dominància funcional.
     """
 
     layer = simbologies.simbologia_graduada(
-        layer=districtes,
-        **config.SIMBOLOGIA["Districtes_dominancia"]
+        layer=zones,
+        **config.SIMBOLOGIA["Dominancia"][f"{ua}"]
     )
 
     renderer = layer.renderer()
@@ -48,20 +48,20 @@ def simbologia_dominancia(districtes):
 
     layer.triggerRepaint()
 
-    layer.setName("Districtes_dominancia")
+    layer.setName("Dominancia")
 
     return layer
 
 
-def simbologia_shannon(districtes):
+def simbologia_shannon(zones, ua):
     """
-    Aplica una simbologia graduada als districtes
-    segons l'índex de diversitat de Shannon.
+    Aplica una simbologia graduada a les unitats
+    administratives segons l'índex de diversitat de Shannon.
     """
 
     layer = simbologies.simbologia_graduada(
-        layer=districtes,
-        **config.SIMBOLOGIA["Districtes_shannon"]
+        layer=zones,
+        **config.SIMBOLOGIA["Shannon"][f"{ua}"]
     )
 
     renderer = layer.renderer()
@@ -74,22 +74,22 @@ def simbologia_shannon(districtes):
 
     layer.triggerRepaint()
 
-    layer.setName("Districtes_shannon_norm")
+    layer.setName("Índex_shannon_norm")
 
     return layer
 
 
-def simbologia_bivariant(districtes):
+def simbologia_bivariant(zones, ua):
     """
-    Aplica una simbologia categòrica als districtes
-    segons una variable bivariant. 
+    Aplica una simbologia categòrica a les unitats
+    administratives segons una variable bivariant. 
     """
 
     layer = simbologies.simbologia_categorica(
-            layer=districtes,
-            **config.SIMBOLOGIA["Barris_bivariant"]
+            layer=zones,
+            **config.SIMBOLOGIA["Bivariant"][f"{ua}"]
     )
         
-    layer.setName("Districtes_bivariància")
+    layer.setName("Classificació_bivariant")
     
     return layer
