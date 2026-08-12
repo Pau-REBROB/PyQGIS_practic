@@ -32,15 +32,18 @@ from qgis.core import (
     QgsLayoutItemMap,
     QgsLayoutSize,
     QgsLayoutPoint,
+    QgsRectangle,
     QgsUnitTypes,
     QgsLayoutMeasurement,
     QgsLayoutExporter
 )
 
+from qgis.PyQt.QtGui import QColor
+
 import config
 import layouts.layout_common as layout_common
 
-def afegir_mapa(layout, capes, capa_extent, size, position):
+def afegir_mapa(layout, capes, capa_extent, factor_escala, size, position, rotacio, offset_x, offset_y, color_fons=(0,0,0,0)):
     """
     Afegeix el mapa principal a la composició.
 
@@ -49,44 +52,68 @@ def afegir_mapa(layout, capes, capa_extent, size, position):
 
     Paràmetres
     ----------
-    layout : QgsPrintLayout
+    layout: QgsPrintLayout
         Composició sobre la qual s'afegeix el mapa.
-    capes : list[QgsMapLayer]
-        Capes visibles del mapa.
-    capa_referencia : QgsVectorLayer
-        Capa utilitzada per calcular l'extensió inicial.
+    capes: list[QgsMapLayer]
+        Capes que es mostraran al mapa, en ordre de representació.
+    capa_extent: QgsVectorLayer
+        Capa utilitzada per a definir l'extensió inicial del mapa.
+    factor_escala: float
+        Factor escala per apropar o allunyar el mapa.
     size: tuple[int,int]
         Amplada i alçada de la imatge, en mil·límetres.
     position: tuple[int,int]
         Coordenada X i Y de la imatge - cantonada superior esquerra - en mil·límetres.
-
+    rotacio: int
+        ###
+    offset_x: int
+        ##
+    offset_y: int
+        ##
+    color_fons: tuple[int,int,int,int], optional
+        ###
+        
     Retorna
     -------
     QgsLayoutItemMap
         Element mapa.
     """
 
-    # Creació del mapa
+    # Configuració inicial del mapa
     layout_map = QgsLayoutItemMap(layout)
+    
     layout.addLayoutItem(layout_map)
 
     layout_map.setLayers(capes)
 
-    # Mantenir el conjunt de capes fix perquè el layout no canvïi
     layout_map.setKeepLayerSet(True)
 
-    layout_map.attemptResize(QgsLayoutSize(*size, QgsUnitTypes.LayoutMillimeters))
+    # Ajust d'escala i rotació
     layout_map.attemptMove(QgsLayoutPoint(*position, QgsUnitTypes.LayoutMillimeters))
+    layout_map.attemptResize(QgsLayoutSize(*size, QgsUnitTypes.LayoutMillimeters))
 
-    layout_map.setMapRotation(45)
+    layout_map.zoomToExtent(capa_extent.extent())
+    layout_map.setMapRotation(rotacio)
+    layout_map.setScale(layout_map.scale() * factor_escala)
 
-    extent = capa_extent.extent()
-    
-    # Apropa la vista abans d'aplicar els desplaçaments manuals
-    extent.scale(0.5)
+    # Desplaçament manual del centre del mapa
+    extent = layout_map.extent()
+    dx, dy = layout_common.transformar_offset(
+        offset_x=offset_x,
+        offset_y=offset_y,
+        rotacio=rotacio
+    )
+    extent = QgsRectangle(
+        extent.xMinimum() + dx,
+        extent.yMinimum() + dy,
+        extent.xMaximum() + dx,
+        extent.yMaximum() + dy
+    )
+    layout_map.setExtent(extent)
 
-    layout_map.zoomToExtent(extent)
-    
+    layout_map.setBackgroundEnabled(True)
+    layout_map.setBackgroundColor(QColor(*color_fons))
+        
     return layout_map
 
 
@@ -196,8 +223,8 @@ def generar_atles(layout, capa_cobertura, camp, mapa):
     # geometria de l'entitat corresponent
     mapa.setAtlasScalingMode(QgsLayoutItemMap.Auto)
     
-    # S'estableix un marge del 10% al voltant de cada entitat
-    mapa.setAtlasMargin(0.1)
+    # S'estableix un marge del 5% al voltant de cada entitat
+    mapa.setAtlasMargin(0.05)
 
     # Actualitzar la llista d'entitats que formaran l'Atlas
     atlas.updateFeatures()
@@ -263,7 +290,7 @@ def composicio_atles(capes, capa_extent, capa_cobertura):
     """
 
     cfg_layout = config.LAYOUTS["ATLES"]
-    cfg_estructura = config.LAYOUTS["ESTRUCTURA"]
+    cfg_estructura = config.LAYOUTS["ESTRUCTURA_ATLES"]
 
     layout = layout_common.generar_layout(nom_layout="Ús dels edificis a Barcelona per districte")
 
@@ -276,16 +303,16 @@ def composicio_atles(capes, capa_extent, capa_cobertura):
 
     afegir_mapa_localitzador(
         layout=layout,
-        layer_location=capa_cobertura,
+        capa_localitzador=capa_cobertura,
         capa_extensio=capa_extent,
         mapa=mapa,
         **cfg_estructura["Localitzador"]
     )
 
-    layout_common.afegir_titol(
+    layout_common.afegir_capçalera(
         layout=layout,
-        **cfg_layout["Titol"],
-        **cfg_estructura["Titol"]
+        **cfg_layout["Capçalera"],
+        **cfg_estructura["Capçalera"]
     )
 
     layout_common.afegir_llegenda(

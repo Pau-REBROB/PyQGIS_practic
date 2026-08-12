@@ -55,8 +55,12 @@ Evitar duplicació.
 """
 
 # ==============================================================================
-# 1. IMPORTACIÓ DE MÒDULS
+# 1. MÒDULS
 # ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 1.1. Importació de mòduls
+# ------------------------------------------------------------------------------
 
 import sys
 sys.path.append("C:/projectes_git/PyQGIS_practic/Exemple")
@@ -92,8 +96,10 @@ import layouts.fusionar_layouts as fusionar_layouts
 ## Arxiu de configuració
 import config
 
+# ------------------------------------------------------------------------------
+# 1.2. Recàrrega de mòduls
+# ------------------------------------------------------------------------------
 
-# Recàrrega
 import importlib
 
 importlib.reload(config)
@@ -379,7 +385,7 @@ for layer in layers_simbologia_especialitzacio_barris.values():
     project.addMapLayer(layer)
 
 # ------------------------------------------------------------------------------
-# 6.4. Malla hexagonal
+# 6.4. Malla hexagonal bivariant
 # ------------------------------------------------------------------------------
 
 # Omissió de l'ús residencial
@@ -389,7 +395,7 @@ layers_simbologia_hexagons = simbologia_general.simbologia_hexagons_especialitza
 )
 
 # Addició de capes al projecte
-for layer in layers_simbologia_hexagons:
+for layer in layers_simbologia_hexagons.values():
     project.addMapLayer(layer)
 
 ## Hexàgons no vàlids
@@ -405,22 +411,26 @@ project.addMapLayer(layer_simbologia_hexagons_no_valids)
 # 6.5. Accessibilitat
 # ------------------------------------------------------------------------------
 
-# Accessibilitat
-layers_accessibilitat = simbologia_general.simbologia_edificis_accessibilitat(
-    edificis=edificis_isoarees,
+layers_simbologia_accessibilitat = simbologia_general.simbologia_edificis_accessibilitat(
+    edificis=edificis_accessibilitat,
     graf=dict_layers_clean["Graf"]["Graf_trams"],
-    clusters=dict_clusters["4_2_retail"]["zones"],
+    clusters=clusters_dict["4_2_retail"]["zones"],
     terme=dict_layers_clean["Limits_administratius"]["TermeMunicipal"]
 )
-for layer in layers_accessibilitat.values():
-    QgsProject.instance().addMapLayer(layer)
+
+# Addició de les capes al projecte
+for layer in layers_simbologia_accessibilitat.values():
+    project.addMapLayer(layer)
 
 
+# ==============================================================================
+# 7. COMPOSICIONS
+# ==============================================================================
 
-#============================================================================================
-# 7. Composició
+# ------------------------------------------------------------------------------
+# 7.1. Composició general
+# ------------------------------------------------------------------------------
 
-## Composició general
 layout_general.composicio_general(
     capes=[
         layers_simbologia_base["Edificis"],
@@ -431,7 +441,10 @@ layout_general.composicio_general(
     capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"]
 )
 
-## Composició atles
+# ------------------------------------------------------------------------------
+# 7.2. Composició atles
+# ------------------------------------------------------------------------------
+
 layout_atles.composicio_atles(
     capes=[
         layers_simbologia_base["Edificis"],

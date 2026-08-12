@@ -168,51 +168,51 @@ def separar_hexagons_valids(malla):
     return hexagons_valids, hexagons_no_valids
 
 
-# def assignar_hexagons_a_edificis(edificis, malla, expressio=None):
-#     """
-#     Assigna a cada edifici l'identificador de l'hexagon on es troba.
+def assignar_hexagons_a_edificis(edificis, malla, expressio=None):
+    """
+    Assigna a cada edifici l'identificador de l'hexagon on es troba.
 
-#     La funció genera una nova capa en memòria amb totes les geometries
-#     dels edificis i incorpora el camp identificador de la malla
-#     hexagonal.
+    La funció genera una nova capa en memòria amb totes les geometries
+    dels edificis i incorpora el camp identificador de la malla
+    hexagonal.
 
-#     Paràmetres
-#     ----------
-#     edificis: QgsVectorLayer
-#         Capa vectorial dels edificis.
-#     malla: QgsVectorLayer
-#         Capa vectorial de la malla hexagonal.
-#     expressio: str, optional
-#         Expressió de filtratge escrita amb la sintaxi d'expressions de QGIS.
-#         Per defecte és None.
+    Paràmetres
+    ----------
+    edificis: QgsVectorLayer
+        Capa vectorial dels edificis.
+    malla: QgsVectorLayer
+        Capa vectorial de la malla hexagonal.
+    expressio: str, optional
+        Expressió de filtratge escrita amb la sintaxi d'expressions de QGIS.
+        Per defecte és None.
 
-#     Retorna
-#     -------
-#     QgsVectorLayer
-#         Nova capa dels edificis amb el camp identificador de l'hexagon.
-#     """
+    Retorna
+    -------
+    QgsVectorLayer
+        Nova capa dels edificis amb el camp identificador de l'hexagon.
+    """
 
-#     if expressio: 
-#         edificis = filtrar_capa_edificis(
-#             layer=edificis,
-#             expressio=expressio
-#         )
+    if expressio: 
+        edificis = filtrar_capa_edificis(
+            layer=edificis,
+            expressio=expressio
+        )
 
-#     resultat = processing.run(
-#         "native:joinattributesbylocation",
-#         {
-#             'INPUT': edificis,
-#             'JOIN': malla,
-#             'JOIN_FIELDS': 'id',
-#             'PREDICATE': 0, # Intersecció
-#             'METHOD': 1, # Primer element coincident
-#             'DISCARD_NONMATCHING': False,
-#             'PREFIX': "hex_",
-#             'OUTPUT': "memory:"
-#         }
-#     )
+    resultat = processing.run(
+        "native:joinattributesbylocation",
+        {
+            'INPUT': edificis,
+            'JOIN': malla,
+            'JOIN_FIELDS': 'id',
+            'PREDICATE': 0, # Intersecció
+            'METHOD': 1, # Primer element coincident
+            'DISCARD_NONMATCHING': False,
+            'PREFIX': "hex_",
+            'OUTPUT': "memory:"
+        }
+    )
 
-#     return resultat["OUTPUT"]
+    return resultat["OUTPUT"]
 
 
 # def agregar_usos_per_hexagons(edificis_hex):

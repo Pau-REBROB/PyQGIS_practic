@@ -410,26 +410,67 @@ EXPORTACIO_ISOAREES = {
 LAYOUTS = {
     "ESTRUCTURA": {
         "Mapa": {
-            "size": (280, 190),
+            "factor_escala": 0.65,
+            "size": (290, 200),
+            "position": (3.5, 5),
+            "rotacio": 45,
+            "offset_x": 1000,
+            "offset_y": 0
+        },
+        "Capçalera": {
+            "text_size": (280, 5),
+            "text_position": (10, 10),
+            "backg_size": (280, 2),
+            "backg_position": (10, 20)
+        },
+        "Titol": {
+            "size": (280, 5),
             "position": (10, 10)
+        },
+        "Llegenda": {
+            "position": (10, 30)
+        },
+        "Escala": {
+            "position": (10, 120)
+        },
+        "Nord": {
+            "size": (10, 10),
+            "position": (10, 110)
+        }
+    },
+
+    "ESTRUCTURA_ATLES": {
+        "Mapa": {
+            "factor_escala": 0.60,
+            "size": (290, 200),
+            "position": (3.5, 5),
+            "rotacio": 45,
+            "offset_x": 0,
+            "offset_y": 0
         },
         "Localitzador": {
             "size": (50, 50),
             "position": (240, 140)
         },
+        "Capçalera": {
+            "text_size": (280, 5),
+            "text_position": (10, 10),
+            "backg_size": (280, 2),
+            "backg_position": (10, 20)
+        },
         "Titol": {
-            "size": (10, 5),
-            "position": (280, 10)
+            "size": (280, 5),
+            "position": (10, 10)
         },
         "Llegenda": {
-            "position": (240, 60)
+            "position": (10, 30)
         },
         "Escala": {
-            "position": (15, 190)
+            "position": (10, 120)
         },
         "Nord": {
             "size": (10, 10),
-            "position": (15, 180)
+            "position": (10, 110)
         }
     },
 
@@ -625,24 +666,26 @@ LAYOUTS = {
     
 
     "GENERAL":{
-        "Titol": {
-            "titol": "Ús dels edificis de la ciutat de Barcelona - font: Cadastre",
+        "Capçalera": {
+            "color": (100,100,100,180),
+            "outline_color": (85,85,85,255),
+            "outline_width": 0.40,
+            "text": "Ús dels edificis de Barcelona - font: Cadastre",
             "font": "Calibri",
             "font_size": 20,
-            "font_color": (0,0,0,255),
-            "alineacio": "left",
-            "backg_color": (100,100,100,180),
-            "frame_color": (255, 255, 255, 200)
+            "font_color": (0,0,0,255)
         },
         "Llegenda": {
             "titol": "Classificació dels edificis",
             "font": "Calibri",
             "font_size": 10,
             "font_color": (0,0,0,255),
-            "backg_color": (100,100,100,180)
+            "backg_color": (150,150,150,180)
         },
         "Escala": {
+            "tipus": "Single Box",
             "font": "Calibri",
+            "font_size": 10,
             "font_color": (0,0,0,255)
         },
         "Nord": {
@@ -650,20 +693,29 @@ LAYOUTS = {
         },
         "Exportacio": {
             "output_path": f"{PATH_RESULTATS}/Classificacio_edificis.pdf",
-            "dpi": 300
+            "dpi": 500
         }
     },
 
     "ATLES": {
-        "Titol": {
-            "titol": "Ús dels edificis de la ciutat de Barcelona - Districte: [% \"NOM\" %]",
+        "Capçalera": {
+            "color": (100,100,100,180),
+            "outline_color": (85,85,85,255),
+            "outline_width": 0.40,
+            "text": "Ús dels edificis de la ciutat de Barcelona - Districte: [% \"NOM\" %]",
             "font": "Calibri",
             "font_size": 20,
-            "font_color": (0,0,0,255),
-            "alineacio": "left",
-            "backg_color": (100,100,100,180),
-            "frame_color": (255, 255, 255, 200)
+            "font_color": (0,0,0,255)
         },
+        # "Titol": {
+        #     "titol": "Ús dels edificis de la ciutat de Barcelona - Districte: [% \"NOM\" %]",
+        #     "font": "Calibri",
+        #     "font_size": 20,
+        #     "font_color": (0,0,0,255),
+        #     "alineacio": "left",
+        #     "backg_color": (100,100,100,180),
+        #     "frame_color": (255, 255, 255, 200)
+        # },
         "Llegenda": {
             "titol": "Classificació dels edificis",
             "font": "Calibri",
@@ -672,7 +724,9 @@ LAYOUTS = {
             "backg_color": (100,100,100,180)
         },
         "Escala": {
+            "tipus": "Single Box",
             "font": "Calibri",
+            "font_size": 10,
             "font_color": (0,0,0,255)
         },
         "Nord": {
@@ -854,7 +908,7 @@ LAYOUTS = {
             "text": "Especialització funcional bivariant dels barris de Barcelona",
             "font": "Calibri",
             "font_size": 20,
-            "font_color": (0,0,0,255),
+            "font_color": (0,0,0,255)
         },
         "Llegenda": {
             "cell": 10,
