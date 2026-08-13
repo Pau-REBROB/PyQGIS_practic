@@ -108,7 +108,7 @@ def simbologia_clusters(resultats):
         layer_simb = simbologies.simbologia_unica(
             layer=dades["zones"],
             nom="clusters",
-            fill_color=config.COLORS_USOS[us],
+            fill_color=config.COLORS_CLUSTERS[us],
             outline_width=config.SIMBOLOGIA["Clusters"]["outline_width"],
             stroke_color=config.COLORS_USOS[us]
         )

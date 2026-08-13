@@ -50,7 +50,7 @@ def composicio_clusters(capes, capa_extent):
     """
 
     cfg_layout = config.LAYOUTS["CLUSTERS"]
-    cfg_estructura = config.LAYOUTS["ESTRUCTURA"]
+    cfg_estructura = config.LAYOUTS["ESTRUCTURA_CLUSTERS"]
 
     layout = layout_common.generar_layout(
         nom_layout="Agrupacions espacials dels usos dels edificis a Barcelona"
@@ -63,10 +63,10 @@ def composicio_clusters(capes, capa_extent):
         **cfg_estructura["Mapa"]
     )
 
-    layout_common.afegir_titol(
+    layout_common.afegir_capçalera(
         layout=layout,
-        **cfg_layout["Titol"],
-        **cfg_estructura["Titol"]
+        **cfg_layout["Capçalera"],
+        **cfg_estructura["Capçalera"]
     )
 
     layout_common.afegir_llegenda(
@@ -91,15 +91,15 @@ def composicio_clusters(capes, capa_extent):
         **cfg_estructura["Nord"]
     )
 
-    layout_common.afegir_grafic(
-        layout=layout,
-        **cfg_layout["Grafic_clusters"]
-    )
+    # layout_common.afegir_grafic(
+    #     layout=layout,
+    #     **cfg_layout["Grafic_clusters"]
+    # )
 
-    layout_common.afegir_grafic(
-        layout=layout,
-        **cfg_layout["Grafic_mida"]
-    )
+    # layout_common.afegir_grafic(
+    #     layout=layout,
+    #     **cfg_layout["Grafic_mida"]
+    # )
 
     layout_general.exportar_layout(
         layout=layout,

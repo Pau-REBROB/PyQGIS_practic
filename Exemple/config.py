@@ -120,6 +120,15 @@ COLORS_USOS = {
     "4_3_publicServices": (200, 170, 220, 255)
 }
 
+COLORS_CLUSTERS = {
+    "1_residential": (255, 235, 175, 150),
+    "2_agriculture": (170, 255, 115, 150),
+    "3_industrial": (178, 178, 178, 150),
+    "4_1_office": (255, 170, 0, 150),
+    "4_2_retail": (255, 127, 0, 150),
+    "4_3_publicServices": (200, 170, 220, 150)
+}
+
 def colors_mpl(us):
     """
     Funció per convertir colors en format (RGBA) de PyQGIS en format acceptat per matplotlib
@@ -391,12 +400,12 @@ SIMBOLOGIA = {
 # EXPORTACIÓ
 # =============================================================================
 
-EXPORTACIO_GRAFICS = {
-    "Grafic_usos_districtes": f"{PATH_RESULTATS}/Grafic_nombreEdificis_districte.png",
-    "Grafic_usos_percentatges_districtes": f"{PATH_RESULTATS}/Grafic_percentatgeEdificis_districte.png",
-    "Grafic_nombre_clusters": f"{PATH_RESULTATS}/Grafic_nombreClusters.png",
-    "Grafic_mida_clusters": f"{PATH_RESULTATS}/Grafic_midaClusters.png"
-}
+# EXPORTACIO_GRAFICS = {
+#     "Grafic_usos_districtes": f"{PATH_RESULTATS}/Grafic_nombreEdificis_districte.png",
+#     "Grafic_usos_percentatges_districtes": f"{PATH_RESULTATS}/Grafic_percentatgeEdificis_districte.png",
+#     "Grafic_nombre_clusters": f"{PATH_RESULTATS}/Grafic_nombreClusters.png",
+#     "Grafic_mida_clusters": f"{PATH_RESULTATS}/Grafic_midaClusters.png"
+# }
 
 EXPORTACIO_ISOAREES = {
     "interpolation": f"{PATH_RESULTATS}/output_interpolation.tif",
@@ -474,6 +483,37 @@ LAYOUTS = {
         }
     },
 
+    "ESTRUCTURA_CLUSTERS": {
+        "Mapa": {
+            "factor_escala": 0.65,
+            "size": (290, 200),
+            "position": (3.5, 5),
+            "rotacio": 45,
+            "offset_x": 1000,
+            "offset_y": 750
+        },
+        "Capçalera": {
+            "text_size": (280, 5),
+            "text_position": (10, 10),
+            "backg_size": (280, 2),
+            "backg_position": (10, 20)
+        },
+        # "Titol": {
+        #     "size": (280, 5),
+        #     "position": (10, 10)
+        # },
+        "Llegenda": {
+            "position": (10, 30)
+        },
+        "Escala": {
+            "position": (260, 190)
+        },
+        "Nord": {
+            "size": (10, 10),
+            "position": (260, 180)
+        }
+    },
+
     "ESTRUCTURA_ESPECIALITZACIO": {
         "Mapa_us": {
             "factor_escala": 1.00,
@@ -537,49 +577,97 @@ LAYOUTS = {
     },
 
     "ESTRUCTURA_BIVARIANT": {
-        "Mapa": {
-            "factor_escala": 0.75,
-            "size": (280, 190),
-            "position": (10, 20),
-            "rotacio": 45,
-            "offset_x": 3000,
-            "offset_y": 300
+        "Districtes": {
+            "Mapa": {
+                "factor_escala": 0.75,
+                "size": (280, 190),
+                "position": (10, 20),
+                "rotacio": 45,
+                "offset_x": 3000,
+                "offset_y": 300
+            },
+            "Capçalera": {
+                "text_size": (280, 5),
+                "text_position": (10, 10),
+                "backg_size": (280, 2),
+                "backg_position": (10, 20)
+            },
+            "Llegenda": {
+                "position": (238, 143)
+            },
+            "Eix_dominancia_llegenda": {
+                "position": (238, 131),
+                "size": (50, 10),
+                "alineacio": "left",
+                "rotacio": 0
+            },
+            "Eix_diversitat_llegenda": {
+                "position": (221, 175),
+                "size": (50, 10),
+                "alineacio": "left",
+                "rotacio": -90
+            },
+            "Labels_superiors_llegenda": {
+                "position": (240, 137),
+                "size": (26, 6)
+            },
+            "Labels_laterals_llegenda": {
+                "position": (228, 145),
+                "size": (6, 26)
+            },
+            "Escala": {
+                "position": (221, 180),
+            },
+            "Nord": {
+                "size": (10, 10),
+                "position": (221, 192)
+            }
         },
-        "Capçalera": {
-            "text_size": (280, 5),
-            "text_position": (10, 10),
-            "backg_size": (280, 2),
-            "backg_position": (10, 20)
-        },
-        "Llegenda": {
-            "position": (238, 143)
-        },
-        "Eix_dominancia_llegenda": {
-            "position": (238, 131),
-            "size": (50, 10),
-            "alineacio": "left",
-            "rotacio": 0
-        },
-        "Eix_diversitat_llegenda": {
-            "position": (221, 175),
-            "size": (50, 10),
-            "alineacio": "left",
-            "rotacio": -90
-        },
-        "Labels_superiors_llegenda": {
-            "position": (240, 137),
-            "size": (26, 6)
-        },
-        "Labels_laterals_llegenda": {
-            "position": (228, 145),
-            "size": (6, 26)
-        },
-        "Escala": {
-            "position": (221, 180),
-        },
-        "Nord": {
-            "size": (10, 10),
-            "position": (221, 192)
+        "Barris": {
+            "Mapa": {
+                "factor_escala": 0.75,
+                "size": (280, 190),
+                "position": (10, 20),
+                "rotacio": 45,
+                "offset_x": 3000,
+                "offset_y": 300
+            },
+            "Capçalera": {
+                "text_size": (280, 5),
+                "text_position": (10, 10),
+                "backg_size": (280, 2),
+                "backg_position": (10, 20)
+            },
+            "Llegenda": {
+                "position": (238, 143)
+            },
+            "Eix_dominancia_llegenda": {
+                "position": (238, 131),
+                "size": (50, 10),
+                "alineacio": "left",
+                "rotacio": 0
+            },
+            "Eix_diversitat_llegenda": {
+                "position": (221, 175),
+                "size": (50, 10),
+                "alineacio": "left",
+                "rotacio": -90
+            },
+            "Labels_superiors_llegenda": {
+                "position": (240, 137),
+                "size": (26, 6)
+            },
+            "Labels_laterals_llegenda": {
+                "position": (228, 145),
+                "size": (6, 26)
+            },
+            "Escala": {
+                "position": (221, 180),
+            },
+            "Nord": {
+                "size": (10, 10),
+                "position": (221, 192)
+            }
         }
     },
 
@@ -741,55 +829,66 @@ LAYOUTS = {
         }
     },
 
-    "ANALISI":{
-        "Titol": {
-            "titol": "Anàlisi dels usos dels edificis de la ciutat de Barcelona - font: Cadastre",
-            "font": "Calibri",
-            "font_size": 20,
-            "font_color": (0,0,0,255),
-            "alineacio": "left",
-            "backg_color": (100,100,100,180),
-            "frame_color": (255, 255, 255, 200)
-        },
-        "Llegenda": {
-            "titol": "Classificació dels edificis",
-            "font": "Calibri",
-            "font_size": 10,
-            "font_color": (0,0,0,255),
-            "backg_color": (100,100,100,180)
-        },
-        "Escala": {
-            "font": "Calibri",
-            "font_color": (0,0,0,255)
-        },
-        "Nord": {
-            "image_path": "C:/projectes_git/Dades/nord2.png"
-        },
-        "Grafic_total": {
-            "path": f"{PATH_RESULTATS}/Grafic_nombreEdificis_districte.png",
-            "size": (120, 60),
-            "position": (15, 145)
-        },
-        "Grafic_percentatge": {
-            "path": f"{PATH_RESULTATS}/Grafic_percentatgeEdificis_districte.png",
-            "size": (120, 60),
-            "position": (145, 145)
-        },
-        "Exportacio": {
-            "output_path": f"{PATH_RESULTATS}/Analisi_edificis.pdf",
-            "dpi": 300
-        }
-    },
+    # "ANALISI":{
+    #     "Titol": {
+    #         "titol": "Anàlisi dels usos dels edificis de la ciutat de Barcelona - font: Cadastre",
+    #         "font": "Calibri",
+    #         "font_size": 20,
+    #         "font_color": (0,0,0,255),
+    #         "alineacio": "left",
+    #         "backg_color": (100,100,100,180),
+    #         "frame_color": (255, 255, 255, 200)
+    #     },
+    #     "Llegenda": {
+    #         "titol": "Classificació dels edificis",
+    #         "font": "Calibri",
+    #         "font_size": 10,
+    #         "font_color": (0,0,0,255),
+    #         "backg_color": (100,100,100,180)
+    #     },
+    #     "Escala": {
+    #         "tipus": "Single Box",
+    #         "font": "Calibri",
+    #         "font_size": 10,
+    #         "font_color": (0,0,0,255)
+    #     },
+    #     "Nord": {
+    #         "image_path": "C:/projectes_git/Dades/nord2.png"
+    #     },
+    #     "Grafic_total": {
+    #         "path": f"{PATH_RESULTATS}/Grafic_nombreEdificis_districte.png",
+    #         "size": (120, 60),
+    #         "position": (15, 145)
+    #     },
+    #     "Grafic_percentatge": {
+    #         "path": f"{PATH_RESULTATS}/Grafic_percentatgeEdificis_districte.png",
+    #         "size": (120, 60),
+    #         "position": (145, 145)
+    #     },
+    #     "Exportacio": {
+    #         "output_path": f"{PATH_RESULTATS}/Analisi_edificis.pdf",
+    #         "dpi": 300
+    #     }
+    # },
 
     "CLUSTERS": {
-        "Titol": {
-            "titol": "Concentracions espacials dels usos dels edificis de la ciutat de Barcelona - font: Cadastre",
+        # "Titol": {
+        #     "titol": "Concentracions espacials dels usos dels edificis de la ciutat de Barcelona - font: Cadastre",
+        #     "font": "Calibri",
+        #     "font_size": 20,
+        #     "font_color": (0,0,0,255),
+        #     "alineacio": "left",
+        #     "backg_color": (100,100,100,180),
+        #     "frame_color": (255, 255, 255, 200)
+        # },
+        "Capçalera": {
+            "color": (100,100,100,180),
+            "outline_color": (85,85,85,255),
+            "outline_width": 0.40,
+            "text": "Concentració espacial dels usos dels edificis de la ciutat de Barcelona",
             "font": "Calibri",
             "font_size": 20,
-            "font_color": (0,0,0,255),
-            "alineacio": "left",
-            "backg_color": (100,100,100,180),
-            "frame_color": (255, 255, 255, 200)
+            "font_color": (0,0,0,255)
         },
         "Llegenda": {
             "titol": "Agrupacions espacials",
@@ -799,25 +898,27 @@ LAYOUTS = {
             "backg_color": (100,100,100,180)
         },
         "Escala": {
+            "tipus": "Single Box",
             "font": "Calibri",
+            "font_size": 10,
             "font_color": (0,0,0,255)
         },
         "Nord": {
             "image_path": "C:/projectes_git/Dades/nord2.png"
         },
-        "Grafic_clusters": {
-            "path": f"{PATH_RESULTATS}/Grafic_nombreClusters.png",
-            "size": (120, 60),
-            "position": (15, 145)
-        },
-        "Grafic_mida": {
-            "path": f"{PATH_RESULTATS}/Grafic_midaClusters.png",
-            "size": (120, 60),
-            "position": (145, 145)
-        },
+        # "Grafic_clusters": {
+        #     "path": f"{PATH_RESULTATS}/Grafic_nombreClusters.png",
+        #     "size": (120, 60),
+        #     "position": (15, 145)
+        # },
+        # "Grafic_mida": {
+        #     "path": f"{PATH_RESULTATS}/Grafic_midaClusters.png",
+        #     "size": (120, 60),
+        #     "position": (145, 145)
+        # },
         "Exportacio": {
             "output_path": f"{PATH_RESULTATS}/Analisi_clusters.pdf",
-            "dpi": 300
+            "dpi": 500
         }
     },
 
@@ -896,63 +997,120 @@ LAYOUTS = {
         },
         "Exportacio": {
             "output_path": f"{PATH_RESULTATS}/Especialitzacio_districtes.pdf",
-            "dpi": 300
+            "dpi": 500
         }
     },
 
     "BIVARIANT": {
-        "Capçalera": {
-            "color": (100,100,100,180),
-            "outline_color": (85,85,85,255),
-            "outline_width": 0.40,
-            "text": "Especialització funcional bivariant dels barris de Barcelona",
-            "font": "Calibri",
-            "font_size": 20,
-            "font_color": (0,0,0,255)
+        "Districtes": {
+            "Capçalera": {
+                "color": (100,100,100,180),
+                "outline_color": (85,85,85,255),
+                "outline_width": 0.40,
+                "text": "Especialització funcional bivariant dels districtes de Barcelona",
+                "font": "Calibri",
+                "font_size": 20,
+                "font_color": (0,0,0,255)
+            },
+            "Llegenda": {
+                "cell": 10,
+                "gap": 0.5,
+                "colors": COLORS_BIVARIANT
+            },
+            "Eix_dominancia_llegenda": {
+                "text": "Dominància funcional",
+                "font": "Calibri",
+                "font_size": 12,
+                "font_color": (0,0,0,255)
+            },
+            "Eix_diversitat_llegenda": {
+                "text": "Diversitat funcional",
+                "font": "Calibri",
+                "font_size": 12,
+                "font_color": (0,0,0,255)
+            },
+            "Labels_superiors_llegenda": {
+                "cell": 10,
+                "gap": 0.5,
+                "font": "Calibri",
+                "font_size": 8,
+                "font_color": (0,0,0,255)
+            },
+            "Labels_laterals_llegenda": {
+                "cell": 10,
+                "gap": 0.5,
+                "font": "Calibri",
+                "font_size": 8,
+                "font_color": (0,0,0,255)
+            },
+            "Escala": {
+                "tipus": "Single Box",
+                "font": "Calibri",
+                "font_size": 10,
+                "font_color": (0,0,0,255)
+            },
+            "Nord": {
+                "image_path": "C:/projectes_git/Dades/nord2.png"
+            },
+            "Exportacio": {
+                "output_path": f"{PATH_RESULTATS}/Analisi_bivariant_districtes.pdf",
+                "dpi": 500
+            }
         },
-        "Llegenda": {
-            "cell": 10,
-            "gap": 0.5,
-            "colors": COLORS_BIVARIANT
-        },
-        "Eix_dominancia_llegenda": {
-            "text": "Dominància funcional",
-            "font": "Calibri",
-            "font_size": 12,
-            "font_color": (0,0,0,255)
-        },
-        "Eix_diversitat_llegenda": {
-            "text": "Diversitat funcional",
-            "font": "Calibri",
-            "font_size": 12,
-            "font_color": (0,0,0,255)
-        },
-        "Labels_superiors_llegenda": {
-            "cell": 10,
-            "gap": 0.5,
-            "font": "Calibri",
-            "font_size": 8,
-            "font_color": (0,0,0,255)
-        },
-        "Labels_laterals_llegenda": {
-            "cell": 10,
-            "gap": 0.5,
-            "font": "Calibri",
-            "font_size": 8,
-            "font_color": (0,0,0,255)
-        },
-        "Escala": {
-            "tipus": "Single Box",
-            "font": "Calibri",
-            "font_size": 10,
-            "font_color": (0,0,0,255)
-        },
-        "Nord": {
-            "image_path": "C:/projectes_git/Dades/nord2.png"
-        },
-        "Exportacio": {
-            "output_path": f"{PATH_RESULTATS}/Analisi_bivariant_barris.pdf",
-            "dpi": 300
+        "Barris": {
+            "Capçalera": {
+                "color": (100,100,100,180),
+                "outline_color": (85,85,85,255),
+                "outline_width": 0.40,
+                "text": "Especialització funcional bivariant dels barris de Barcelona",
+                "font": "Calibri",
+                "font_size": 20,
+                "font_color": (0,0,0,255)
+            },
+            "Llegenda": {
+                "cell": 10,
+                "gap": 0.5,
+                "colors": COLORS_BIVARIANT
+            },
+            "Eix_dominancia_llegenda": {
+                "text": "Dominància funcional",
+                "font": "Calibri",
+                "font_size": 12,
+                "font_color": (0,0,0,255)
+            },
+            "Eix_diversitat_llegenda": {
+                "text": "Diversitat funcional",
+                "font": "Calibri",
+                "font_size": 12,
+                "font_color": (0,0,0,255)
+            },
+            "Labels_superiors_llegenda": {
+                "cell": 10,
+                "gap": 0.5,
+                "font": "Calibri",
+                "font_size": 8,
+                "font_color": (0,0,0,255)
+            },
+            "Labels_laterals_llegenda": {
+                "cell": 10,
+                "gap": 0.5,
+                "font": "Calibri",
+                "font_size": 8,
+                "font_color": (0,0,0,255)
+            },
+            "Escala": {
+                "tipus": "Single Box",
+                "font": "Calibri",
+                "font_size": 10,
+                "font_color": (0,0,0,255)
+            },
+            "Nord": {
+                "image_path": "C:/projectes_git/Dades/nord2.png"
+            },
+            "Exportacio": {
+                "output_path": f"{PATH_RESULTATS}/Analisi_bivariant_barris.pdf",
+                "dpi": 500
+            }
         }
     },
 

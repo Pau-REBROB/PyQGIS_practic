@@ -88,7 +88,7 @@ import layouts.layout_atles as layout_atles
 import layouts.layout_analisi as layout_analisi
 import layouts.layout_clusters as layout_clusters
 import layouts.layout_especialitzacio as layout_especialitzacio
-import layouts.layout_bivariant_barris as layout_bivariant_barris
+import layouts.layout_bivariant_zones as layout_bivariant_zones
 import layouts.layout_hexagons as layout_hexagons
 import layouts.layout_accessibilitat as layout_accessibilitat 
 import layouts.fusionar_layouts as fusionar_layouts
@@ -123,7 +123,7 @@ importlib.reload(layout_atles)
 importlib.reload(layout_analisi)
 importlib.reload(layout_clusters)
 importlib.reload(layout_especialitzacio)
-importlib.reload(layout_bivariant_barris)
+importlib.reload(layout_bivariant_zones)
 importlib.reload(layout_hexagons)
 importlib.reload(layout_accessibilitat)
 importlib.reload(fusionar_layouts)
@@ -456,21 +456,31 @@ layout_atles.composicio_atles(
     capa_cobertura=layers_simbologia_base["Districtes"]
 )
 
-## Composició anàlisi
-layout_analisi.composicio_analisi(
-    capes=[
-        layers_simbologia_base["Edificis"],
-        layers_simbologia_base["Barris"],
-        layers_simbologia_base["Districtes"],
-        basemap_layer
-    ],
-    capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"]
-)
+# # ------------------------------------------------------------------------------
+# # 7.3. Composició anàlisi agrupacions espacials
+# # ------------------------------------------------------------------------------
 
-## Composició clusters
+# layout_analisi.composicio_analisi(
+#     capes=[
+#         layers_simbologia_base["Edificis"],
+#         layers_simbologia_base["Barris"],
+#         layers_simbologia_base["Districtes"],
+#         basemap_layer
+#     ],
+#     capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"]
+# )
+
+# ------------------------------------------------------------------------------
+# 7.3. Composició anàlisi agrupacions espacials
+# ------------------------------------------------------------------------------
+
 layout_clusters.composicio_clusters(
     capes=[
-        *layers_simbologia_clusters.values(),
+        layers_simbologia_clusters["2_agriculture"],
+        layers_simbologia_clusters["3_industrial"],
+        layers_simbologia_clusters["4_1_office"],
+        layers_simbologia_clusters["4_2_retail"],
+        layers_simbologia_clusters["4_3_publicServices"],
         layers_simbologia_base["Edificis"],
         layers_simbologia_base["Barris"],
         layers_simbologia_base["Districtes"],
@@ -479,50 +489,75 @@ layout_clusters.composicio_clusters(
     capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"]
 )
 
-## Composició especialització districtes
-layout_especialitzacio.composicio_especialitzacio(
-    capes=layers_especialitzacio_no_residencial,
+# ------------------------------------------------------------------------------
+# 7.3. Composicions especialització funcional - Anàlisi bivariant
+# ------------------------------------------------------------------------------
+
+# ## Districtes
+# layout_especialitzacio.composicio_especialitzacio(
+#     capes=districtes_especialitzacio_no_residencial,
+#     capa_extent=districtes_base
+# )
+
+## Districtes
+layout_bivariant_zones.composicio_bivariant_zones(
+    zona="Districtes",
+    capes=layers_simbologia_especialitzacio_districtes["bivariant"],
     capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"]
 )
 
-## Composició bivariant barris
-layout_bivariant_barris.composicio_bivariant_barris(
-    districtes=dict_layers_clean["Limits_administratius"]["Districtes"],
-    capes=layers_especialitzacio_no_residencial["bivariant"],
+## Barris
+layout_bivariant_zones.composicio_bivariant_zones(
+    zona="Barris",
+    districtes=districtes_base,
+    capes=layers_simbologia_especialitzacio_barris["bivariant"],
     capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"]
 )
 
-## Composició bivariant hexàgons
+
+### LAYOUT COMPARATIU DISTRICTES / BARRIS
+### aprofitar el d'especialització
+
+
+## Malla hexagonal
 layout_hexagons.composicio_bivariant_hexagons(
-    districtes=dict_layers_clean["Limits_administratius"]["Districtes"],
+    districtes=districtes_base,
     capes=[
-        layers_hexagons_especialitzacio_no_residencial["bivariant"],
-        layer_hexagons_no_valids
+        layers_simbologia_hexagons["bivariant"],
+        layer_simbologia_hexagons_no_valids
     ],
     capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"]
 )
 
-## Composició accessibilitat general
+# ------------------------------------------------------------------------------
+# 7.4. Composició d'accessibilitat
+# ------------------------------------------------------------------------------
+
 layout_accessibilitat.composicio_accessibilitat(
     capes=[
-        layers_accessibilitat["clusters"],
-        layers_accessibilitat["accessibilitat"],
-        layers_accessibilitat["terme"]
+        layers_simbologia_accessibilitat["clusters"],
+        layers_simbologia_accessibilitat["accessibilitat"],
+        layers_simbologia_accessibilitat["terme"]
         #layers_accessibilitat["graf"]
     ],
-    capa_extent=layers_accessibilitat["clusters"]
+    capa_extent=layers_simbologia_accessibilitat["clusters"]
 )
 
+# ------------------------------------------------------------------------------
+# 7.5. Composició final
+# ------------------------------------------------------------------------------
 
 ## Unió de composicions en un informe final
 fusionar_layouts.fusionar_pdf(
     pdfs=[
         config.LAYOUTS["GENERAL"]["Exportacio"]["output_path"],
         config.LAYOUTS["ATLES"]["Exportacio"]["output_path"],
-        config.LAYOUTS["ANALISI"]["Exportacio"]["output_path"],
-        config.LAYOUTS["CLUSTERS"]["Exportacio"]["output_path"]
+        config.LAYOUTS["CLUSTERS"]["Exportacio"]["output_path"],
+        config.LAYOUTS["BIVARIANT"]["Districtes"]["Exportacio"]["output_path"],
+        config.LAYOUTS["BIVARIANT"]["Barris"]["Exportacio"]["output_path"],
+        config.LAYOUTS["HEXAGONS"]["Exportacio"]["output_path"],
+        config.LAYOUTS["ACCESSIBILITAT"]["Exportacio"]["output_path"]
     ],
     output_path=f"{config.PATH_RESULTATS}/Informe_final.pdf"
 )
 
-#============================================================================================

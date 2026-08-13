@@ -128,9 +128,10 @@ def crear_capa_districtes_layout(districtes):
 
     districtes_simbologia = simbologies.simbologia_unica(
         layer=districtes_clone,
+        nom="Districtes",
         fill_color=(0,0,0,0),
-        outline_width=0.45,
-        stroke_color=(100,100,100,255)
+        outline_width=0.50,
+        stroke_color=(80,80,80,255)
     )
     # TODO
     # El color i el gruix del contorn haurien de convertir-se en constants globals d'estil. 
@@ -319,7 +320,7 @@ def exportar_layout(layout, output_path, dpi):
 # COMPOSICIÓ
 # ------------------------------------------------------------------
 
-def composicio_bivariant_barris(districtes, capes, capa_extent):
+def composicio_bivariant_zones(zona, capes, capa_extent, districtes=None):
     """
     Genera la composició cartogràfica d'anàlisi bivariant per
     barris del projecte.
@@ -338,12 +339,14 @@ def composicio_bivariant_barris(districtes, capes, capa_extent):
     
     Paràmetres
     ----------
-    districtes: QgsVectorLayer
-        Capa vectorial de districtes.
+    zona: str
+        Unitat administrativa a representar.
     capes: list[QgsMapLayer]
         Llista ordenada de capes que es mostraran a la composició.
     capa_extent: QgsVectorLayer
         Capa utilitzada per a calcular l'extensió inicial del mapa.
+    districtes: QgsVectorLayer, optional
+            Capa vectorial de districtes.
 
     Retorna
     -------
@@ -355,12 +358,16 @@ def composicio_bivariant_barris(districtes, capes, capa_extent):
     # CONFIGURACIÓ
     # ------------------------------------------------------------------
 
-    cfg_layout = config.LAYOUTS["BIVARIANT"]
-    cfg_estructura = config.LAYOUTS["ESTRUCTURA_BIVARIANT"]
+    cfg_layout = config.LAYOUTS["BIVARIANT"][f"{zona}"]
+    cfg_estructura = config.LAYOUTS["ESTRUCTURA_BIVARIANT"][f"{zona}"]
 
-    districtes_layout = crear_capa_districtes_layout(districtes)
+    capes_layout = [capes]
 
-    layout = layout_common.generar_layout(nom_layout="Anàlisi bivariant per barris")
+    if districtes:
+        districtes_layout = crear_capa_districtes_layout(districtes)
+        capes_layout.insert(0, districtes_layout)
+
+    layout = layout_common.generar_layout(nom_layout="Anàlisi bivariant per UA")
 
     # ------------------------------------------------------------------
     # MAPA
@@ -368,7 +375,7 @@ def composicio_bivariant_barris(districtes, capes, capa_extent):
     
     mapa = afegir_mapa(
         layout=layout,
-        capes=[districtes_layout, capes],
+        capes=capes_layout,
         capa_extent=capa_extent,
         **cfg_estructura["Mapa"]
     )
