@@ -1,6 +1,43 @@
-"""ÚS EDIFICIS DE BARCELONA"""
-"""Detecció automàtica de clústers comercials i anàlisi d'accessibilitat viària a Barcelona mitjançant PyQGIS i QNEAT3"""
+"""
+Anàlisi geoespacial de la distribució funcional i l'accessibilitat comercial a Barcelona
+========================================================================================
 
+Script principal que orquestra el flux complet d'anàlisi:
+
+    1. Inicialització del projecte QGIS i importació de mòduls
+    2. Preparació de les capes base
+        - Edificis (cadastre GML)
+        - Malla hexagonal
+        - Graf viari
+        - Límits administratius (districtes i barris)
+    3. Especialització funcional per hexàgon
+        - Agrupació d'edificis per hexàgon
+        - Càlcul de l'índex de Shannon i dominància
+        - Escriptura dels resultats a la malla
+    4. Anàlisi de clústers comercials i accessibilitat
+        - Identificació de nuclis comercials (DBSCAN)
+        - Càlcul d'isoàrees d'accessibilitat (QNEAT3)
+        - Assignació de l'accessibilitat als edificis
+        - Agregació de l'accessibilitat a la malla hexagonal
+    5. Cartografia i exportació dels resultats
+        - Aplicació de simbologia
+        - Generació del layout
+        - Exportació a PNG/PDF
+
+Dades
+-----
+    Cadastre de Barcelona (GML)
+    Institut Cartogràfic i Geològic de Catalunya
+    Open Data BCN - Ajuntament de Barcelona (CC-BY 4.0)
+
+Dependències
+------------
+    QGIS 3.44, PyQGIS, QNEAT3
+
+Autor
+-----
+    Pau Rebull Robert
+"""
 
 """
 1. Crear Edificis_base (materialitzar + camps bàsics)
@@ -62,11 +99,19 @@ Evitar duplicació.
 # 1.1. Importació de mòduls
 # ------------------------------------------------------------------------------
 
+import importlib
+from pathlib import Path
 import sys
-sys.path.append("C:/projectes_git/PyQGIS_practic/Exemple")
-sys.path.append("C:/projectes_git/PyQGIS_practic/Exemple/simbologia")
-sys.path.append("C:/projectes_git/PyQGIS_practic/Exemple/layouts")
-sys.path.append("C:/projectes_git/PyQGIS_practic/Exemple/analisi")
+
+# Carpeta del main.py i altres scripts
+_base = Path(__file__).parent
+
+# Rutes relatives als mòduls i scripts
+sys.path.append(str(_base))
+sys.path.append(str(_base / "analisi"))
+sys.path.append(str(_base / "simbologia"))
+sys.path.append(str(_base / "layouts"))
+
 
 import inicialitzacio
 import importacio
@@ -93,46 +138,33 @@ import layouts.layout_hexagons as layout_hexagons
 import layouts.layout_accessibilitat as layout_accessibilitat 
 import layouts.fusionar_layouts as fusionar_layouts
 
-## Arxiu de configuració
+# Arxiu de configuració
 import config
 
 # ------------------------------------------------------------------------------
 # 1.2. Recàrrega de mòduls
 # ------------------------------------------------------------------------------
 
-import importlib
+_moduls = [
+    config, inicialitzacio, importacio, preparacio_dades,
+    agregacions, grafics, clusters, accessibilitat, especialitzacio,
+    hexagons, simbologies, simbologia_especialitzacio,
+    simbologia_hexagons, simbologia_accessibilitat, simbologia_general,
+    layout_common, layout_general, layout_atles, layout_analisi,
+    layout_clusters, layout_especialitzacio, layout_bivariant_zones,
+    layout_hexagons, layout_accessibilitat, fusionar_layouts
+]
 
-importlib.reload(config)
-importlib.reload(inicialitzacio)
-importlib.reload(importacio)
-importlib.reload(preparacio_dades)
-importlib.reload(agregacions)
-importlib.reload(grafics)
-importlib.reload(clusters)
-importlib.reload(accessibilitat)
-importlib.reload(especialitzacio)
-importlib.reload(hexagons)
-importlib.reload(simbologies)
-importlib.reload(simbologia_especialitzacio)
-importlib.reload(simbologia_hexagons)
-importlib.reload(simbologia_accessibilitat)
-importlib.reload(simbologia_general)
-importlib.reload(layout_common)
-importlib.reload(layout_general)
-importlib.reload(layout_atles)
-importlib.reload(layout_analisi)
-importlib.reload(layout_clusters)
-importlib.reload(layout_especialitzacio)
-importlib.reload(layout_bivariant_zones)
-importlib.reload(layout_hexagons)
-importlib.reload(layout_accessibilitat)
-importlib.reload(fusionar_layouts)
+for _modul in _moduls:
+    importlib.reload(_modul)
 
 
 # ==============================================================================
 # 2. INICIALITZACIÓ
 # ==============================================================================
 
+# Inicialitza el projecte QGIS i retorna
+# la instància del projecte (project) i l'arrel del panell de capes (root)
 project, root = inicialitzacio.inicialitzar_projecte()
 
 
@@ -140,8 +172,11 @@ project, root = inicialitzacio.inicialitzar_projecte()
 # 3. IMPORTACIÓ DE CAPES
 # ==============================================================================
 
+# Carrega les capes vectorials definides a config.LAYERS
+# Retorna un diccionari de capes i un diccionari d'índexs espacials
 dict_layers, dict_indexs = importacio.carregar_capes(layers=config.LAYERS)
 
+# Carrega la capa de fons cartogràfic (CartoDB Positron No Labels)
 basemap_layer = importacio.carregar_basemap()
 
 
@@ -149,6 +184,9 @@ basemap_layer = importacio.carregar_basemap()
 # 4. NETEJA DE LES DADES
 # ==============================================================================
 
+# Neteja les capes vectorials eliminant els camps no necessaris
+# i guardant les còpies netes a disc com a GeoPackage
+# Retorna un diccionari de capes netes
 dict_layers_clean = preparacio_dades.preparar_grup(
     dict_layers=dict_layers,
     configuracio=config.CAMPS_CAPES
