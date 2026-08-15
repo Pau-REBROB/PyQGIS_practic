@@ -143,15 +143,25 @@ def preparar_grup(dict_layers, configuracio):
     for grup, capes in dict_layers.items():
         
         for nom, capa in capes.items():
-            
-            if nom in configuracio[grup]:
-                camps = configuracio[grup][nom]
-            else:
-                camps = configuracio[grup]["*"]
-            
-            layer_clone = preparar_capa(capa, camps)
 
-            layer_clean = desar_i_carregar_capa(layer_clone)
+            clean_path = f"{config.PATH_DADES_NETES}/{nom}_clean.gpkg"
+
+            if os.path.exists(clean_path):
+                # Carregar capa directament sense netejar
+                print(f"Carregant capa {nom} des del disc...")
+
+                layer_clean = QgsVectorLayer(
+                    f"{clean_path}|layername={nom}", nom, "ogr"
+                )
+
+            else:
+                # Netejar, desar i carregar capa
+                if nom in configuracio[grup]:
+                    camps = configuracio[grup][nom]
+                else:
+                    camps = configuracio[grup]["*"]      
+                layer_clone = preparar_capa(capa, camps)
+                layer_clean = desar_i_carregar_capa(layer_clone)
             
             dict_layers[grup][nom] = layer_clean 
 

@@ -104,7 +104,11 @@ from pathlib import Path
 import sys
 
 # Carpeta del main.py i altres scripts
-_base = Path(__file__).parent
+# Intentar obtenir la ruta de l'arxiu, sinó utilitzar rutes absolutes
+try:
+    _base = Path(__file__).parent
+except NameError:
+    _base = Path("C:/projectes_git/PyQGIS_practic/Exemple")
 
 # Rutes relatives als mòduls i scripts
 sys.path.append(str(_base))
@@ -120,7 +124,7 @@ import analisi.agregacions as agregacions
 import analisi.grafics as grafics
 import analisi.clusters as clusters
 import analisi.accessibilitat as accessibilitat 
-import analisi.espacialitzacio as especialitzacio
+import analisi.especialitzacio as especialitzacio
 import analisi.hexagons as hexagons
 import simbologia.simbologies as simbologies
 import simbologia.simbologia_especialitzacio as simbologia_especialitzacio
@@ -201,6 +205,8 @@ dict_layers_clean = preparacio_dades.preparar_grup(
 # 5.1. Capes base del projecte
 # ------------------------------------------------------------------------------
 
+# Crea les capes base d'edificis i malla hexagonal
+# que serviran de suport per a totes les anàlisis posteriors
 ## Districtes
 districtes_base = dict_layers_clean["Limits_administratius"]["Districtes"]
 
@@ -270,6 +276,11 @@ malla_accessibilitat = accessibilitat.assignar_accessibilitat_per_hexagons(
 # ------------------------------------------------------------------------------
 # 5.5. Especialització funcional
 # ------------------------------------------------------------------------------
+
+# Calcula la diversitat i dominància d'usos per cada districte, barri i hexagon
+# a partir dels edificis base
+# L'índex de Shannon mesura la diversitat funcional 
+# i la dominància identifica l'ús predominant
 
 # Conservant l'ús residencial - 1_residential
 ## Districtes
@@ -459,6 +470,32 @@ layers_simbologia_accessibilitat = simbologia_general.simbologia_edificis_access
 # Addició de les capes al projecte
 for layer in layers_simbologia_accessibilitat.values():
     project.addMapLayer(layer)
+
+# ------------------------------------------------------------------------------
+# 6.6. Addició de capes al projecte
+# ------------------------------------------------------------------------------
+
+totes_les_capes = {
+    **layers_simbologia_base,
+    "base_map": basemap_layer,
+    **layers_simbologia_clusters,
+    **layers_simbologia_especialitzacio_districtes,
+    **layers_simbologia_especialitzacio_barris,
+    **layers_simbologia_hexagons,
+    "hexagons_no_valids": layer_simbologia_hexagons_no_valids,
+    **layers_simbologia_accessibilitat
+}
+
+for capa in totes_les_capes.values():
+
+    # Afegir al projecte si no hi és
+    if not project.mapLayer(capa.id()):
+        project.addMapLayer(capa)
+    
+    # Activar la visibilitat sempre
+    node = root.findLayer(capa)
+    if node:
+        node.setItemVisibilityChecked(True)
 
 
 # ==============================================================================

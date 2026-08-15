@@ -19,20 +19,14 @@ def inicialitzar_projecte():
 
     La funció:
         - obté la instància del projecte,
-        - elimina totes les capes i grups preexistents,
+        - estableix el títol del projecte,
         - estableix el sistema de referència de coordenades del projecte.
 
-    Paràmetres
-    ----------
-    None
 
     Retorna
     -------
     tupla
-        (
-            QgsProject,
-            QgsLayerTree
-        )
+        (QgsProject, QgsLayerTree)
         
         on:
             - QgsProject correspon a la instància del projecte,
@@ -40,12 +34,10 @@ def inicialitzar_projecte():
     """
     
     project = QgsProject.instance()
-
     root = project.layerTreeRoot()
 
-    # Netejar totes les capes i grups existents al projecte
-    project.removeAllMapLayers()
-    root.removeAllChildren()
+    # Nom del projecte
+    project.setTitle("Anàlisi geoespacial de la distribució funcional i l'accessibilitat comercial a Barcelona")
 
     # Definició del SRC del projecte
     project.setCrs(QgsCoordinateReferenceSystem("EPSG:25831"))
