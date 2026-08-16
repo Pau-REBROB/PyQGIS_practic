@@ -15,6 +15,7 @@ Organització
 from qgis.core import (
     QgsFeatureRequest,
     QgsProject,
+    QgsSpatialIndex,
     QgsVectorFileWriter,
     QgsVectorLayer, 
     edit
@@ -166,3 +167,38 @@ def preparar_grup(dict_layers, configuracio):
             dict_layers[grup][nom] = layer_clean 
 
     return dict_layers
+
+
+def crear_indexs(dict_layers):
+    """
+    Crea els índexs espacials per a totes les capes del projecte.
+
+    Paràmetres
+    ----------
+    dict_layers: dict
+        Diccionari de capes agrupades per temàtica.
+
+    Retorna
+    -------
+    dict
+        Diccionari d'índexs amb l'estructura:
+
+        on:
+            dict_indexs = {
+                "Grup": {
+                    "Nom_capa": QgsSpatialIndex,
+                    ...
+                },
+                ...
+            }
+    """
+
+    dict_indexs = {}
+
+    for grup, capes in dict_layers.items():
+        dict_indexs.setdefault(grup, {})
+
+        for nom, layer in capes.items():
+            dict_indexs[grup][nom] = QgsSpatialIndex(layer.getFeatures())
+
+    return dict_indexs

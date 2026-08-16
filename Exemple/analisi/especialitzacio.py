@@ -7,9 +7,7 @@ from PyQt5.QtCore import QVariant
 
 import math
 
-import config
-
-def agrupar_edificis_per_zones(zones, edificis):
+def agrupar_edificis_per_zones(zones, edificis, idx_zones):
     """
     Agrupa els edificis segons la unitat administrativa on es
     troba el seu centroide.
@@ -27,6 +25,8 @@ def agrupar_edificis_per_zones(zones, edificis):
         Capa vectorial de les unitats administratives.
     edificis: QgsVectorLayer
         Capa vectorial dels edificis.
+    idx_zones: QgsSpatialIndex
+        Índex espacial de les unitats adiminstratives.
 
     Retorna
     -------
@@ -38,21 +38,24 @@ def agrupar_edificis_per_zones(zones, edificis):
         }
     """
 
-    llista_zones = list(zones.getFeatures())
+    zones_dict = {
+        feat.id(): feat
+        for feat in zones.getFeatures()
+    }
 
     edificis_per_zona = {
-        zona["NOM"]: [] for zona in llista_zones
+        str(zona["NOM"]): []
+        for zona in zones.getFeatures()
     }
 
     for edifici in edificis.getFeatures():
         centroide = edifici.geometry().centroid()
 
-        for zona in llista_zones:
-            nom_zona = zona["NOM"]
-
+        zones_candidats = idx_zones.intersects(centroide.boundingBox())
+        for c in zones_candidats:
+            zona = zones_dict[c]
             if centroide.within(zona.geometry()):
-                edificis_per_zona[nom_zona].append(edifici)
-
+                edificis_per_zona[str(zona["NOM"])].append(edifici)
                 break
     
     return edificis_per_zona
@@ -221,7 +224,7 @@ def calcular_shannon(comptador):
     }
 
 
-def analisi_especialitzacio(zones, edificis, usos_exclosos=None):
+def analisi_especialitzacio(zones, edificis, idx_zones, usos_exclosos=None):
     """
     Clacula els indicadors d'especialització funcional de cada unitat
     administrativa.
@@ -267,7 +270,8 @@ def analisi_especialitzacio(zones, edificis, usos_exclosos=None):
 
     edificis_zones = agrupar_edificis_per_zones(
         zones=zones,
-        edificis=edificis
+        edificis=edificis,
+        idx_zones=idx_zones
     )
 
     resultats = {}
@@ -291,109 +295,109 @@ def analisi_especialitzacio(zones, edificis, usos_exclosos=None):
     return resultats
 
 
-def classificar_especialitzacio(resultats):
-    """
-    Classifica qualitativament els indicadors d'especialització
-    funcional.
+# def classificar_especialitzacio(resultats):
+#     """
+#     Classifica qualitativament els indicadors d'especialització
+#     funcional.
 
-    A partir dels indicadors calculats assigna una
-    categoria qualitativa al grau de dominància i de diversitat
-    funcional, així com una breu interpretació automàtica.
+#     A partir dels indicadors calculats assigna una
+#     categoria qualitativa al grau de dominància i de diversitat
+#     funcional, així com una breu interpretació automàtica.
 
-    Paràmetres
-    ----------
-    resultats: dict
-        Diccionari retornat per `analisi_especialitzacio()`.
+#     Paràmetres
+#     ----------
+#     resultats: dict
+#         Diccionari retornat per `analisi_especialitzacio()`.
     
-    Retorna
-    -------
-    dict
-        Diccionari d'entrada actualitzat amb els camps
-        {
-            "classe_dominancia": str,
-            "classe_diversitat": str,
-            "interpretacio": str
-        }
-    """
+#     Retorna
+#     -------
+#     dict
+#         Diccionari d'entrada actualitzat amb els camps
+#         {
+#             "classe_dominancia": str,
+#             "classe_diversitat": str,
+#             "interpretacio": str
+#         }
+#     """
 
-    for nom, dades in resultats.items():
-        # Classificar dominància
-        dominancia = dades["dominancia"]
+#     for nom, dades in resultats.items():
+#         # Classificar dominància
+#         dominancia = dades["dominancia"]
 
-        if dominancia >= config.CLASSIFICACIO_DOMINANCIA["Alta"]:
-            classe_dominancia = "Alta"
+#         if dominancia >= config.CLASSIFICACIO_DOMINANCIA["Alta"]:
+#             classe_dominancia = "Alta"
         
-        elif dominancia >= config.CLASSIFICACIO_DOMINANCIA["Mitjana"]:
-            classe_dominancia = "Mitjana"
+#         elif dominancia >= config.CLASSIFICACIO_DOMINANCIA["Mitjana"]:
+#             classe_dominancia = "Mitjana"
 
-        elif dominancia >= config.CLASSIFICACIO_DOMINANCIA["Baixa"]:
-            classe_dominancia = "Baixa"
+#         elif dominancia >= config.CLASSIFICACIO_DOMINANCIA["Baixa"]:
+#             classe_dominancia = "Baixa"
 
-        else:
-            classe_dominancia = "Molt baixa"
+#         else:
+#             classe_dominancia = "Molt baixa"
 
-        # Classificar índex Shannon
-        shannon = dades["shannon_normalitzat"]
+#         # Classificar índex Shannon
+#         shannon = dades["shannon_normalitzat"]
 
-        if shannon >= config.CLASSIFICACIO_SHANNON["Alta"]:
-            classe_diversitat = "Alta"
+#         if shannon >= config.CLASSIFICACIO_SHANNON["Alta"]:
+#             classe_diversitat = "Alta"
         
-        elif shannon >= config.CLASSIFICACIO_SHANNON["Mitjana"]:
-            classe_diversitat = "Mitjana"
+#         elif shannon >= config.CLASSIFICACIO_SHANNON["Mitjana"]:
+#             classe_diversitat = "Mitjana"
         
-        elif shannon >= config.CLASSIFICACIO_SHANNON["Baixa"]:
-            classe_diversitat = "Baixa"
+#         elif shannon >= config.CLASSIFICACIO_SHANNON["Baixa"]:
+#             classe_diversitat = "Baixa"
         
-        else:
-            classe_diversitat = "Molt baixa"
+#         else:
+#             classe_diversitat = "Molt baixa"
 
-        # Generar interpretació
-        us = config.ETIQUETES_USOS[dades["us_predominant"]]
+#         # Generar interpretació
+#         us = config.ETIQUETES_USOS[dades["us_predominant"]]
 
-        if classe_dominancia == "Alta":
-            if classe_diversitat == "Alta":
-                interpretacio = (
-                    f"Zona de {nom} clarament especialitzat en ús {us} "
-                    f"({dades['percentatge']:.1f}% dels edificis)"
-                    f" amb una alta diversitat d'usos"
-                )
-            else:
-                interpretacio = (
-                    f"Zona de {nom} clarament especialitzat en ús {us} "
-                    f"({dades['percentatge']:.1f}% dels edificis)"
-                    f" però amb baixa diversitat d'usos"
-                )
+#         if classe_dominancia == "Alta":
+#             if classe_diversitat == "Alta":
+#                 interpretacio = (
+#                     f"Zona de {nom} clarament especialitzat en ús {us} "
+#                     f"({dades['percentatge']:.1f}% dels edificis)"
+#                     f" amb una alta diversitat d'usos"
+#                 )
+#             else:
+#                 interpretacio = (
+#                     f"Zona de {nom} clarament especialitzat en ús {us} "
+#                     f"({dades['percentatge']:.1f}% dels edificis)"
+#                     f" però amb baixa diversitat d'usos"
+#                 )
         
-        elif classe_dominancia == "Mitjana":
-            interpretacio = (
-                f"Zona de {nom} mostra una especialització moderada "
-                f"en ús {us} ({dades['percentatge']:.1f}% dels edificis)"
-            )
+#         elif classe_dominancia == "Mitjana":
+#             interpretacio = (
+#                 f"Zona de {nom} mostra una especialització moderada "
+#                 f"en ús {us} ({dades['percentatge']:.1f}% dels edificis)"
+#             )
 
-        elif classe_dominancia == "Baixa":
-            if classe_diversitat == "Alta":
-                interpretacio = (
-                    f"Zona de {nom} presenta una distribució bastant equilibrada entre els usos "
-                    f" amb una alta diversitat d'usos"
-                )
-            else:
-                interpretacio = (
-                    f"Zona de {nom} presenta una distribució bastant equilibrada entre "
-                    f"els usos, amb poca diversitat d'aquests"
-                )
+#         elif classe_dominancia == "Baixa":
+#             if classe_diversitat == "Alta":
+#                 interpretacio = (
+#                     f"Zona de {nom} presenta una distribució bastant equilibrada entre els usos "
+#                     f" amb una alta diversitat d'usos"
+#                 )
+#             else:
+#                 interpretacio = (
+#                     f"Zona de {nom} presenta una distribució bastant equilibrada entre "
+#                     f"els usos, amb poca diversitat d'aquests"
+#                 )
 
-        else:
-            interpretacio = (
-                f"Zona {nom} no presenta cap especialització clara "
-                f"i mostra una estructura funcional molt diversa"
-            )
+#         else:
+#             interpretacio = (
+#                 f"Zona {nom} no presenta cap especialització clara "
+#                 f"i mostra una estructura funcional molt diversa"
+#             )
         
-        # Assignar classificacions
-        dades["classe_dominancia"] = classe_dominancia
-        dades["classe_diversitat"] = classe_diversitat
-        dades["interpretacio"] = interpretacio
+#         # Assignar classificacions
+#         dades["classe_dominancia"] = classe_dominancia
+#         dades["classe_diversitat"] = classe_diversitat
+#         dades["interpretacio"] = interpretacio
 
-    return resultats
+#     return resultats
 
 
 def afegir_resultats_especialitzacio(zones, resultats):
@@ -439,6 +443,8 @@ def afegir_resultats_especialitzacio(zones, resultats):
 
     layer.startEditing()
 
+    canvis = {}
+
     for feature in layer.getFeatures():
         nom = feature["NOM"]
 
@@ -447,14 +453,15 @@ def afegir_resultats_especialitzacio(zones, resultats):
         if dades is None:
             continue
 
-        feature[idx_us] = dades["us_predominant"]
-        feature[idx_perc] = dades["percentatge"]
-        feature[idx_dominancia] = dades["dominancia"]
-        feature[idx_shannon] = dades["shannon"]
-        feature[idx_shan_norm] = dades["shannon_normalitzat"]
+        canvis[feature.id()] = {
+            idx_us: dades["us_predominant"],
+            idx_perc: dades["percentatge"],
+            idx_dominancia: dades["dominancia"],
+            idx_shannon: dades["shannon"],
+            idx_shan_norm: dades["shannon_normalitzat"] 
+        }
 
-        layer.updateFeature(feature)
-    
+    provider.changeAttributeValues(canvis)
     layer.commitChanges()
 
     return layer
@@ -480,18 +487,9 @@ def assignar_especialitzacio_per_hexagons(edificis, malla, usos_exclosos=None):
     
     Retorna
     -------
-    dict
-        Diccionari amb els resultats d'especialització de cada
-        hexagon, amb l'estructura:
-        {
-            "hex_id": {
-                "us": int,
-                "dominancia": int
-                "shannon":
-                ....
-            },
-            ...
-        }
+    QgsVectorLayer
+        Capa de la malla hexagonal amb els resultats d'especialització
+        de cada hexagon.
     """
 
     # Agrupar els valors d'ús dels edificis i el seu recompte
@@ -535,7 +533,6 @@ def assignar_especialitzacio_per_hexagons(edificis, malla, usos_exclosos=None):
         QgsField("dominancia", QVariant.Double),
         QgsField("shannon", QVariant.Double),
         QgsField("shannon_norm", QVariant.Double),
-        #QgsField("classe_bivariant", QVariant.String)
     ])
 
     layer.updateFields()
@@ -602,6 +599,32 @@ def calcular_classe_bivariant(dominancia, diversitat):
     """
     Calcula la classe bivariant a partir de la dominància
     i la diversitat funcional normalitzada.
+
+    Combina dues classificacions ordinals en una classe composta
+    que permet identificar el perfil funcional de cada zona.
+
+    Classificació de la dominància:
+        - Alta    : dominància >= 20%
+        - Mitjana : dominància >= 10% i < 20%
+        - Baixa   : dominància < 10%
+
+    Classificació de la diversitat (índex de Shannon normalitzat):
+        - Alta    : diversitat >= 0.85
+        - Mitjana : diversitat >= 0.75 i < 0.85
+        - Baixa   : diversitat < 0.75
+
+    Paràmetres
+    ----------
+    dominancia: float
+        Valor de dominància de l'ús predominant, en percentatge.
+    diversitat: float
+        Valor de l'índex de Shannon normalitzat (entre 0 i 1).
+
+    Retorna
+    -------
+    str
+        Classe bivariant en format "Dominancia_Diversitat".
+        Exemples: "Alta_Baixa", "Mitjana_Alta", "Baixa_Baixa"
     """
 
     if dominancia >= 20:
@@ -681,6 +704,8 @@ def afegir_classe_bivariant(layer):
 
     layer_clone.startEditing()
 
+    canvis = {}
+
     for feature in layer_clone.getFeatures():
         dominancia = feature["dominancia"]
         diversitat = feature["shannon_norm"]
@@ -688,13 +713,15 @@ def afegir_classe_bivariant(layer):
         if dominancia is None or diversitat is None:
             continue 
 
-        feature[idx_bivariant] = calcular_classe_bivariant(
-            dominancia=dominancia,
-            diversitat=diversitat
-        )
+        canvis[feature.id()] = {
+            idx_bivariant: calcular_classe_bivariant(
+                dominancia=dominancia,
+                diversitat=diversitat
+            )
+        }
+        
 
-        layer_clone.updateFeature(feature)
-    
+    provider.changeAttributeValues(canvis)    
     layer_clone.commitChanges()
 
     return layer_clone

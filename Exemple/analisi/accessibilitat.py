@@ -175,7 +175,7 @@ def assignar_isoarees_a_edificis(edificis, isoarees):
     Retorna
     -------
     QgsVectorLayer
-        Capa d'edificis amb el nou camp 'cost_level'.
+        Capa d'edificis amb el nou camp 'accessibilitat'.
     """
 
     # Crea la capa de sortida - còpia de la capa d'edificis
@@ -184,7 +184,7 @@ def assignar_isoarees_a_edificis(edificis, isoarees):
     provider = layer.dataProvider()
 
     provider.addAttributes([
-        QgsField("accessibilitat", QVariant.Int)
+        QgsField("accessibilitat", QVariant.Double)
     ])
 
     layer.updateFields()
@@ -213,19 +213,18 @@ def assignar_isoarees_a_edificis(edificis, isoarees):
     #   guardar el cost
     for feature in layer.getFeatures():
         geom = feature.geometry()
+        centroide = geom.centroid()
 
         candidats = idx_isoarea.intersects(geom.boundingBox())
 
         costs = [
             dict_isoarees[c]["cost_level"]
             for c in candidats
-            if dict_isoarees[c].geometry().contains(geom.centroid())
+            if dict_isoarees[c].geometry().contains(centroide)
         ]
 
         if costs:
             canvis[feature.id()] = {idx_accessibilitat: min(costs)}
-        else:
-            None
 
     provider.changeAttributeValues(canvis)
     layer.commitChanges()
@@ -300,16 +299,9 @@ def assignar_accessibilitat_per_hexagons(edificis, malla):
     
     Retorna
     -------
-    dict
-        Diccionari amb els resultats d'accessibilitat de cada
-        hexagon, amb l'estructura:
-        {
-            "hex_id": {
-                "n_edificis": int,
-                "accessibilitat": int
-            },
-            ...
-        }
+    QgsVectorLayer
+        Capa vectorial de la malla hexagonal amb els resultats
+        d'accessibilitat de cada hexagon.
     """
 
     # Agrupar els valors d'accessibilitat dels edificis

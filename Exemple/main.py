@@ -178,7 +178,7 @@ project, root = inicialitzacio.inicialitzar_projecte()
 
 # Carrega les capes vectorials definides a config.LAYERS
 # Retorna un diccionari de capes i un diccionari d'índexs espacials
-dict_layers, dict_indexs = importacio.carregar_capes(layers=config.LAYERS)
+dict_layers = importacio.carregar_capes(layers=config.LAYERS)
 
 # Carrega la capa de fons cartogràfic (CartoDB Positron No Labels)
 basemap_layer = importacio.carregar_basemap()
@@ -190,10 +190,16 @@ basemap_layer = importacio.carregar_basemap()
 
 # Neteja les capes vectorials eliminant els camps no necessaris
 # i guardant les còpies netes a disc com a GeoPackage
+
 # Retorna un diccionari de capes netes
 dict_layers_clean = preparacio_dades.preparar_grup(
     dict_layers=dict_layers,
     configuracio=config.CAMPS_CAPES
+)
+
+# Retorna un diccionari d'índex espacials de cada capa
+dict_indexs = preparacio_dades.crear_indexs(
+    dict_layers=dict_layers_clean
 )
 
 
@@ -234,12 +240,14 @@ edificis_base = hexagons.assignar_hexagons_a_edificis(
 
 districtes_agregacions = agregacions.analisi_usos_zones(
     edificis=edificis_base,
-    zones=districtes_base
+    zones=districtes_base,
+    idx_zones=dict_indexs["Limits_administratius"]["Districtes"]
 )
 
 barris_agregacions = agregacions.analisi_usos_zones(
     edificis=edificis_base,
-    zones=barris_base
+    zones=barris_base,
+    idx_zones=dict_indexs["Limits_administratius"]["Barris"]
 )
 
 # ------------------------------------------------------------------------------
@@ -286,7 +294,8 @@ malla_accessibilitat = accessibilitat.assignar_accessibilitat_per_hexagons(
 ## Districtes
 resultats_especialitzacio_districtes = especialitzacio.analisi_especialitzacio(
     zones=districtes_base,
-    edificis=edificis_base
+    edificis=edificis_base,
+    idx_zones=dict_indexs["Limits_administratius"]["Districtes"]
 )
 # Addició dels camps d'especialització
 districtes_especialitzacio = especialitzacio.afegir_resultats_especialitzacio(
@@ -297,7 +306,8 @@ districtes_especialitzacio = especialitzacio.afegir_resultats_especialitzacio(
 ## Barris
 resultats_especialitzacio_barris = especialitzacio.analisi_especialitzacio(
     zones=barris_base,
-    edificis=edificis_base
+    edificis=edificis_base,
+    idx_zones=dict_indexs["Limits_administratius"]["Barris"]
 )
 # Addició dels camps d'especialització
 barris_especialitzacio = especialitzacio.afegir_resultats_especialitzacio(
@@ -311,6 +321,7 @@ barris_especialitzacio = especialitzacio.afegir_resultats_especialitzacio(
 resultats_especialitzacio_no_residencial_districtes = especialitzacio.analisi_especialitzacio(
     zones=districtes_base,
     edificis=edificis_base,
+    idx_zones=dict_indexs["Limits_administratius"]["Districtes"],
     usos_exclosos=["1_residential"]
 )
 # Addició dels camps d'especialització
@@ -323,6 +334,7 @@ districtes_especialitzacio_no_residencial = especialitzacio.afegir_resultats_esp
 resultats_especialitzacio_no_residencial_barris = especialitzacio.analisi_especialitzacio(
     zones=barris_base,
     edificis=edificis_base,
+    idx_zones=dict_indexs["Limits_administratius"]["Barris"],
     usos_exclosos=["1_residential"]
 )
 # Addició dels camps d'especialització

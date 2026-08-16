@@ -21,13 +21,16 @@ Les funcions s'organitzen en tres nivells:
 import config
 
 
-def agregar_usos_zones(edificis, zones):
+def agregar_usos_zones(edificis, zones, idx_zones):
     """
     Agrupa el nombre d'edificis de cada ús per cada zona.
 
-    Per a cada edifici, determina la unitat administrativa al qual
+    Per a cada edifici, determina la unitat administrativa a la qual
     pertany a partir del centroide de la seva geometria i
     incrementa el comptador de l'ús corresponent.
+
+    Utilitza l'índex espacial precalculat per optimitzar la
+    cerca de la zona corresponent a cada edifici.
 
     Paràmetres
     ----------
@@ -35,6 +38,8 @@ def agregar_usos_zones(edificis, zones):
         Capa vectorial dels edificis.
     zona: QgsVectorLayer
         Capa vectorial de les unitats administratives.
+    idx_zones: QgsSpatialIndex
+        Índex espacials de les unitats administratives.
 
     Retorna
     -------
@@ -52,14 +57,14 @@ def agregar_usos_zones(edificis, zones):
 
     resultats = {}
 
-    zones_llista = list(zones.getFeatures())
+    zones_dict = {
+        feat.id(): feat
+        for feat in zones.getFeatures()
+    }
 
-    # Iteració sobre cada zona
-    for zona in zones_llista:
-        
+    # Inicialitzar resultats
+    for zona in zones.getFeatures():
         nom = str(zona["NOM"]).strip()
-        
-        # Creació de valors 0 inicials per cada categoria d'ús a la zona
         resultats[nom] = {
             us: 0
             for us in config.USOS
@@ -67,27 +72,61 @@ def agregar_usos_zones(edificis, zones):
 
     # Iteració sobre cada edifici
     for edifici in edificis.getFeatures():
-        # Extracció geometria de l'edifici
-        geom_edifici = edifici.geometry()
-
-        # Obtenció de l'ús de l'edifici
+        centroide = edifici.geometry().centroid()
         us = str(edifici["currentUse"]).strip()
 
-        # descartar els usos nuls
         if us == "NULL":
             continue
 
-        # Cerca de la zona a la qual pertany l'edifici
-        # amb la comprovació d'on es troba el seu centroide
-        for districte in zones_llista:
-            if geom_edifici.centroid().within(districte.geometry()):
-                nom = zona["NOM"]
-                # Actualització del comptador d'usos
+        zones_candidats = idx_zones.intersects(centroide.boundingBox())
+        for c in zones_candidats:
+            zona = zones_dict[c]
+            if centroide.within(zona.geometry()):
+                nom = str(zona["NOM"]).strip()
                 resultats[nom][us] += 1
-
                 break
-    
+
     return resultats
+
+    # ######
+    # resultats = {}
+
+    # zones_llista = list(zones.getFeatures())
+
+    # # Iteració sobre cada zona
+    # for zona in zones_llista:
+        
+    #     nom = str(zona["NOM"]).strip()
+        
+    #     # Creació de valors 0 inicials per cada categoria d'ús a la zona
+    #     resultats[nom] = {
+    #         us: 0
+    #         for us in config.USOS
+    #     }
+
+    # # Iteració sobre cada edifici
+    # for edifici in edificis.getFeatures():
+    #     # Extracció geometria de l'edifici
+    #     geom_edifici = edifici.geometry()
+
+    #     # Obtenció de l'ús de l'edifici
+    #     us = str(edifici["currentUse"]).strip()
+
+    #     # descartar els usos nuls
+    #     if us == "NULL":
+    #         continue
+
+    #     # Cerca de la zona a la qual pertany l'edifici
+    #     # amb la comprovació d'on es troba el seu centroide
+    #     for zona in zones_llista:
+    #         if geom_edifici.centroid().within(zona.geometry()):
+    #             nom = zona["NOM"]
+    #             # Actualització del comptador d'usos
+    #             resultats[nom][us] += 1
+
+    #             break
+    
+    # return resultats
 
 
 def calcular_percentatges_usos(resultats):
@@ -131,7 +170,7 @@ def calcular_percentatges_usos(resultats):
     return percentatges
 
 
-def analisi_usos_zones(edificis, zones):
+def analisi_usos_zones(edificis, zones, idx_zones):
     """
     Executa l'anàlisi dels usos dels edificis per unitats
     administratives.
@@ -147,6 +186,8 @@ def analisi_usos_zones(edificis, zones):
         Capa vectorial dels edificis.
     zones: QgsVectorLayer
         Capa vectorial de les unitats administratives.
+    idx_zones: QgsSpatialIndex
+            Índex espacials de les unitats administratives.
     
     Retorna
     -------
@@ -170,7 +211,8 @@ def analisi_usos_zones(edificis, zones):
 
     dades = agregar_usos_zones(
         edificis=edificis,
-        zones=zones
+        zones=zones,
+        idx_zones=idx_zones
     )
 
     percentatges = calcular_percentatges_usos(

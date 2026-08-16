@@ -14,7 +14,6 @@ Organització
 from qgis.core import (
     QgsProject,
     QgsRasterLayer,
-    QgsSpatialIndex,
     QgsVectorLayer
 )
 
@@ -44,28 +43,22 @@ def carregar_capes(layers):
 
     Retorna
     -------
-    tupla
-        (dict_layers, dict_indexs_espacials)
-    
-    on:
-        dict_layers = {
+    dict
+        Diccionari de capes, amb l'estructura
             "Grup": {
-                "Nom_capa": QgsVectorLayer
-            }
-        }
-
-        dict_indexs_espacials = {
+                "Nom_capa": QgsVectorLayer,
+                "Nom_capa": QgsVectorLayer,
+                ...
+            },
             "Grup": {
-                "Nom_capa": QgsSpatialIndex
-            }
+                ...
+            },
+            ...
         }
     """
 
     # Diccionari buit de diccionaris de capes per temàtica
     dict_layers = {}
-
-    # Diccionari buit dels índex de les capes
-    dict_indexs_espacials = {}
 
     # Capes ja existents al projecte
     capes_existents = {
@@ -75,7 +68,6 @@ def carregar_capes(layers):
 
     for grup, grup_capes in layers.items():
         dict_layers.setdefault(grup, {})
-        dict_indexs_espacials.setdefault(grup, {})
         
         for nom, path in grup_capes.items():
             # Si la capa ja existeic al projecte, reutilitzar-la
@@ -99,14 +91,12 @@ def carregar_capes(layers):
             # Per cada grup, el key és el nom de la capa, i el value és la capa vectorial pròpiament (QgsVectorLayer)
             dict_layers[grup][nom] = layer
 
-            dict_indexs_espacials[grup][nom] = QgsSpatialIndex(layer.getFeatures())
-
             # Comparació amb el SRC del projecte
             if layer.crs().authid() != "EPSG:25831":
                 print(f"La capa {layer.name()} està en el SRC {layer.crs().authid()} i necessita ser reprojectada a EPSG:25831!")
 
 
-    return dict_layers, dict_indexs_espacials
+    return dict_layers
 
 
 def carregar_basemap():

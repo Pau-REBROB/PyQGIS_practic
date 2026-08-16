@@ -172,16 +172,16 @@ def generar_cluster(layer, expressio, eps, min_size):
         expressio
     )
 
-    clusters = clusters_dbscan(
+    layer_clusters = clusters_dbscan(
         layer_filtrada,
         eps,
         min_size
     )
 
-    layer_zones = envolvent_clusters(clusters)
+    layer_zones = envolvent_clusters(layer_clusters)
 
     return {
-        "clusters": clusters,
+        "clusters": layer_clusters,
         "zones": layer_zones
     }
 

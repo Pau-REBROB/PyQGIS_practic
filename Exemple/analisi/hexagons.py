@@ -21,16 +21,10 @@ Els indicadors calculats son:
     - Classificació bivariant
 """
 
-from qgis.core import (
-    QgsFeatureRequest,
-    QgsField
-)
-from PyQt5.QtCore import QVariant
+from qgis.core import QgsFeatureRequest
 
 import processing
-import math
 
-import config
 
 def crear_malla_hexagonal(capa_extent, mida_hexagon):
     """
@@ -159,8 +153,8 @@ def separar_hexagons_valids(malla):
     )
 
     request_no_valids = QgsFeatureRequest().setFilterExpression(
-            '"classe_bivariant" IS NULL'
-        )
+        '"classe_bivariant" IS NULL'
+    )
 
     hexagons_valids = malla.materialize(request_valids)
     hexagons_no_valids = malla.materialize(request_no_valids)
@@ -168,7 +162,7 @@ def separar_hexagons_valids(malla):
     return hexagons_valids, hexagons_no_valids
 
 
-def assignar_hexagons_a_edificis(edificis, malla, expressio=None):
+def assignar_hexagons_a_edificis(edificis, malla):
     """
     Assigna a cada edifici l'identificador de l'hexagon on es troba.
 
@@ -182,21 +176,12 @@ def assignar_hexagons_a_edificis(edificis, malla, expressio=None):
         Capa vectorial dels edificis.
     malla: QgsVectorLayer
         Capa vectorial de la malla hexagonal.
-    expressio: str, optional
-        Expressió de filtratge escrita amb la sintaxi d'expressions de QGIS.
-        Per defecte és None.
 
     Retorna
     -------
     QgsVectorLayer
         Nova capa dels edificis amb el camp identificador de l'hexagon.
     """
-
-    if expressio: 
-        edificis = filtrar_capa_edificis(
-            layer=edificis,
-            expressio=expressio
-        )
 
     resultat = processing.run(
         "native:joinattributesbylocation",
