@@ -377,6 +377,7 @@ SIMBOLOGIA = {
         "invert_ramp": True
     } ,
     "Graf_accessibilitat": {
+        "nom": "Graf viari",
         "fill_color": (255,255,255,255),
         "width": 0.1,
         "outline_color": (50,50,50,255),
@@ -668,62 +669,115 @@ LAYOUTS = {
                 "size": (10, 10),
                 "position": (221, 192)
             }
+        },
+        "Hexagons": {
+            "Mapa": {
+                "factor_escala": 0.75,
+                "size": (280, 190),
+                "position": (10, 20),
+                "rotacio": 45,
+                "offset_x": 3000,
+                "offset_y": 300
+            },
+            "Text_titol": {
+                "size": (280, 5),
+                "position": (10, 7.5)
+            },
+            "Subtitol": {
+                "text_size": (280, 5),
+                "text_position": (10, 17.5),
+                "backg_size": (280, 2),
+                "backg_position": (10, 27.5)
+            },
+            "Llegenda": {
+                "position": (243, 132)
+            },
+            "Eix_dominancia_llegenda": {
+                "position": (243, 120),
+                "size": (50, 10),
+                "alineacio": "left",
+                "rotacio": 0
+            },
+            "Eix_diversitat_llegenda": {
+                "position": (226, 164),
+                "size": (50, 10),
+                "alineacio": "left",
+                "rotacio": -90
+            },
+            "Labels_superiors_llegenda": {
+                "position": (245, 126),
+                "size": (26, 6)
+            },
+            "Labels_laterals_llegenda": {
+                "position": (233, 134),
+                "size": (6, 26)
+            },
+            "Llegenda_no_valids": {
+                "position": (226, 166)
+            },
+            "Escala": {
+                "position": (226, 185),
+            },
+            "Nord": {
+                "size": (10, 10),
+                "position": (226, 197)
+            }
         }
     },
 
-    "ESTRUCTURA_HEXAGONS": {
-        "Mapa": {
-            "factor_escala": 0.75,
-            "size": (280, 190),
-            "position": (10, 20),
-            "rotacio": 45,
-            "offset_x": 3000,
-            "offset_y": 300
-        },
-        "Text_titol": {
-            "size": (280, 5),
-            "position": (10, 7.5)
-        },
-        "Subtitol": {
-            "text_size": (280, 5),
-            "text_position": (10, 17.5),
-            "backg_size": (280, 2),
-            "backg_position": (10, 27.5)
-        },
-        "Llegenda": {
-            "position": (243, 132)
-        },
-        "Eix_dominancia_llegenda": {
-            "position": (243, 120),
-            "size": (50, 10),
-            "alineacio": "left",
-            "rotacio": 0
-        },
-        "Eix_diversitat_llegenda": {
-            "position": (226, 164),
-            "size": (50, 10),
-            "alineacio": "left",
-            "rotacio": -90
-        },
-        "Labels_superiors_llegenda": {
-            "position": (245, 126),
-            "size": (26, 6)
-        },
-        "Labels_laterals_llegenda": {
-            "position": (233, 134),
-            "size": (6, 26)
-        },
-        "Llegenda_no_valids": {
-            "position": (226, 166)
-        },
-        "Escala": {
-            "position": (226, 185),
-        },
-        "Nord": {
-            "size": (10, 10),
-            "position": (226, 197)
-        }
-    },
+    # "ESTRUCTURA_HEXAGONS": {
+    #     "Mapa": {
+    #         "factor_escala": 0.75,
+    #         "size": (280, 190),
+    #         "position": (10, 20),
+    #         "rotacio": 45,
+    #         "offset_x": 3000,
+    #         "offset_y": 300
+    #     },
+    #     "Text_titol": {
+    #         "size": (280, 5),
+    #         "position": (10, 7.5)
+    #     },
+    #     "Subtitol": {
+    #         "text_size": (280, 5),
+    #         "text_position": (10, 17.5),
+    #         "backg_size": (280, 2),
+    #         "backg_position": (10, 27.5)
+    #     },
+    #     "Llegenda": {
+    #         "position": (243, 132)
+    #     },
+    #     "Eix_dominancia_llegenda": {
+    #         "position": (243, 120),
+    #         "size": (50, 10),
+    #         "alineacio": "left",
+    #         "rotacio": 0
+    #     },
+    #     "Eix_diversitat_llegenda": {
+    #         "position": (226, 164),
+    #         "size": (50, 10),
+    #         "alineacio": "left",
+    #         "rotacio": -90
+    #     },
+    #     "Labels_superiors_llegenda": {
+    #         "position": (245, 126),
+    #         "size": (26, 6)
+    #     },
+    #     "Labels_laterals_llegenda": {
+    #         "position": (233, 134),
+    #         "size": (6, 26)
+    #     },
+    #     "Llegenda_no_valids": {
+    #         "position": (226, 166)
+    #     },
+    #     "Escala": {
+    #         "position": (226, 185),
+    #     },
+    #     "Nord": {
+    #         "size": (10, 10),
+    #         "position": (226, 197)
+    #     }
+    # },
 
     "ESTRUCTURA_ACCESS": {
         "Mapa": {
@@ -906,16 +960,6 @@ LAYOUTS = {
         "Nord": {
             "image_path": "C:/projectes_git/Dades/nord2.png"
         },
-        # "Grafic_clusters": {
-        #     "path": f"{PATH_RESULTATS}/Grafic_nombreClusters.png",
-        #     "size": (120, 60),
-        #     "position": (15, 145)
-        # },
-        # "Grafic_mida": {
-        #     "path": f"{PATH_RESULTATS}/Grafic_midaClusters.png",
-        #     "size": (120, 60),
-        #     "position": (145, 145)
-        # },
         "Exportacio": {
             "output_path": f"{PATH_RESULTATS}/Analisi_clusters.pdf",
             "dpi": 500
@@ -1111,80 +1155,151 @@ LAYOUTS = {
                 "output_path": f"{PATH_RESULTATS}/Analisi_bivariant_barris.pdf",
                 "dpi": 500
             }
+        },
+        "Hexagons": {
+            "Text_titol": {
+                #"color": (100,100,100,180),
+                #"outline_color": (85,85,85,255),
+                #"outline_width": 0.40,
+                "text": "Especialització funcional bivariant dels usos dels edificis Barcelona",
+                "font": "Calibri",
+                "font_size": 20,
+                "font_color": (0,0,0,255),
+            },
+            "Subtitol": {
+                "color": (100,100,100,180),
+                "outline_color": (85,85,85,255),
+                "outline_width": 0.40,
+                "text": "Malla hexagonal de 150 m. L'anàlisi bivariant només s'aplica als hexàgons amb un mínim de 3 edificis",
+                "font": "Calibri",
+                "font_size": 14,
+                "font_color": (0,0,0,255),
+            },
+            "Llegenda": {
+                "cell": 10,
+                "gap": 0.5,
+                "colors": COLORS_BIVARIANT
+            },
+            "Eix_dominancia_llegenda": {
+                "text": "Dominància funcional",
+                "font": "Calibri",
+                "font_size": 12,
+                "font_color": (0,0,0,255)
+            },
+            "Eix_diversitat_llegenda": {
+                "text": "Diversitat funcional",
+                "font": "Calibri",
+                "font_size": 12,
+                "font_color": (0,0,0,255)
+            },
+            "Labels_superiors_llegenda": {
+                "cell": 10,
+                "gap": 0.5,
+                "font": "Calibri",
+                "font_size": 8,
+                "font_color": (0,0,0,255)
+            },
+            "Labels_laterals_llegenda": {
+                "cell": 10,
+                "gap": 0.5,
+                "font": "Calibri",
+                "font_size": 8,
+                "font_color": (0,0,0,255)
+            },
+            "Llegenda_no_valids": {
+                "titol": "Hexàgons amb menys de 3 edificis",
+                "font": "Calibri",
+                "font_size": 12,
+                "font_color": (0,0,0,255),
+                "backg_color": (0,0,0,0)
+            },
+            "Escala": {
+                "tipus": "Single Box",
+                "font": "Calibri",
+                "font_size": 10,
+                "font_color": (0,0,0,255)
+            },
+            "Nord": {
+                "image_path": "C:/projectes_git/Dades/nord2.png"
+            },
+            "Exportacio": {
+                "output_path": f"{PATH_RESULTATS}/Analisi_bivariant_hexagons.pdf",
+                "dpi": 300
+            }
         }
     },
 
-    "HEXAGONS": {
-        "Text_titol": {
-            #"color": (100,100,100,180),
-            #"outline_color": (85,85,85,255),
-            #"outline_width": 0.40,
-            "text": "Especialització funcional bivariant dels usos dels edificis Barcelona",
-            "font": "Calibri",
-            "font_size": 20,
-            "font_color": (0,0,0,255),
-        },
-        "Subtitol": {
-            "color": (100,100,100,180),
-            "outline_color": (85,85,85,255),
-            "outline_width": 0.40,
-            "text": "Malla hexagonal de 150 m. L'anàlisi bivariant només s'aplica als hexàgons amb un mínim de 3 edificis",
-            "font": "Calibri",
-            "font_size": 14,
-            "font_color": (0,0,0,255),
-        },
-        "Llegenda": {
-            "cell": 10,
-            "gap": 0.5,
-            "colors": COLORS_BIVARIANT
-        },
-        "Eix_dominancia_llegenda": {
-            "text": "Dominància funcional",
-            "font": "Calibri",
-            "font_size": 12,
-            "font_color": (0,0,0,255)
-        },
-        "Eix_diversitat_llegenda": {
-            "text": "Diversitat funcional",
-            "font": "Calibri",
-            "font_size": 12,
-            "font_color": (0,0,0,255)
-        },
-        "Labels_superiors_llegenda": {
-            "cell": 10,
-            "gap": 0.5,
-            "font": "Calibri",
-            "font_size": 8,
-            "font_color": (0,0,0,255)
-        },
-        "Labels_laterals_llegenda": {
-            "cell": 10,
-            "gap": 0.5,
-            "font": "Calibri",
-            "font_size": 8,
-            "font_color": (0,0,0,255)
-        },
-        "Llegenda_no_valids": {
-            "titol": "Hexàgons amb menys de 3 edificis",
-            "font": "Calibri",
-            "font_size": 12,
-            "font_color": (0,0,0,255),
-            "backg_color": (0,0,0,0)
-        },
-        "Escala": {
-            "tipus": "Single Box",
-            "font": "Calibri",
-            "font_size": 10,
-            "font_color": (0,0,0,255)
-        },
-        "Nord": {
-            "image_path": "C:/projectes_git/Dades/nord2.png"
-        },
-        "Exportacio": {
-            "output_path": f"{PATH_RESULTATS}/Analisi_bivariant_hexagons.pdf",
-            "dpi": 300
-        }
-    },
+    # "HEXAGONS": {
+    #     "Text_titol": {
+    #         #"color": (100,100,100,180),
+    #         #"outline_color": (85,85,85,255),
+    #         #"outline_width": 0.40,
+    #         "text": "Especialització funcional bivariant dels usos dels edificis Barcelona",
+    #         "font": "Calibri",
+    #         "font_size": 20,
+    #         "font_color": (0,0,0,255),
+    #     },
+    #     "Subtitol": {
+    #         "color": (100,100,100,180),
+    #         "outline_color": (85,85,85,255),
+    #         "outline_width": 0.40,
+    #         "text": "Malla hexagonal de 150 m. L'anàlisi bivariant només s'aplica als hexàgons amb un mínim de 3 edificis",
+    #         "font": "Calibri",
+    #         "font_size": 14,
+    #         "font_color": (0,0,0,255),
+    #     },
+    #     "Llegenda": {
+    #         "cell": 10,
+    #         "gap": 0.5,
+    #         "colors": COLORS_BIVARIANT
+    #     },
+    #     "Eix_dominancia_llegenda": {
+    #         "text": "Dominància funcional",
+    #         "font": "Calibri",
+    #         "font_size": 12,
+    #         "font_color": (0,0,0,255)
+    #     },
+    #     "Eix_diversitat_llegenda": {
+    #         "text": "Diversitat funcional",
+    #         "font": "Calibri",
+    #         "font_size": 12,
+    #         "font_color": (0,0,0,255)
+    #     },
+    #     "Labels_superiors_llegenda": {
+    #         "cell": 10,
+    #         "gap": 0.5,
+    #         "font": "Calibri",
+    #         "font_size": 8,
+    #         "font_color": (0,0,0,255)
+    #     },
+    #     "Labels_laterals_llegenda": {
+    #         "cell": 10,
+    #         "gap": 0.5,
+    #         "font": "Calibri",
+    #         "font_size": 8,
+    #         "font_color": (0,0,0,255)
+    #     },
+    #     "Llegenda_no_valids": {
+    #         "titol": "Hexàgons amb menys de 3 edificis",
+    #         "font": "Calibri",
+    #         "font_size": 12,
+    #         "font_color": (0,0,0,255),
+    #         "backg_color": (0,0,0,0)
+    #     },
+    #     "Escala": {
+    #         "tipus": "Single Box",
+    #         "font": "Calibri",
+    #         "font_size": 10,
+    #         "font_color": (0,0,0,255)
+    #     },
+    #     "Nord": {
+    #         "image_path": "C:/projectes_git/Dades/nord2.png"
+    #     },
+    #     "Exportacio": {
+    #         "output_path": f"{PATH_RESULTATS}/Analisi_bivariant_hexagons.pdf",
+    #         "dpi": 300
+    #     }
+    # },
     "ACCESSIBILITAT":{
         "Mapa": {
             "color_fons": (60,60,60,255)

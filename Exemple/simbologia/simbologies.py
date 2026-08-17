@@ -58,7 +58,7 @@ def simbologia_unica(layer, nom, fill_color, outline_width, stroke_color):
         Nova capa en memòria amb la simbologia aplicada.
     """
 
-    layer_clone = layer.materialize(QgsFeatureRequest)
+    layer_clone = layer.materialize(QgsFeatureRequest())
     
     layer_clone.setName(nom)
        
@@ -101,7 +101,7 @@ def simbologia_unica_linia(layer, nom, fill_color, width, outline_color, outline
         Nova capa en memòria amb la simbologia aplicada.
     """
 
-    layer_clone = layer.materialize(QgsFeatureRequest)
+    layer_clone = layer.materialize(QgsFeatureRequest())
     
     layer_clone.setName(nom)
     
@@ -158,7 +158,7 @@ def simbologia_categorica(layer, atribut, colors_categories, outline_width, stro
         Capa vectorial en memòria amb la simbologia aplicada.
     """
 
-    layer_clone = layer.materialize(QgsFeatureRequest)
+    layer_clone = layer.materialize(QgsFeatureRequest())
     
     layer_clone.setName(f"{layer_clone.name()}_simbCat")
           
@@ -231,7 +231,7 @@ def simbologia_graduada(layer, atribut, num_classes, color_ramp, mode, stroke_co
         Capa vectorial en memòria amb la simbologia aplicada.
     """
 
-    layer_clone = layer.materialize(QgsFeatureRequest)
+    layer_clone = layer.materialize(QgsFeatureRequest())
     
     layer_clone.setName(f"{layer_clone.name()}_simbGrad")
        
@@ -301,7 +301,7 @@ def simbologia_graduada_manual(layer, color_ramp, intervals, atribut, stroke_col
         Capa vectorial en memòria amb la simbologia aplicada.
     """
 
-    layer_clone = layer.materialize(QgsFeatureRequest)
+    layer_clone = layer.materialize(QgsFeatureRequest())
     
     layer_clone.setName(f"{layer_clone.name()}_simbGradManual")
     

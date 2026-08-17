@@ -8,6 +8,7 @@ Funcions comunes per a la construcció de composicions d'impressió.
 from qgis.core import (
     Qgis,
     QgsBasicNumericFormat,
+    QgsLayoutExporter,
     QgsLayoutItemLabel,
     QgsLayoutItemLegend,
     QgsLayoutItemMap,
@@ -33,7 +34,12 @@ from qgis.PyQt.QtGui import (
     QColor
 )
 
+import os
 from math import radians, sin, cos
+
+# =============================================================================
+# LAYOUT
+# =============================================================================
 
 def generar_layout(nom_layout):
     """
@@ -76,6 +82,9 @@ def generar_layout(nom_layout):
 
     return layout
 
+# =============================================================================
+# MAPA
+# =============================================================================
 
 def transformar_offset(offset_x, offset_y, rotacio):
     """
@@ -187,6 +196,9 @@ def afegir_mapa(layout, capes, capa_extent, factor_escala, size, position, rotac
         
     return layout_map
 
+# =============================================================================
+# TÍTOLS
+# =============================================================================
 
 def afegir_fons(layout, size, position, color, outline_color=None, outline_width=0.26):
     """
@@ -461,6 +473,9 @@ def afegir_capçalera(layout, backg_size, backg_position, color, outline_color, 
         position=text_position
     )
 
+# =============================================================================
+# LLEGENDA
+# =============================================================================
 
 def afegir_llegenda(layout, mapa, capes, titol, font, font_size, font_color, position, backg_color):
     """
@@ -544,6 +559,9 @@ def afegir_llegenda(layout, mapa, capes, titol, font, font_size, font_color, pos
 
     return legend
 
+# =============================================================================
+# ESCALA
+# =============================================================================
 
 def afegir_escala(layout, mapa, position, tipus, font, font_size, font_color):
     """
@@ -620,6 +638,9 @@ def afegir_escala(layout, mapa, position, tipus, font, font_size, font_color):
 
     return scale
 
+# =============================================================================
+# NORD
+# =============================================================================
 
 def afegir_nord(layout, mapa, image_path, size, position):
     """
@@ -663,6 +684,9 @@ def afegir_nord(layout, mapa, image_path, size, position):
 
     return north
 
+# =============================================================================
+# GRÀFICS
+# =============================================================================
 
 def afegir_grafic(layout, path, size, position):
     """
@@ -700,3 +724,46 @@ def afegir_grafic(layout, path, size, position):
     image.attemptMove(QgsLayoutPoint(*position, QgsUnitTypes.LayoutMillimeters))
 
     return image
+
+# =============================================================================
+# EXPORTACIÓ
+# =============================================================================
+
+def exportar_layout(layout, output_path, dpi):
+    """
+    Exporta una composició QGIS en format PDF.
+
+    Si ja existeix un fitxer amb el mateix nom, s'elimina abans
+    de generar la nova exportació.
+
+    Paràmetres
+    ----------
+    layout: QgsPrintLayout
+        Composició que es vol exportar.
+    output_path: str
+        Ruta completa de l'arxiu PDF de sortida.
+    dpi: int
+        Resolució de l'exportació.
+
+    Retorna
+    -------
+    RuntimeError
+        Si no s'ha pogut exportar el layout.
+    """
+   
+    # Si ja existeix una composició amb el mateix nom, s'elimina
+    if os.path.exists(output_path):
+        os.remove(output_path)  
+
+    exporter = QgsLayoutExporter(layout)
+    
+    # Configurar els paràmetres d'exportació
+    pdf_settings = QgsLayoutExporter.PdfExportSettings()
+    pdf_settings.dpi = dpi
+    pdf_settings.forceVectorOutput = True
+    pdf_settings.rasterizeWholeImage = False
+    
+    resultat = exporter.exportToPdf(output_path, pdf_settings)
+
+    if resultat != QgsLayoutExporter.Success:
+        raise RuntimeError(f"No s'ha pogut exportar el layout a '{output_path}'")

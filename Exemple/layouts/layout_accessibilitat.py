@@ -128,43 +128,43 @@ import layouts.layout_common as layout_common
 #     return layout_map
 
 
-def exportar_layout(layout, output_path, dpi):
-    """
-    Exporta una composició QGIS en format PDF.
+# def exportar_layout(layout, output_path, dpi):
+#     """
+#     Exporta una composició QGIS en format PDF.
 
-    Si ja existeix un fitxer amb el mateix nom, s'elimina abans
-    de generar la nova exportació.
+#     Si ja existeix un fitxer amb el mateix nom, s'elimina abans
+#     de generar la nova exportació.
 
-    Paràmetres
-    ----------
-    layout: QgsPrintLayout
-        Composició que es vol exportar.
-    output_path: str
-        Ruta completa de l'arxiu PDF de sortida.
-    dpi: int
-        Resolució de l'exportació.
+#     Paràmetres
+#     ----------
+#     layout: QgsPrintLayout
+#         Composició que es vol exportar.
+#     output_path: str
+#         Ruta completa de l'arxiu PDF de sortida.
+#     dpi: int
+#         Resolució de l'exportació.
 
-    Retorna
-    -------
-    None
-    """
+#     Retorna
+#     -------
+#     None
+#     """
    
-    # Si ja existeix una composició amb el mateix nom, s'elimina
-    if os.path.exists(output_path):
-        os.remove(output_path)  
+#     # Si ja existeix una composició amb el mateix nom, s'elimina
+#     if os.path.exists(output_path):
+#         os.remove(output_path)  
 
-    exporter = QgsLayoutExporter(layout)
+#     exporter = QgsLayoutExporter(layout)
     
-    # Configurar els paràmetres d'exportació
-    pdf_settings = QgsLayoutExporter.PdfExportSettings()
-    pdf_settings.dpi = dpi
-    pdf_settings.forceVectorOutput = True
-    pdf_settings.rasterizeWholeImage = False
+#     # Configurar els paràmetres d'exportació
+#     pdf_settings = QgsLayoutExporter.PdfExportSettings()
+#     pdf_settings.dpi = dpi
+#     pdf_settings.forceVectorOutput = True
+#     pdf_settings.rasterizeWholeImage = False
     
-    resultat = exporter.exportToPdf(output_path, pdf_settings)
+#     resultat = exporter.exportToPdf(output_path, pdf_settings)
 
-    if resultat != QgsLayoutExporter.Success:
-        raise RuntimeError(f"No s'ha pogut exportar el layout a '{output_path}'")
+#     if resultat != QgsLayoutExporter.Success:
+#         raise RuntimeError(f"No s'ha pogut exportar el layout a '{output_path}'")
 
 
 def composicio_accessibilitat(capes, capa_extent):
@@ -236,7 +236,7 @@ def composicio_accessibilitat(capes, capa_extent):
         **cfg_estructura["Nord"]
     )
 
-    exportar_layout(
+    layout_common.exportar_layout(
         layout=layout,
         **cfg_layout["Exportacio"]
     )

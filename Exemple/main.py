@@ -138,7 +138,6 @@ import layouts.layout_analisi as layout_analisi
 import layouts.layout_clusters as layout_clusters
 import layouts.layout_especialitzacio as layout_especialitzacio
 import layouts.layout_bivariant_zones as layout_bivariant_zones
-import layouts.layout_hexagons as layout_hexagons
 import layouts.layout_accessibilitat as layout_accessibilitat 
 import layouts.fusionar_layouts as fusionar_layouts
 
@@ -156,7 +155,7 @@ _moduls = [
     simbologia_hexagons, simbologia_accessibilitat, simbologia_general,
     layout_common, layout_general, layout_atles, layout_analisi,
     layout_clusters, layout_especialitzacio, layout_bivariant_zones,
-    layout_hexagons, layout_accessibilitat, fusionar_layouts
+    layout_accessibilitat, fusionar_layouts
 ]
 
 for _modul in _moduls:
@@ -579,13 +578,15 @@ layout_bivariant_zones.composicio_bivariant_zones(
 
 
 ## Malla hexagonal
-layout_hexagons.composicio_bivariant_hexagons(
+layout_bivariant_zones.composicio_bivariant_zones(
+    zona="Hexagons",
     districtes=districtes_base,
     capes=[
         layers_simbologia_hexagons["bivariant"],
         layer_simbologia_hexagons_no_valids
     ],
-    capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"]
+    capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"],
+    amb_capçalera=False
 )
 
 # ------------------------------------------------------------------------------

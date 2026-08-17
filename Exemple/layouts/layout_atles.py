@@ -32,91 +32,13 @@ from qgis.core import (
     QgsLayoutItemMap,
     QgsLayoutSize,
     QgsLayoutPoint,
-    QgsRectangle,
     QgsUnitTypes,
     QgsLayoutMeasurement,
     QgsLayoutExporter
 )
 
-from qgis.PyQt.QtGui import QColor
-
 import config
 import layouts.layout_common as layout_common
-
-# def afegir_mapa(layout, capes, capa_extent, factor_escala, size, position, rotacio, offset_x, offset_y, color_fons=(0,0,0,0)):
-#     """
-#     Afegeix el mapa principal a la composició.
-
-#     La funció crea un element de mapa, configura les capes visibles,
-#     estableix la seva posició, mida, rotació i extensió inicial.
-
-#     Paràmetres
-#     ----------
-#     layout: QgsPrintLayout
-#         Composició sobre la qual s'afegeix el mapa.
-#     capes: list[QgsMapLayer]
-#         Capes que es mostraran al mapa, en ordre de representació.
-#     capa_extent: QgsVectorLayer
-#         Capa utilitzada per a definir l'extensió inicial del mapa.
-#     factor_escala: float
-#         Factor escala per apropar o allunyar el mapa.
-#     size: tuple[int,int]
-#         Amplada i alçada de la imatge, en mil·límetres.
-#     position: tuple[int,int]
-#         Coordenada X i Y de la imatge - cantonada superior esquerra - en mil·límetres.
-#     rotacio: int
-#         Rotació del mapa, en graus.
-#     offset_x: float
-#         Desplaçament horitzontal del centre del mapa, en metres.
-#     offset_y: float
-#         Desplaçament vertical del centre del mapa, en metres.
-#     color_fons: tuple[int,int,int,int], optional
-#         Color de fons del mapa, en format (RGBA).
-#         Per defecte, transparent.
-    
-#     Retorna
-#     -------
-#     QgsLayoutItemMap
-#         Element mapa.
-#     """
-
-#     # Configuració inicial del mapa
-#     layout_map = QgsLayoutItemMap(layout)
-    
-#     layout.addLayoutItem(layout_map)
-
-#     layout_map.setLayers(capes)
-
-#     layout_map.setKeepLayerSet(True)
-
-#     # Ajust d'escala i rotació
-#     layout_map.attemptMove(QgsLayoutPoint(*position, QgsUnitTypes.LayoutMillimeters))
-#     layout_map.attemptResize(QgsLayoutSize(*size, QgsUnitTypes.LayoutMillimeters))
-
-#     layout_map.zoomToExtent(capa_extent.extent())
-#     layout_map.setMapRotation(rotacio)
-#     layout_map.setScale(layout_map.scale() * factor_escala)
-
-#     # Desplaçament manual del centre del mapa
-#     extent = layout_map.extent()
-#     dx, dy = layout_common.transformar_offset(
-#         offset_x=offset_x,
-#         offset_y=offset_y,
-#         rotacio=rotacio
-#     )
-#     extent = QgsRectangle(
-#         extent.xMinimum() + dx,
-#         extent.yMinimum() + dy,
-#         extent.xMaximum() + dx,
-#         extent.yMaximum() + dy
-#     )
-#     layout_map.setExtent(extent)
-
-#     layout_map.setBackgroundEnabled(True)
-#     layout_map.setBackgroundColor(QColor(*color_fons))
-        
-#     return layout_map
-
 
 def afegir_mapa_localitzador(layout, capa_localitzador, capa_extensio, mapa, size, position):
     """

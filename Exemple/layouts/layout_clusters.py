@@ -22,7 +22,6 @@ Organització
 
 import config
 import layouts.layout_common as layout_common
-import layouts.layout_general as layout_general
 
 def composicio_clusters(capes, capa_extent):
     """
@@ -91,17 +90,7 @@ def composicio_clusters(capes, capa_extent):
         **cfg_estructura["Nord"]
     )
 
-    # layout_common.afegir_grafic(
-    #     layout=layout,
-    #     **cfg_layout["Grafic_clusters"]
-    # )
-
-    # layout_common.afegir_grafic(
-    #     layout=layout,
-    #     **cfg_layout["Grafic_mida"]
-    # )
-
-    layout_general.exportar_layout(
+    layout_common.exportar_layout(
         layout=layout,
         **cfg_layout["Exportacio"]
     )
