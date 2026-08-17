@@ -56,7 +56,7 @@ def composicio_clusters(capes, capa_extent):
         nom_layout="Agrupacions espacials dels usos dels edificis a Barcelona"
     )
 
-    mapa = layout_general.afegir_mapa(
+    mapa = layout_common.afegir_mapa(
         layout=layout,
         capes=capes,
         capa_extent=capa_extent,

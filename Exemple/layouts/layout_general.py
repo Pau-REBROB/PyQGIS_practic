@@ -38,79 +38,80 @@ import os
 import config
 import layouts.layout_common as layout_common
 
-def afegir_mapa(layout, capes, capa_extent, factor_escala, size, position, rotacio, offset_x, offset_y, color_fons=(0,0,0,0)):
-    """
-    Afegeix l'element mapa principal a una composició.
+# def afegir_mapa(layout, capes, capa_extent, factor_escala, size, position, rotacio, offset_x, offset_y, color_fons=(0,0,0,0)):
+#     """
+#     Afegeix l'element mapa principal a una composició.
 
-    La funció crea un element `QgsLayoutItemMap`, hi assocïa les capes
-    indicades, defineix la seva extensió, i n'estableix la seva
-    posició, mida i rotació dins de la composició.
+#     La funció crea un element `QgsLayoutItemMap`, hi assocïa les capes
+#     indicades, defineix la seva extensió, i n'estableix la seva
+#     posició, mida i rotació dins de la composició.
 
-    Paràmetres
-    ----------
-    layout: QgsPrintLayout
-        Composició sobre la qual s'afegeix el mapa.
-    capes: list[QgsMapLayer]
-        Capes que es mostraran al mapa, en ordre de representació.
-    capa_extent: QgsVectorLayer
-        Capa utilitzada per a definir l'extensió inicial del mapa.
-    factor_escala: float
-        Factor escala per apropar o allunyar el mapa.
-    size: tuple[int,int]
-        Amplada i alçada de la imatge, en mil·límetres.
-    position: tuple[int,int]
-        Coordenada X i Y de la imatge - cantonada superior esquerra - en mil·límetres.
-    rotacio: int
-        ###
-    offset_x: int
-        ##
-    offset_y: int
-        ##
-    color_fons: tuple[int,int,int,int], optional
-        ###
+#     Paràmetres
+#     ----------
+#     layout: QgsPrintLayout
+#         Composició sobre la qual s'afegeix el mapa.
+#     capes: list[QgsMapLayer]
+#         Capes que es mostraran al mapa, en ordre de representació.
+#     capa_extent: QgsVectorLayer
+#         Capa utilitzada per a definir l'extensió inicial del mapa.
+#     factor_escala: float
+#         Factor escala per apropar o allunyar el mapa.
+#     size: tuple[int,int]
+#         Amplada i alçada de la imatge, en mil·límetres.
+#     position: tuple[int,int]
+#         Coordenada X i Y de la imatge - cantonada superior esquerra - en mil·límetres.
+#     rotacio: int
+#         Rotació del mapa, en graus.
+#     offset_x: float
+#         Desplaçament horitzontal del centre del mapa, en metres.
+#     offset_y: float
+#         Desplaçament vertical del centre del mapa, en metres.
+#     color_fons: tuple[int,int,int,int], optional
+#         Color de fons del mapa, en format (RGBA).
+#         Per defecte, transparent.
     
-    Retorna
-    -------
-    QgsLayoutItemMap
-        Element mapa.
-    """
+#     Retorna
+#     -------
+#     QgsLayoutItemMap
+#         Element mapa.
+#     """
 
-    # Configuració inicial del mapa
-    layout_map = QgsLayoutItemMap(layout)
+#     # Configuració inicial del mapa
+#     layout_map = QgsLayoutItemMap(layout)
     
-    layout.addLayoutItem(layout_map)
+#     layout.addLayoutItem(layout_map)
 
-    layout_map.setLayers(capes)
+#     layout_map.setLayers(capes)
 
-    layout_map.setKeepLayerSet(True)
+#     layout_map.setKeepLayerSet(True)
 
-    # Ajust d'escala i rotació
-    layout_map.attemptMove(QgsLayoutPoint(*position, QgsUnitTypes.LayoutMillimeters))
-    layout_map.attemptResize(QgsLayoutSize(*size, QgsUnitTypes.LayoutMillimeters))
+#     # Ajust d'escala i rotació
+#     layout_map.attemptMove(QgsLayoutPoint(*position, QgsUnitTypes.LayoutMillimeters))
+#     layout_map.attemptResize(QgsLayoutSize(*size, QgsUnitTypes.LayoutMillimeters))
 
-    layout_map.zoomToExtent(capa_extent.extent())
-    layout_map.setMapRotation(rotacio)
-    layout_map.setScale(layout_map.scale() * factor_escala)
+#     layout_map.zoomToExtent(capa_extent.extent())
+#     layout_map.setMapRotation(rotacio)
+#     layout_map.setScale(layout_map.scale() * factor_escala)
 
-    # Desplaçament manual del centre del mapa
-    extent = layout_map.extent()
-    dx, dy = layout_common.transformar_offset(
-        offset_x=offset_x,
-        offset_y=offset_y,
-        rotacio=rotacio
-    )
-    extent = QgsRectangle(
-        extent.xMinimum() + dx,
-        extent.yMinimum() + dy,
-        extent.xMaximum() + dx,
-        extent.yMaximum() + dy
-    )
-    layout_map.setExtent(extent)
+#     # Desplaçament manual del centre del mapa
+#     extent = layout_map.extent()
+#     dx, dy = layout_common.transformar_offset(
+#         offset_x=offset_x,
+#         offset_y=offset_y,
+#         rotacio=rotacio
+#     )
+#     extent = QgsRectangle(
+#         extent.xMinimum() + dx,
+#         extent.yMinimum() + dy,
+#         extent.xMaximum() + dx,
+#         extent.yMaximum() + dy
+#     )
+#     layout_map.setExtent(extent)
 
-    layout_map.setBackgroundEnabled(True)
-    layout_map.setBackgroundColor(QColor(*color_fons))
+#     layout_map.setBackgroundEnabled(True)
+#     layout_map.setBackgroundColor(QColor(*color_fons))
         
-    return layout_map
+#     return layout_map
     
 
 
@@ -183,23 +184,23 @@ def composicio_general(capes, capa_extent):
     cfg_layout = config.LAYOUTS["GENERAL"]
     cfg_estructura = config.LAYOUTS["ESTRUCTURA"]
 
-    layout_general = layout_common.generar_layout(nom_layout="Ús dels edificis a Barcelona")
+    layout = layout_common.generar_layout(nom_layout="Ús dels edificis a Barcelona")
 
-    mapa = afegir_mapa(
-        layout=layout_general,
+    mapa = layout_common.afegir_mapa(
+        layout=layout,
         capes=capes,
         capa_extent=capa_extent,
         **cfg_estructura["Mapa"]
     )
 
     layout_common.afegir_capçalera(
-        layout=layout_general,
+        layout=layout,
         **cfg_layout["Capçalera"],
         **cfg_estructura["Capçalera"],
     )
 
     layout_common.afegir_llegenda(
-        layout=layout_general,
+        layout=layout,
         mapa=mapa,
         capes=capes,
         **cfg_layout["Llegenda"],
@@ -207,20 +208,20 @@ def composicio_general(capes, capa_extent):
     )
 
     layout_common.afegir_escala(
-        layout=layout_general,
+        layout=layout,
         mapa=mapa,
         **cfg_layout["Escala"],
         **cfg_estructura["Escala"]
     )
 
     layout_common.afegir_nord(
-        layout=layout_general,
+        layout=layout,
         mapa=mapa,
         **cfg_layout["Nord"],
         **cfg_estructura["Nord"]
     )
 
     exportar_layout(
-        layout=layout_general,
+        layout=layout,
         **cfg_layout["Exportacio"]
     )

@@ -38,8 +38,7 @@ def simbologia_base(dict_layers):
     Retorna
     -------
     dict
-        Diccionari amb la mateixa estructura que el d'entrada
-        amb les capes simbolitzades.
+        Diccionari amb les capes simbolitzades.
     """
 
     layers_base_input = {
@@ -87,7 +86,6 @@ def simbologia_clusters(resultats):
                 "clusters": QgsVectorLayer,
                 "zones": QgsVectorLayer,
                 "resum": dict,
-                "taula": pandas.DataFrame
             },
             ...
         }
@@ -141,7 +139,7 @@ def simbologia_especialitzacio_funcional(zones, ua):
             "us_predominant": QgsVectorLayer,
             "dominancia": QgsVectorLayer,
             "index_shannon": QgsVectorLayer,
-            "classe_bivariant: QgsVectorLayer
+            "bivariant: QgsVectorLayer
         }
     """
 
@@ -151,28 +149,25 @@ def simbologia_especialitzacio_funcional(zones, ua):
         zones=zones,
         ua=ua
     )
-
     layers_especialitzacio["us_predominant"] = zona_us_pred
 
     zona_domin = simbologia_especialitzacio.simbologia_dominancia(
         zones=zones,
         ua=ua
     )
-
     layers_especialitzacio["dominancia"] = zona_domin
 
     zona_shan = simbologia_especialitzacio.simbologia_shannon(
         zones=zones,
         ua=ua
     )
-    
+
     layers_especialitzacio["index_shannon"] = zona_shan
 
     zona_bivariant = simbologia_especialitzacio.simbologia_bivariant(
         zones=zones,
         ua=ua
     )
-
     layers_especialitzacio["bivariant"] = zona_bivariant
     
     return layers_especialitzacio
@@ -196,7 +191,7 @@ def simbologia_hexagons_especialitzacio_funcional(hexagons):
             "us_predominant": QgsVectorLayer,
             "dominancia": QgsVectorLayer,
             "index_shannon": QgsVectorLayer,
-            "classe_bivariant: QgsVectorLayer
+            "bivariant: QgsVectorLayer
         }
     """
 
@@ -237,17 +232,23 @@ def simbologia_edificis_accessibilitat(edificis, graf, clusters, terme):
     Paràmetres
     ----------
     edificis: QgsVectorLayer
-        Capa vectorial dels edificis.
+        Capa vectorial dels edificis amb el camp d'accessibilitat.
     graf: QgsVectorLayer
         Capa vectorial del graf viari.
-    
+    clusters: QgsVectorLayer
+        Capa vectorial de les zones dels clústers comercials.
+    terme: QgsVectorLayer
+        Capa vectorial del terme municipal.
+
     Retorna
     -------
     dict
         Diccionari amb les capes simbolitzades, amb l'estructura:
         {
             "accessibilitat": QgsVectorLayer,
-            "graf": QgsVectorLayer
+            "graf": QgsVectorLayer,
+            "clusters": QgsVectorLayer,
+            "terme": QgsVectorLayer
         }
     """
 

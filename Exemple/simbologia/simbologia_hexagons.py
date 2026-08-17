@@ -90,6 +90,6 @@ def simbologia_bivariant(hexagons):
             **config.SIMBOLOGIA["Hexagons_bivariant"]
     )
         
-    layer.setName("Districtes_bivariància")
+    layer.setName("Hexagons_bivariància")
     
     return layer

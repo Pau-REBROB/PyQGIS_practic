@@ -15,6 +15,7 @@ Organització
 
 from qgis.core import ( 
     QgsCategorizedSymbolRenderer,
+    QgsFeatureRequest,
     QgsFillSymbol,
     QgsGraduatedSymbolRenderer,
     QgsLineSymbol,
@@ -42,6 +43,8 @@ def simbologia_unica(layer, nom, fill_color, outline_width, stroke_color):
     ----------
     layer: QgsVectorLayer
         Capa poligonal sobre la que aplicar la simbologia.
+    nom: str
+        Nom de la capa.
     fill_color: tuple[int,int,int,int]
         Color del farcit, en format RGBA.
     outline_width: float
@@ -55,7 +58,7 @@ def simbologia_unica(layer, nom, fill_color, outline_width, stroke_color):
         Nova capa en memòria amb la simbologia aplicada.
     """
 
-    layer_clone = layer.clone()
+    layer_clone = layer.materialize(QgsFeatureRequest)
     
     layer_clone.setName(nom)
        
@@ -72,7 +75,7 @@ def simbologia_unica(layer, nom, fill_color, outline_width, stroke_color):
     return layer_clone
 
 
-def simbologia_unica_linia(layer, fill_color, width, outline_color, outline_width):
+def simbologia_unica_linia(layer, nom, fill_color, width, outline_color, outline_width):
     """
     Aplica una simbologia de símbol únic a una capa lineal.
 
@@ -83,11 +86,13 @@ def simbologia_unica_linia(layer, fill_color, width, outline_color, outline_widt
     ----------
     layer: QgsVectorLayer
         Capa lineal sobre la que aplicar la simbologia.
+    nom: str
+        Nom de la capa.
     fill_color: tuple[int,int,int,int]
         Color de la línia base, en format RGBA.
     outline_width: float
         Gruix del contorn.
-    stroke_color: tuple[int,int,int,int]
+    outline_color: tuple[int,int,int,int]
         Color del contorn, en format RGBA.
 
     Retorna
@@ -96,9 +101,9 @@ def simbologia_unica_linia(layer, fill_color, width, outline_color, outline_widt
         Nova capa en memòria amb la simbologia aplicada.
     """
 
-    layer_clone = layer.clone()
+    layer_clone = layer.materialize(QgsFeatureRequest)
     
-    layer_clone.setName(f"{layer_clone.name()}_simbUnica")
+    layer_clone.setName(nom)
     
     symbol = QgsLineSymbol()
     
@@ -153,7 +158,7 @@ def simbologia_categorica(layer, atribut, colors_categories, outline_width, stro
         Capa vectorial en memòria amb la simbologia aplicada.
     """
 
-    layer_clone = layer.clone()
+    layer_clone = layer.materialize(QgsFeatureRequest)
     
     layer_clone.setName(f"{layer_clone.name()}_simbCat")
           
@@ -226,7 +231,7 @@ def simbologia_graduada(layer, atribut, num_classes, color_ramp, mode, stroke_co
         Capa vectorial en memòria amb la simbologia aplicada.
     """
 
-    layer_clone = layer.clone()
+    layer_clone = layer.materialize(QgsFeatureRequest)
     
     layer_clone.setName(f"{layer_clone.name()}_simbGrad")
        
@@ -267,9 +272,10 @@ def simbologia_graduada_manual(layer, color_ramp, intervals, atribut, stroke_col
     Aplica simbologia graduada amb intervals definits manualment
     a una capa vectorial.
 
-     La funció clona la capa d'entrada i hi aplica un renderer graduat
-    a partir d'un atribut, #####un mètode de classificació i una rampa de 
-    colors disponibles a QGIS.
+    La funció clona la capa d'entrada i hi aplica un renderer graduat
+    a partir d'un atribut i una rampa de colors de QGIS.
+    Els intervals de classificació es defineixen manualment,
+    a diferència de `simbologia_graduada` que els calcula automàticament.
         
     Paràmetres
     ----------
@@ -295,7 +301,7 @@ def simbologia_graduada_manual(layer, color_ramp, intervals, atribut, stroke_col
         Capa vectorial en memòria amb la simbologia aplicada.
     """
 
-    layer_clone = layer.clone()
+    layer_clone = layer.materialize(QgsFeatureRequest)
     
     layer_clone.setName(f"{layer_clone.name()}_simbGradManual")
     

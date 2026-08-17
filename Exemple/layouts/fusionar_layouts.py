@@ -26,9 +26,17 @@ def fusionar_pdf(pdfs, output_path):
 
     Retorna
     -------
-    None
+    FileNotFoundError
+        Si algun dels documents PDFs d'entrada no existeix.
+    RuntimeError
+        Si no s'ha pogut generar el document de sortida.
     """
 
+    # Comprovar que tots els pdfs existeixen
+    for pdf in pdfs:
+        if not Path(pdf).exists():
+            raise FileNotFoundError(f"No s'ha trobat el document '{pdf}")
+        
     merger = PdfWriter()
 
     # Afegir els documents pdf per ordre
@@ -36,9 +44,10 @@ def fusionar_pdf(pdfs, output_path):
         merger.append(pdf)
 
     # Escriure el document final
-    merger.write(output_path)
+    with open(output_path, "wb") as f:
+        merger.write(f)
 
     merger.close()
 
     if not Path(output_path).exists():
-        raise RuntimeError(f"No s'ha pogut generar el document '{output_path}")
+        raise RuntimeError(f"No s'ha pogut generar el document '{output_path}'")

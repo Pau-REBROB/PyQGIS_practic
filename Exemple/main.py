@@ -401,12 +401,6 @@ layers_simbologia_base = simbologia_general.simbologia_base(
 # Capa base CartoDB Positron No Labels
 basemap_layer
 
-# Addició de capes al projecte
-for layer in layers_simbologia_base.values():
-    project.addMapLayer(layer)
-
-project.addMapLayer(basemap_layer)
-
 # ------------------------------------------------------------------------------
 # 6.2. Agrupacions espacials - clústers
 # ------------------------------------------------------------------------------
@@ -415,9 +409,7 @@ layers_simbologia_clusters = simbologia_general.simbologia_clusters(
     resultats=clusters_dict
 )
 
-# Addició de capes al projecte
-for layer in layers_simbologia_clusters.values():
-    project.addMapLayer(layer)
+### MILLOR SIMBOLITZAR ELS CENTROIDES ENLLOC DE LES ENVOLVENTS???
 
 # ------------------------------------------------------------------------------
 # 6.3. Especialització funcional
@@ -430,20 +422,11 @@ layers_simbologia_especialitzacio_districtes = simbologia_general.simbologia_esp
     ua="Districtes"
 )
 
-# Addició de capes al projecte
-for layer in layers_simbologia_especialitzacio_districtes.values():
-    project.addMapLayer(layer)
-
-
 ## Barris
 layers_simbologia_especialitzacio_barris = simbologia_general.simbologia_especialitzacio_funcional(
     zones=barris_bivariant,
     ua="Barris"
 )
-
-# Addició de capes al projecte
-for layer in layers_simbologia_especialitzacio_barris.values():
-    project.addMapLayer(layer)
 
 # ------------------------------------------------------------------------------
 # 6.4. Malla hexagonal bivariant
@@ -455,18 +438,11 @@ layers_simbologia_hexagons = simbologia_general.simbologia_hexagons_especialitza
     hexagons=hexagons_valids
 )
 
-# Addició de capes al projecte
-for layer in layers_simbologia_hexagons.values():
-    project.addMapLayer(layer)
-
 ## Hexàgons no vàlids
 layer_simbologia_hexagons_no_valids = simbologies.simbologia_unica(
     layer=hexagons_no_valids,
     **config.SIMBOLOGIA["Hexagons_no_valids"]
 )
-
-# Addició de capes al projecte
-project.addMapLayer(layer_simbologia_hexagons_no_valids)
 
 # ------------------------------------------------------------------------------
 # 6.5. Accessibilitat
@@ -478,10 +454,6 @@ layers_simbologia_accessibilitat = simbologia_general.simbologia_edificis_access
     clusters=clusters_dict["4_2_retail"]["zones"],
     terme=dict_layers_clean["Limits_administratius"]["TermeMunicipal"]
 )
-
-# Addició de les capes al projecte
-for layer in layers_simbologia_accessibilitat.values():
-    project.addMapLayer(layer)
 
 # ------------------------------------------------------------------------------
 # 6.6. Addició de capes al projecte
@@ -577,7 +549,7 @@ layout_clusters.composicio_clusters(
 )
 
 # ------------------------------------------------------------------------------
-# 7.3. Composicions especialització funcional - Anàlisi bivariant
+# 7.4. Composicions especialització funcional - Anàlisi bivariant
 # ------------------------------------------------------------------------------
 
 # ## Districtes
@@ -617,7 +589,7 @@ layout_hexagons.composicio_bivariant_hexagons(
 )
 
 # ------------------------------------------------------------------------------
-# 7.4. Composició d'accessibilitat
+# 7.5. Composició d'accessibilitat
 # ------------------------------------------------------------------------------
 
 layout_accessibilitat.composicio_accessibilitat(
@@ -631,7 +603,7 @@ layout_accessibilitat.composicio_accessibilitat(
 )
 
 # ------------------------------------------------------------------------------
-# 7.5. Composició final
+# 7.6. Composició final
 # ------------------------------------------------------------------------------
 
 ## Unió de composicions en un informe final

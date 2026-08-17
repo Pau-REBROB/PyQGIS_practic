@@ -1,5 +1,3 @@
-from qgis.core import QgsStyle
-
 import config
 import simbologia.simbologies as simbologies
 
@@ -29,6 +27,8 @@ def simbologia_graf(graf):
         **config.SIMBOLOGIA["Graf_accessibilitat"]
     )
 
+    layer.setName("Graf viari")
+
     return layer
 
 
@@ -43,6 +43,8 @@ def simbologia_clusters(clusters):
         **config.SIMBOLOGIA["Clusters_accessibilitat"]
     )
 
+    layer.setName("Agrupacions comercials")
+
     return layer
 
 
@@ -55,6 +57,8 @@ def simbologia_terme_municipal(terme):
         layer=terme,
         **config.SIMBOLOGIA["Terme_accessibilitat"]
     )
+
+    layer.setName("Terme municipal")
 
     return layer
 
