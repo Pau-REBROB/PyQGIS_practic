@@ -149,11 +149,11 @@ def separar_hexagons_valids(malla):
     """
     
     request_valids = QgsFeatureRequest().setFilterExpression(
-        '"classe_bivariant" IS NOT NULL'
+        '"classe_bivariant_access" IS NOT NULL'
     )
 
     request_no_valids = QgsFeatureRequest().setFilterExpression(
-        '"classe_bivariant" IS NULL'
+        '"classe_bivariant_access" IS NULL'
     )
 
     hexagons_valids = malla.materialize(request_valids)

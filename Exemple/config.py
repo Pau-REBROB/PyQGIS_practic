@@ -196,6 +196,12 @@ CLASSIFICACIO_SHANNON = {
     "Alta": 0.85
 }
 
+CLASSIFICACIO_ACCESSIBILITAT = {
+    "Alta": 500,
+    "Mitjana": 2000,
+    "Alta": 5000
+}
+
 INTERVALS_DOMINANCIA = [
     0.0,
     14.3,
@@ -260,6 +266,10 @@ SIMBOLOGIA = {
     },
     "Clusters": {
         "nom": "clusters",
+        "outline_width": 0.2,
+    },
+    "Zones": {
+        "nom": "zones",
         "outline_width": 0.2,
     },
     "Isoarees": {
@@ -357,7 +367,7 @@ SIMBOLOGIA = {
         "stroke_width": 0.25
     },
     "Hexagons_bivariant": {
-        "atribut": 'classe_bivariant',
+        "atribut": 'classe_bivariant_access',
         "colors_categories": COLORS_BIVARIANT,
         "outline_width": 0.25,
         "stroke_color": (255,255,255,100)
@@ -368,32 +378,34 @@ SIMBOLOGIA = {
         "outline_width": 0.2,
         "stroke_color": (255,255,255,200)
     },
-    "Edificis_accessibilitat": {
-        "color_ramp": "RdBu",
-        "intervals": INTERVALS_ACCESSIBILITAT,
-        "atribut": 'accessibilitat',
-        "stroke_color": (255,255,255,255),
-        "stroke_width": 0.01,
-        "invert_ramp": True
-    } ,
-    "Graf_accessibilitat": {
-        "nom": "Graf viari",
-        "fill_color": (255,255,255,255),
-        "width": 0.1,
-        "outline_color": (50,50,50,255),
-        "outline_width": 0.2
-    },
-    "Clusters_accessibilitat": {
-        "nom": "Agrupacions comercials",
-        "fill_color": (255, 127, 0, 50),
-        "outline_width": 0.25,
-        "stroke_color": (255, 127, 0, 200)
-    },
-    "Terme_accessibilitat": {
-        "nom": "terme municipal",
-        "fill_color": (0,0,0,0),
-        "outline_width": 0.2,
-        "stroke_color": (255,255,255,255)
+    "Accessibilitat": {
+        "Edificis_accessibilitat": {
+            "color_ramp": "RdBu",
+            "intervals": INTERVALS_ACCESSIBILITAT,
+            "atribut": 'accessibilitat',
+            "stroke_color": (255,255,255,255),
+            "stroke_width": 0.01,
+            "invert_ramp": True
+        } ,
+        "Graf_accessibilitat": {
+            "nom": "Graf viari",
+            "fill_color": (255,255,255,255),
+            "width": 0.1,
+            "outline_color": (50,50,50,255),
+            "outline_width": 0.2
+        },
+        "Clusters_accessibilitat": {
+            "nom": "Agrupacions comercials",
+            "fill_color": (255, 127, 0, 50),
+            "outline_width": 0.25,
+            "stroke_color": (255, 127, 0, 200)
+        },
+        "Terme_accessibilitat": {
+            "nom": "terme municipal",
+            "fill_color": (0,0,0,0),
+            "outline_width": 0.2,
+            "stroke_color": (255,255,255,255)
+        }
     }
 }
 

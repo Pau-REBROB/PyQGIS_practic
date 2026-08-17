@@ -1,6 +1,8 @@
 import config
 import simbologia.simbologies as simbologies
 
+cfg_simbologa = config.SIMBOLOGIA["Accessibilitat"] 
+
 def simbologia_edificis(edificis):
     """
     Aplica una simbologia graduada a la capa d'edificis
@@ -9,7 +11,7 @@ def simbologia_edificis(edificis):
 
     layer = simbologies.simbologia_graduada_manual(
         layer=edificis,
-        **config.SIMBOLOGIA["Edificis_accessibilitat"]
+        **cfg_simbologa["Edificis_accessibilitat"]
     )
 
     layer.setName("Distància mínima accessible")
@@ -24,7 +26,7 @@ def simbologia_graf(graf):
 
     layer = simbologies.simbologia_unica_linia(
         layer=graf,
-        **config.SIMBOLOGIA["Graf_accessibilitat"]
+        **cfg_simbologa["Graf_accessibilitat"]
     )
 
     layer.setName("Graf viari")
@@ -34,13 +36,12 @@ def simbologia_graf(graf):
 
 def simbologia_clusters(clusters):
     """
-    Aplica una simbologia única a la capa d'agrupacions espacials
-    comercials.
+    Aplica una simbologia única a la capa d'agrupacions espacials.
     """
 
     layer = simbologies.simbologia_unica(
         layer=clusters,
-        **config.SIMBOLOGIA["Clusters_accessibilitat"]
+        **cfg_simbologa["Clusters_accessibilitat"]
     )
 
     layer.setName("Agrupacions comercials")
@@ -55,7 +56,7 @@ def simbologia_terme_municipal(terme):
 
     layer = simbologies.simbologia_unica(
         layer=terme,
-        **config.SIMBOLOGIA["Terme_accessibilitat"]
+        **cfg_simbologa["Terme_accessibilitat"]
     )
 
     layer.setName("Terme municipal")

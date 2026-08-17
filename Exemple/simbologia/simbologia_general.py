@@ -12,6 +12,10 @@ import simbologia.simbologia_especialitzacio as simbologia_especialitzacio
 import simbologia.simbologia_hexagons as simbologia_hexagons
 import simbologia.simbologia_accessibilitat as simbologia_accessibilitat 
 
+# ==============================================================================
+# CAPES BASE
+# ==============================================================================
+
 def simbologia_base(dict_layers):
     """
     Aplica la simbologia a les capes de cartografia base.
@@ -71,9 +75,13 @@ def simbologia_base(dict_layers):
     return layers_base
 
 
+# ==============================================================================
+# AGRUPACIONS ESPACIALS
+# ==============================================================================
+
 def simbologia_clusters(resultats):
     """
-    Aplica la simbologia als clústers espacials.
+    Aplica la simbologia als centroides dels clústers espacials.
 
     Cada agrupació espacial es representa amb el color associat al seu ús.
 
@@ -85,7 +93,56 @@ def simbologia_clusters(resultats):
             us: {
                 "clusters": QgsVectorLayer,
                 "zones": QgsVectorLayer,
-                "resum": dict,
+                "resum": dict
+            },
+            ...
+        }
+    
+    Retorna
+    -------
+    dict
+        Diccionari amb les capes simbolitzades, amb l'estructura:
+        {
+            us: QgsVectorLayer,
+            ...
+        }
+    """
+
+    layers_clusters = {}
+
+    for us, dades in resultats.items():
+        layer_simb = simbologies.simbologia_unica(
+            layer=dades["clusters"],
+            nom="clusters",
+            fill_color=config.COLORS_CLUSTERS[us],
+            outline_width=config.SIMBOLOGIA["Clusters"]["outline_width"],
+            stroke_color=config.COLORS_USOS[us]
+        )
+
+        # Es recupera el nom original de la capa
+        layer_simb.setName(f"Cluster {config.ETIQUETES_USOS[us]}")
+
+        layers_clusters[us] = layer_simb
+    
+    return layers_clusters
+
+
+def simbologia_zones(resultats):
+    """
+    Aplica la simbologia a les geometries envolvents
+    dels clústers espacials.
+
+    Cada agrupació espacial es representa amb el color associat al seu ús.
+
+    Paràmetres
+    ----------
+    resultats: dict
+        Diccionari retornat per `analisi_clusters()`, amb l'estructura:
+        {
+            us: {
+                "clusters": QgsVectorLayer,
+                "zones": QgsVectorLayer,
+                "resum": dict
             },
             ...
         }
@@ -107,7 +164,7 @@ def simbologia_clusters(resultats):
             layer=dades["zones"],
             nom="clusters",
             fill_color=config.COLORS_CLUSTERS[us],
-            outline_width=config.SIMBOLOGIA["Clusters"]["outline_width"],
+            outline_width=config.SIMBOLOGIA["Zones"]["outline_width"],
             stroke_color=config.COLORS_USOS[us]
         )
 
@@ -118,6 +175,10 @@ def simbologia_clusters(resultats):
     
     return layers_clusters
 
+
+# ==============================================================================
+# ESPECIALITZACIÓ FUNCIONAL 
+# ==============================================================================
 
 def simbologia_especialitzacio_funcional(zones, ua):
     """
@@ -200,29 +261,29 @@ def simbologia_hexagons_especialitzacio_funcional(hexagons):
     hexagons_us_pred = simbologia_hexagons.simbologia_us_predominant(
         hexagons=hexagons
     )
-
     layers_hexagons["us_predominant"] = hexagons_us_pred
 
     hexagons_domin = simbologia_hexagons.simbologia_dominancia(
         hexagons=hexagons
     )
-
     layers_hexagons["dominancia"] = hexagons_domin
 
     hexagons_shan = simbologia_hexagons.simbologia_shannon(
         hexagons=hexagons
     )
-    
     layers_hexagons["index_shannon"] = hexagons_shan
 
     hexagons_bivariant = simbologia_hexagons.simbologia_bivariant(
         hexagons=hexagons
     )
-
     layers_hexagons["bivariant"] = hexagons_bivariant
     
     return layers_hexagons
 
+
+# ==============================================================================
+# ACCESSIBILITAT
+# ==============================================================================
 
 def simbologia_edificis_accessibilitat(edificis, graf, clusters, terme):
     """
@@ -257,25 +318,21 @@ def simbologia_edificis_accessibilitat(edificis, graf, clusters, terme):
     accessibilitat = simbologia_accessibilitat.simbologia_edificis(
         edificis=edificis
     )
-
     layers_access["accessibilitat"] = accessibilitat
 
     graf_viari = simbologia_accessibilitat.simbologia_graf(
         graf=graf
     )
-
     layers_access["graf"] = graf_viari
 
     clusters_access = simbologia_accessibilitat.simbologia_clusters(
         clusters=clusters
     )
-
     layers_access["clusters"] = clusters_access
 
     terme_access = simbologia_accessibilitat.simbologia_terme_municipal(
         terme=terme
     )
-
     layers_access["terme"] = terme_access
 
     return layers_access 

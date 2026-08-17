@@ -295,111 +295,6 @@ def analisi_especialitzacio(zones, edificis, idx_zones, usos_exclosos=None):
     return resultats
 
 
-# def classificar_especialitzacio(resultats):
-#     """
-#     Classifica qualitativament els indicadors d'especialització
-#     funcional.
-
-#     A partir dels indicadors calculats assigna una
-#     categoria qualitativa al grau de dominància i de diversitat
-#     funcional, així com una breu interpretació automàtica.
-
-#     Paràmetres
-#     ----------
-#     resultats: dict
-#         Diccionari retornat per `analisi_especialitzacio()`.
-    
-#     Retorna
-#     -------
-#     dict
-#         Diccionari d'entrada actualitzat amb els camps
-#         {
-#             "classe_dominancia": str,
-#             "classe_diversitat": str,
-#             "interpretacio": str
-#         }
-#     """
-
-#     for nom, dades in resultats.items():
-#         # Classificar dominància
-#         dominancia = dades["dominancia"]
-
-#         if dominancia >= config.CLASSIFICACIO_DOMINANCIA["Alta"]:
-#             classe_dominancia = "Alta"
-        
-#         elif dominancia >= config.CLASSIFICACIO_DOMINANCIA["Mitjana"]:
-#             classe_dominancia = "Mitjana"
-
-#         elif dominancia >= config.CLASSIFICACIO_DOMINANCIA["Baixa"]:
-#             classe_dominancia = "Baixa"
-
-#         else:
-#             classe_dominancia = "Molt baixa"
-
-#         # Classificar índex Shannon
-#         shannon = dades["shannon_normalitzat"]
-
-#         if shannon >= config.CLASSIFICACIO_SHANNON["Alta"]:
-#             classe_diversitat = "Alta"
-        
-#         elif shannon >= config.CLASSIFICACIO_SHANNON["Mitjana"]:
-#             classe_diversitat = "Mitjana"
-        
-#         elif shannon >= config.CLASSIFICACIO_SHANNON["Baixa"]:
-#             classe_diversitat = "Baixa"
-        
-#         else:
-#             classe_diversitat = "Molt baixa"
-
-#         # Generar interpretació
-#         us = config.ETIQUETES_USOS[dades["us_predominant"]]
-
-#         if classe_dominancia == "Alta":
-#             if classe_diversitat == "Alta":
-#                 interpretacio = (
-#                     f"Zona de {nom} clarament especialitzat en ús {us} "
-#                     f"({dades['percentatge']:.1f}% dels edificis)"
-#                     f" amb una alta diversitat d'usos"
-#                 )
-#             else:
-#                 interpretacio = (
-#                     f"Zona de {nom} clarament especialitzat en ús {us} "
-#                     f"({dades['percentatge']:.1f}% dels edificis)"
-#                     f" però amb baixa diversitat d'usos"
-#                 )
-        
-#         elif classe_dominancia == "Mitjana":
-#             interpretacio = (
-#                 f"Zona de {nom} mostra una especialització moderada "
-#                 f"en ús {us} ({dades['percentatge']:.1f}% dels edificis)"
-#             )
-
-#         elif classe_dominancia == "Baixa":
-#             if classe_diversitat == "Alta":
-#                 interpretacio = (
-#                     f"Zona de {nom} presenta una distribució bastant equilibrada entre els usos "
-#                     f" amb una alta diversitat d'usos"
-#                 )
-#             else:
-#                 interpretacio = (
-#                     f"Zona de {nom} presenta una distribució bastant equilibrada entre "
-#                     f"els usos, amb poca diversitat d'aquests"
-#                 )
-
-#         else:
-#             interpretacio = (
-#                 f"Zona {nom} no presenta cap especialització clara "
-#                 f"i mostra una estructura funcional molt diversa"
-#             )
-        
-#         # Assignar classificacions
-#         dades["classe_dominancia"] = classe_dominancia
-#         dades["classe_diversitat"] = classe_diversitat
-#         dades["interpretacio"] = interpretacio
-
-#     return resultats
-
-
 def afegir_resultats_especialitzacio(zones, resultats):
     """
     Genera una nova capa d'unitats administratives incorporant
@@ -591,11 +486,11 @@ def assignar_especialitzacio_per_hexagons(edificis, malla, usos_exclosos=None):
     return layer
 
 
-# =======================================
-# BIVARIANT
-# ========================================
+# ==============================================================================
+# ANÀLISI BIVARIANT DIVERSITAT FUNCIONAL - DOMINÀNCIA
+# ==============================================================================
 
-def calcular_classe_bivariant(dominancia, diversitat):
+def calcular_classe_bivariant_DF_D(dominancia, diversitat):
     """
     Calcula la classe bivariant a partir de la dominància
     i la diversitat funcional normalitzada.
@@ -644,37 +539,7 @@ def calcular_classe_bivariant(dominancia, diversitat):
     return f"{classe_dominancia}_{classe_diversitat}"
 
 
-def classificar_bivariant(resultats):
-    """
-    Genera una classificació bivariant combinant les
-    classificacions de dominància i diversitat funcional.
-
-    Paràmetres
-    ----------
-    resultats: dict
-        Diccionari retornat per `analisi_especialitzacio()`.
-    
-    Retorna
-    -------
-    dict
-        Diccionari d'entrada amb la combinació
-        de totes les entrades de diversitat i dominància.
-        {
-            "classe_bivariant": str
-        }
-    """
-
-    for dades in resultats.values():
-        
-        dades["classe_bivariant"] = calcular_classe_bivariant(
-            dominancia=dades["dominancia"],
-            diversitat=dades["diversitat"]
-        )
-
-    return resultats
-
-
-def afegir_classe_bivariant(layer):
+def afegir_classe_bivariant_DF_D(layer):
     """
     Afegeix la classificació bivariant a una capa vectorial que ja conté
     els indicadors de dominància i diversitat funcional.
@@ -714,13 +579,117 @@ def afegir_classe_bivariant(layer):
             continue 
 
         canvis[feature.id()] = {
-            idx_bivariant: calcular_classe_bivariant(
+            idx_bivariant: calcular_classe_bivariant_DF_D(
                 dominancia=dominancia,
                 diversitat=diversitat
             )
         }
         
+    provider.changeAttributeValues(canvis)    
+    layer_clone.commitChanges()
 
+    return layer_clone
+
+
+# ==============================================================================
+# ANÀLISI BIVARIANT DIVERSITAT FUNCIONAL - ACCESSIBILITAT
+# ==============================================================================
+
+def calcular_classe_bivariant_DF_A(diversitat, accessibilitat):
+    """
+    Calcula la classe bivariant a partir de la 
+    diversitat funcional normalitzada i l'accessibilitat.
+
+    Combina dues classificacions ordinals en una classe composta
+    que permet identificar el perfil funcional de cada zona.
+
+    Classificació de la diversitat (índex de Shannon normalitzat):
+        - Alta    : diversitat >= 0.85
+        - Mitjana : diversitat >= 0.75 i < 0.85
+        - Baixa   : diversitat < 0.75
+    
+    Classificació de l'accessibilitat:
+        - Alta    : accessibilitat <= 500
+        - Mitjana : accessibilitat > 500 i <= 2000
+        - Baixa   : accessibilitat > 2000 
+
+    Paràmetres
+    ----------
+    diversitat: float
+        Valor de l'índex de Shannon normalitzat (entre 0 i 1).
+    accessibilitat: float
+        Valor de l'accessibilitat, en metres.
+
+    Retorna
+    -------
+    str
+        Classe bivariant en format "Diversitat_Accessibilitat".
+        Exemples: "Alta_Baixa", "Mitjana_Alta", "Baixa_Baixa"
+    """
+
+    if diversitat >= 0.85:
+        classe_diversitat = "Alta"
+    elif diversitat >= 0.75:
+        classe_diversitat = "Mitjana"
+    else:
+        classe_diversitat = "Baixa"
+
+    if accessibilitat > 2000:
+        classe_accessibilitat = "Baixa"
+    elif accessibilitat > 500:
+        classe_accessibilitat = "Mitjana"
+    else:
+        classe_accessibilitat = "Alta"
+
+    return f"{classe_diversitat}_{classe_accessibilitat}"
+
+
+def afegir_classe_bivariant_DF_A(layer):
+    """
+    Afegeix la classificació bivariant a una capa vectorial que ja conté
+    els indicadors de diversitat funcional i accessibilitat.
+
+    Paràmetres
+    ----------
+    layer: QgsVectorLayer
+        Capa vectorial amb els indicadors.
+
+    Retorna
+    -------
+    QgsVectorLayer
+        Nova capa vectorial amb el camp bivariant incorporats.
+    """
+
+    layer_clone = layer.materialize(QgsFeatureRequest())
+
+    provider = layer_clone.dataProvider()
+
+    provider.addAttributes([
+        QgsField("classe_bivariant_access", QVariant.String)
+    ])
+
+    layer_clone.updateFields()
+
+    idx_bivariant = layer_clone.fields().indexOf("classe_bivariant_access")
+
+    layer_clone.startEditing()
+
+    canvis = {}
+
+    for feature in layer_clone.getFeatures():
+        diversitat = feature["shannon_norm"]
+        accessibilitat = feature["accessibilitat"]
+
+        if diversitat is None or accessibilitat is None:
+            continue 
+
+        canvis[feature.id()] = {
+            idx_bivariant: calcular_classe_bivariant_DF_A(
+                diversitat=diversitat,
+                accessibilitat= accessibilitat
+            )
+        }
+        
     provider.changeAttributeValues(canvis)    
     layer_clone.commitChanges()
 
