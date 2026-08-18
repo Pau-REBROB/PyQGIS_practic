@@ -1,6 +1,7 @@
 from qgis.core import (
     QgsField,
     QgsFeatureRequest,
+    QgsProcessing,
     QgsSpatialIndex,
     QgsVectorLayer
 )
@@ -84,16 +85,10 @@ def generar_isoarees(graf, points, strat, max_dist, interval):
         Capa vectorial amb les isoàrees generades.
     """
 
-    output_interpolation = config.EXPORTACIO_ISOAREES["interpolation"]
-    output_polygon = config.EXPORTACIO_ISOAREES["polygons"]
+    # output_interpolation = config.EXPORTACIO_ISOAREES["interpolation"]
+    # output_polygon = config.EXPORTACIO_ISOAREES["polygons"]
 
-    # Netejar fitxers anteriors
-    for path in [output_interpolation, output_polygon]:
-        if os.path.exists(path):
-            os.remove(path)
-
-
-    processing.run(
+    resultat = processing.run(
         "qneat3:isoareaaspolygonsfromlayer",
         {
             'INPUT': graf,
@@ -102,16 +97,14 @@ def generar_isoarees(graf, points, strat, max_dist, interval):
             'MAX_DIST': max_dist,
             'INTERVAL': interval,
             'STRATEGY': strat,
-            'OUTPUT_INTERPOLATION': output_interpolation,
-            'OUTPUT_POLYGONS': output_polygon
+            'OUTPUT_INTERPOLATION': QgsProcessing.TEMPORARY_OUTPUT,
+            'OUTPUT_POLYGONS': QgsProcessing.TEMPORARY_OUTPUT
         }
     )
 
-    layer_isoareas = QgsVectorLayer(
-        output_polygon,
-        "Isoarees",
-        "ogr"
-    )
+    layer_isoareas = resultat["OUTPUT_POLYGONS"]
+
+    layer_isoareas.setName("Isoàrees")
 
     return layer_isoareas   
 

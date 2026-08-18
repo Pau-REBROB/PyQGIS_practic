@@ -111,12 +111,11 @@ def simbologia_clusters(resultats):
     layers_clusters = {}
 
     for us, dades in resultats.items():
-        layer_simb = simbologies.simbologia_unica(
+        layer_simb = simbologies.simbologia_unica_punt(
             layer=dades["clusters"],
-            nom="clusters",
             fill_color=config.COLORS_CLUSTERS[us],
-            outline_width=config.SIMBOLOGIA["Clusters"]["outline_width"],
-            stroke_color=config.COLORS_USOS[us]
+            stroke_color=config.COLORS_USOS[us],
+            **config.SIMBOLOGIA["Clusters"]
         )
 
         # Es recupera el nom original de la capa
@@ -157,23 +156,22 @@ def simbologia_zones(resultats):
         }
     """
 
-    layers_clusters = {}
+    layers_zones = {}
 
     for us, dades in resultats.items():
         layer_simb = simbologies.simbologia_unica(
             layer=dades["zones"],
-            nom="clusters",
             fill_color=config.COLORS_CLUSTERS[us],
-            outline_width=config.SIMBOLOGIA["Zones"]["outline_width"],
-            stroke_color=config.COLORS_USOS[us]
+            stroke_color=config.COLORS_USOS[us],
+            **config.SIMBOLOGIA["Zones"]
         )
 
         # Es recupera el nom original de la capa
-        layer_simb.setName(f"Cluster {config.ETIQUETES_USOS[us]}")
+        layer_simb.setName(f"Zona {config.ETIQUETES_USOS[us]}")
 
-        layers_clusters[us] = layer_simb
+        layers_zones[us] = layer_simb
     
-    return layers_clusters
+    return layers_zones
 
 
 # ==============================================================================

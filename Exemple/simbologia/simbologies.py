@@ -19,6 +19,7 @@ from qgis.core import (
     QgsFillSymbol,
     QgsGraduatedSymbolRenderer,
     QgsLineSymbol,
+    QgsMarkerSymbol,
     QgsRendererCategory,
     QgsRendererRange,
     QgsSimpleLineSymbolLayer,
@@ -122,6 +123,53 @@ def simbologia_unica_linia(layer, nom, fill_color, width, outline_color, outline
     layer_clone.setRenderer(renderer)
 
     return layer_clone
+
+
+def simbologia_unica_punt(layer, nom, mida, fill_color, outline_width, stroke_color):
+    """
+    Aplica una simbologia de símbol únic a una capa puntual.
+
+    La funció clona la capa d'entrada, crea un símbol de farcit amb els
+    paràmetres especificats i l'assigna a la capa clonada.
+    
+    Paràmetres
+    ----------
+    layer: QgsVectorLayer
+        Capa poligonal sobre la que aplicar la simbologia.
+    nom: str
+        Nom de la capa.
+    fill_color: tuple[int,int,int,int]
+        Color del farcit, en format RGBA.
+    mida: float
+        Mida del marcador.
+    outline_width: float
+        Gruix del contorn.
+    stroke_color: tuple[int,int,int,int]
+        Color del contorn, en format RGBA.
+
+    Retorna
+    -------
+    QgsVectorLayer
+        Nova capa en memòria amb la simbologia aplicada.
+    """
+
+    layer_clone = layer.materialize(QgsFeatureRequest())
+    
+    layer_clone.setName(nom)
+       
+    symbol = QgsMarkerSymbol()
+    symbol_layer_0 = symbol.symbolLayer(0)
+    
+    symbol_layer_0.setColor(QColor(*fill_color))
+    symbol_layer_0.setSize(mida)
+    symbol_layer_0.setStrokeWidth(outline_width)
+    symbol_layer_0.setStrokeColor(QColor(*stroke_color))
+
+    renderer = QgsSingleSymbolRenderer(symbol)
+    layer_clone.setRenderer(renderer)
+        
+    return layer_clone
+
 
 # =============================================================================
 # SIMBOLOGIA CATEGÒRICA

@@ -186,45 +186,6 @@ def afegir_llegenda(layout, mapa, capes, titol, font, font_size, font_color, pos
     return legend
 
 
-def exportar_layout(layout, output_path, dpi):
-    """
-    Exporta una composició QGIS en format PDF.
-
-    Si ja existeix un fitxer amb el mateix nom, s'elimina abans
-    de generar la nova exportació.
-
-    Paràmetres
-    ----------
-    layout: QgsPrintLayout
-        Composició que es vol exportar.
-    output_path: str
-        Ruta completa de l'arxiu PDF de sortida.
-    dpi: int
-        Resolució de l'exportació.
-
-    Retorna
-    -------
-    None
-    """
-   
-    # Si ja existeix una composició amb el mateix nom, s'elimina
-    if os.path.exists(output_path):
-        os.remove(output_path)  
-
-    exporter = QgsLayoutExporter(layout)
-    
-    # Configurar els paràmetres d'exportació
-    pdf_settings = QgsLayoutExporter.PdfExportSettings()
-    pdf_settings.dpi = dpi
-    pdf_settings.forceVectorOutput = True
-    pdf_settings.rasterizeWholeImage = False
-    
-    resultat = exporter.exportToPdf(output_path, pdf_settings)
-
-    if resultat != QgsLayoutExporter.Success:
-        raise RuntimeError(f"No s'ha pogut exportar el layout a '{output_path}'")
-
-
 def composicio_especialitzacio(capes, capa_extent):
     """
     Genera la composició cartogràfica d'especialització del projecte.
@@ -263,12 +224,12 @@ def composicio_especialitzacio(capes, capa_extent):
             **cfg_estructura["Fons"]
         )
     
-    mapa_us = afegir_mapa(
-        layout=layout,
-        capes=[capes["us_predominant"]],
-        capa_extent=capa_extent,
-        **cfg_estructura["Mapa_us"]
-    )
+    # mapa_us = afegir_mapa(
+    #     layout=layout,
+    #     capes=[capes["us_predominant"]],
+    #     capa_extent=capa_extent,
+    #     **cfg_estructura["Mapa_us"]
+    # )
 
     mapa_dominancia = afegir_mapa(
         layout=layout,
@@ -290,17 +251,17 @@ def composicio_especialitzacio(capes, capa_extent):
         **cfg_estructura["Titol"]
     )
 
-    layout_common.afegir_titol(
-        layout=layout,
-        **cfg_layout["Titol_us"],
-        **cfg_estructura["Titol_us"]
-    )
+    # layout_common.afegir_titol(
+    #     layout=layout,
+    #     **cfg_layout["Titol_us"],
+    #     **cfg_estructura["Titol_us"]
+    # )
 
-    layout_common.afegir_subtitol(
-        layout=layout,
-        **cfg_layout["Subtitol_us"],
-        **cfg_estructura["Subtitol_us"]
-    )
+    # layout_common.afegir_subtitol(
+    #     layout=layout,
+    #     **cfg_layout["Subtitol_us"],
+    #     **cfg_estructura["Subtitol_us"]
+    # )
 
     layout_common.afegir_titol(
         layout=layout,
@@ -326,13 +287,13 @@ def composicio_especialitzacio(capes, capa_extent):
         **cfg_estructura["Subtitol_shannon"]
     )
 
-    afegir_llegenda(
-        layout=layout,
-        mapa=mapa_us,
-        capes=[capes["us_predominant"]],
-        **cfg_layout["Llegenda"],
-        **cfg_estructura["Llegenda_us"]
-    )
+    # afegir_llegenda(
+    #     layout=layout,
+    #     mapa=mapa_us,
+    #     capes=[capes["us_predominant"]],
+    #     **cfg_layout["Llegenda"],
+    #     **cfg_estructura["Llegenda_us"]
+    # )
 
     afegir_llegenda(
         layout=layout,
@@ -350,7 +311,7 @@ def composicio_especialitzacio(capes, capa_extent):
         **cfg_estructura["Llegenda_shannon"]
     )
 
-    exportar_layout(
+    layout_common.exportar_layout(
         layout=layout,
         **cfg_layout["Exportacio"]
     )

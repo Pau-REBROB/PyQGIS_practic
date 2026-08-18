@@ -266,7 +266,8 @@ SIMBOLOGIA = {
     },
     "Clusters": {
         "nom": "clusters",
-        "outline_width": 0.2,
+        "mida": 2.0,
+        "outline_width": 0.2
     },
     "Zones": {
         "nom": "zones",
