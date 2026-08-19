@@ -24,7 +24,7 @@ Organització
 import config
 import layouts.layout_common as layout_common
 
-def composicio_general(capes, capa_extent):
+def composicio_general(capes, capa_extent, capes_llegenda):
     """
     Genera la composició cartogràfica general del projecte.
 
@@ -63,16 +63,22 @@ def composicio_general(capes, capa_extent):
         **cfg_estructura["Mapa"]
     )
 
-    layout_common.afegir_capçalera(
+    layout_common.afegir_titol(
         layout=layout,
-        **cfg_layout["Capçalera"],
-        **cfg_estructura["Capçalera"],
+        **cfg_layout["Titol"],
+        **cfg_estructura["Titol"]
+    )
+
+    layout_common.afegir_subtitol(
+        layout=layout,
+        **cfg_layout["Subtitol"],
+        **cfg_estructura["Subtitol"]
     )
 
     layout_common.afegir_llegenda(
         layout=layout,
         mapa=mapa,
-        capes=capes,
+        capes=capes_llegenda,
         **cfg_layout["Llegenda"],
         **cfg_estructura["Llegenda"]
     )

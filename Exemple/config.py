@@ -112,21 +112,21 @@ ETIQUETES_USOS = {
 }
 
 COLORS_USOS = {
-    "1_residential": (255, 235, 175, 255),
-    "2_agriculture": (170, 255, 115, 255),
-    "3_industrial": (178, 178, 178, 255),
-    "4_1_office": (255, 170, 0, 255),
-    "4_2_retail": (255, 127, 0, 255),
-    "4_3_publicServices": (200, 170, 220, 255)
+    "1_residential": (245, 231, 190, 210),
+    "2_agriculture": (105, 180, 75, 225),
+    "3_industrial": (125, 130, 135, 225),
+    "4_1_office": (245, 175, 45, 230),
+    "4_2_retail": (235, 105, 35, 230),
+    "4_3_publicServices": (165, 125, 195, 225)
 }
 
 COLORS_CLUSTERS = {
-    "1_residential": (255, 235, 175, 150),
-    "2_agriculture": (170, 255, 115, 150),
-    "3_industrial": (178, 178, 178, 150),
-    "4_1_office": (255, 170, 0, 150),
-    "4_2_retail": (255, 127, 0, 150),
-    "4_3_publicServices": (200, 170, 220, 150)
+    "1_residential": (245, 231, 190, 210),
+    "2_agriculture": (105, 180, 75, 225),
+    "3_industrial": (125, 130, 135, 225),
+    "4_1_office": (245, 175, 45, 230),
+    "4_2_retail": (235, 105, 35, 230),
+    "4_3_publicServices": (165, 125, 195, 225)
 }
 
 def colors_mpl(us):
@@ -234,39 +234,41 @@ INTERVALS_ACCESSIBILITAT = [
 # =============================================================================
 
 SIMBOLOGIA = {
-    "Barris": {
-        "nom": "Barris",
-        "fill_color": (255,255,255,0),
-        "outline_width": 0.15,
-        "stroke_color": (180,220,230,255)
-    },
-    "Districtes": {
-        "nom": "Districtes",
-        "fill_color": (255,255,255,0),
-        "outline_width": 0.5,
-        "stroke_color": (255,200,50,255)
-    },
-    "TermeMunicipal": {
-        "nom": "Terme municipal",
-        "fill_color": (255,255,255,0),
-        "outline_width": 0.75,
-        "stroke_color": (255,200,50,255)
-    },
-    "Graf": {
-        "fill_color": (0,0,0,255),
-        "width": 0.1,
-        "outline_color": (255,255,255,255),
-        "outline_width": 0.2
-    },
-    "Edificis": {
-        "atribut": 'currentUse',
-        "colors_categories": COLORS_USOS,
-        "outline_width": 0.1,
-        "stroke_color": (255,255,255,255) 
+    "Base": {
+        "Barris": {
+            "nom": "Barris",
+            "fill_color": (255,255,255,0),
+            "outline_width": 0.15,
+            "stroke_color": (120,120,120,255)
+        },
+        "Districtes": {
+            "nom": "Districtes",
+            "fill_color": (255,255,255,0),
+            "outline_width": 0.25,
+            "stroke_color": (100,100,100,255)
+        },
+        "TermeMunicipal": {
+            "nom": "Terme municipal",
+            "fill_color": (255,255,255,0),
+            "outline_width": 0.40,
+            "stroke_color": (180,180,180,255)
+        },
+        "Graf": {
+            "fill_color": (0,0,0,255),
+            "width": 0.1,
+            "outline_color": (255,255,255,255),
+            "outline_width": 0.2
+        },
+        "Edificis": {
+            "atribut": 'currentUse',
+            "colors_categories": COLORS_USOS,
+            "outline_width": 0.025,
+            "stroke_color": (255,255,255,255)
+        }
     },
     "Clusters": {
         "nom": "clusters",
-        "mida": 2.0,
+        "mida": 0.50,
         "outline_width": 0.2
     },
     "Zones": {
@@ -433,32 +435,35 @@ EXPORTACIO_ISOAREES = {
 LAYOUTS = {
     "ESTRUCTURA": {
         "Mapa": {
-            "factor_escala": 0.65,
-            "size": (290, 200),
-            "position": (3.5, 5),
-            "rotacio": 45,
-            "offset_x": 1000,
+            "factor_escala": 0.60,
+            #"size": (292, 205),
+            "size": (205,292),
+            "position": (2.5, 2.5),
+            "rotacio": 0,
+            #"offset_x": 1000,
+            "offset_x": 2000,
+            #"offset_y": -250,
             "offset_y": 0
-        },
-        "Capçalera": {
-            "text_size": (280, 5),
-            "text_position": (10, 10),
-            "backg_size": (280, 2),
-            "backg_position": (10, 20)
         },
         "Titol": {
             "size": (280, 5),
-            "position": (10, 10)
+            "position": (4, 3),
+            "alineacio": "left"
+        },
+        "Subtitol": {
+            "size": (280, 5),
+            "position": (4, 10),
+            "alineacio": "left"
         },
         "Llegenda": {
-            "position": (10, 30)
+            "position": (10, 25)
         },
         "Escala": {
-            "position": (10, 120)
+            "position": (260, 195)
         },
         "Nord": {
             "size": (10, 10),
-            "position": (10, 110)
+            "position": (260, 185)
         }
     },
 
@@ -529,20 +534,15 @@ LAYOUTS = {
     },
 
     "ESTRUCTURA_ESPECIALITZACIO": {
-        "Mapa_us": {
-            "factor_escala": 1.00,
-            "size": (90, 90),
-            "position": (10, 25)
-        },
         "Mapa_dominancia": {
             "factor_escala": 1.00,
-            "size": (90, 90),
-            "position": (105, 25)
+            "size": (130, 90),
+            "position": (10, 25)
         },
         "Mapa_shannon": {
             "factor_escala": 1.00,
-            "size": (90, 90),
-            "position": (200, 25)
+            "size": (130, 90),
+            "position": (150, 25)
         },
         "Fons": {
             "size": (280, 180),
@@ -705,7 +705,7 @@ LAYOUTS = {
             "Llegenda": {
                 "position": (243, 132)
             },
-            "Eix_dominancia_llegenda": {
+            "Eix_accessibilitat_llegenda": {
                 "position": (243, 120),
                 "size": (50, 10),
                 "alineacio": "left",
@@ -821,21 +821,28 @@ LAYOUTS = {
     
 
     "GENERAL":{
-        "Capçalera": {
-            "color": (100,100,100,180),
-            "outline_color": (85,85,85,255),
-            "outline_width": 0.40,
-            "text": "Ús dels edificis de Barcelona - font: Cadastre",
+        "Titol": {
+            "titol": "Usos dels edificis de Barcelona",
             "font": "Calibri",
-            "font_size": 20,
-            "font_color": (0,0,0,255)
+            "font_size": 18,
+            "font_color": (0,0,0,255),
+            "backg_color": (0,0,0,0),
+            "frame_color": (0,0,0,0)
+        },
+        "Subtitol": {
+            "subtitol": "Font: Cadastre",
+            "font": "Calibri",
+            "font_size": 14,
+            "font_color": (0,0,0,255),
+            "backg_color": (0,0,0,0),
+            "frame_color": (0,0,0,0)
         },
         "Llegenda": {
-            "titol": "Classificació dels edificis",
+            "titol": "Usos dels edificis",
             "font": "Calibri",
-            "font_size": 10,
+            "font_size": 12,
             "font_color": (0,0,0,255),
-            "backg_color": (150,150,150,180)
+            "backg_color": (180,180,180,150)
         },
         "Escala": {
             "tipus": "Single Box",
@@ -892,7 +899,7 @@ LAYOUTS = {
         },
         "Exportacio": {
             "output_path": f"{PATH_RESULTATS}/AtlesDistrictes.pdf",
-            "dpi": 300
+            "dpi": 500
         }
     },
 
@@ -992,24 +999,6 @@ LAYOUTS = {
             "backg_color": (100,100,100,180),
             "frame_color": (255, 255, 255, 200)
         },
-        "Titol_us": {
-            "titol": "Us predominant",
-            "font": "Calibri Bold",
-            "font_size": 16,
-            "font_color": (0,0,0,255),
-            "alineacio": "left",
-            "backg_color": (100,100,100,180),
-            "frame_color": (255, 255, 255, 200)
-        },
-        "Subtitol_us": {
-            "subtitol": "Ús majoritari dels edificis del districte",
-            "font": "Calibri Bold",
-            "font_size": 12,
-            "font_color": (10,10,10,255),
-            "alineacio": "left",
-            "backg_color": (100,100,100,180),
-            "frame_color": (255, 255, 255, 200)
-        },
         "Titol_dominancia": {
             "titol": "Dominancia funcional",
             "font": "Calibri Bold",
@@ -1053,7 +1042,7 @@ LAYOUTS = {
             "backg_color": (100,100,100,180)
         },
         "Exportacio": {
-            "output_path": f"{PATH_RESULTATS}/Especialitzacio_districtes.pdf",
+            "output_path": f"{PATH_RESULTATS}/Especialitzacio_funcional.pdf",
             "dpi": 500
         }
     },
@@ -1174,7 +1163,7 @@ LAYOUTS = {
                 #"color": (100,100,100,180),
                 #"outline_color": (85,85,85,255),
                 #"outline_width": 0.40,
-                "text": "Especialització funcional bivariant dels usos dels edificis Barcelona",
+                "text": "Anàlisi bivariant de l'accessibilitat i la diversitat funcional dels edificis Barcelona",
                 "font": "Calibri",
                 "font_size": 20,
                 "font_color": (0,0,0,255),
@@ -1193,7 +1182,7 @@ LAYOUTS = {
                 "gap": 0.5,
                 "colors": COLORS_BIVARIANT
             },
-            "Eix_dominancia_llegenda": {
+            "Eix_accessibilitat_llegenda": {
                 "text": "Dominància funcional",
                 "font": "Calibri",
                 "font_size": 12,
@@ -1237,7 +1226,7 @@ LAYOUTS = {
             },
             "Exportacio": {
                 "output_path": f"{PATH_RESULTATS}/Analisi_bivariant_hexagons.pdf",
-                "dpi": 300
+                "dpi": 500
             }
         }
     },

@@ -271,3 +271,41 @@ def composicio_atles(capes, capa_extent, capa_cobertura):
         atlas=atles,
         **cfg_layout["Exportacio"]
     )
+
+    #### MANUALMENT
+    atlas = layout.atlas()
+    if not atlas.enabled():
+        atlas.setEnabled(True)
+
+    coverage_layer = atlas.coverageLayer()
+    if not coverage_layer:
+        raise ValueError("No coverage layer set for Atlas.")
+
+    # Get the first page object
+    page = layout.pageCollection().pages()[0]
+
+    # Begin Atlas rendering
+    atlas.beginRender()
+    for i, feature in enumerate(atlas.coverageLayer().getFeatures()):
+        atlas.prepareForFeature(feature)
+
+        # Decide orientation based on geometry bounding box
+        bounds = feature.geometry().boundingBox()
+        width = bounds.width()
+        height = bounds.height()
+
+        if width > height:
+            page.setPageOrientation(QgsLayoutItemPage.Landscape)
+            page.setPageSize('A4', QgsLayoutItemPage.Landscape)
+        else:
+            page.setPageOrientation(QgsLayoutItemPage.Portrait)
+            page.setPageSize('A4', QgsLayoutItemPage.Portrait)
+
+        # Export this page
+        output_path = os.path.join(OUTPUT_FOLDER, f"atlas_page_{i+1}.pdf")
+        exporter = QgsLayoutExporter(layout)
+        exporter.exportToPdf(output_path, QgsLayoutExporter.PdfExportSettings())
+
+        print(f"Exported: {output_path}")
+
+    atlas.endRender()

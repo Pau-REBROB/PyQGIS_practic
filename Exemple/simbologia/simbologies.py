@@ -175,6 +175,14 @@ def simbologia_unica_punt(layer, nom, mida, fill_color, outline_width, stroke_co
 # SIMBOLOGIA CATEGÒRICA
 # ==============================================================================
 
+# def simbologia_categorica(layer, atribut, colors_categories, outline_width, stroke_color, etiquetes=None):
+#     ...
+#     if etiquetes:
+#         for i, categoria in enumerate(renderer.categories()):
+#             valor = categoria.value()
+#             etiqueta = etiquetes.get(valor, valor)
+#             renderer.updateCategoryLabel(i, etiqueta)
+
 def simbologia_categorica(layer, atribut, colors_categories, outline_width, stroke_color):
     """
     Aplica simbologia categòrica a una capa vectorial.

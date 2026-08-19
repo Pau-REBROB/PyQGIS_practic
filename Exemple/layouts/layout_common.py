@@ -12,12 +12,14 @@ from qgis.core import (
     QgsLayoutItemLabel,
     QgsLayoutItemLegend,
     QgsLayoutItemMap,
+    QgsLayoutItemPage,
     QgsLayoutItemPicture,
     QgsLayoutItemScaleBar,
     QgsLayoutItemShape,
     QgsLayoutMeasurement,
     QgsLayoutPoint,
     QgsLayoutSize,
+    QgsLegendRenderer,
     QgsLegendStyle,
     QgsPrintLayout,
     QgsProject,
@@ -74,6 +76,10 @@ def generar_layout(nom_layout):
     # Creació i inicialització del layout
     layout = QgsPrintLayout(QgsProject.instance())
     layout.initializeDefaults()
+
+    pc = layout.pageCollection()
+    page = pc.page(0)
+    page.setPageSize('A4', QgsLayoutItemPage.Portrait)
     
     layout.setName(nom_layout)
 
@@ -521,6 +527,8 @@ def afegir_llegenda(layout, mapa, capes, titol, font, font_size, font_color, pos
     
     # Construcció manual del contingut
     legend.setAutoUpdateModel(False)
+
+    legend.updateLegend()
     
     root = legend.model().rootGroup()
 
@@ -529,6 +537,14 @@ def afegir_llegenda(layout, mapa, capes, titol, font, font_size, font_color, pos
     for node in list(root.findLayers()):
         if node.layerId() not in ids_capes:
             root.removeLayer(node.layer())
+
+        else:
+            QgsLegendRenderer.setNodeLegendStyle(
+                node,
+                QgsLegendStyle.Hidden
+            )
+
+    legend.updateLegend()   
     
     # Títol
     legend.setTitle(titol)

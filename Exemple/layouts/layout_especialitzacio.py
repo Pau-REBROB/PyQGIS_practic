@@ -22,7 +22,6 @@ Organització
 """
 
 from qgis.core import (
-    QgsLayoutExporter,
     QgsLayoutItemLegend,
     QgsLayoutItemMap,
     QgsLayoutPoint,
@@ -222,14 +221,7 @@ def composicio_especialitzacio(capes, capa_extent):
             layout=layout,
             **cfg_layout["Fons"],
             **cfg_estructura["Fons"]
-        )
-    
-    # mapa_us = afegir_mapa(
-    #     layout=layout,
-    #     capes=[capes["us_predominant"]],
-    #     capa_extent=capa_extent,
-    #     **cfg_estructura["Mapa_us"]
-    # )
+    )
 
     mapa_dominancia = afegir_mapa(
         layout=layout,
@@ -250,18 +242,6 @@ def composicio_especialitzacio(capes, capa_extent):
         **cfg_layout["Titol"],
         **cfg_estructura["Titol"]
     )
-
-    # layout_common.afegir_titol(
-    #     layout=layout,
-    #     **cfg_layout["Titol_us"],
-    #     **cfg_estructura["Titol_us"]
-    # )
-
-    # layout_common.afegir_subtitol(
-    #     layout=layout,
-    #     **cfg_layout["Subtitol_us"],
-    #     **cfg_estructura["Subtitol_us"]
-    # )
 
     layout_common.afegir_titol(
         layout=layout,
@@ -286,14 +266,6 @@ def composicio_especialitzacio(capes, capa_extent):
         **cfg_layout["Subtitol_shannon"],
         **cfg_estructura["Subtitol_shannon"]
     )
-
-    # afegir_llegenda(
-    #     layout=layout,
-    #     mapa=mapa_us,
-    #     capes=[capes["us_predominant"]],
-    #     **cfg_layout["Llegenda"],
-    #     **cfg_estructura["Llegenda_us"]
-    # )
 
     afegir_llegenda(
         layout=layout,

@@ -281,8 +281,8 @@ def composicio_bivariant_zones(zona, capes, capa_extent, districtes=None, amb_ca
 
     layout_common.afegir_text(
         layout=layout,
-        **cfg_layout["Eix_dominancia_llegenda"],
-        **cfg_estructura["Eix_dominancia_llegenda"]
+        **cfg_layout["Eix_accessibilitat_llegenda"],
+        **cfg_estructura["Eix_accessibilitat_llegenda"]
     )
 
     layout_common.afegir_text(

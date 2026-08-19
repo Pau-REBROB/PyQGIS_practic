@@ -45,6 +45,8 @@ def simbologia_base(dict_layers):
         Diccionari amb les capes simbolitzades.
     """
 
+    cfg_base = config.SIMBOLOGIA["Base"]
+
     layers_base_input = {
         "TermeMunicipal": dict_layers["Limits_administratius"]["TermeMunicipal"],
         "Districtes": dict_layers["Limits_administratius"]["Districtes"],
@@ -58,13 +60,24 @@ def simbologia_base(dict_layers):
         if nom == "Edificis":
             layer_simb = simbologies.simbologia_categorica(
                 layer=layer,
-                **config.SIMBOLOGIA["Edificis"]
+                **cfg_base["Edificis"]
             )
+
+            # Actualitzar el nom de les etiquetes de la llegenda
+            renderer = layer_simb.renderer()
+
+            for i, categoria in enumerate(renderer.categories()):
+                valor = categoria.value()
+                etiqueta = config.ETIQUETES_USOS.get(valor, valor)
+
+                renderer.updateCategoryLabel(i, etiqueta)
+
+            layer_simb.triggerRepaint()
 
         else:
             layer_simb = simbologies.simbologia_unica(
                 layer=layer,
-                **config.SIMBOLOGIA[nom]
+                **cfg_base[nom]
             )
         
         # Es recupera el nom original de la capa

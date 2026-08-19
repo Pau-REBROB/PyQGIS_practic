@@ -268,11 +268,11 @@ barris_agregacions = agregacions.analisi_usos_zones(
 )
 
 # ------------------------------------------------------------------------------
-# 5.5. Especialització funcional
+# 5.5. Especialització funcional - Dominància i diversitat funcional
 # ------------------------------------------------------------------------------
 
-# Calcula la diversitat i dominància d'usos per cada districte, barri i hexagon
-# a partir dels edificis base
+# Calcula la diversitat funcional i dominància d'usos de la malla 
+# hexagonal a partir dels edificis base
 # L'índex de Shannon mesura la diversitat funcional 
 # La dominància identifica l'ús predominant
 
@@ -358,34 +358,6 @@ clusters_dict = clusters.analisi_clusters(
 # ------------------------------------------------------------------------------
 ### CANVI A SERVEIS PÚBLICS
 ### NO FAREM COMPARATIVA
-# # ------------------------------------------------------------------------------
-# # 5.4.1. Accessibilitat àrees comercials
-# # ------------------------------------------------------------------------------
-
-# # Clústers comercials - 4_2_retail
-# clusters_retail = clusters_dict["4_2_retail"]["clusters"]
-
-# # Càlcul d'isoàrees d'accessibilitat
-# isoarees_retail = accessibilitat.analisi_accessibilitat(
-#     graf=dict_layers_clean["Graf"]["Graf_trams"],
-#     origen=clusters_retail
-# )
-
-# # Assignar el valor d'accessibilitat de les isoàrees als edificis
-# edificis_accessibilitat_retail = accessibilitat.assignar_isoarees_a_edificis(
-#     edificis=edificis_base,
-#     isoarees=isoarees_retail
-# )
-
-# # Assignar el valor d'accessibilitat dels edificis a la malla hexagonal
-# malla_accessibilitat_retail = accessibilitat.assignar_accessibilitat_per_hexagons(
-#     edificis=edificis_accessibilitat_retail,
-#     malla=malla_base
-# )
-
-# ------------------------------------------------------------------------------
-# 5.4.2. Accessibilitat serveis públics
-# ------------------------------------------------------------------------------
 
 # Serveis públics - 4_3_publicServices
 clusters_publicS = clusters_dict["4_3_publicServices"]["clusters"]
@@ -405,39 +377,11 @@ edificis_accessibilitat = accessibilitat.assignar_isoarees_a_edificis(
 # Assignar el valor d'accessibilitat dels edificis a la malla hexagonal
 malla_accessibilitat = accessibilitat.assignar_accessibilitat_per_hexagons(
     edificis=edificis_accessibilitat,
-    malla=malla_base
+    malla=malla_especialitzacio
 )
 
 # ------------------------------------------------------------------------------
 # 5.6. Anàlisi bivariant
-# ------------------------------------------------------------------------------
-# # ------------------------------------------------------------------------------
-# # 5.6.1. Anàlisi bivariant diversitat funcional - dominància
-# # ------------------------------------------------------------------------------
-
-# ## Districtes
-# districtes_bivariant_DF_D = especialitzacio.afegir_classe_bivariant_DF_D(
-#     layer=districtes_especialitzacio
-# )
-
-# ## Barris
-# barris_bivariant_DF_D = especialitzacio.afegir_classe_bivariant_DF_D(
-#     layer=barris_especialitzacio
-# )
-
-# ## Malla hexagonal
-# malla_bivariant_DF_D = especialitzacio.afegir_classe_bivariant_DF_D(
-#     layer=malla_especialitzacio
-# )
-
-# # Separar els hexàgons vàlids dels no vàlids - aquells amb el camp
-# # de l'anàlisi bivariant NULL
-# hexagons_valids_DF_D, hexagons_no_valids_DF_D = hexagons.separar_hexagons_valids(
-#     malla=malla_bivariant_DF_D
-# )
-
-# ------------------------------------------------------------------------------
-# 5.6.2. Anàlisi bivariant diversitat funcional - accessibilitat
 # ------------------------------------------------------------------------------
 
 ## Districtes
@@ -452,7 +396,7 @@ barris_bivariant_DF_A = especialitzacio.afegir_classe_bivariant_DF_A(
 
 ## Malla hexagonal
 malla_bivariant_DF_A = especialitzacio.afegir_classe_bivariant_DF_A(
-    layer=malla_especialitzacio
+    layer=malla_accessibilitat
 )
 
 # Separar els hexàgons vàlids dels no vàlids - aquells amb el camp
@@ -492,7 +436,7 @@ layers_simbologia_zones = simbologia_general.simbologia_zones(
 )
 
 # ------------------------------------------------------------------------------
-# 6.3. Especialització funcional - Dominància / Diversitat
+# 6.3. Especialització funcional - Dominància / Diversitat funcional
 # ------------------------------------------------------------------------------
 
 # Omissió dels usos residencial i agricultura
@@ -516,20 +460,6 @@ layers_simbologia_especialitzacio_hexagons = simbologia_general.simbologia_hexag
 
 # ------------------------------------------------------------------------------
 # 6.4. Accessibilitat
-# ------------------------------------------------------------------------------
-# # ------------------------------------------------------------------------------
-# # 6.4.1. Accessibilitat comercial
-# # ------------------------------------------------------------------------------
-
-# layers_simbologia_accessibilitat_retail = simbologia_general.simbologia_edificis_accessibilitat(
-#     edificis=edificis_accessibilitat_retail,
-#     graf=dict_layers_clean["Graf"]["Graf_trams"],
-#     clusters=clusters_dict["4_2_retail"]["clusters"],
-#     terme=dict_layers_clean["Limits_administratius"]["TermeMunicipal"]
-# )
-
-# ------------------------------------------------------------------------------
-# 6.4.2. Accessibilitat serveis públics
 # ------------------------------------------------------------------------------
 
 layers_simbologia_accessibilitat = simbologia_general.simbologia_edificis_accessibilitat(
@@ -567,7 +497,7 @@ totes_les_capes = {
     **layers_simbologia_especialitzacio_hexagons,
     **layers_simbologia_accessibilitat,
     **layers_simbologia_bivariant_valids,
-    "hexagons_no_valids_DF_A": layers_simbologia_bivariant_valids
+    "hexagons_no_valids_DF_A": layer_simbologia_bivariant_no_valids
 }
 
 for capa in totes_les_capes.values():
@@ -592,12 +522,12 @@ for capa in totes_les_capes.values():
 
 layout_general.composicio_general(
     capes=[
+        layers_simbologia_base["TermeMunicipal"],
         layers_simbologia_base["Edificis"],
-        layers_simbologia_base["Barris"],
-        layers_simbologia_base["Districtes"],
         basemap_layer
     ],
-    capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"]
+    capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"],
+    capes_llegenda=[layers_simbologia_base["Edificis"]]
 )
 
 # ------------------------------------------------------------------------------
@@ -615,33 +545,18 @@ layout_atles.composicio_atles(
     capa_cobertura=layers_simbologia_base["Districtes"]
 )
 
-# # ------------------------------------------------------------------------------
-# # 7.3. Composició anàlisi agrupacions espacials
-# # ------------------------------------------------------------------------------
-
-# layout_analisi.composicio_analisi(
-#     capes=[
-#         layers_simbologia_base["Edificis"],
-#         layers_simbologia_base["Barris"],
-#         layers_simbologia_base["Districtes"],
-#         basemap_layer
-#     ],
-#     capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"]
-# )
-
 # ------------------------------------------------------------------------------
-# 7.3. Composició anàlisi agrupacions espacials
+# 7.3. Composició anàlisi agrupacions espacials serveis públics
 # ------------------------------------------------------------------------------
 
-###NOMÉS ELS DE PUBLIC SERVICE??
 layout_clusters.composicio_clusters(
     capes=[
         layers_simbologia_clusters["3_industrial"],
-        layers_simbologia_zones["3_industrial"],
+        #layers_simbologia_zones["3_industrial"],
         layers_simbologia_clusters["4_1_office"],
-        layers_simbologia_zones["4_1_office"],
+        #layers_simbologia_zones["4_1_office"],
         layers_simbologia_clusters["4_2_retail"],
-        layers_simbologia_zones["4_2_retail"],
+        #layers_simbologia_zones["4_2_retail"],
         layers_simbologia_clusters["4_3_publicServices"],
         layers_simbologia_zones["4_3_publicServices"],
         layers_simbologia_base["Edificis"],
@@ -656,36 +571,10 @@ layout_clusters.composicio_clusters(
 # 7.4. Composicions especialització funcional
 # ------------------------------------------------------------------------------
 
-# ## Districtes
-# layout_especialitzacio.composicio_especialitzacio(
-#     capes=districtes_especialitzacio_no_residencial,
-#     capa_extent=districtes_base
-# )
-
-# ## Districtes
-# layout_bivariant_zones.composicio_bivariant_zones(
-#     zona="Districtes",
-#     capes=layers_simbologia_especialitzacio_districtes["bivariant"],
-#     capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"]
-# )
-
-# ## Barris
-# layout_bivariant_zones.composicio_bivariant_zones(
-#     zona="Barris",
-#     districtes=districtes_base,
-#     capes=layers_simbologia_especialitzacio_barris["bivariant"],
-#     capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"]
-# )
-
-
-### LAYOUT COMPARATIU DISTRICTES / BARRIS
-### aprofitar el d'especialització
-
 layout_especialitzacio.composicio_especialitzacio(
-    capes=malla_especialitzacio,
+    capes=layers_simbologia_especialitzacio_hexagons,
     capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"]
 )
-
 
 # ------------------------------------------------------------------------------
 # 7.5. Composició d'accessibilitat
@@ -702,7 +591,7 @@ layout_accessibilitat.composicio_accessibilitat(
 )
 
 # ------------------------------------------------------------------------------
-# 7.4. Composicions especialització funcional - Anàlisi bivariant
+# 7.6. Composició anàlisi bivariant
 # ------------------------------------------------------------------------------
 
 ## Malla hexagonal
@@ -710,15 +599,15 @@ layout_bivariant_zones.composicio_bivariant_zones(
     zona="Hexagons",
     districtes=districtes_base,
     capes=[
-        layers_simbologia_hexagons["bivariant"],
-        layer_simbologia_hexagons_no_valids
+        layers_simbologia_bivariant_valids["bivariant"],
+        layer_simbologia_bivariant_no_valids
     ],
     capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"],
     amb_capçalera=False
 )
 
 # ------------------------------------------------------------------------------
-# 7.6. Composició final
+# 7.7. Composició final
 # ------------------------------------------------------------------------------
 
 ## Unió de composicions en un informe final
@@ -727,10 +616,9 @@ fusionar_layouts.fusionar_pdf(
         config.LAYOUTS["GENERAL"]["Exportacio"]["output_path"],
         config.LAYOUTS["ATLES"]["Exportacio"]["output_path"],
         config.LAYOUTS["CLUSTERS"]["Exportacio"]["output_path"],
-        config.LAYOUTS["BIVARIANT"]["Districtes"]["Exportacio"]["output_path"],
-        config.LAYOUTS["BIVARIANT"]["Barris"]["Exportacio"]["output_path"],
-        config.LAYOUTS["HEXAGONS"]["Exportacio"]["output_path"],
-        config.LAYOUTS["ACCESSIBILITAT"]["Exportacio"]["output_path"]
+        config.LAYOUTS["ESPECIALITZACIO"]["Exportacio"]["output_path"],
+        config.LAYOUTS["ACCESSIBILITAT"]["Exportacio"]["output_path"],
+        config.LAYOUTS["BIVARIANT"]["Hexagons"]["Exportacio"]["output_path"]
     ],
     output_path=f"{config.PATH_RESULTATS}/Informe_final.pdf"
 )
