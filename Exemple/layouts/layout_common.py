@@ -43,7 +43,7 @@ from math import radians, sin, cos
 # LAYOUT
 # =============================================================================
 
-def generar_layout(nom_layout):
+def generar_layout(nom_layout, orientacio="horitzontal"):
     """
     Crea una nova composició d'impressió del projecte.
 
@@ -58,6 +58,9 @@ def generar_layout(nom_layout):
     ----------
     nom_layout: str
         Nom que s'assignarà a la composició.
+    orientacio: str
+        Orientació de la composició.
+        Per defecte "horitzontal", però també pot ser "vertical". 
 
     Retorna
     -------
@@ -77,9 +80,13 @@ def generar_layout(nom_layout):
     layout = QgsPrintLayout(QgsProject.instance())
     layout.initializeDefaults()
 
+    # Gestor de pàgines
     pc = layout.pageCollection()
+
     page = pc.page(0)
-    page.setPageSize('A4', QgsLayoutItemPage.Portrait)
+
+    if orientacio == "vertical":
+        page.setPageSize('A4', QgsLayoutItemPage.Portrait)
     
     layout.setName(nom_layout)
 

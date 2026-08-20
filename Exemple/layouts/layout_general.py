@@ -54,7 +54,9 @@ def composicio_general(capes, capa_extent, capes_llegenda):
     cfg_layout = config.LAYOUTS["GENERAL"]
     cfg_estructura = config.LAYOUTS["ESTRUCTURA"]
 
-    layout = layout_common.generar_layout(nom_layout="Ús dels edificis a Barcelona")
+    layout = layout_common.generar_layout(
+        nom_layout="Ús dels edificis a Barcelona",
+        orientacio="vertical")
 
     mapa = layout_common.afegir_mapa(
         layout=layout,

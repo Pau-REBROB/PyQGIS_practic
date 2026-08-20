@@ -120,13 +120,13 @@ COLORS_USOS = {
     "4_3_publicServices": (165, 125, 195, 225)
 }
 
-COLORS_CLUSTERS = {
-    "1_residential": (245, 231, 190, 210),
-    "2_agriculture": (105, 180, 75, 225),
-    "3_industrial": (125, 130, 135, 225),
-    "4_1_office": (245, 175, 45, 230),
-    "4_2_retail": (235, 105, 35, 230),
-    "4_3_publicServices": (165, 125, 195, 225)
+COLORS_ZONES = {
+    "1_residential": (245, 231, 190, 110),
+    "2_agriculture": (105, 180, 75, 125),
+    "3_industrial": (125, 130, 135, 125),
+    "4_1_office": (245, 175, 45, 130),
+    "4_2_retail": (235, 105, 35, 130),
+    "4_3_publicServices": (165, 125, 195, 125)
 }
 
 def colors_mpl(us):
@@ -172,7 +172,7 @@ MIN_EDIFICIS = 3
 
 CONFIG_ANALISI = {
     "Clusters": {
-        "eps": 100,
+        "eps": 150,
         "min_size": 5
     },
 
@@ -180,6 +180,15 @@ CONFIG_ANALISI = {
         "distancia": 5000,
         "interval": 250
     }
+}
+
+CONFIG_CLUSTERS_DISTRICTES = {
+    "default":      {"eps": 150, "min_size": 5},
+    "Eixample":     {"eps": 80,  "min_size": 10},
+    "Ciutat Vella": {"eps": 60,  "min_size": 5},
+    "Les Corts":    {"eps": 200, "min_size": 5},
+    "Horta-Guinardó": {"eps": 200, "min_size": 5},
+    "Sants-Montjuïc": {"eps": 200, "min_size": 5},
 }
 
 CLASSIFICACIO_DOMINANCIA = {
@@ -456,14 +465,14 @@ LAYOUTS = {
             "alineacio": "left"
         },
         "Llegenda": {
-            "position": (10, 25)
+            "position": (165, 210)
         },
         "Escala": {
-            "position": (260, 195)
+            "position": (165, 280)
         },
         "Nord": {
             "size": (10, 10),
-            "position": (260, 185)
+            "position": (165, 265)
         }
     },
 

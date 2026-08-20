@@ -126,7 +126,7 @@ def simbologia_clusters(resultats):
     for us, dades in resultats.items():
         layer_simb = simbologies.simbologia_unica_punt(
             layer=dades["clusters"],
-            fill_color=config.COLORS_CLUSTERS[us],
+            fill_color=config.COLORS_USOS[us],
             stroke_color=config.COLORS_USOS[us],
             **config.SIMBOLOGIA["Clusters"]
         )
@@ -174,7 +174,7 @@ def simbologia_zones(resultats):
     for us, dades in resultats.items():
         layer_simb = simbologies.simbologia_unica(
             layer=dades["zones"],
-            fill_color=config.COLORS_CLUSTERS[us],
+            fill_color=config.COLORS_ZONES[us],
             stroke_color=config.COLORS_USOS[us],
             **config.SIMBOLOGIA["Zones"]
         )

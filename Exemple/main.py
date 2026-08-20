@@ -353,6 +353,14 @@ clusters_dict = clusters.analisi_clusters(
     usos=config.USOS
 )
 
+clusters_retail_districtes = clusters.analisi_clusters_per_districte(
+    edificis=edificis_base,
+    districtes=districtes_base,
+    idx_districtes=dict_indexs["Limits_administratius"]["Districtes"],
+    us="4_2_retail",
+    config_districtes=config.CONFIG_CLUSTERS_DISTRICTES
+)
+
 # ------------------------------------------------------------------------------
 # 5.4. Accessibilitat
 # ------------------------------------------------------------------------------
@@ -492,6 +500,7 @@ totes_les_capes = {
     **layers_simbologia_base,
     "base_map": basemap_layer,
     **layers_simbologia_clusters,
+    **layers_simbologia_zones,
     **layers_simbologia_especialitzacio_districtes,
     **layers_simbologia_especialitzacio_barris,
     **layers_simbologia_especialitzacio_hexagons,
@@ -551,17 +560,11 @@ layout_atles.composicio_atles(
 
 layout_clusters.composicio_clusters(
     capes=[
-        layers_simbologia_clusters["3_industrial"],
-        #layers_simbologia_zones["3_industrial"],
-        layers_simbologia_clusters["4_1_office"],
-        #layers_simbologia_zones["4_1_office"],
-        layers_simbologia_clusters["4_2_retail"],
-        #layers_simbologia_zones["4_2_retail"],
-        layers_simbologia_clusters["4_3_publicServices"],
         layers_simbologia_zones["4_3_publicServices"],
+        layers_simbologia_base["TermeMunicipal"],
         layers_simbologia_base["Edificis"],
-        layers_simbologia_base["Barris"],
-        layers_simbologia_base["Districtes"],
+        #layers_simbologia_base["Barris"],
+        #layers_simbologia_base["Districtes"],
         basemap_layer
     ],
     capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"]

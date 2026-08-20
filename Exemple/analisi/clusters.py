@@ -305,3 +305,98 @@ def analisi_clusters(layer, usos):
 
 
     return resultats_clusters
+
+
+def analisi_clusters_per_districtes(edificis, districtes, idx_districtes, us, config_districtes):
+    """
+    Genera clústers espacials per cada districte amb paràmetres específics.
+
+    Per a cada districte:
+        - Filtra els edificis que hi pertanyen espacialment.
+        - Aplica l'algoritme DBSCAN amb paràmetres específics per districte.
+        - Genera les envolvents dels clústers resultants.
+    
+    Paràmetres
+    ----------
+     edificis: QgsVectorLayer
+        Capa vectorial dels edificis.
+    districtes: QgsVectorLayer
+        Capa vectorial dels districtes.
+    idx_districtes: QgsSpatialIndex
+        Índex espacial dels districtes.
+    us: str
+        Ús dels edificis a analitzar.
+    config_districtes: dict
+        Diccionari amb els paràmetres de clusterització per districte,
+        amb l'estructura:
+        {
+            "Nom_districte": {
+                "eps": float,
+                "min_size": int
+            },
+            "default": {
+                "eps": float,
+                "min_size": int
+            }
+        }
+
+    Retorna
+    -------
+    dict
+        Diccionari amb els resultats per districte, amb l'estructura:
+        {
+            "Nom_districte": {
+                "clusters": QgsVectorLayer,
+                "zones": QgsVectorLayer,
+                "resum": dict
+            },
+            ...
+        }
+    """
+
+    resultats = {}
+
+    for districte in districtes.getFeatures():
+        nom = districte["NOM"]
+        geom_districte = districte.geometry()
+
+        # Filtrar edificis pel districte per ús
+        edificis_districtes_features = [
+            feat for feat in edificis.getFeatures(
+                QgsFeatureRequest().setFilterRect(geom_districte.boundingBox())
+            )
+            if feat["currentUse"] == us
+            and geom_districte.contains(feat.geometry().centroid())
+        ]
+
+        if not edificis_districtes_features:
+            print(f"Districte {nom} sense cap edificis amb ús {us}")
+            continue
+
+        # Crear capa en memòria amb els edificis filtrats
+        layer_districte = QgsVectorLayer(
+            f"Polygon?crs={edificis.crs().authid()}",
+            f"{nom}_{us}",
+            "memory:"
+        )
+        provider = layer_districte.dataProvider()
+        provider.addAttributes(edificis.fields())
+        layer_districte.updateFields()
+        provider.addFeatures(edificis_districtes_features)
+
+        # Paràmetres específics per districte o per defecte
+        cfg = config_districtes.get(nom, config_districtes["default"])
+
+        # Generar clústers
+        resultats[nom] = generar_cluster(
+            layer=layer_districte,
+            expressio=f""currentUse' = '{us}'",
+            eps=cfg["eps"],
+            min_size=cfg["min_size"]
+        )
+
+        resultats[nom]["resum"] = resum_clusters(
+            layer=resultats[nom]["clusters"]
+        )
+
+    return resultats
