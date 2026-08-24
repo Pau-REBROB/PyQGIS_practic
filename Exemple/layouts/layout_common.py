@@ -185,7 +185,13 @@ def afegir_mapa(layout, capes, capa_extent, factor_escala, size, position, rotac
     layout_map.attemptMove(QgsLayoutPoint(*position, QgsUnitTypes.LayoutMillimeters))
     layout_map.attemptResize(QgsLayoutSize(*size, QgsUnitTypes.LayoutMillimeters))
 
-    layout_map.zoomToExtent(capa_extent.extent())
+    # Ajust d'extensió
+    if isinstance(capa_extent, QgsRectangle):
+        extent = capa_extent
+    else:
+        extent = capa_extent.extent()
+
+    layout_map.zoomToExtent(extent)
     layout_map.setMapRotation(rotacio)
     layout_map.setScale(layout_map.scale() * factor_escala)
 

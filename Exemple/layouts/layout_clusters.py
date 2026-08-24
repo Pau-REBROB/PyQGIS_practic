@@ -68,13 +68,13 @@ def composicio_clusters(capes, capa_extent):
         **cfg_estructura["Capçalera"]
     )
 
-    layout_common.afegir_llegenda(
-        layout=layout,
-        mapa=mapa,
-        capes=capes,
-        **cfg_layout["Llegenda"],
-        **cfg_estructura["Llegenda"]
-    )
+    # layout_common.afegir_llegenda(
+    #     layout=layout,
+    #     mapa=mapa,
+    #     capes=capes,
+    #     **cfg_layout["Llegenda"],
+    #     **cfg_estructura["Llegenda"]
+    # )
 
     layout_common.afegir_escala(
         layout=layout,

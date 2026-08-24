@@ -18,8 +18,17 @@ Les funcions s'organitzen en tres nivells:
     - funcions d'alt nivell que orquestren el procés complet.
 """
 
-from qgis.core import QgsFeatureRequest
+from qgis.core import (
+    QgsFeature,
+    QgsFeatureRequest,
+    QgsField,
+    QgsVectorLayer,
+    QgsWkbTypes
+)
+from qgis.PyQt.QtCore import QVariant
 
+import hdbscan
+import numpy as np
 import processing
 
 import config
@@ -87,6 +96,76 @@ def clusters_dbscan(layer, eps, min_size):
     })
     
     return resultat_clusters["OUTPUT"]
+
+
+def clusters_hdbscan(layer, min_size, min_samples=None):
+    """
+    Genera una capa de clústers aplicant l'algoritme HDBSCAN als centroides d'una capa.
+
+    La funció genera primer els centroides de les entitats de la capa d'entrada,
+    aplica l'algoritme HDBSCAN per identificar agrupacions espacials i retorna
+    una capa amb els centroides classificats.
+
+    Paràmetres
+    ----------
+    layer: QgsVectorLayer
+        Capa vectorial sobre la qual es calcula la clusterització.
+    min_size: int
+        Nombre mínim de centroides necessaris per a formar un clúster.
+    min_samples: int, optional
+        Nombre mínim de mostres al voltant d'un punt per considerar-lo nucli.
+        Per defecte igual a min_size.
+
+    Retorna
+    -------
+    QgsVectorLayer
+        Capa en memòria amb els centroides classificats en clústers.
+    """
+
+    # Generació dels centroides
+    layer_centroides = processing.run("native:centroids", {
+        'INPUT': layer,
+        'ALL_PARTS': False,
+        'OUTPUT': 'memory:'
+    })["OUTPUT"]
+    
+    # Extreure coordenades i features
+    features = list(layer_centroides.getFeatures())
+
+    if not features:
+        return layer_centroides
+
+    coords = np.array([
+        [f.geometry().asPoint().x(), f.geometry().asPoint().y()]
+        for f in features
+    ])
+
+    # Aplicar HDBSCAN
+    clusterer = hdbscan.HDBSCAN(
+        min_cluster_size=min_size,
+        min_samples=min_samples if min_samples else min_size,
+        core_dist_n_jobs=1  # desactivar paral·lelisme
+    )
+    labels = clusterer.fit_predict(coords)
+
+    # Capa mínima amb només CLUSTER_ID
+    crs = layer_centroides.crs().authid()
+    layer_result = QgsVectorLayer(f"Point?crs={crs}", "clusters_hdbscan", "memory")
+    provider = layer_result.dataProvider()
+    provider.addAttributes([QgsField("CLUSTER_ID", QVariant.Int)])
+    layer_result.updateFields()
+
+    # Afegir features amb el CLUSTER_ID assignat
+    noves_features = []
+    for feature, label in zip(features, labels):
+        nova = QgsFeature(layer_result.fields())
+        nova.setGeometry(feature.geometry())
+        nova.setAttribute("CLUSTER_ID", int(label))
+        noves_features.append(nova)
+
+    provider.addFeatures(noves_features)
+
+    return layer_result
 
 
 def envolvent_clusters(layer):
@@ -177,6 +256,12 @@ def generar_cluster(layer, expressio, eps, min_size):
         eps,
         min_size
     )
+
+    # layer_clusters = clusters_hdbscan(
+    #     layer=layer_filtrada,
+    #     min_size=min_size,
+    #     min_samples=min_samples
+    # )
 
     layer_zones = envolvent_clusters(layer_clusters)
 
@@ -299,6 +384,13 @@ def analisi_clusters(layer, usos):
             min_size=config.CONFIG_ANALISI["Clusters"]["min_size"]
         )
 
+        # resultats_clusters[us] = generar_cluster(
+        #     layer=layer,
+        #     expressio=f'"currentUse" = \'{us}\'',
+        #     min_size=config.CONFIG_ANALISI["Clusters"]["min_size"],
+        #     min_samples=config.CONFIG_ANALISI["Clusters"]["min_samples"]
+        # )
+
         resultats_clusters[us]["resum"] = resum_clusters(
             layer=resultats_clusters[us]["clusters"]
         )
@@ -374,15 +466,22 @@ def analisi_clusters_per_districtes(edificis, districtes, idx_districtes, us, co
             continue
 
         # Crear capa en memòria amb els edificis filtrats
-        layer_districte = QgsVectorLayer(
-            f"Polygon?crs={edificis.crs().authid()}",
-            f"{nom}_{us}",
-            "memory:"
+        # wkb_type = QgsWkbTypes.displayString(edificis.wkbType())
+        # layer_districte = QgsVectorLayer(
+        #     f"{wkb_type}?crs={edificis.crs().authid()}",
+        #     f"{nom}_{us}",
+        #     "memory:"
+        # )
+        # provider = layer_districte.dataProvider()
+        # provider.addAttributes(edificis.fields())
+        # layer_districte.updateFields()
+        # provider.addFeatures(edificis_districtes_features)
+        layer_districte = edificis.materialize(
+            QgsFeatureRequest().setFilterFids(
+                [feat.id() for feat in edificis_districtes_features]
+            )
         )
-        provider = layer_districte.dataProvider()
-        provider.addAttributes(edificis.fields())
-        layer_districte.updateFields()
-        provider.addFeatures(edificis_districtes_features)
+        layer_districte.setName(f"{nom}_{us}")
 
         # Paràmetres específics per districte o per defecte
         cfg = config_districtes.get(nom, config_districtes["default"])
@@ -390,9 +489,10 @@ def analisi_clusters_per_districtes(edificis, districtes, idx_districtes, us, co
         # Generar clústers
         resultats[nom] = generar_cluster(
             layer=layer_districte,
-            expressio=f""currentUse' = '{us}'",
-            eps=cfg["eps"],
-            min_size=cfg["min_size"]
+            expressio=f'"currentUse" = \'{us}\'',
+            #eps=cfg["eps"],
+            min_size=cfg["min_size"],
+            min_samples=cfg["min_samples"]
         )
 
         resultats[nom]["resum"] = resum_clusters(

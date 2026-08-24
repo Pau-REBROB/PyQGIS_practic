@@ -93,7 +93,7 @@ def generar_isoarees(graf, points, strat, max_dist, interval):
         {
             'INPUT': graf,
             'START_POINTS': points,
-            'ID_FIELD': "fid",
+            'ID_FIELD': "CLUSTER_ID",
             'MAX_DIST': max_dist,
             'INTERVAL': interval,
             'STRATEGY': strat,

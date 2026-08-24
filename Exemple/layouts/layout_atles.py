@@ -34,11 +34,16 @@ from qgis.core import (
     QgsLayoutPoint,
     QgsUnitTypes,
     QgsLayoutMeasurement,
+    QgsLayoutItemPage,
     QgsLayoutExporter
 )
 
+import os
+from pathlib import Path
+
 import config
 import layouts.layout_common as layout_common
+import layouts.fusionar_layouts as fusionar_layouts
 
 def afegir_mapa_localitzador(layout, capa_localitzador, capa_extensio, mapa, size, position):
     """
@@ -93,6 +98,7 @@ def afegir_mapa_localitzador(layout, capa_localitzador, capa_extensio, mapa, siz
     # Afegir un marc per diferenciar visualment el mapa localitzador
     locator.setFrameEnabled(True)
     locator.setFrameStrokeWidth(QgsLayoutMeasurement(0.5, QgsUnitTypes.LayoutMillimeters))
+
 
     return locator
 
@@ -186,9 +192,229 @@ def exportar_atles(atlas, output_path, dpi):
     
     if result != QgsLayoutExporter.Success:
         raise RuntimeError(f"No s'ha pogut exportar l'atles.\n{missatge_error}")
+
+
+def exportar_com_a_atles(layout, output_folder, nom, dpi):
+    """
+    Exporta una composició QGIS en format PDF.
+    
+    Si ja existeix un fitxer amb el mateix nom, s'elimina abans
+    de generar la nova exportació.
+
+    Paràmetres
+    ----------
+    layout: QgsPrintLayout
+        Composició que es vol exportar.
+    output_path: str
+        Ruta completa de l'arxiu PDF de sortida.
+    dpi: int
+        Resolució de l'exportació.
+
+    Retorna
+    -------
+    RuntimeError
+        Si no s'ha pogut exportar el layout.
+    """
+
+    output_path = str(Path(output_folder) / f"{nom}.pdf")
+
+    # Si ja existeix una composició amb el mateix nom, s'elimina
+    if os.path.exists(output_path):
+        os.remove(output_path) 
+
+    exporter = QgsLayoutExporter(layout)
+    
+    # Configurar els paràmetres d'exportació
+    pdf_settings = QgsLayoutExporter.PdfExportSettings()
+    pdf_settings.dpi = dpi
+    pdf_settings.forceVectorOutput = True
+    pdf_settings.rasterizeWholeImage = False
+    
+    resultat = exporter.exportToPdf(output_path, pdf_settings)
+
+    if resultat != QgsLayoutExporter.Success:
+        raise RuntimeError(f"No s'ha pogut exportar el layout a '{output_path}'")
+
+
+    return output_path
+
+
+def exportar_atles_orientacio_automatica(layout, atlas, output_folder, dpi):
+    """
+    Exporta cada pàgina de l'atles com un PDF independent
+    amb orientació adaptada a la forma del districte.
+
+    Paràmetres
+    ----------
+    layout: QgsPrintLayout
+        ###
+    atlas: QgsLayoutAtlas
+        Atles prèviament configurat.
+    output_path: str
+        Ruta del fitxer PDF de sortida.
+    dpi: int
+        Resolució d'exportació.
+    
+    Retorna
+    -------
+    None
+    """
+
+    pdfs_generats = []
+
+    atlas.beginRender()
+
+    features = list(atlas.coverageLayer().getFeatures())
+
+    while atlas.next():
+        feature = features[atlas.currentFeatureNumber()]
+        nom = feature["NOM"]
+
+        orientacio = config.ORIENTACIO_DISTRICTES[nom]
+
+        adaptar_layout_orientacio(
+            layout=layout,
+            orientacio=orientacio
+        )
+
+        # Exportar
+        output_path = str(Path(output_folder) / f"{nom}.pdf")
+        exporter = QgsLayoutExporter(layout)
+
+        pdf_settings = QgsLayoutExporter.PdfExportSettings()
+        pdf_settings.dpi = dpi
+        exporter.exportToPdf(output_path, pdf_settings)
+
+        pdfs_generats.append(output_path)
+        print(f"Exportat: {nom}")
+
+    atlas.endRender()
+
+    # Fusionar tots els PDFs en un únic document
+    fusionar_layouts.fusionar_pdf(
+        pdfs=pdfs_generats,
+        output_path=str(Path(output_folder) / "atles_districtes.pdf")
+    )
+
+    return pdfs_generats
+
+
+def adaptar_layout_orientacio(layout, orientacio):
+    """
+    Adapta la composició de l'atles segons l'orientació de la pàgina.
+
+    Els elements del layout ja han d'existir i estar identificats
+    mitjançant el seu ID.
+    """
+
+    page = layout.pageCollection().page(0)
+
+    cfg = config.LAYOUTS["ESTRUCTURA_ATLES"][orientacio]
+
+    if orientacio == "Landscape":
+        page.setPageSize("A4", QgsLayoutItemPage.Landscape)
+    else:
+        page.setPageSize("A4", QgsLayoutItemPage.Portrait)
+
+    # ------------------------------------------------------------------
+    # Elements
+    # ------------------------------------------------------------------
+    
+    mapa = layout.itemById("mapa")
+    llegenda = layout.itemById("llegenda")
+    capçalera = layout.itemById("capçalera")
+    escala = layout.itemById("escala")
+    nord = layout.itemById("nord")
+    localitzador = layout.itemById("localitzador")
+
+    # ------------------------------------------------------------------
+    # Mapa
+    # ------------------------------------------------------------------
+
+    mapa.attemptMove(
+        QgsLayoutPoint(*cfg["Mapa"]["position"],
+                       QgsUnitTypes.LayoutMillimeters
+                       )
+    )
+
+    mapa.attemptResize(
+        QgsLayoutPoint(*cfg["Mapa"]["size"],
+                        QgsUnitTypes.LayoutMillimeters
+                        )
+    )
+
+    # ------------------------------------------------------------------
+    # Capçalera
+    # ------------------------------------------------------------------
+
+    capçalera.attemptMove(
+        QgsLayoutPoint(*cfg["Capçalera"]["position"],
+                        QgsUnitTypes.LayoutMillimeters
+                        )
+    )
+
+    capçalera.attemptResize(
+        QgsLayoutPoint(*cfg["Capçalera"]["size"],
+                        QgsUnitTypes.LayoutMillimeters
+                        )
+    )
+
+    # ------------------------------------------------------------------
+    # Llegenda
+    # ------------------------------------------------------------------
+
+    llegenda.attemptMove(
+        QgsLayoutPoint(*cfg["Llegenda"]["position"],
+                        QgsUnitTypes.LayoutMillimeters
+                        )
+    )
+
+    # ------------------------------------------------------------------
+    # Escala
+    # ------------------------------------------------------------------
+
+    escala.attemptMove(
+        QgsLayoutPoint(*cfg["Escala"]["position"],
+                        QgsUnitTypes.LayoutMillimeters
+                        )
+    )
+
+    # ------------------------------------------------------------------
+    # Nord
+    # ------------------------------------------------------------------
+
+    nord.attemptMove(
+        QgsLayoutPoint(*cfg["Nord"]["position"],
+                        QgsUnitTypes.LayoutMillimeters
+                        )
+    )
+
+    nord.attemptResize(
+        QgsLayoutPoint(*cfg["Nord"]["size"],
+                        QgsUnitTypes.LayoutMillimeters
+                        )
+    )
+
+    # ------------------------------------------------------------------
+    # Localitzador
+    # ------------------------------------------------------------------
+
+    localitzador.attemptMove(
+        QgsLayoutPoint(*cfg["Localitzador"]["position"],
+                        QgsUnitTypes.LayoutMillimeters
+                        )
+    )
+
+    localitzador.attemptResize(
+        QgsLayoutPoint(*cfg["Localitzador"]["size"],
+                        QgsUnitTypes.LayoutMillimeters
+                        )
+    )
+
+
     
 
-def composicio_atles(capes, capa_extent, capa_cobertura):
+def composicio_atles(districtes, capes, capa_extent, capa_cobertura):
     """
     Genera la composició tipus atles del projecte.
 
@@ -198,6 +424,8 @@ def composicio_atles(capes, capa_extent, capa_cobertura):
 
     Paràmetres
     ----------
+    districtes: QgsVectorLayer
+        Capa de districtes que generarà l'atles.
     capes: list[QgsMapLayer]
         Capes que es mostraran al mapa principal.
     capa_extent: QgsVectorLayer
@@ -212,100 +440,93 @@ def composicio_atles(capes, capa_extent, capa_cobertura):
     None
     """
 
+    pdfs_generats = []
+
     cfg_layout = config.LAYOUTS["ATLES"]
-    cfg_estructura = config.LAYOUTS["ESTRUCTURA_ATLES"]
 
-    layout = layout_common.generar_layout(nom_layout="Ús dels edificis a Barcelona per districte")
+    for districte in districtes.getFeatures():
 
-    mapa = layout_common.afegir_mapa(
-        layout=layout,
-        capes=capes,
-        capa_extent=capa_extent,
-        **cfg_estructura["Mapa"]
+        nom = districte["NOM"]
+
+        orientacio = config.ORIENTACIO_DISTRICTES[nom]
+
+        cfg_estructura = config.LAYOUTS["ESTRUCTURA_ATLES"][orientacio]
+
+        layout = layout_common.generar_layout(
+            nom_layout="Ús dels edificis a Barcelona per districte",
+            orientacio=orientacio
+        )
+
+        mapa = layout_common.afegir_mapa(
+            layout=layout,
+            capes=capes,
+            capa_extent=districte.geometry().boundingBox(),
+            **cfg_estructura["Mapa"]
+        )
+
+        afegir_mapa_localitzador(
+            layout=layout,
+            capa_localitzador=capa_cobertura,
+            capa_extensio=capa_extent,
+            mapa=mapa,
+            **cfg_estructura["Localitzador"]
+        )
+
+        layout_common.afegir_capçalera(
+            layout=layout,
+            **cfg_layout["Capçalera"],
+            **cfg_estructura["Capçalera"]
+        )
+
+        # layout_common.afegir_llegenda(
+        #     layout=layout,
+        #     mapa=mapa,
+        #     capes=capes,
+        #     **cfg_layout["Llegenda"],
+        #     **cfg_estructura["Llegenda"]
+        # )
+        
+        # layout_common.afegir_escala(
+        #     layout=layout,
+        #     mapa=mapa,
+        #     **cfg_layout["Escala"],
+        #     **cfg_estructura["Escala"]
+        # )
+
+        # layout_common.afegir_nord(
+        #     layout=layout,
+        #     mapa=mapa,
+        #     **cfg_layout["Nord"],
+        #     **cfg_estructura["Nord"]
+        # )
+
+        pdf = exportar_com_a_atles(
+            layout=layout,
+            nom=nom,
+            **cfg_layout["Exportacio_individual"]
+        )
+
+        pdfs_generats.append(pdf)
+
+        # atles = generar_atles(
+        #     layout=layout,
+        #     capa_cobertura=capa_cobertura,
+        #     mapa=mapa,
+        #     **cfg_layout["Generacio"]
+        # )
+
+    # exportar_atles(
+    #     atlas=atles,
+    #     **cfg_layout["Exportacio"]
+    # )
+
+    # exportar_atles_orientacio_automatica(
+    #     layout=layout,
+    #     atlas=atles,
+    #     **cfg_layout["Exportacio"]
+    # )
+
+    fusionar_layouts.fusionar_pdf(
+        pdfs=pdfs_generats,
+        **cfg_layout["Exportacio_atles"]
     )
-
-    afegir_mapa_localitzador(
-        layout=layout,
-        capa_localitzador=capa_cobertura,
-        capa_extensio=capa_extent,
-        mapa=mapa,
-        **cfg_estructura["Localitzador"]
-    )
-
-    layout_common.afegir_capçalera(
-        layout=layout,
-        **cfg_layout["Capçalera"],
-        **cfg_estructura["Capçalera"]
-    )
-
-    layout_common.afegir_llegenda(
-        layout=layout,
-        mapa=mapa,
-        capes=capes,
-        **cfg_layout["Llegenda"],
-        **cfg_estructura["Llegenda"]
-    )
-    
-    layout_common.afegir_escala(
-        layout=layout,
-        mapa=mapa,
-        **cfg_layout["Escala"],
-        **cfg_estructura["Escala"]
-    )
-
-    layout_common.afegir_nord(
-        layout=layout,
-        mapa=mapa,
-        **cfg_layout["Nord"],
-        **cfg_estructura["Nord"]
-    )
-
-    atles = generar_atles(
-        layout=layout,
-        capa_cobertura=capa_cobertura,
-        mapa=mapa,
-        **cfg_layout["Generacio"]
-    )
-
-    exportar_atles(
-        atlas=atles,
-        **cfg_layout["Exportacio"]
-    )
-
-    #### MANUALMENT
-    atlas = layout.atlas()
-    if not atlas.enabled():
-        atlas.setEnabled(True)
-
-    coverage_layer = atlas.coverageLayer()
-    if not coverage_layer:
-        raise ValueError("No coverage layer set for Atlas.")
-
-    # Get the first page object
-    page = layout.pageCollection().pages()[0]
-
-    # Begin Atlas rendering
-    atlas.beginRender()
-    for i, feature in enumerate(atlas.coverageLayer().getFeatures()):
-        atlas.prepareForFeature(feature)
-
-        # Decide orientation based on geometry bounding box
-        bounds = feature.geometry().boundingBox()
-        width = bounds.width()
-        height = bounds.height()
-
-        if width > height:
-            page.setPageOrientation(QgsLayoutItemPage.Landscape)
-            page.setPageSize('A4', QgsLayoutItemPage.Landscape)
-        else:
-            page.setPageOrientation(QgsLayoutItemPage.Portrait)
-            page.setPageSize('A4', QgsLayoutItemPage.Portrait)
-
-        # Export this page
-        output_path = os.path.join(OUTPUT_FOLDER, f"atlas_page_{i+1}.pdf")
-        exporter = QgsLayoutExporter(layout)
-        exporter.exportToPdf(output_path, QgsLayoutExporter.PdfExportSettings())
-
-        print(f"Exported: {output_path}")
-
-    atlas.endRender()

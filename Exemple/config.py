@@ -172,8 +172,10 @@ MIN_EDIFICIS = 3
 
 CONFIG_ANALISI = {
     "Clusters": {
-        "eps": 150,
-        "min_size": 5
+        "eps": 100,
+        "min_size": 8,
+        # "min_size": 20,
+        # "min_samples": 10
     },
 
     "Isoarees": {
@@ -183,12 +185,25 @@ CONFIG_ANALISI = {
 }
 
 CONFIG_CLUSTERS_DISTRICTES = {
-    "default":      {"eps": 150, "min_size": 5},
-    "Eixample":     {"eps": 80,  "min_size": 10},
-    "Ciutat Vella": {"eps": 60,  "min_size": 5},
-    "Les Corts":    {"eps": 200, "min_size": 5},
-    "Horta-Guinardó": {"eps": 200, "min_size": 5},
-    "Sants-Montjuïc": {"eps": 200, "min_size": 5},
+    "default": {"min_size": 10, "min_samples": 5} #{"eps": 150, "min_size": 5},
+    # "Ciutat Vella": {"eps": 50,  "min_size": 10}, #60-5
+    # "Eixample": {"eps": 150,  "min_size": 5}, #80-10
+    # "Sants-Montjuïc": {"eps": 250, "min_size": 10}, #200-5
+    # "Les Corts": {"eps": 200, "min_size": 5},
+    # "Sarrià-Sant Gervasi": {"eps": 100, "min_size": 8},
+    # "Gràcia": {"eps": 100, "min_size": 10}, #default
+    # "Horta-Guinardó": {"eps": 70, "min_size": 10}, #200-5
+}
+
+CONFIG_CLUSTERS_BARRIS = {
+    "default": {"eps": 75, "min_size": 5},
+    #"Ciutat Vella": {"eps": 50,  "min_size": 10}, #60-5
+    #"Eixample": {"eps": 150,  "min_size": 5}, #80-10
+    #"Sants-Montjuïc": {"eps": 250, "min_size": 10}, #200-5
+    #"Les Corts": {"eps": 200, "min_size": 5},
+    #"Sarrià-Sant Gervasi": {"eps": 100, "min_size": 8},
+    #"Gràcia": {"eps": 100, "min_size": 10}, #default
+    #"Horta-Guinardó": {"eps": 70, "min_size": 10}, #200-5
 }
 
 CLASSIFICACIO_DOMINANCIA = {
@@ -437,6 +452,19 @@ EXPORTACIO_ISOAREES = {
     "polygons": f"{PATH_RESULTATS}/output_polygons.shp"
 }
 
+ORIENTACIO_DISTRICTES = {
+    "Ciutat Vella": "vertical",#"horitzontal",
+    "Eixample": "horitzontal",
+    "Sants-Montjuïc": "vertical",#┬"horitzontal",
+    "Les Corts": "horitzontal",
+    "Sarrià-Sant Gervasi": "horitzontal",#"vertical",
+    "Gràcia": "vertical",
+    "Horta-Guinardó": "horitzontal",#"vertical",
+    "Nou Barris": "vertical",#"horitzontal",
+    "Sant Andreu": "vertical",#"horitzontal",
+    "Sant Martí": "vertical",#"horitzontal"
+}
+
 # =============================================================================
 # COMPOSICIONS
 # =============================================================================
@@ -477,54 +505,90 @@ LAYOUTS = {
     },
 
     "ESTRUCTURA_ATLES": {
-        "Mapa": {
-            "factor_escala": 0.60,
-            "size": (290, 200),
-            "position": (3.5, 5),
-            "rotacio": 45,
-            "offset_x": 0,
-            "offset_y": 0
+        # "Mapa": {
+        #     "factor_escala": 0.60,
+        #     "size": (292, 205),
+        #     "position": (2.5, 2.5),
+        #     "rotacio": 45,
+        #     "offset_x": 0,
+        #     "offset_y": 0
+        # },
+        "horitzontal": {
+            "Mapa": {
+                "factor_escala": 1.00,
+                "size": (292, 205), 
+                "position": (2.50, 2.50),
+                "rotacio": 0,
+                "offset_x": 0,
+                "offset_y": 0
+            },
+            "Localitzador": {
+                "size": (50, 50),
+                "position": (242, 155)
+            },
+            "Capçalera": {
+                "text_size": (280, 5),
+                "text_position": (5, 5),
+                "backg_size": (280, 1),
+                "backg_position": (5, 12)
+            },
+            # "Llegenda": {
+            #     "position": (230, 100)
+            # },
+            # "Escala": {
+            #     "position": (260, 190)
+            # },
+            # "Nord": {
+            #     "size": (10, 10),
+            #     "position": (260, 180)
+            # }
         },
-        "Localitzador": {
-            "size": (50, 50),
-            "position": (240, 140)
-        },
-        "Capçalera": {
-            "text_size": (280, 5),
-            "text_position": (10, 10),
-            "backg_size": (280, 2),
-            "backg_position": (10, 20)
-        },
-        "Titol": {
-            "size": (280, 5),
-            "position": (10, 10)
-        },
-        "Llegenda": {
-            "position": (10, 30)
-        },
-        "Escala": {
-            "position": (10, 120)
-        },
-        "Nord": {
-            "size": (10, 10),
-            "position": (10, 110)
+        "vertical": {
+            "Mapa": {
+                "factor_escala": 1.00,
+                "size": (205, 292), 
+                "position": (2.50, 2.50),
+                "rotacio": 0,
+                "offset_x": 0,
+                "offset_y": 0
+            },
+            "Localitzador": {
+                "size": (50, 50),
+                "position": (155, 242)
+            },
+            "Capçalera": {
+                "text_size": (200, 5),
+                "text_position": (5, 5),
+                "backg_size": (200, 1),
+                "backg_position": (5, 12)
+            },
+            # "Llegenda": {
+            #     "position": (150, 150)
+            # },
+            # "Escala": {
+            #     "position": (165, 280)
+            # },
+            # "Nord": {
+            #     "size": (10, 10),
+            #     "position": (165, 265)
+            # }
         }
     },
 
     "ESTRUCTURA_CLUSTERS": {
         "Mapa": {
             "factor_escala": 0.65,
-            "size": (290, 200),
-            "position": (3.5, 5),
+            "size": (292, 205),
+            "position": (2.5, 2.5),
             "rotacio": 45,
             "offset_x": 1000,
-            "offset_y": 750
+            "offset_y": -400
         },
         "Capçalera": {
             "text_size": (280, 5),
-            "text_position": (10, 10),
-            "backg_size": (280, 2),
-            "backg_position": (10, 20)
+            "text_position": (5, 5),
+            "backg_size": (280, 1),
+            "backg_position": (5, 12)
         },
         # "Titol": {
         #     "size": (280, 5),
@@ -873,9 +937,9 @@ LAYOUTS = {
             "color": (100,100,100,180),
             "outline_color": (85,85,85,255),
             "outline_width": 0.40,
-            "text": "Ús dels edificis de la ciutat de Barcelona - Districte: [% \"NOM\" %]",
+            "text": "Ús dels edificis de la ciutat de Barcelona - Districte: [% 'NOM' %]",
             "font": "Calibri",
-            "font_size": 20,
+            "font_size": 18,
             "font_color": (0,0,0,255)
         },
         # "Titol": {
@@ -887,28 +951,31 @@ LAYOUTS = {
         #     "backg_color": (100,100,100,180),
         #     "frame_color": (255, 255, 255, 200)
         # },
-        "Llegenda": {
-            "titol": "Classificació dels edificis",
-            "font": "Calibri",
-            "font_size": 10,
-            "font_color": (0,0,0,255),
-            "backg_color": (100,100,100,180)
-        },
-        "Escala": {
-            "tipus": "Single Box",
-            "font": "Calibri",
-            "font_size": 10,
-            "font_color": (0,0,0,255)
-        },
-        "Nord": {
-            "image_path": "C:/projectes_git/Dades/nord2.png"
-        },
-        "Generacio": {
-            "camp": '"NOM"'
-        },
-        "Exportacio": {
-            "output_path": f"{PATH_RESULTATS}/AtlesDistrictes.pdf",
+        # "Llegenda": {
+        #     "titol": "Classificació dels edificis",
+        #     "font": "Calibri",
+        #     "font_size": 10,
+        #     "font_color": (0,0,0,255),
+        #     "backg_color": (100,100,100,180)
+        # },
+        # "Escala": {
+        #     "tipus": "Single Box",
+        #     "font": "Calibri",
+        #     "font_size": 10,
+        #     "font_color": (0,0,0,255)
+        # },
+        # "Nord": {
+        #     "image_path": "C:/projectes_git/Dades/nord2.png"
+        # },
+        # "Generacio": {
+        #     "camp": '"NOM"'
+        #},
+        "Exportacio_individual": {
+            "output_folder": f"{PATH_RESULTATS}",
             "dpi": 500
+        },
+        "Exportacio_atles": {
+            "output_path": f"{PATH_RESULTATS}/atles_districtes.pdf"
         }
     },
 
@@ -968,9 +1035,9 @@ LAYOUTS = {
             "color": (100,100,100,180),
             "outline_color": (85,85,85,255),
             "outline_width": 0.40,
-            "text": "Concentració espacial dels usos dels edificis de la ciutat de Barcelona",
+            "text": "Concentració espacial dels serveis públics de Barcelona",
             "font": "Calibri",
-            "font_size": 20,
+            "font_size": 18,
             "font_color": (0,0,0,255)
         },
         "Llegenda": {

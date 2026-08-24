@@ -6,6 +6,8 @@ Funcions d'alt nivell per aplicar la simbologia a les capes generades
 durant el projecte.
 """
 
+from qgis.core import (QgsHeatmapRenderer, QgsStyle)
+
 import config
 import simbologia.simbologies as simbologies
 import simbologia.simbologia_especialitzacio as simbologia_especialitzacio
@@ -185,6 +187,66 @@ def simbologia_zones(resultats):
         layers_zones[us] = layer_simb
     
     return layers_zones
+
+
+def simbologia_zones_clusters_per_districtes(resultats, us):
+    """
+    Aplica la simbologia a les zones envolvents dels clústers
+    generats per districte.
+    """
+
+    layers_zones = {}
+
+    for districte, dades in resultats.items():
+
+        layer_simb = simbologies.simbologia_unica(
+            layer=dades["zones"],
+            fill_color=config.COLORS_ZONES[us],
+            stroke_color=config.COLORS_USOS[us],
+            **config.SIMBOLOGIA["Zones"]
+        )
+
+        layer_simb.setName(
+            f"Zona {config.ETIQUETES_USOS[us]} - {districte}"
+        )
+
+        layers_zones[districte] = layer_simb
+
+    return layers_zones
+
+
+def simbologia_heatmap(layer, radi, color_ramp, max_val=0):
+    """
+    Aplica una simbologia de mapa de calor a una capa de punts.
+
+    Paràmetres
+    ----------
+    layer: QgsVectorLayer
+        Capa vectorial de punts.
+    radi: float
+        Radi del kernel en unitats del mapa (metres).
+    color_ramp: str
+        Nom de la rampa de colors de QGIS.
+    max_val: float
+        Valor màxim de densitat. 0 = automàtic.
+
+    Retorna
+    -------
+    QgsVectorLayer
+        Capa amb simbologia heatmap aplicada.
+    """
+
+    layer_clone = layer.clone()
+
+    renderer = QgsHeatmapRenderer()
+    renderer.setRadius(radi)
+    renderer.setMaximumValue(max_val)
+    renderer.setColorRamp(QgsStyle().defaultStyle().colorRamp(color_ramp))
+
+    layer_clone.setRenderer(renderer)
+    layer_clone.triggerRepaint()
+
+    return layer_clone
 
 
 # ==============================================================================
