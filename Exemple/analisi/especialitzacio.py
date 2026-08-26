@@ -567,8 +567,6 @@ def afegir_classe_bivariant_DF_D(layer):
 
     idx_bivariant = layer_clone.fields().indexOf("classe_bivariant")
 
-    layer_clone.startEditing()
-
     canvis = {}
 
     for feature in layer_clone.getFeatures():
@@ -578,15 +576,16 @@ def afegir_classe_bivariant_DF_D(layer):
         if dominancia is None or diversitat is None:
             continue 
 
+        classe = calcular_classe_bivariant_DF_D(
+            dominancia=dominancia,
+            diversitat=diversitat
+        )
+
         canvis[feature.id()] = {
-            idx_bivariant: calcular_classe_bivariant_DF_D(
-                dominancia=dominancia,
-                diversitat=diversitat
-            )
+            idx_bivariant: classe
         }
         
     provider.changeAttributeValues(canvis)    
-    layer_clone.commitChanges()
 
     return layer_clone
 

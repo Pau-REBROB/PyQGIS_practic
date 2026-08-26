@@ -307,7 +307,7 @@ def simbologia_especialitzacio_funcional(zones, ua):
     return layers_especialitzacio
 
 
-def simbologia_hexagons_especialitzacio_funcional(hexagons):
+def simbologia_hexagons_especialitzacio_funcional(hexagons, terme):
     """
     Aplica les diferents simbologies d'especialització
     a la malla hexagonal amb els atributs d'especialització funcional.
@@ -329,27 +329,14 @@ def simbologia_hexagons_especialitzacio_funcional(hexagons):
         }
     """
 
-    layers_hexagons = {}
-
-    hexagons_us_pred = simbologia_hexagons.simbologia_us_predominant(
-        hexagons=hexagons
-    )
-    layers_hexagons["us_predominant"] = hexagons_us_pred
-
-    hexagons_domin = simbologia_hexagons.simbologia_dominancia(
-        hexagons=hexagons
-    )
-    layers_hexagons["dominancia"] = hexagons_domin
-
-    hexagons_shan = simbologia_hexagons.simbologia_shannon(
-        hexagons=hexagons
-    )
-    layers_hexagons["index_shannon"] = hexagons_shan
-
-    hexagons_bivariant = simbologia_hexagons.simbologia_bivariant(
-        hexagons=hexagons
-    )
-    layers_hexagons["bivariant"] = hexagons_bivariant
+    layers_hexagons = {
+        "hexagons": {
+            "dominancia": simbologia_hexagons.simbologia_dominancia(hexagons),
+            "shannon": simbologia_hexagons.simbologia_shannon(hexagons),
+            "bivariant": simbologia_hexagons.simbologia_bivariant(hexagons),
+        },
+        "terme_municipal": simbologia_hexagons.simbologia_terme_municipal(terme) 
+    }
     
     return layers_hexagons
 

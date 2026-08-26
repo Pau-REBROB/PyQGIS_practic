@@ -373,37 +373,45 @@ SIMBOLOGIA = {
             "stroke_color": (120,120,120,255)    
         }
     },
-    "Hexagons_us_predominant": {
-        "atribut": 'us_predominant',
-        "colors_categories": COLORS_USOS,
-        "outline_width": 0.25,
-        "stroke_color": (120,120,120,255)
-    },
-    "Hexagons_dominancia": {
-        "color_ramp": "YlOrRd",
-        "intervals": INTERVALS_DOMINANCIA,
-        "atribut": 'dominancia',
-        "stroke_color": (120,120,120,255),
-        "stroke_width": 0.25
-    },
-    "Hexagons_shannon": {
-        "color_ramp": "Blues",
-        "intervals": INTERVALS_SHANNON,
-        "atribut": 'shannon_norm',
-        "stroke_color": (120,120,120,255),
-        "stroke_width": 0.25
-    },
-    "Hexagons_bivariant": {
-        "atribut": 'classe_bivariant_access',
-        "colors_categories": COLORS_BIVARIANT,
-        "outline_width": 0.25,
-        "stroke_color": (255,255,255,100)
-    },
-    "Hexagons_no_valids": {
-        "nom": "sense dades",
-        "fill_color": COLORS_BIVARIANT["No_valid"],
-        "outline_width": 0.2,
-        "stroke_color": (255,255,255,200)
+    "Especialitzacio": {
+        # "Hexagons_us_predominant": {
+        #     "atribut": 'us_predominant',
+        #     "colors_categories": COLORS_USOS,
+        #     "outline_width": 0.25,
+        #     "stroke_color": (120,120,120,255)
+        # },
+        "Hexagons_dominancia": {
+            "color_ramp": "YlOrRd",
+            "intervals": INTERVALS_DOMINANCIA,
+            "atribut": 'dominancia',
+            "stroke_color": (200,200,200,255),
+            "stroke_width": 0.15
+        },
+        "Hexagons_shannon": {
+            "color_ramp": "Blues",
+            "intervals": INTERVALS_SHANNON,
+            "atribut": 'shannon_norm',
+            "stroke_color": (200,200,200,255),
+            "stroke_width": 0.15
+        },
+        "Hexagons_bivariant": {
+            "atribut": 'classe_bivariant',
+            "colors_categories": COLORS_BIVARIANT,
+            "outline_width": 0.25,
+            "stroke_color": (255,255,255,100)
+        },
+        "Hexagons_no_valids": {
+            "nom": "sense dades",
+            "fill_color": COLORS_BIVARIANT["No_valid"],
+            "outline_width": 0.2,
+            "stroke_color": (255,255,255,200)
+        },
+        "Terme": {
+            "nom": "Terme municipal",
+            "fill_color": (0,0,0,0),
+            "stroke_color": (180,180,180,255),
+            "outline_width": 0.50
+        }
     },
     "Accessibilitat": {
         "Edificis_accessibilitat": {
@@ -608,58 +616,76 @@ LAYOUTS = {
 
     "ESTRUCTURA_ESPECIALITZACIO": {
         "Mapa_dominancia": {
-            "factor_escala": 1.00,
-            "size": (130, 90),
-            "position": (10, 25)
+            "factor_escala": 0.40,#0.85,
+            "size": (60, 220),#2 vertical 1 hortiz(95, 150),
+            "position": (2.50, 14),
+            "rotacio": 0,
+            "offset_x": 1500,
+            "offset_y": 0
         },
         "Mapa_shannon": {
-            "factor_escala": 1.00,
-            "size": (130, 90),
-            "position": (150, 25)
+            "factor_escala": 0.40,#0.85,
+            "size": (60, 220), #(95, 150),
+            "position": (70, 14),#(2.50, 160),
+            "rotacio": 0,
+            "offset_x": 1500,
+            "offset_y": 0
         },
+        "Mapa_bivariant": {
+            "factor_escala": 0.40,
+            "size": (60, 220),
+            "position": (140, 14),#(2.50, 174.5),
+            "rotacio": 0,
+            "offset_x": 1500,
+            "offset_y": 0
+        },
+        # "Fons": {
+        #     "size": (292, 198.50),
+        #     "position": (2.50, 20)
+        # },
         "Fons": {
-            "size": (280, 180),
-            "position": (10, 20)
+            "size": (205, 280),
+            "position": (2.50, 14)
         },
         "Titol": {
-            "size": (280, 10),
-            "position": (10, 5)
-        },
-        "Titol_us": {
-            "size": (90, 10),
-            "position": (10, 120)
-        },
-        "Subtitol_us": {
-            "size": (90, 12),
-            "position": (10, 130)
+            "size": (200, 10),
+            "position": (2.50, 2.50)
         },
         "Titol_dominancia": {
-            "size": (90, 10),
-            "position": (105, 120)
+            "size": (60, 10),
+            "position": (2.50, 210)
         },
-        "Subtitol_dominancia": {
-            "size": (90, 12),
-            "position": (105, 130)
-        },
+        # "Subtitol_dominancia": {
+        #     "size": (70, 12),
+        #     "position": (130, 24)
+        # },
         "Titol_shannon": {
-            "size": (90, 10),
-            "position": (200, 120)
+            "size": (60, 10),
+            "position": (70, 210)
         },
-        "Subtitol_shannon": {
-            "size": (90, 12),
-            "position": (200, 130)
+        # "Subtitol_shannon": {
+        #     "size": (70, 12),
+        #     "position": (130, 170)
+        # },
+        "Titol_bivariant": {
+            "size": (60, 10),
+            "position": (140, 210)
         },
-        "Llegenda_us": {
-            "titol": "Ús majoritari dels edificis",
-            "position": (10, 145)
-        },
+        # "Subtitol_bivariant": {
+        #     "size": (70, 12),
+        #     "position": (2.5, 210)
+        # },
         "Llegenda_dominancia": {
             "titol": "Diferència (%) entre usos",
-            "position": (106, 145)
+            "position": (2.50, 214.5)
         },
         "Llegenda_shannon": {
             "titol": "Índex de Shannon normalitzat",
-            "position": (202, 145)
+            "position": (70, 214.5)
+        },
+        "Llegenda_bivariant": {
+            "titol": "Índex bivariant",
+            "position": (140, 214.5)
         }
     },
 
@@ -1064,15 +1090,15 @@ LAYOUTS = {
 
     "ESPECIALITZACIO":{
         "Fons": {
-            "color": (240,240,240,255)
+            "color": (250,250,250,255)
         },
         "Titol": {
             "titol": "Especialització funcional de Barcelona",
             "font": "Calibri",
-            "font_size": 20,
+            "font_size": 18,
             "font_color": (0,0,0,255),
             "alineacio": "center",
-            "backg_color": (100,100,100,180),
+            "backg_color": (150,150,150,180),
             "frame_color": (255, 255, 255, 200)
         },
         "Titol_dominancia": {
@@ -1081,16 +1107,16 @@ LAYOUTS = {
             "font_size": 16,
             "font_color": (0,0,0,255),
             "alineacio": "left",
-            "backg_color": (100,100,100,180),
+            "backg_color": (150,150,150,180),
             "frame_color": (255, 255, 255, 200)
         },
         "Subtitol_dominancia": {
-            "subtitol": "Diferència percentual entre el primer i el segon ús",
+            "subtitol": "Diferència percentual entre el primer\ni el segon ús",
             "font": "Calibri Bold",
             "font_size": 12,
             "font_color": (10,10,10,255),
             "alineacio": "left",
-            "backg_color": (100,100,100,180),
+            "backg_color": (150,150,150,180),
             "frame_color": (255, 255, 255, 200)
         },
         "Titol_shannon": {
@@ -1099,7 +1125,7 @@ LAYOUTS = {
             "font_size": 16,
             "font_color": (0,0,0,255),
             "alineacio": "left",
-            "backg_color": (100,100,100,180),
+            "backg_color": (150,150,150,180),
             "frame_color": (255, 255, 255, 200)
         },
         "Subtitol_shannon": {
@@ -1108,14 +1134,32 @@ LAYOUTS = {
             "font_size": 12,
             "font_color": (10,10,10,255),
             "alineacio": "left",
-            "backg_color": (100,100,100,180),
+            "backg_color": (150,150,150,180),
+            "frame_color": (255, 255, 255, 200)
+        },
+        "Titol_bivariant": {
+            "titol": "Anàlisi bivariant",
+            "font": "Calibri Bold",
+            "font_size": 16,
+            "font_color": (0,0,0,255),
+            "alineacio": "left",
+            "backg_color": (150,150,150,180),
+            "frame_color": (255, 255, 255, 200)
+        },
+        "Subtitol_bivariant": {
+            "subtitol": "Anàlisi bivariant",
+            "font": "Calibri Bold",
+            "font_size": 12,
+            "font_color": (10,10,10,255),
+            "alineacio": "left",
+            "backg_color": (150,150,150,180),
             "frame_color": (255, 255, 255, 200)
         },
         "Llegenda": {
             "font": "Calibri",
-            "font_size": 10,
+            "font_size": 12,
             "font_color": (0,0,0,255),
-            "backg_color": (100,100,100,180)
+            "backg_color": (150,150,150,180)
         },
         "Exportacio": {
             "output_path": f"{PATH_RESULTATS}/Especialitzacio_funcional.pdf",

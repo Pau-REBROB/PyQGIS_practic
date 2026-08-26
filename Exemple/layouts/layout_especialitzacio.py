@@ -185,7 +185,7 @@ def afegir_llegenda(layout, mapa, capes, titol, font, font_size, font_color, pos
     return legend
 
 
-def composicio_especialitzacio(capes, capa_extent):
+def composicio_especialitzacio(capes, capa_terme, capa_extent):
     """
     Genera la composició cartogràfica d'especialització del projecte.
 
@@ -215,7 +215,10 @@ def composicio_especialitzacio(capes, capa_extent):
     cfg_layout = config.LAYOUTS["ESPECIALITZACIO"]
     cfg_estructura = config.LAYOUTS["ESTRUCTURA_ESPECIALITZACIO"]
 
-    layout = layout_common.generar_layout(nom_layout="Especialitzacio funcional per districtes")
+    layout = layout_common.generar_layout(
+        nom_layout="Especialitzacio funcional per districtes",
+        orientacio="vertical"
+    )
 
     layout_common.afegir_fons(
             layout=layout,
@@ -223,16 +226,23 @@ def composicio_especialitzacio(capes, capa_extent):
             **cfg_estructura["Fons"]
     )
 
-    mapa_dominancia = afegir_mapa(
+    mapa_bivariant = layout_common.afegir_mapa(
         layout=layout,
-        capes=[capes["dominancia"]],
+        capes=[capa_terme, capes["bivariant"]],
+        capa_extent=capa_extent,
+        **cfg_estructura["Mapa_bivariant"]
+    )
+    
+    mapa_dominancia = layout_common.afegir_mapa(
+        layout=layout,
+        capes=[capa_terme, capes["dominancia"]],
         capa_extent=capa_extent,
         **cfg_estructura["Mapa_dominancia"]
     )
 
-    mapa_shannon = afegir_mapa(
+    mapa_shannon = layout_common.afegir_mapa(
         layout=layout,
-        capes=[capes["index_shannon"]],
+        capes=[capa_terme, capes["shannon"]],
         capa_extent=capa_extent,
         **cfg_estructura["Mapa_shannon"]
     )
@@ -249,11 +259,11 @@ def composicio_especialitzacio(capes, capa_extent):
         **cfg_estructura["Titol_dominancia"]
     )
 
-    layout_common.afegir_subtitol(
-        layout=layout,
-        **cfg_layout["Subtitol_dominancia"],
-        **cfg_estructura["Subtitol_dominancia"]
-    )
+    # layout_common.afegir_subtitol(
+    #     layout=layout,
+    #     **cfg_layout["Subtitol_dominancia"],
+    #     **cfg_estructura["Subtitol_dominancia"]
+    # )
 
     layout_common.afegir_titol(
         layout=layout,
@@ -261,13 +271,25 @@ def composicio_especialitzacio(capes, capa_extent):
         **cfg_estructura["Titol_shannon"]
     )
 
-    layout_common.afegir_subtitol(
+    # layout_common.afegir_subtitol(
+    #     layout=layout,
+    #     **cfg_layout["Subtitol_shannon"],
+    #     **cfg_estructura["Subtitol_shannon"]
+    # )
+
+    layout_common.afegir_titol(
         layout=layout,
-        **cfg_layout["Subtitol_shannon"],
-        **cfg_estructura["Subtitol_shannon"]
+        **cfg_layout["Titol_bivariant"],
+        **cfg_estructura["Titol_bivariant"]
     )
 
-    afegir_llegenda(
+    # layout_common.afegir_subtitol(
+    #     layout=layout,
+    #     **cfg_layout["Subtitol_bivariant"],
+    #     **cfg_estructura["Subtitol_bivariant"]
+    # )
+
+    layout_common.afegir_llegenda(
         layout=layout,
         mapa=mapa_dominancia,
         capes=[capes["dominancia"]],
@@ -275,12 +297,20 @@ def composicio_especialitzacio(capes, capa_extent):
         **cfg_estructura["Llegenda_dominancia"]
     )
 
-    afegir_llegenda(
+    layout_common.afegir_llegenda(
         layout=layout,
         mapa=mapa_shannon,
-        capes=[capes["index_shannon"]],
+        capes=[capes["shannon"]],
         **cfg_layout["Llegenda"],
         **cfg_estructura["Llegenda_shannon"]
+    )
+
+    layout_common.afegir_llegenda(
+        layout=layout,
+        mapa=mapa_bivariant,
+        capes=[capes["bivariant"]],
+        **cfg_layout["Llegenda"],
+        **cfg_estructura["Llegenda_bivariant"]
     )
 
     layout_common.exportar_layout(

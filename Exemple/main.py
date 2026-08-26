@@ -298,6 +298,14 @@ malla_especialitzacio = especialitzacio.assignar_especialitzacio_per_hexagons(
 )
 
 # ------------------------------------------------------------------------------
+# 5.4. Anàlisi bivariant dominància i diversitat funcional
+# ------------------------------------------------------------------------------
+
+malla_especialitzacio_bivariantDDF = especialitzacio.afegir_classe_bivariant_DF_D(
+    layer=malla_especialitzacio
+)
+
+# ------------------------------------------------------------------------------
 # 5.4. Accessibilitat
 # ------------------------------------------------------------------------------
 
@@ -436,7 +444,8 @@ layers_simbologia_especialitzacio_barris = simbologia_general.simbologia_especia
 
 ## Malla hexagonal
 layers_simbologia_especialitzacio_hexagons = simbologia_general.simbologia_hexagons_especialitzacio_funcional(
-    hexagons=malla_especialitzacio
+    hexagons=malla_especialitzacio_bivariantDDF,
+    terme=dict_layers_clean["Limits_administratius"]["TermeMunicipal"]
 )
 
 # ------------------------------------------------------------------------------
@@ -476,7 +485,8 @@ totes_les_capes = {
     **layers_simbologia_zones,
     **layers_simbologia_especialitzacio_districtes,
     **layers_simbologia_especialitzacio_barris,
-    **layers_simbologia_especialitzacio_hexagons,
+    **layers_simbologia_especialitzacio_hexagons["hexagons"],
+    "terme_hexagons": layers_simbologia_especialitzacio_hexagons["terme_municipal"],
     **layers_simbologia_accessibilitat,
     **layers_simbologia_bivariant_valids,
     "hexagons_no_valids_DF_A": layer_simbologia_bivariant_no_valids
@@ -547,7 +557,8 @@ layout_atles.composicio_atles(
 # ------------------------------------------------------------------------------
 
 layout_especialitzacio.composicio_especialitzacio(
-    capes=layers_simbologia_especialitzacio_hexagons,
+    capes=layers_simbologia_especialitzacio_hexagons["hexagons"],
+    capa_terme=layers_simbologia_especialitzacio_hexagons["terme_municipal"],
     capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"]
 )
 

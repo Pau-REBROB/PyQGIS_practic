@@ -1,30 +1,30 @@
 import config
 import simbologia.simbologies as simbologies
 
-def simbologia_us_predominant(hexagons):
-    """
-    Aplica una simbologia categòrica als hexàgons
-    segons el seu ús predominant.
-    """
+# def simbologia_us_predominant(hexagons):
+#     """
+#     Aplica una simbologia categòrica als hexàgons
+#     segons el seu ús predominant.
+#     """
 
-    layer = simbologies.simbologia_categorica(
-        layer=hexagons,
-        **config.SIMBOLOGIA["Hexagons_us_predominant"]
-    )
+#     layer = simbologies.simbologia_categorica(
+#         layer=hexagons,
+#         **config.SIMBOLOGIA["Hexagons_us_predominant"]
+#     )
 
-    renderer = layer.renderer()
+#     renderer = layer.renderer()
 
-    for i, categoria in enumerate(renderer.categories()):
-        valor = categoria.value()
-        etiqueta = config.ETIQUETES_USOS.get(valor, valor)
+#     for i, categoria in enumerate(renderer.categories()):
+#         valor = categoria.value()
+#         etiqueta = config.ETIQUETES_USOS.get(valor, valor)
 
-        renderer.updateCategoryLabel(i, etiqueta)
+#         renderer.updateCategoryLabel(i, etiqueta)
 
-    layer.triggerRepaint()
+#     layer.triggerRepaint()
     
-    layer.setName("Hexagons_us_predominant")
+#     layer.setName("Hexagons_us_predominant")
 
-    return layer
+#     return layer
 
 
 def simbologia_dominancia(hexagons):
@@ -35,7 +35,7 @@ def simbologia_dominancia(hexagons):
 
     layer = simbologies.simbologia_graduada_manual(
         layer=hexagons,
-        **config.SIMBOLOGIA["Hexagons_dominancia"]
+        **config.SIMBOLOGIA["Especialitzacio"]["Hexagons_dominancia"]
     )
 
     renderer = layer.renderer()
@@ -61,7 +61,7 @@ def simbologia_shannon(hexagons):
 
     layer = simbologies.simbologia_graduada_manual(
         layer=hexagons,
-        **config.SIMBOLOGIA["Hexagons_shannon"]
+        **config.SIMBOLOGIA["Especialitzacio"]["Hexagons_shannon"]
     )
 
     renderer = layer.renderer()
@@ -87,9 +87,25 @@ def simbologia_bivariant(hexagons):
 
     layer = simbologies.simbologia_categorica(
             layer=hexagons,
-            **config.SIMBOLOGIA["Hexagons_bivariant"]
+            **config.SIMBOLOGIA["Especialitzacio"]["Hexagons_bivariant"]
     )
         
     layer.setName("Hexagons_bivariància")
     
+    return layer
+
+
+def simbologia_terme_municipal(terme):
+    """
+    Aplica una simbologia única a la capa vectorial
+    del terme municipal
+    """
+
+    layer = simbologies.simbologia_unica(
+        layer=terme,
+        **config.SIMBOLOGIA["Especialitzacio"]["Terme"]
+    )
+
+    layer.setName("Terme municipal")
+
     return layer
