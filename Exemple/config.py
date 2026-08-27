@@ -616,25 +616,25 @@ LAYOUTS = {
 
     "ESTRUCTURA_ESPECIALITZACIO": {
         "Mapa_dominancia": {
-            "factor_escala": 0.40,#0.85,
-            "size": (60, 220),#2 vertical 1 hortiz(95, 150),
+            "factor_escala": 0.30,
+            "size": (65, 220),
             "position": (2.50, 14),
             "rotacio": 0,
             "offset_x": 1500,
             "offset_y": 0
         },
         "Mapa_shannon": {
-            "factor_escala": 0.40,#0.85,
-            "size": (60, 220), #(95, 150),
-            "position": (70, 14),#(2.50, 160),
+            "factor_escala": 0.30,
+            "size": (65, 220), 
+            "position": (72.5, 14),
             "rotacio": 0,
             "offset_x": 1500,
             "offset_y": 0
         },
         "Mapa_bivariant": {
-            "factor_escala": 0.40,
-            "size": (60, 220),
-            "position": (140, 14),#(2.50, 174.5),
+            "factor_escala": 0.30,
+            "size": (65, 220),
+            "position": (140, 14),
             "rotacio": 0,
             "offset_x": 1500,
             "offset_y": 0
@@ -645,48 +645,60 @@ LAYOUTS = {
         # },
         "Fons": {
             "size": (205, 280),
-            "position": (2.50, 14)
-        },
-        "Titol": {
-            "size": (200, 10),
             "position": (2.50, 2.50)
         },
+        "Titol": {
+            "size": (205, 10),
+            "position": (2.50, 2.50)
+        },
+        "Subtitol": {
+            "size": (205, 10),
+            "position": (2.50, 10)
+        },
         "Titol_dominancia": {
-            "size": (60, 10),
-            "position": (2.50, 210)
+            "size": (65, 10),
+            "position": (2.50, 240)
         },
-        # "Subtitol_dominancia": {
-        #     "size": (70, 12),
-        #     "position": (130, 24)
-        # },
         "Titol_shannon": {
-            "size": (60, 10),
-            "position": (70, 210)
+            "size": (65, 10),
+            "position": (70, 240)
         },
-        # "Subtitol_shannon": {
-        #     "size": (70, 12),
-        #     "position": (130, 170)
-        # },
         "Titol_bivariant": {
-            "size": (60, 10),
-            "position": (140, 210)
+            "size": (65, 10),
+            "position": (140, 240)
         },
-        # "Subtitol_bivariant": {
-        #     "size": (70, 12),
-        #     "position": (2.5, 210)
-        # },
         "Llegenda_dominancia": {
-            "titol": "Diferència (%) entre usos",
-            "position": (2.50, 214.5)
+            "titol": "Diferència entre usos",
+            "position": (2.50, 252)
         },
         "Llegenda_shannon": {
             "titol": "Índex de Shannon normalitzat",
-            "position": (70, 214.5)
+            "position": (70, 252)
         },
         "Llegenda_bivariant": {
-            "titol": "Índex bivariant",
-            "position": (140, 214.5)
-        }
+            #"titol": "Índex bivariant",
+            "position": (161, 262)
+        },
+        "Eix_dominancia_llegenda": {
+            "position": (161, 252),
+            "size": (50, 10),
+            "alineacio": "left",
+            "rotacio": 0
+        },
+        "Eix_diversitat_llegenda": {
+            "position": (144, 292),
+            "size": (50, 10),
+            "alineacio": "left",
+            "rotacio": -90
+        },
+        "Labels_superiors_llegenda": {
+            "position": (164, 257),
+            "size": (26, 6)
+        },
+        "Labels_laterals_llegenda": {
+            "position": (151, 266),
+            "size": (6, 26)
+        },
     },
 
     "ESTRUCTURA_BIVARIANT": {
@@ -1097,69 +1109,109 @@ LAYOUTS = {
             "font": "Calibri",
             "font_size": 18,
             "font_color": (0,0,0,255),
-            "alineacio": "center",
-            "backg_color": (150,150,150,180),
-            "frame_color": (255, 255, 255, 200)
+            "alineacio": "left",
+            "backg_color": (0, 0, 0, 0),
+            "frame_color": (0, 0, 0, 0)
+        },
+        "Subtitol": {
+            "subtitol": "Dominància, diversitat i relació entre ambdues dimensions",
+            "font": "Calibri",
+            "font_size": 14,
+            "font_color": (0,0,0,255),
+            "alineacio": "left",
+            "backg_color": (0, 0, 0, 0),#(150,150,150,180)
+            "frame_color": (0, 0, 0, 0)#(255, 255, 255, 200)
         },
         "Titol_dominancia": {
             "titol": "Dominancia funcional",
             "font": "Calibri Bold",
-            "font_size": 16,
+            "font_size": 14,
             "font_color": (0,0,0,255),
             "alineacio": "left",
-            "backg_color": (150,150,150,180),
-            "frame_color": (255, 255, 255, 200)
+            "backg_color": (180,180,180,180),
+            "frame_color": (0, 0, 0, 255)
         },
-        "Subtitol_dominancia": {
-            "subtitol": "Diferència percentual entre el primer\ni el segon ús",
-            "font": "Calibri Bold",
-            "font_size": 12,
-            "font_color": (10,10,10,255),
-            "alineacio": "left",
-            "backg_color": (150,150,150,180),
-            "frame_color": (255, 255, 255, 200)
-        },
+        # "Subtitol_dominancia": {
+        #     "subtitol": "Diferència percentual entre el primer\ni el segon ús",
+        #     "font": "Calibri Bold",
+        #     "font_size": 12,
+        #     "font_color": (10,10,10,255),
+        #     "alineacio": "left",
+        #     "backg_color": (150,150,150,180),
+        #     "frame_color": (255, 255, 255, 200)
+        # },
         "Titol_shannon": {
             "titol": "Diversitat funcional",
             "font": "Calibri Bold",
-            "font_size": 16,
+            "font_size": 14,
             "font_color": (0,0,0,255),
             "alineacio": "left",
-            "backg_color": (150,150,150,180),
-            "frame_color": (255, 255, 255, 200)
+            "backg_color": (180,180,180,180),
+            "frame_color": (0, 0, 0, 255)
         },
-        "Subtitol_shannon": {
-            "subtitol": "Índex de Shannon normalitzat",
-            "font": "Calibri Bold",
-            "font_size": 12,
-            "font_color": (10,10,10,255),
-            "alineacio": "left",
-            "backg_color": (150,150,150,180),
-            "frame_color": (255, 255, 255, 200)
-        },
+        # "Subtitol_shannon": {
+        #     "subtitol": "Índex de Shannon normalitzat",
+        #     "font": "Calibri Bold",
+        #     "font_size": 12,
+        #     "font_color": (10,10,10,255),
+        #     "alineacio": "left",
+        #     "backg_color": (150,150,150,180),
+        #     "frame_color": (255, 255, 255, 200)
+        # },
         "Titol_bivariant": {
             "titol": "Anàlisi bivariant",
             "font": "Calibri Bold",
-            "font_size": 16,
+            "font_size": 14,
             "font_color": (0,0,0,255),
             "alineacio": "left",
-            "backg_color": (150,150,150,180),
-            "frame_color": (255, 255, 255, 200)
+            "backg_color": (180,180,180,180),
+            "frame_color": (0, 0, 0, 255)
         },
-        "Subtitol_bivariant": {
-            "subtitol": "Anàlisi bivariant",
-            "font": "Calibri Bold",
-            "font_size": 12,
-            "font_color": (10,10,10,255),
-            "alineacio": "left",
-            "backg_color": (150,150,150,180),
-            "frame_color": (255, 255, 255, 200)
-        },
+        # "Subtitol_bivariant": {
+        #     "subtitol": "Anàlisi bivariant",
+        #     "font": "Calibri Bold",
+        #     "font_size": 12,
+        #     "font_color": (10,10,10,255),
+        #     "alineacio": "left",
+        #     "backg_color": (150,150,150,180),
+        #     "frame_color": (255, 255, 255, 200)
+        # },
         "Llegenda": {
             "font": "Calibri",
             "font_size": 12,
             "font_color": (0,0,0,255),
-            "backg_color": (150,150,150,180)
+            "backg_color": (0, 0, 0, 0)
+        },
+        "Llegenda_bivariant": {
+            "cell": 10,
+            "gap": 0.5,
+            "colors": COLORS_BIVARIANT
+        },
+        "Eix_dominancia_llegenda": {
+            "text": "Dominància funcional",
+            "font": "Calibri",
+            "font_size": 12,
+            "font_color": (0,0,0,255)
+        },
+        "Eix_diversitat_llegenda": {
+            "text": "Diversitat funcional",
+            "font": "Calibri",
+            "font_size": 12,
+            "font_color": (0,0,0,255)
+        },
+        "Labels_superiors_llegenda": {
+            "cell": 10,
+            "gap": 0.5,
+            "font": "Calibri",
+            "font_size": 8,
+            "font_color": (0,0,0,255)
+        },
+        "Labels_laterals_llegenda": {
+            "cell": 10,
+            "gap": 0.5,
+            "font": "Calibri",
+            "font_size": 8,
+            "font_color": (0,0,0,255)
         },
         "Exportacio": {
             "output_path": f"{PATH_RESULTATS}/Especialitzacio_funcional.pdf",

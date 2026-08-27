@@ -401,29 +401,6 @@ layers_simbologia_zones = simbologia_general.simbologia_zones(
     resultats=clusters_dict
 )
 
-# Heatmap
-# -----------------
-# Generar centroides dels edificis de serveis públics
-edificis_public = clusters.filtrar_capa(
-    layer=edificis_base,
-    expressio='"currentUse" = \'4_2_retail\''
-)
-
-import processing
-
-centroides_public = processing.run("native:centroids", {
-    'INPUT': edificis_public,
-    'ALL_PARTS': False,
-    'OUTPUT': 'memory:'
-})["OUTPUT"]
-
-# Aplicar heatmap
-layer_heatmap = simbologia_general.simbologia_heatmap(
-    layer=centroides_public,
-    radi=300,
-    color_ramp="YlOrRd"
-)
-
 # ------------------------------------------------------------------------------
 # 6.3. Especialització funcional - Dominància / Diversitat funcional
 # ------------------------------------------------------------------------------

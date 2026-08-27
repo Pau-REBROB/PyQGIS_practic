@@ -36,10 +36,9 @@ from qgis.PyQt.QtGui import (
     QColor
 )
 
-import os
-
 import config
 import layouts.layout_common as layout_common
+import layout_bivariant_zones as layout_bivariant
 
 def afegir_mapa(layout, capes, capa_extent, factor_escala, size, position):
     """
@@ -226,6 +225,10 @@ def composicio_especialitzacio(capes, capa_terme, capa_extent):
             **cfg_estructura["Fons"]
     )
 
+    # ------------------------------------------------------------------
+    # MAPES
+    # ------------------------------------------------------------------
+
     mapa_bivariant = layout_common.afegir_mapa(
         layout=layout,
         capes=[capa_terme, capes["bivariant"]],
@@ -247,10 +250,20 @@ def composicio_especialitzacio(capes, capa_terme, capa_extent):
         **cfg_estructura["Mapa_shannon"]
     )
 
+    # ------------------------------------------------------------------
+    # TÍTOLS
+    # ------------------------------------------------------------------
+
     layout_common.afegir_titol(
         layout=layout,
         **cfg_layout["Titol"],
         **cfg_estructura["Titol"]
+    )
+
+    layout_common.afegir_subtitol(
+        layout=layout,
+        **cfg_layout["Subtitol"],
+        **cfg_estructura["Subtitol"]
     )
 
     layout_common.afegir_titol(
@@ -289,6 +302,10 @@ def composicio_especialitzacio(capes, capa_terme, capa_extent):
     #     **cfg_estructura["Subtitol_bivariant"]
     # )
 
+    # ------------------------------------------------------------------
+    # LLEGENDA
+    # ------------------------------------------------------------------
+
     layout_common.afegir_llegenda(
         layout=layout,
         mapa=mapa_dominancia,
@@ -305,13 +322,47 @@ def composicio_especialitzacio(capes, capa_terme, capa_extent):
         **cfg_estructura["Llegenda_shannon"]
     )
 
-    layout_common.afegir_llegenda(
+    # layout_common.afegir_llegenda(
+    #     layout=layout,
+    #     mapa=mapa_bivariant,
+    #     capes=[capes["bivariant"]],
+    #     **cfg_layout["Llegenda"],
+    #     **cfg_estructura["Llegenda_bivariant"]
+    # )
+
+    layout_bivariant.afegir_llegenda_bivariant(
         layout=layout,
-        mapa=mapa_bivariant,
-        capes=[capes["bivariant"]],
-        **cfg_layout["Llegenda"],
+        **cfg_layout["Llegenda_bivariant"],
         **cfg_estructura["Llegenda_bivariant"]
     )
+
+    layout_common.afegir_text(
+        layout=layout,
+        **cfg_layout["Eix_dominancia_llegenda"],
+        **cfg_estructura["Eix_dominancia_llegenda"]
+    )
+
+    layout_common.afegir_text(
+        layout=layout,
+        **cfg_layout["Eix_diversitat_llegenda"],
+        **cfg_estructura["Eix_diversitat_llegenda"]
+    )
+
+    layout_bivariant.afegir_labels_superiors_llegenda(
+        layout=layout,
+        **cfg_layout["Labels_superiors_llegenda"],
+        **cfg_estructura["Labels_superiors_llegenda"]
+    )
+
+    layout_bivariant.afegir_labels_laterals_llegenda(
+        layout=layout,
+        **cfg_layout["Labels_laterals_llegenda"],
+        **cfg_estructura["Labels_laterals_llegenda"]
+    )
+
+    # ------------------------------------------------------------------
+    # EXPORTACIÓ
+    # ------------------------------------------------------------------
 
     layout_common.exportar_layout(
         layout=layout,
