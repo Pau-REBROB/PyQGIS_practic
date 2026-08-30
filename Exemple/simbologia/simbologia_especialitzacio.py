@@ -1,6 +1,20 @@
 import config
 import simbologia.simbologies as simbologies
 
+def simbologia_edificis_industrials(edificis, us):
+    """
+    Aplica una simbologia categòrica als edificis
+    segons el seu ús industrial o no.
+    """
+    ###SIMBOLOGIA CATEGÒRICA??
+
+    layer = simbologies.simbologia_unica(
+        layer=edificis,
+        **config.SIMBOLOGIA["Atles"][us]
+    )
+
+    return layer
+
 def simbologia_us_predominant(zones, ua):
     """
     Aplica una simbologia categòrica a les unitats

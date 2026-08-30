@@ -1,5 +1,5 @@
 """
-Anàlisi geoespacial de la distribució funcional i l'accessibilitat comercial a Barcelona
+Anàlisi geoespacial dels edificis industrials a Barcelona
 ========================================================================================
 
 Script principal que orquestra el flux complet d'anàlisi:
@@ -49,32 +49,6 @@ Autor
 7. Calcular accessibilitat per hexàgon (edificis → malla)
 8. Classificació bivariant (malla → malla)
 9. Cartografia final
-"""
-
-"""
-1. Què hi ha a Barcelona?
-↓
-2. Com es distribueix?
-↓
-3. On es concentra?
-↓
-4. Quines zones estan especialitzades?
-↓
-5. Quines són més diverses?
-↓
-6. Són també les més accessibles?
-↓
-7. En quin tipus de parc edificatori es produeixen aquests patrons?
-↓
-8. Què ens diu tot plegat sobre Barcelona?
-"""
-
-"""
-estructura:
-    Importació → retorna capes.
-    Anàlisi → retorna diccionaris de resultats.
-    Simbologia → retorna capes simbolitzades.
-    Layouts → consumeixen capes i exporten PDFs.
 """
 
 """
@@ -228,8 +202,11 @@ dict_indexs = preparacio_dades.crear_indexs(
 # 5.1. Capes base del projecte
 # ------------------------------------------------------------------------------
 
-# Crea les capes base d'edificis i malla hexagonal que serviran de suport
-#  per a totes les anàlisis posteriors
+# Crea les capes base d'unitats administratives, així com d'edificis i 
+# la malla hexagonal que serviran de suport per a totes les anàlisis posteriors
+## Terme municipal
+terme_base = dict_layers_clean["Limits_administratius"]["TermeMunicipal"]
+
 ## Districtes
 districtes_base = dict_layers_clean["Limits_administratius"]["Districtes"]
 
@@ -238,17 +215,34 @@ barris_base = dict_layers_clean["Limits_administratius"]["Barris"]
 
 ## Malla hexagonal
 malla_base = hexagons.generar_malla_retallada(
-    capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"],
+    capa_extent=terme_base,
     mida_hexagon=config.MIDA_HEXAGON
 )
 
 ## Edificis
 edificis = dict_layers_clean["Cadastre"]["Edificis"]
 
+## Edificis amb el seu barri i districte associat ???
+##################
+
 ## Edificis amb el seu hexagon associat
 edificis_base = hexagons.assignar_hexagons_a_edificis(
     edificis=edificis,
     malla=malla_base
+)
+
+# ------------------------------------------------------------------------------
+# 5.2. Ús industrial
+# ------------------------------------------------------------------------------
+
+edificis_industrial = especialitzacio.filtrar_usos_edificis(
+    edificis=edificis_base,
+    expressio='"currentUse" = \'3_industrial\''
+)
+
+edificis_no_industrial = especialitzacio.filtrar_usos_edificis(
+    edificis=edificis_base,
+    expressio='"currentUse" != \'3_industrial\''
 )
 
 # ------------------------------------------------------------------------------
@@ -311,11 +305,13 @@ malla_especialitzacio_bivariantDDF = especialitzacio.afegir_classe_bivariant_DF_
 
 # Comerços - 4_2_retail
 clusters_retail = clusters_dict["4_2_retail"]["clusters"]
+# Serveis públics - 4_3_publicServices
+clusters_publicS = clusters_dict["4_3_publicServices"]["clusters"]
 
 # Càlcul d'isoàrees d'accessibilitat
 isoarees = accessibilitat.analisi_accessibilitat(
     graf=dict_layers_clean["Graf"]["Graf_trams"],
-    origen=clusters_retail
+    origen=clusters_publicS
 )
 
 # Assignar el valor d'accessibilitat de les isoàrees als edificis
@@ -388,6 +384,15 @@ layers_simbologia_base = simbologia_general.simbologia_base(
 basemap_layer
 
 # ------------------------------------------------------------------------------
+# 6.2. Edificis industrials
+# ------------------------------------------------------------------------------
+
+layers_simbologia_edificis_industrials = simbologia_general.simbologia_industrial(
+    edificis_industrials=edificis_industrial,
+    edificis_no_industrials=edificis_no_industrial
+)
+
+# ------------------------------------------------------------------------------
 # 6.2. Agrupacions espacials - clústers
 # ------------------------------------------------------------------------------
 
@@ -429,10 +434,10 @@ layers_simbologia_especialitzacio_hexagons = simbologia_general.simbologia_hexag
 # 6.4. Accessibilitat
 # ------------------------------------------------------------------------------
 
-layers_simbologia_accessibilitat = simbologia_general.simbologia_edificis_accessibilitat(
+layers_simbologia_accessibilitat = simbologia_general.simbologia_composicio_accessibilitat(
     edificis=edificis_accessibilitat,
     graf=dict_layers_clean["Graf"]["Graf_trams"],
-    clusters=clusters_dict["4_3_publicServices"]["clusters"],
+    clusters=clusters_publicS,
     terme=dict_layers_clean["Limits_administratius"]["TermeMunicipal"]
 )
 
@@ -458,15 +463,16 @@ layer_simbologia_bivariant_no_valids = simbologies.simbologia_unica(
 totes_les_capes = {
     **layers_simbologia_base,
     "base_map": basemap_layer,
+    **layers_simbologia_edificis_industrials,
     **layers_simbologia_clusters,
     **layers_simbologia_zones,
-    **layers_simbologia_especialitzacio_districtes,
-    **layers_simbologia_especialitzacio_barris,
-    **layers_simbologia_especialitzacio_hexagons["hexagons"],
-    "terme_hexagons": layers_simbologia_especialitzacio_hexagons["terme_municipal"],
-    **layers_simbologia_accessibilitat,
-    **layers_simbologia_bivariant_valids,
-    "hexagons_no_valids_DF_A": layer_simbologia_bivariant_no_valids
+    # **layers_simbologia_especialitzacio_districtes,
+    # **layers_simbologia_especialitzacio_barris,
+    # **layers_simbologia_especialitzacio_hexagons["hexagons"],
+    # "terme_hexagons": layers_simbologia_especialitzacio_hexagons["terme_municipal"],
+    # **layers_simbologia_accessibilitat,
+    # **layers_simbologia_bivariant_valids,
+    # "hexagons_no_valids_DF_A": layer_simbologia_bivariant_no_valids
 }
 
 for capa in totes_les_capes.values():
@@ -545,10 +551,11 @@ layout_especialitzacio.composicio_especialitzacio(
 
 layout_accessibilitat.composicio_accessibilitat(
     capes=[
+        layers_simbologia_zones["4_3_publicServices"],
         layers_simbologia_accessibilitat["clusters"],
         layers_simbologia_accessibilitat["accessibilitat"],
-        layers_simbologia_accessibilitat["terme"]
-        #layers_accessibilitat["graf"]
+        layers_simbologia_accessibilitat["terme"],
+        layers_simbologia_accessibilitat["graf"]
     ],
     capa_extent=layers_simbologia_accessibilitat["clusters"]
 )
@@ -586,3 +593,12 @@ fusionar_layouts.fusionar_pdf(
     output_path=f"{config.PATH_RESULTATS}/Informe_final.pdf"
 )
 
+
+
+
+
+# -------------------------------------
+
+
+accessibilitat.distribucio_distancia(layers_simbologia_accessibilitat["accessibilitat"])
+accessibilitat.frequencies(layers_simbologia_accessibilitat["accessibilitat"])

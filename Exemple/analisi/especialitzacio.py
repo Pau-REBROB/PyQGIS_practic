@@ -7,6 +7,32 @@ from PyQt5.QtCore import QVariant
 
 import math
 
+def filtrar_usos_edificis(edificis, expressio):
+    """
+    Filtra els edificis segons el seu ús.
+
+    Paràmetres
+    ----------
+    edificis: QgsVectorLayer
+        Capa vectorial dels edificis.
+    expressio: str
+        Expressió per filtrar la capa d'edificis.
+
+    Retorna
+    -------
+    QgsVectorLayer
+        Capa vectorial d'edificis d'entrada filtrada.
+    """
+
+    request = QgsFeatureRequest().setFilterExpression(
+        expressio
+    )
+
+    edificis_industrial = edificis.materialize(request)
+
+    return edificis_industrial
+        
+
 def agrupar_edificis_per_zones(zones, edificis, idx_zones):
     """
     Agrupa els edificis segons la unitat administrativa on es

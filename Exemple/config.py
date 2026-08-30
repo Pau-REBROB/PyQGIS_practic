@@ -120,6 +120,14 @@ COLORS_USOS = {
     "4_3_publicServices": (165, 125, 195, 225)
 }
 
+COLORS_ATLES = {
+    "1_residential": (225, 215, 185, 80),
+    "2_agriculture": (125, 165, 105, 70),
+    "4_1_office": (220, 190, 125, 75),
+    "4_2_retail": (210, 140, 105, 75),
+    "4_3_publicServices": (165, 145, 180, 75)
+}
+
 COLORS_ZONES = {
     "1_residential": (245, 231, 190, 110),
     "2_agriculture": (105, 180, 75, 125),
@@ -172,8 +180,8 @@ MIN_EDIFICIS = 3
 
 CONFIG_ANALISI = {
     "Clusters": {
-        "eps": 100,
-        "min_size": 8,
+        "eps": 100,#100-8 per retail està bastant bé
+        "min_size": 5,
         # "min_size": 20,
         # "min_samples": 10
     },
@@ -245,9 +253,13 @@ INTERVALS_SHANNON = [
 
 INTERVALS_ACCESSIBILITAT = [
     0,
-    250,
-    500,
+    100,
+    200,
+    400,
+    600,
+    800,
     1000,
+    1500,
     2000,
     3000,
     5000
@@ -290,6 +302,22 @@ SIMBOLOGIA = {
             "stroke_color": (255,255,255,255)
         }
     },
+
+    "Atles": {
+        "Industrials": {
+            "nom": "Edificis industrials",
+            "fill_color": COLORS_USOS["3_industrial"],
+            "outline_width": 0.025,
+            "stroke_color": (255,255,255,255)
+        },
+        "No_industrials": {
+            "nom": "Edificis industrials",
+            "fill_color": COLORS_ATLES,
+            "outline_width": 0.025,
+            "stroke_color": (255,255,255,255)
+        }
+    },
+
     "Clusters": {
         "nom": "clusters",
         "mida": 0.50,
@@ -373,13 +401,8 @@ SIMBOLOGIA = {
             "stroke_color": (120,120,120,255)    
         }
     },
+
     "Especialitzacio": {
-        # "Hexagons_us_predominant": {
-        #     "atribut": 'us_predominant',
-        #     "colors_categories": COLORS_USOS,
-        #     "outline_width": 0.25,
-        #     "stroke_color": (120,120,120,255)
-        # },
         "Hexagons_dominancia": {
             "color_ramp": "YlOrRd",
             "intervals": INTERVALS_DOMINANCIA,
@@ -413,29 +436,31 @@ SIMBOLOGIA = {
             "outline_width": 0.50
         }
     },
+
     "Accessibilitat": {
-        "Edificis_accessibilitat": {
+        "Edificis": {
             "color_ramp": "RdBu",
             "intervals": INTERVALS_ACCESSIBILITAT,
             "atribut": 'accessibilitat',
             "stroke_color": (255,255,255,255),
-            "stroke_width": 0.01,
+            "stroke_width": 0.025,
             "invert_ramp": True
         } ,
-        "Graf_accessibilitat": {
+        "Graf": {
             "nom": "Graf viari",
             "fill_color": (255,255,255,255),
-            "width": 0.1,
+            "width": 0.025,
             "outline_color": (50,50,50,255),
-            "outline_width": 0.2
+            "outline_width": 0.05
         },
-        "Clusters_accessibilitat": {
+        "Clusters": {
             "nom": "Agrupacions comercials",
-            "fill_color": (255, 127, 0, 50),
+            "mida": 0.50,
+            "fill_color": COLORS_ZONES["4_2_retail"],
             "outline_width": 0.25,
-            "stroke_color": (255, 127, 0, 200)
+            "stroke_color": COLORS_USOS["4_2_retail"]
         },
-        "Terme_accessibilitat": {
+        "Terme": {
             "nom": "terme municipal",
             "fill_color": (0,0,0,0),
             "outline_width": 0.2,
@@ -905,12 +930,12 @@ LAYOUTS = {
 
     "ESTRUCTURA_ACCESS": {
         "Mapa": {
-            "factor_escala": 0.70,
+            "factor_escala": 0.60,
             "size": (290, 200),
             "position": (3.5, 5),
             "rotacio": 45,
-            "offset_x": 0,
-            "offset_y": 0
+            "offset_x": 1000,
+            "offset_y": 500
         },
         "Capçalera": {
             "text_size": (280, 5),

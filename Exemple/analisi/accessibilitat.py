@@ -8,13 +8,8 @@ from qgis.core import (
 
 from PyQt5.QtCore import QVariant
 
-
-import os
 from statistics import median
 import processing
-
-import config
-
 
 def generar_centroides_clusters(layer):
     """
@@ -100,7 +95,7 @@ def generar_isoarees(graf, points, strat, max_dist, interval):
             'OUTPUT_INTERPOLATION': QgsProcessing.TEMPORARY_OUTPUT,
             'OUTPUT_POLYGONS': QgsProcessing.TEMPORARY_OUTPUT
         }
-    )
+    ) 
 
     layer_isoareas = resultat["OUTPUT_POLYGONS"]
 
@@ -109,7 +104,7 @@ def generar_isoarees(graf, points, strat, max_dist, interval):
     return layer_isoareas   
 
 
-def analisi_accessibilitat(graf, origen, estrategia=0, distancia_max=5000, interval=250):
+def analisi_accessibilitat(graf, origen, estrategia=0, distancia_max=5000, interval=200):
     """
     Calcula les isoàrees d'accessibilitat a partir d'una capa d'origen.
 
@@ -358,3 +353,58 @@ def assignar_accessibilitat_per_hexagons(edificis, malla):
     layer.commitChanges()
 
     return layer
+
+
+
+
+# -------------------
+def distribucio_distancia(layer, camp="accessibilitat"):
+
+    intervals = [
+        (0, 250),
+        (250, 500),
+        (500, 1000),
+        (1000, 2000),
+        (2000, 3000),
+        (3000, 5000),
+    ]
+
+    total = 0
+    resultat = []
+
+    valors = [
+        f[camp]
+        for f in layer.getFeatures()
+        if f[camp] is not None
+    ]
+
+    total = len(valors)
+
+    for baix, alt in intervals:
+        n = sum(
+            baix <= valor < alt
+            for valor in valors
+        )
+
+        resultat.append({
+            "interval": f"{baix}-{alt} m",
+            "n": n,
+            "percentatge": n / total * 100
+        })
+
+    return resultat
+
+def frequencies(layer):
+    from collections import Counter
+
+    valors = [
+        f["accessibilitat"]
+        for f in layer.getFeatures()
+        if f["accessibilitat"] is not None
+    ]
+
+    freq = Counter(valors)
+
+    for valor, n in sorted(freq.items()):
+        print(f"{valor:>6} m → {n:>6} ({n / len(valors) * 100:5.1f} %)")
+

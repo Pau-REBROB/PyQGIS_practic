@@ -91,6 +91,41 @@ def simbologia_base(dict_layers):
 
 
 # ==============================================================================
+# EDIFICIS INDUSTRIALS
+# ==============================================================================
+
+def simbologia_industrial(edificis_industrials, edificis_no_industrials):
+    """
+    Aplica la simbologia als edificis d'ús industrial i la simbologia a
+    la resta d'edificis.
+
+    Paràmetres
+    ----------
+    edificis: QgsVectorLayer
+        Capa vectorial dels edificis.
+    
+    Retorna
+    -------
+    dict
+        Diccionari de capes simbolitzades.
+    """
+
+    layers_usos = {}
+
+    layers_usos["industrial"] = simbologia_especialitzacio.simbologia_edificis_industrials(
+        edificis=edificis_industrials,
+        us="Industrials"
+    )
+    
+    layers_usos["no_industrial"] = simbologia_especialitzacio.simbologia_edificis_industrials(
+        edificis=edificis_no_industrials,
+        us="No_industrials"
+    )
+
+    return layers_usos
+
+
+# ==============================================================================
 # AGRUPACIONS ESPACIALS
 # ==============================================================================
 
@@ -345,7 +380,7 @@ def simbologia_hexagons_especialitzacio_funcional(hexagons, terme):
 # ACCESSIBILITAT
 # ==============================================================================
 
-def simbologia_edificis_accessibilitat(edificis, graf, clusters, terme):
+def simbologia_composicio_accessibilitat(edificis, graf, clusters, terme):
     """
     Aplica les diferents simbologies d'accessibilitat a la
     capa d'edificis i del graf viari.
@@ -374,25 +409,21 @@ def simbologia_edificis_accessibilitat(edificis, graf, clusters, terme):
     """
 
     layers_access = {}
-
-    accessibilitat = simbologia_accessibilitat.simbologia_edificis(
+ 
+    layers_access["accessibilitat"] = simbologia_accessibilitat.simbologia_edificis(
         edificis=edificis
     )
-    layers_access["accessibilitat"] = accessibilitat
 
-    graf_viari = simbologia_accessibilitat.simbologia_graf(
+    layers_access["graf"] = simbologia_accessibilitat.simbologia_graf(
         graf=graf
     )
-    layers_access["graf"] = graf_viari
 
-    clusters_access = simbologia_accessibilitat.simbologia_clusters(
+    layers_access["clusters"] = simbologia_accessibilitat.simbologia_clusters(
         clusters=clusters
     )
-    layers_access["clusters"] = clusters_access
 
-    terme_access = simbologia_accessibilitat.simbologia_terme_municipal(
+    layers_access["terme"] = simbologia_accessibilitat.simbologia_terme_municipal(
         terme=terme
     )
-    layers_access["terme"] = terme_access
 
     return layers_access 
