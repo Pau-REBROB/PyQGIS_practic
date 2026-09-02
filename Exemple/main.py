@@ -112,6 +112,7 @@ sys.path.append(str(_base / "layouts"))
 import inicialitzacio
 import importacio
 import preparacio_dades
+import analisi.temporal as temporal
 import analisi.agregacions as agregacions
 import analisi.grafics as grafics
 import analisi.clusters as clusters
@@ -141,7 +142,7 @@ import config
 # ------------------------------------------------------------------------------
 
 _moduls = [
-    config, inicialitzacio, importacio, preparacio_dades,
+    config, inicialitzacio, importacio, preparacio_dades, temporal,
     agregacions, grafics, clusters, accessibilitat, especialitzacio,
     hexagons, simbologies, simbologia_especialitzacio,
     simbologia_hexagons, simbologia_accessibilitat, simbologia_general,
@@ -245,6 +246,76 @@ edificis_no_industrial = especialitzacio.filtrar_usos_edificis(
     expressio='"currentUse" != \'3_industrial\''
 )
 
+# ------------------------------------------------------------------------------
+# 5.3. Exploració de les dades
+# ------------------------------------------------------------------------------
+
+# Edificis industrials
+temporal.extreure_any_edificis(edificis_industrial)
+
+# Distribució anys de construcció
+# {
+#     '<1859': 8,
+#     '1859-1900': 20,
+#     '1900-1936': 217,
+#     '1936-1945': 127,
+#     '1945-1960': 194,
+#     '1960-1980': 752,
+#     '1980-2000': 323,
+#     '2000-2008': 51,
+#     '2008-2015': 22,
+#     '2015-2026': 33
+# }
+
+# Edificis no industrials
+temporal.extreure_any_edificis(edificis_no_industrial)
+
+# Distribució anys de construcció
+# {
+#     '<1859': 1193,
+#     '1859-1900': 2801,
+#     '1900-1936': 14891,
+#     '1936-1945': 5466,
+#     '1945-1960': 7540,
+#     '1960-1980': 22967,
+#     '1980-2000': 7533,
+#     '2000-2008': 2900,
+#     '2008-2015': 1213,
+#     '2015-2026': 1217
+# }
+
+# Addició del camp "any_construcció"
+edificis_industrial_net = temporal.afegir_any_construccio(edificis_industrial)
+edificis_no_industrial_net = temporal.afegir_any_construccio(edificis_no_industrial)
+
+
+
+# ------------------------------------------------------------------------------
+# 5.4. Anàlisi industrial
+# ------------------------------------------------------------------------------
+
+# Antiguitat dels edificis industrial
+## Per exemple:
+# abans de 1900
+# 1900–1945
+# 1946–1975
+# 1976–2000
+# 2001–2010
+# 2011–actualitat
+
+
+# Any de construcció de tots els edificis de Barcelona vs any de construcció dels edificis industrials actuals
+## La indústria que queda a Barcelona és més antiga que el parc edificat general?
+
+
+# concentració d'edificis industrials per districte/barri.
+
+
+# Accessibilitat?
+
+
+
+# ------------------------------------------------------------------
 # ------------------------------------------------------------------------------
 # 5.2. Agrupacions espacials - clústers
 # ------------------------------------------------------------------------------
@@ -387,9 +458,9 @@ basemap_layer
 # 6.2. Edificis industrials
 # ------------------------------------------------------------------------------
 
-layers_simbologia_edificis_industrials = simbologia_general.simbologia_industrial(
-    edificis_industrials=edificis_industrial,
-    edificis_no_industrials=edificis_no_industrial
+layers_simbologia_atles = simbologia_general.simbologia_atles(
+    edificis=edificis_base,
+    districtes=districtes_base
 )
 
 # ------------------------------------------------------------------------------
@@ -463,7 +534,7 @@ layer_simbologia_bivariant_no_valids = simbologies.simbologia_unica(
 totes_les_capes = {
     **layers_simbologia_base,
     "base_map": basemap_layer,
-    **layers_simbologia_edificis_industrials,
+    **layers_simbologia_atles,
     **layers_simbologia_clusters,
     **layers_simbologia_zones,
     # **layers_simbologia_especialitzacio_districtes,
@@ -510,15 +581,14 @@ layout_general.composicio_general(
 # ------------------------------------------------------------------------------
 
 layout_atles.composicio_atles(
-    districtes=layers_simbologia_base["Districtes"],
+    districtes=districtes_base,
     capes=[
-        layers_simbologia_base["Districtes"],
-        layers_simbologia_base["Edificis"],
-        #layers_simbologia_base["Barris"],
+        layers_simbologia_atles["Districtes"],
+        layers_simbologia_atles["Edificis"],
         basemap_layer
     ],
-    capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"],
-    capa_cobertura=layers_simbologia_base["Districtes"]
+    capa_extent=terme_base,
+    capa_cobertura=districtes_base
 )
 
 # # ------------------------------------------------------------------------------

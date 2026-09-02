@@ -123,6 +123,7 @@ COLORS_USOS = {
 COLORS_ATLES = {
     "1_residential": (225, 215, 185, 80),
     "2_agriculture": (125, 165, 105, 70),
+    "3_industrial": (125, 130, 135, 225),
     "4_1_office": (220, 190, 125, 75),
     "4_2_retail": (210, 140, 105, 75),
     "4_3_publicServices": (165, 145, 180, 75)
@@ -304,17 +305,17 @@ SIMBOLOGIA = {
     },
 
     "Atles": {
-        "Industrials": {
-            "nom": "Edificis industrials",
-            "fill_color": COLORS_USOS["3_industrial"],
+        "Edificis": {
+            "atribut": 'currentUse',
+            "colors_categories": COLORS_ATLES,
             "outline_width": 0.025,
             "stroke_color": (255,255,255,255)
         },
-        "No_industrials": {
-            "nom": "Edificis industrials",
-            "fill_color": COLORS_ATLES,
-            "outline_width": 0.025,
-            "stroke_color": (255,255,255,255)
+        "Districtes": {
+            "nom": "Districtes",
+            "fill_color": (255,255,255,0),
+            "outline_width": 0.35,
+            "stroke_color": (180, 140, 60, 85)   
         }
     },
 
@@ -568,9 +569,6 @@ LAYOUTS = {
             # "Llegenda": {
             #     "position": (230, 100)
             # },
-            # "Escala": {
-            #     "position": (260, 190)
-            # },
             # "Nord": {
             #     "size": (10, 10),
             #     "position": (260, 180)
@@ -597,9 +595,6 @@ LAYOUTS = {
             },
             # "Llegenda": {
             #     "position": (150, 150)
-            # },
-            # "Escala": {
-            #     "position": (165, 280)
             # },
             # "Nord": {
             #     "size": (10, 10),
@@ -1000,7 +995,7 @@ LAYOUTS = {
             "color": (100,100,100,180),
             "outline_color": (85,85,85,255),
             "outline_width": 0.40,
-            "text": "Ús dels edificis de la ciutat de Barcelona - Districte: [% 'NOM' %]",
+            "text": f"Ús dels edificis de la ciutat de Barcelona - Districte: ---",
             "font": "Calibri",
             "font_size": 18,
             "font_color": (0,0,0,255)
@@ -1020,12 +1015,6 @@ LAYOUTS = {
         #     "font_size": 10,
         #     "font_color": (0,0,0,255),
         #     "backg_color": (100,100,100,180)
-        # },
-        # "Escala": {
-        #     "tipus": "Single Box",
-        #     "font": "Calibri",
-        #     "font_size": 10,
-        #     "font_color": (0,0,0,255)
         # },
         # "Nord": {
         #     "image_path": "C:/projectes_git/Dades/nord2.png"

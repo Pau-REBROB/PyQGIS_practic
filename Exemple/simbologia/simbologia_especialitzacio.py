@@ -1,19 +1,44 @@
 import config
 import simbologia.simbologies as simbologies
 
-def simbologia_edificis_industrials(edificis, us):
+def simbologia_edificis_industrials(edificis):
     """
     Aplica una simbologia categòrica als edificis
     segons el seu ús industrial o no.
     """
-    ###SIMBOLOGIA CATEGÒRICA??
+
+    layer = simbologies.simbologia_categorica(
+        layer=edificis,
+        **config.SIMBOLOGIA["Atles"]["Edificis"]
+    )
+
+    renderer = layer.renderer()
+
+    for i, categoria in enumerate(renderer.categories()):
+        valor = categoria.value()
+        etiqueta = config.ETIQUETES_USOS.get(valor, valor)
+
+        renderer.updateCategoryLabel(i, etiqueta)
+
+    layer.triggerRepaint()
+    
+    layer.setName("Ús actual")
+    
+    return layer
+
+
+def simbologia_districtes_atles(districtes):
+    """
+    Aplica una simbologia única als districtes.
+    """
 
     layer = simbologies.simbologia_unica(
-        layer=edificis,
-        **config.SIMBOLOGIA["Atles"][us]
+        layer=districtes,
+        **config.SIMBOLOGIA["Atles"]["Districtes"]
     )
 
     return layer
+
 
 def simbologia_us_predominant(zones, ua):
     """

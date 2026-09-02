@@ -91,10 +91,10 @@ def simbologia_base(dict_layers):
 
 
 # ==============================================================================
-# EDIFICIS INDUSTRIALS
+# ATLES EDIFICIS INDUSTRIALS
 # ==============================================================================
 
-def simbologia_industrial(edificis_industrials, edificis_no_industrials):
+def simbologia_atles(edificis, districtes):
     """
     Aplica la simbologia als edificis d'ús industrial i la simbologia a
     la resta d'edificis.
@@ -110,19 +110,17 @@ def simbologia_industrial(edificis_industrials, edificis_no_industrials):
         Diccionari de capes simbolitzades.
     """
 
-    layers_usos = {}
+    layers_atles = {}
 
-    layers_usos["industrial"] = simbologia_especialitzacio.simbologia_edificis_industrials(
-        edificis=edificis_industrials,
-        us="Industrials"
-    )
-    
-    layers_usos["no_industrial"] = simbologia_especialitzacio.simbologia_edificis_industrials(
-        edificis=edificis_no_industrials,
-        us="No_industrials"
+    layers_atles["Edificis"] = simbologia_especialitzacio.simbologia_edificis_industrials(
+        edificis=edificis
     )
 
-    return layers_usos
+    layers_atles["Districtes"] = simbologia_especialitzacio.simbologia_districtes_atles(
+        districtes=districtes
+    )
+
+    return layers_atles
 
 
 # ==============================================================================
