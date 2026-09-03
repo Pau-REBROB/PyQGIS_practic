@@ -288,12 +288,33 @@ temporal.extreure_any_edificis(edificis_no_industrial)
 edificis_industrial_net = temporal.afegir_any_construccio(edificis_industrial)
 edificis_no_industrial_net = temporal.afegir_any_construccio(edificis_no_industrial)
 
-
-
 # ------------------------------------------------------------------------------
 # 5.4. Anàlisi industrial
 # ------------------------------------------------------------------------------
 
+# Densitat d'edificis industrials 
+## Per Districte
+agregacions.calcular_densitat_per_zona(
+    edificis=edificis_industrial_net,
+    idx_edificis=dict_indexs["Cadastre"]["Edificis"],
+    camp_id_edifici="gml_id",
+    zones=barris_base,
+    camp_id_zona="fid"
+)
+# {1: 0.0, 2: 0.0, 3: 0.0, 4: 0.0, 5: 0.0, 6: 0.0, 7: 3.7738088165542747, 8: 4.884259988464307, 9: 0.0, 10: 0.0, 11: 0.0, 
+#  12: 2.9499610590344156, 13: 0.0, 14: 0.0, 15: 0.0, 16: 0.0, 17: 0.0, 18: 0.0, 19: 0.0, 20: 0.0, 21: 0.0, 
+#  22: 0.0, 23: 0.0, 24: 0.0, 25: 0.0, 26: 0.0, 27: 0.0, 28: 0.0, 29: 0.0, 30: 0.0, 31: 0.0, 32: 0.0, 33: 0.0, 
+#  34: 0.0, 35: 0.0, 36: 0.0, 37: 0.0, 38: 0.0, 39: 0.0, 40: 0.0, 41: 0.0, 42: 0.0, 43: 0.0, 44: 0.0, 45: 0.0, 
+#  46: 2.2706834610293325, 47: 0.0, 48: 0.0, 49: 0.0, 50: 0.0, 51: 0.0, 52: 0.0, 53: 0.0, 54: 0.0, 55: 0.0, 56: 0.0, 
+#  57: 0.0, 58: 0.0, 59: 0.0, 60: 0.0, 61: 0.0, 62: 0.0, 63: 0.0, 64: 0.0,
+#   65: 0.0, 66: 0.0, 67: 0.0, 68: 0.0, 69: 0.0, 70: 0.0, 71: 0.0, 72: 0.0, 73: 0.0}
+## Toca canviar el id de la zona pel NOM
+
+
+
+
+
+#----------------
 # Antiguitat dels edificis industrial
 ## Per exemple:
 # abans de 1900
@@ -316,111 +337,111 @@ edificis_no_industrial_net = temporal.afegir_any_construccio(edificis_no_industr
 
 
 # ------------------------------------------------------------------
-# ------------------------------------------------------------------------------
-# 5.2. Agrupacions espacials - clústers
-# ------------------------------------------------------------------------------
+# # ------------------------------------------------------------------------------
+# # 5.2. Agrupacions espacials - clústers
+# # ------------------------------------------------------------------------------
 
-clusters_dict = clusters.analisi_clusters(
-    layer=edificis_base,
-    usos=config.USOS
-)
+# clusters_dict = clusters.analisi_clusters(
+#     layer=edificis_base,
+#     usos=config.USOS
+# )
 
-# ------------------------------------------------------------------------------
-# 5.3. Especialització funcional - Dominància i diversitat funcional
-# ------------------------------------------------------------------------------
+# # ------------------------------------------------------------------------------
+# # 5.3. Especialització funcional - Dominància i diversitat funcional
+# # ------------------------------------------------------------------------------
 
-## Districtes
-resultats_especialitzacio_districtes = especialitzacio.analisi_especialitzacio(
-    zones=districtes_base,
-    edificis=edificis_base,
-    idx_zones=dict_indexs["Limits_administratius"]["Districtes"],
-    usos_exclosos=["1_residential", "2_agriculture"]
-)
-# Addició dels camps d'especialització
-districtes_especialitzacio = especialitzacio.afegir_resultats_especialitzacio(
-    zones=districtes_base,
-    resultats=resultats_especialitzacio_districtes
-)
+# ## Districtes
+# resultats_especialitzacio_districtes = especialitzacio.analisi_especialitzacio(
+#     zones=districtes_base,
+#     edificis=edificis_base,
+#     idx_zones=dict_indexs["Limits_administratius"]["Districtes"],
+#     usos_exclosos=["1_residential", "2_agriculture"]
+# )
+# # Addició dels camps d'especialització
+# districtes_especialitzacio = especialitzacio.afegir_resultats_especialitzacio(
+#     zones=districtes_base,
+#     resultats=resultats_especialitzacio_districtes
+# )
 
-## Barris
-resultats_especialitzacio_barris = especialitzacio.analisi_especialitzacio(
-    zones=barris_base,
-    edificis=edificis_base,
-    idx_zones=dict_indexs["Limits_administratius"]["Barris"],
-    usos_exclosos=["1_residential", "2_agriculture"]
-)
-# Addició dels camps d'especialització
-barris_especialitzacio = especialitzacio.afegir_resultats_especialitzacio(
-    zones=barris_base,
-    resultats=resultats_especialitzacio_barris
-)
+# ## Barris
+# resultats_especialitzacio_barris = especialitzacio.analisi_especialitzacio(
+#     zones=barris_base,
+#     edificis=edificis_base,
+#     idx_zones=dict_indexs["Limits_administratius"]["Barris"],
+#     usos_exclosos=["1_residential", "2_agriculture"]
+# )
+# # Addició dels camps d'especialització
+# barris_especialitzacio = especialitzacio.afegir_resultats_especialitzacio(
+#     zones=barris_base,
+#     resultats=resultats_especialitzacio_barris
+# )
 
-# Assignar els camps d'especialització a la malla a partir dels edificis
-malla_especialitzacio = especialitzacio.assignar_especialitzacio_per_hexagons(
-    edificis=edificis_base,
-    malla=malla_base,
-    usos_exclosos=['1_residential', "2_agriculture"]
-)
+# # Assignar els camps d'especialització a la malla a partir dels edificis
+# malla_especialitzacio = especialitzacio.assignar_especialitzacio_per_hexagons(
+#     edificis=edificis_base,
+#     malla=malla_base,
+#     usos_exclosos=['1_residential', "2_agriculture"]
+# )
 
-# ------------------------------------------------------------------------------
-# 5.4. Anàlisi bivariant dominància i diversitat funcional
-# ------------------------------------------------------------------------------
+# # ------------------------------------------------------------------------------
+# # 5.4. Anàlisi bivariant dominància i diversitat funcional
+# # ------------------------------------------------------------------------------
 
-malla_especialitzacio_bivariantDDF = especialitzacio.afegir_classe_bivariant_DF_D(
-    layer=malla_especialitzacio
-)
+# malla_especialitzacio_bivariantDDF = especialitzacio.afegir_classe_bivariant_DF_D(
+#     layer=malla_especialitzacio
+# )
 
-# ------------------------------------------------------------------------------
-# 5.4. Accessibilitat
-# ------------------------------------------------------------------------------
+# # ------------------------------------------------------------------------------
+# # 5.4. Accessibilitat
+# # ------------------------------------------------------------------------------
 
-# Comerços - 4_2_retail
-clusters_retail = clusters_dict["4_2_retail"]["clusters"]
-# Serveis públics - 4_3_publicServices
-clusters_publicS = clusters_dict["4_3_publicServices"]["clusters"]
+# # Comerços - 4_2_retail
+# clusters_retail = clusters_dict["4_2_retail"]["clusters"]
+# # Serveis públics - 4_3_publicServices
+# clusters_publicS = clusters_dict["4_3_publicServices"]["clusters"]
 
-# Càlcul d'isoàrees d'accessibilitat
-isoarees = accessibilitat.analisi_accessibilitat(
-    graf=dict_layers_clean["Graf"]["Graf_trams"],
-    origen=clusters_publicS
-)
+# # Càlcul d'isoàrees d'accessibilitat
+# isoarees = accessibilitat.analisi_accessibilitat(
+#     graf=dict_layers_clean["Graf"]["Graf_trams"],
+#     origen=clusters_publicS
+# )
 
-# Assignar el valor d'accessibilitat de les isoàrees als edificis
-edificis_accessibilitat = accessibilitat.assignar_isoarees_a_edificis(
-    edificis=edificis_base,
-    isoarees=isoarees
-)
+# # Assignar el valor d'accessibilitat de les isoàrees als edificis
+# edificis_accessibilitat = accessibilitat.assignar_isoarees_a_edificis(
+#     edificis=edificis_base,
+#     isoarees=isoarees
+# )
 
-# Assignar el valor d'accessibilitat dels edificis a la malla hexagonal
-malla_accessibilitat = accessibilitat.assignar_accessibilitat_per_hexagons(
-    edificis=edificis_accessibilitat,
-    malla=malla_especialitzacio
-)
+# # Assignar el valor d'accessibilitat dels edificis a la malla hexagonal
+# malla_accessibilitat = accessibilitat.assignar_accessibilitat_per_hexagons(
+#     edificis=edificis_accessibilitat,
+#     malla=malla_especialitzacio
+# )
 
-# ------------------------------------------------------------------------------
-# 5.5. Anàlisi bivariant
-# ------------------------------------------------------------------------------
+# # ------------------------------------------------------------------------------
+# # 5.5. Anàlisi bivariant
+# # ------------------------------------------------------------------------------
 
-## Districtes
-districtes_bivariant_DF_A = especialitzacio.afegir_classe_bivariant_DF_A(
-    layer=districtes_especialitzacio
-)
+# ## Districtes
+# districtes_bivariant_DF_A = especialitzacio.afegir_classe_bivariant_DF_A(
+#     layer=districtes_especialitzacio
+# )
 
-## Barris
-barris_bivariant_DF_A = especialitzacio.afegir_classe_bivariant_DF_A(
-    layer=barris_especialitzacio
-)
+# ## Barris
+# barris_bivariant_DF_A = especialitzacio.afegir_classe_bivariant_DF_A(
+#     layer=barris_especialitzacio
+# )
 
-## Malla hexagonal
-malla_bivariant_DF_A = especialitzacio.afegir_classe_bivariant_DF_A(
-    layer=malla_accessibilitat
-)
+# ## Malla hexagonal
+# malla_bivariant_DF_A = especialitzacio.afegir_classe_bivariant_DF_A(
+#     layer=malla_accessibilitat
+# )
 
-# Separar els hexàgons vàlids dels no vàlids - aquells amb el camp
-# de l'anàlisi bivariant NULL
-hexagons_valids_DF_A, hexagons_no_valids_DF_A = hexagons.separar_hexagons_valids(
-    malla=malla_bivariant_DF_A
-)
+# # Separar els hexàgons vàlids dels no vàlids - aquells amb el camp
+# # de l'anàlisi bivariant NULL
+# hexagons_valids_DF_A, hexagons_no_valids_DF_A = hexagons.separar_hexagons_valids(
+#     malla=malla_bivariant_DF_A
+# )
 
 # # ------------------------------------------------------------------------------
 # # 5.2. Agregacions zonals - APARCAT FINS A ANYS DE CONSTRUCCIÓ
