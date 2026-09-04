@@ -18,6 +18,7 @@ Les funcions s'organitzen en tres nivells:
 """
 
 from qgis.core import (
+    QgsSpatialIndex,
     QgsGeometry,
     QgsFeatureRequest,
     QgsField
@@ -26,7 +27,7 @@ from qgis.PyQt.QtCore import QVariant
 
 import config
 
-def calcular_densitat_per_zona(edificis, idx_edificis, camp_id_edifici, zones, camp_id_zona):
+def calcular_densitat_per_zona(edificis, camp_id_edifici, zones, camp_id_zona):
     """
     Calcula la densitat d'edificis (edificis/km²) per cada zona.
 
@@ -41,8 +42,6 @@ def calcular_densitat_per_zona(edificis, idx_edificis, camp_id_edifici, zones, c
     ----------
     edificis : QgsVectorLayer
         Capa d'edificis a comptar.
-    idx_edificis: QgsSpatialIndex
-        Índex espacial de la capa d'edificis.
     camp_id_edifici : str
         Nom del camp identificador de l'edifici dins de `edificis`
         (p. ex. "gml_id" o "referenciaCadastral"), usat per identificar
@@ -59,6 +58,8 @@ def calcular_densitat_per_zona(edificis, idx_edificis, camp_id_edifici, zones, c
         Diccionari { id_zona: densitat_edificis_km2 }.
         Les zones sense cap edifici assignat hi apareixen amb valor 0.
     """
+    index_edificis = QgsSpatialIndex(edificis.getFeatures())
+
     densitats = {}
 
     for zona in zones.getFeatures():
@@ -68,7 +69,7 @@ def calcular_densitat_per_zona(edificis, idx_edificis, camp_id_edifici, zones, c
         superficie_zona = geometria_zona.area() / 1000000
 
         # Fase ràpida: edificis candidats per bbox
-        candidats = idx_edificis.intersects(geometria_zona.boundingBox())
+        candidats = index_edificis.intersects(geometria_zona.boundingBox())
 
         # Geometry engine preparat un sol cop per zona, reutilitzat per
         # a cada candidat (més ràpid que geometria_zona.intersects(...)

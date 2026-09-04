@@ -297,13 +297,14 @@ edificis_no_industrial_net = temporal.afegir_any_construccio(edificis_no_industr
 ## Per Districte
 densitat_industrial_districtes = agregacions.calcular_densitat_per_zona(
     edificis=edificis_industrial_net,
-    idx_edificis=dict_indexs["Cadastre"]["Edificis"],
     camp_id_edifici="gml_id",
     zones=districtes_base,
     camp_id_zona="NOM"
 )
-# {1: 0.0, 2: 11.119591155446466, 3: 11.145177938405665, 4: 0.0, 5: 0.0,
-#   6: 1.4203611191600811, 7: 0.0, 8: 0.0, 9: 0.0, 10: 0.0}
+# {'Ciutat Vella': 2.8537925019109616, 'Eixample': 11.119591155446466, 'Sants-Montjuïc': 13.898692487894122,
+#  'Les Corts': 6.488354364332429, 'Sarrià-Sant Gervasi': 1.4062836045522231, 'Gràcia': 5.20799077025363,
+#  'Horta-Guinardó': 11.91101011481912, 'Nou Barris': 10.922900976136285,
+#  'Sant Andreu': 61.58532198416397, 'Sant Martí': 58.44760368555757}
 
 districtes_zones_densitat_industrial = agregacions.escriure_valors_zonals_a_capa(
     zones=districtes_base,
@@ -315,18 +316,36 @@ districtes_zones_densitat_industrial = agregacions.escriure_valors_zonals_a_capa
 ## Per Barri
 densitat_industrial_barris = agregacions.calcular_densitat_per_zona(
     edificis=edificis_industrial_net,
-    idx_edificis=dict_indexs["Cadastre"]["Edificis"],
     camp_id_edifici="gml_id",
     zones=barris_base,
     camp_id_zona="NOM"
 )
-# {1: 0.0, 2: 0.0, 3: 0.0, 4: 0.0, 5: 0.0, 6: 0.0, 7: 3.7738088165542747, 8: 4.884259988464307, 9: 0.0, 10: 0.0, 11: 0.0, 
-#  12: 2.9499610590344156, 13: 0.0, 14: 0.0, 15: 0.0, 16: 0.0, 17: 0.0, 18: 0.0, 19: 0.0, 20: 0.0, 21: 0.0, 
-#  22: 0.0, 23: 0.0, 24: 0.0, 25: 0.0, 26: 0.0, 27: 0.0, 28: 0.0, 29: 0.0, 30: 0.0, 31: 0.0, 32: 0.0, 33: 0.0, 
-#  34: 0.0, 35: 0.0, 36: 0.0, 37: 0.0, 38: 0.0, 39: 0.0, 40: 0.0, 41: 0.0, 42: 0.0, 43: 0.0, 44: 0.0, 45: 0.0, 
-#  46: 2.2706834610293325, 47: 0.0, 48: 0.0, 49: 0.0, 50: 0.0, 51: 0.0, 52: 0.0, 53: 0.0, 54: 0.0, 55: 0.0, 56: 0.0, 
-#  57: 0.0, 58: 0.0, 59: 0.0, 60: 0.0, 61: 0.0, 62: 0.0, 63: 0.0, 64: 0.0,
-#   65: 0.0, 66: 0.0, 67: 0.0, 68: 0.0, 69: 0.0, 70: 0.0, 71: 0.0, 72: 0.0, 73: 0.0}
+# {'el Raval': 2.7265634843773037, 'el Barri Gòtic': 2.452200668772121, 'la Barceloneta': 1.6958034661544819,
+# 'Sant Pere, Santa Caterina i la Ribera': 4.505849034472708, 'el Fort Pienc': 9.684127636162055,
+# 'la Sagrada Família': 24.95610253010519, "la Dreta de l'Eixample": 3.7738088165542747,
+# "l'Antiga Esquerra de l'Eixample": 4.884259988464307, "la Nova Esquerra de l'Eixample": 14.171689098468015,
+# 'Sant Antoni': 18.654236670243844, 'el Poble-sec': 6.324529389514533, 'la Marina del Prat Vermell': 15.592651312039054,
+# 'la Marina de Port': 2.3647930992850785, 'la Font de la Guatlla': 10.098647380844538,
+# "el Camp d'en Grassot i Gràcia Nova": 4.61164913145761, 'el Baix Guinardó': 17.778862115958393, 'el Guinardó': 8.40507309065514,
+# 'Can Baró': 18.22045119044464, 'el Carmel': 37.23441948550119, 'la Teixonera': 32.58827530724994,
+# 'Sant Genís dels Agudells': 2.3744865827312482, 'Montbau': 0.9737151239483247, "la Vall d'Hebron": 4.029382641168529,
+# 'la Clota': 56.025225238931164, "la Font d'en Fargues": 15.215544799622181, 'Horta': 12.703513507404692,
+# 'Vilapicina i la Torre Llobeta': 8.860848338453309, 'Porta': 13.144931606972728, 'el Turó de la Peira': 5.646325054113575,
+# 'Hostafrancs': 29.2734722755591, 'la Bordeta': 27.961625212707638, 'Sants - Badal': 21.708217944174613, 'Sants': 21.92494916055728,
+# 'les Corts': 11.34422263315873, 'la Maternitat i Sant Ramon': 9.397657425819444, 'Pedralbes': 1.8622052926612433,
+# 'Vallvidrera, el Tibidabo i les Planes': 0.8830403547994439, 'Sarrià': 2.953294189844949, 'les Tres Torres': 1.2691009607006392,
+# 'Sant Gervasi - la Bonanova': 2.238497094517822, 'el Putxet i el Farró': 3.5383220538145563,
+# 'Sant Gervasi - Galvany': 0.599082305312369, 'Vallcarca i els Penitents': 1.5987855670146418, 'el Coll': 2.8310591844621396,
+# 'la Salut': 3.0845678970070307, 'la Vila de Gràcia': 10.596522818136885, 'Navas': 0.0,
+# "el Camp de l'Arpa del Clot": 39.155687494662416, 'el Clot': 31.57326443505451, 'el Parc i la Llacuna del Poblenou': 98.92683222755115,
+# 'la Vila Olímpica del Poblenou': 25.95043566546357, 'el Poblenou': 82.9594560753457,
+# 'Diagonal Mar i el Front Marítim del Poblenou': 6.5202194375444655, 'el Besòs i el Maresme': 17.374017015289535,
+# 'Provençals del Poblenou': 160.2594171031141, 'Sant Martí de Provençals': 0.0, 'la Verneda i la Pau': 80.53251319047949,
+# 'Can Peguera': 0.0, 'la Guineueta': 6.536400701508535, 'Verdun': 29.521139741469945, 'la Prosperitat': 11.839946051622706,
+# 'Canyelles': 6.328301757792411, 'les Roquetes': 18.662007870325617, 'la Trinitat Nova': 3.467964647675853,
+# 'Torre Baró': 7.463437365028402, 'Ciutat Meridiana': 2.6547504133865965, 'Vallbona': 30.95285128736839,
+# 'la Trinitat Vella': 3.714655570609501, 'Baró de Viver': 4.349854459425396, 'el Bon Pastor': 195.3746320057572,
+# 'Sant Andreu': 10.17446973022927, 'la Sagrera': 8.111029348092325, 'el Congrés i els Indians': 24.43708933167582}
 
 barris_zones_densitat_industrial = agregacions.escriure_valors_zonals_a_capa(
     zones=barris_base,
@@ -338,7 +357,6 @@ barris_zones_densitat_industrial = agregacions.escriure_valors_zonals_a_capa(
 ## Per Hexàgon
 densitat_industrial_hexagons = agregacions.calcular_densitat_per_zona(
     edificis=edificis_industrial_net,
-    idx_edificis=dict_indexs["Cadastre"]["Edificis"],
     camp_id_edifici="gml_id",
     zones=malla_base,
     camp_id_zona="id"
