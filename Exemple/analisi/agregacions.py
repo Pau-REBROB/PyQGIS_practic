@@ -19,8 +19,10 @@ Les funcions s'organitzen en tres nivells:
 
 from qgis.core import (
     QgsGeometry,
-    QgsFeatureRequest
+    QgsFeatureRequest,
+    QgsField
 )
+from qgis.PyQt.QtCore import QVariant
 
 import config
 
@@ -92,6 +94,82 @@ def calcular_densitat_per_zona(edificis, idx_edificis, camp_id_edifici, zones, c
     return densitats
 
 ### FUNCIÓ DE REFERÈNCIA!!!
+# La pròpia documentació de QgsSpatialIndex.intersects() ho diu explícitament: 
+# la comprovació d'intersecció es fa només amb els bounding boxes de les geometries, de manera que per a geometries 
+# que no són punts cal comprovar manualment la intersecció exacta amb les features retornades quan es necessiti precisió. 
+# És literalment el "broad phase / narrow phase" que comentàvem — és el comportament documentat i esperat de l'índex.
+
+# L'algorisme oficial de QGIS "Count points in polygon" (el que hi ha al Processing Toolbox) segueix exactament aquesta
+#  mateixa lògica en dos passos: primer obté els punts candidats amb spatialIndex.intersects(geom.boundingBox()), i després, 
+# per a cada candidat, verifica la intersecció exacta. 
+
+# Dues diferències respecte a la teva versió, que val la pena que coneguis:
+# QgsGeometry.createGeometryEngine() + engine.prepareGeometry() en comptes de geometria_zona.intersects(...) repetit.
+#  El codi font oficial crea un "geometry engine" preparat una sola vegada per polígon (engine.prepareGeometry()) i
+#  després el reutilitza per a cada comprovació d'intersecció exacta contra els candidats. És una optimització de GEOS: si 
+# vas a comprovar la mateixa geometria de zona contra molts candidats (com fas tu, dins del bucle de zones), preparar-la un cop
+#  és més ràpid que cridar .intersects() directament cada vegada, perquè evita recalcular estructures internes de la geometria 
+# a cada crida. 
+# QgsFeatureRequest().setFilterFids(candidats) en comptes de getFeature(fid) dins d'un bucle. El mateix exemple oficial 
+# construeix una QgsFeatureRequest amb setFilterFids() per recuperar tots els candidats d'un cop, en lloc de cridar getFeature()
+#  una vegada per cada fid — més eficient quan hi ha molts candidats, perquè és una sola consulta a la capa en comptes de moltes.
+
+
+def escriure_valors_zonals_a_capa(zones, dict_valors, camp_id_zona, nom_camp_resultat):
+    """
+    Escriu un diccionari de resultats { id_zona: valor } com a nou camp
+    d'una còpia de la capa de zones, sense modificar la capa original.
+
+    Paràmetres
+    ----------
+    zones : QgsVectorLayer
+        Capa de polígons de zonificació (barris, districtes, hexàgons, etc.).
+    diccionari_valors : dict
+        Diccionari { id_zona: valor }, típicament la sortida d'una funció
+        d'agregació (p. ex. calcular_densitat_per_zona).
+    camp_id_zona : str
+        Nom del camp identificador de la zona, usat per fer coincidir
+        cada feature amb la seva entrada al diccionari.
+    nom_camp_resultat : str
+        Nom del nou camp on s'escriurà el valor.
+
+    Retorna
+    -------
+    QgsVectorLayer
+        Còpia en memòria de `zones` amb el nou camp afegit i emplenat.
+        Les zones sense entrada al diccionari queden amb el camp a NULL.
+    """
+    capa_resultat = zones.materialize(QgsFeatureRequest())
+    capa_resultat.setName(f"{zones.name()}_{nom_camp_resultat}")
+
+    provider = capa_resultat.dataProvider()
+    provider.addAttributes([
+        QgsField(nom_camp_resultat, QVariant.Double)
+    ])
+    capa_resultat.updateFields()
+
+    idx_camp = capa_resultat.fields().indexOf(nom_camp_resultat)
+
+    # Diccionari de canvis en bloc: { id_feature: {idx_camp: valor} }
+    canvis = {
+        feature.id(): {idx_camp: dict_valors.get(feature[camp_id_zona])}
+        for feature in capa_resultat.getFeatures()
+    }
+
+    provider.changeAttributeValues(canvis)
+    capa_resultat.updateFields()
+
+    return capa_resultat
+
+###FUNCIÓ DE REFERÈNCIA
+# changeAttributeValues() en bloc (provider), no changeAttributeValue() un per un dins un bucle amb startEditing()
+# Aquí sí hi ha una diferència real. El tutorial oficial mostra que actualitzar valors és responsabilitat del dataProvider,
+#  amb changeAttributeValues() (plural) rebent un diccionari de tots els canvis d'un cop: { id_feature: {idx_camp: valor} }.
+#  Això és més eficient que el meu bucle startEditing() + changeAttributeValue() feature a feature, perquè és una
+#  sola crida en lloc de N crides transaccionades.
+# ja no hi ha startEditing()/commitChanges() ni bucle amb changeAttributeValue() un a un — es construeix el diccionari complet
+#  de canvis i s'aplica d'un sol cop amb provider.changeAttributeValues(canvis). És el patró que la documentació oficial mostra
+#  per actualitzar valors després d'afegir un camp.
 
 
 

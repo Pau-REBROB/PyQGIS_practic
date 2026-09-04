@@ -292,14 +292,33 @@ edificis_no_industrial_net = temporal.afegir_any_construccio(edificis_no_industr
 # 5.4. Anàlisi industrial
 # ------------------------------------------------------------------------------
 
-# Densitat d'edificis industrials 
+# Càlcul de densitat d'edificis industrials
+# Escriptura dels resultats 
 ## Per Districte
-agregacions.calcular_densitat_per_zona(
+densitat_industrial_districtes = agregacions.calcular_densitat_per_zona(
+    edificis=edificis_industrial_net,
+    idx_edificis=dict_indexs["Cadastre"]["Edificis"],
+    camp_id_edifici="gml_id",
+    zones=districtes_base,
+    camp_id_zona="NOM"
+)
+# {1: 0.0, 2: 11.119591155446466, 3: 11.145177938405665, 4: 0.0, 5: 0.0,
+#   6: 1.4203611191600811, 7: 0.0, 8: 0.0, 9: 0.0, 10: 0.0}
+
+districtes_zones_densitat_industrial = agregacions.escriure_valors_zonals_a_capa(
+    zones=districtes_base,
+    dict_valors=densitat_industrial_districtes,
+    camp_id_zona="NOM",
+    nom_camp_resultat="densitat_industrial_km2"
+)
+
+## Per Barri
+densitat_industrial_barris = agregacions.calcular_densitat_per_zona(
     edificis=edificis_industrial_net,
     idx_edificis=dict_indexs["Cadastre"]["Edificis"],
     camp_id_edifici="gml_id",
     zones=barris_base,
-    camp_id_zona="fid"
+    camp_id_zona="NOM"
 )
 # {1: 0.0, 2: 0.0, 3: 0.0, 4: 0.0, 5: 0.0, 6: 0.0, 7: 3.7738088165542747, 8: 4.884259988464307, 9: 0.0, 10: 0.0, 11: 0.0, 
 #  12: 2.9499610590344156, 13: 0.0, 14: 0.0, 15: 0.0, 16: 0.0, 17: 0.0, 18: 0.0, 19: 0.0, 20: 0.0, 21: 0.0, 
@@ -308,9 +327,29 @@ agregacions.calcular_densitat_per_zona(
 #  46: 2.2706834610293325, 47: 0.0, 48: 0.0, 49: 0.0, 50: 0.0, 51: 0.0, 52: 0.0, 53: 0.0, 54: 0.0, 55: 0.0, 56: 0.0, 
 #  57: 0.0, 58: 0.0, 59: 0.0, 60: 0.0, 61: 0.0, 62: 0.0, 63: 0.0, 64: 0.0,
 #   65: 0.0, 66: 0.0, 67: 0.0, 68: 0.0, 69: 0.0, 70: 0.0, 71: 0.0, 72: 0.0, 73: 0.0}
-## Toca canviar el id de la zona pel NOM
 
+barris_zones_densitat_industrial = agregacions.escriure_valors_zonals_a_capa(
+    zones=barris_base,
+    dict_valors=densitat_industrial_barris,
+    camp_id_zona="NOM",
+    nom_camp_resultat="densitat_industrial_km2"
+)
 
+## Per Hexàgon
+densitat_industrial_hexagons = agregacions.calcular_densitat_per_zona(
+    edificis=edificis_industrial_net,
+    idx_edificis=dict_indexs["Cadastre"]["Edificis"],
+    camp_id_edifici="gml_id",
+    zones=malla_base,
+    camp_id_zona="id"
+)
+
+hexagons_zones_densitat_industrial = agregacions.escriure_valors_zonals_a_capa(
+    zones=malla_base,
+    dict_valors=densitat_industrial_hexagons,
+    camp_id_zona="id",
+    nom_camp_resultat="densitat_industrial_km2"
+)
 
 
 
