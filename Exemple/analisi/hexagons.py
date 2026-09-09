@@ -21,7 +21,10 @@ Els indicadors calculats son:
     - Classificació bivariant
 """
 
-from qgis.core import QgsFeatureRequest
+from qgis.core import (
+    QgsFeatureRequest,
+    QgsGeometry
+)
 
 import processing
 
@@ -65,34 +68,48 @@ def crear_malla_hexagonal(capa_extent, mida_hexagon):
 
 def retallar_malla_hexagonal(malla, capa_extent):
     """
-    Retalla una malla hexagonal segons l'àmbit d'estudi.
+    Filtra els hexàgons d'una malla segons l'àmbit d'estudi, sense
+    retallar-ne la geometria.
 
-    Elimina tots els hexàgons o parts d'hexàgons situats
-    fora del límit de la capa de referència.
+    A diferència d'un clip geomètric (native:clip), aquesta funció
+    conserva la forma completa de cada hexàgon: es queden només aquells
+    el centroide dels quals cau dins de la capa de referència. Això
+    evita geometries "sliver" a la vora (fragments d'hexàgon gairebé
+    degenerats, amb un contorn desproporcionat respecte a la seva mida)
+    i manté una superfície constant per a totes les cel·les de la
+    malla — rellevant per als càlculs de densitat posteriors, que ja
+    no necessiten calcular l'àrea real de cada zona individualment.
 
     Paràmetres
     ----------
     malla: QgsVectorLayer
-        Capa vectorial de la malla hexagonal.
+        Capa vectorial de la malla hexagonal (hexàgons complets, sense retallar).
     capa_extent: QgsVectorLayer
-        Capa vectorial que defineix l'extensió d'estudi.
+        Capa vectorial que defineix l'extensió d'estudi (p. ex. terme municipal).
 
     Retorna
     -------
     QgsVectorLayer
-        Malla hexagonal retallada.
+        Malla hexagonal filtrada, amb la geometria original de cada
+        hexàgon intacta (mai retallada).
     """
+    # Unic poligon de referència
+    geometries_extent = [feat.geometry() for feat in capa_extent.getFeatures()]
+    geometria_extent = QgsGeometry.unaryUnion(geometries_extent)
 
-    resultat = processing.run(
-        "native:clip",
-        {
-            'INPUT': malla,
-            'OVERLAY': capa_extent,
-            'OUTPUT': "memory:"
-        }
-    )
+    engine = QgsGeometry.createGeometryEngine(geometria_extent.constGet())
+    engine.prepareGeometry()
 
-    return resultat["OUTPUT"]
+    ids_dins = [
+        feat.id()
+        for feat in malla.getFeatures()
+        if engine.intersects(feat.geometry().centroid().constGet())
+    ]
+
+    resultat = malla.materialize(QgsFeatureRequest().setFilterFids(ids_dins))
+    resultat.setName(f"{malla.name()}_filtrada")         
+
+    return resultat
 
 
 def generar_malla_retallada(capa_extent, mida_hexagon):

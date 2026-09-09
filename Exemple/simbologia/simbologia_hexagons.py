@@ -1,5 +1,7 @@
+
 import config
 import simbologia.simbologies as simbologies
+
 
 # def simbologia_us_predominant(hexagons):
 #     """

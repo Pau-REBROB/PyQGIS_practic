@@ -540,7 +540,6 @@ def afegir_llegenda(layout, mapa, capes, titol, font, font_size, font_color, pos
     
     # Construcció manual del contingut
     legend.setAutoUpdateModel(False)
-
     legend.updateLegend()
     
     root = legend.model().rootGroup()
@@ -549,7 +548,7 @@ def afegir_llegenda(layout, mapa, capes, titol, font, font_size, font_color, pos
 
     for node in list(root.findLayers()):
         if node.layerId() not in ids_capes:
-            root.removeLayer(node.layer())
+            node.parent().removeChildNode(node)
 
         else:
             QgsLegendRenderer.setNodeLegendStyle(
@@ -557,6 +556,7 @@ def afegir_llegenda(layout, mapa, capes, titol, font, font_size, font_color, pos
                 QgsLegendStyle.Hidden
             )
 
+    root.removeChildrenGroupWithoutLayers()
     legend.updateLegend()   
     
     # Títol

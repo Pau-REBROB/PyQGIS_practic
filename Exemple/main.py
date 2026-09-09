@@ -120,6 +120,7 @@ import analisi.accessibilitat as accessibilitat
 import analisi.especialitzacio as especialitzacio
 import analisi.hexagons as hexagons
 import simbologia.simbologies as simbologies
+import simbologia.simbologia_agregacions as simbologia_agregacions
 import simbologia.simbologia_especialitzacio as simbologia_especialitzacio
 import simbologia.simbologia_hexagons as simbologia_hexagons
 import simbologia.simbologia_accessibilitat as simbologia_accessibilitat
@@ -127,6 +128,7 @@ import simbologia.simbologia_general as simbologia_general
 import layouts.layout_common as layout_common
 import layouts.layout_general as layout_general
 import layouts.layout_atles as layout_atles
+import layouts.layout_maup as layout_maup
 import layouts.layout_analisi as layout_analisi
 import layouts.layout_clusters as layout_clusters
 import layouts.layout_especialitzacio as layout_especialitzacio
@@ -144,9 +146,9 @@ import config
 _moduls = [
     config, inicialitzacio, importacio, preparacio_dades, temporal,
     agregacions, grafics, clusters, accessibilitat, especialitzacio,
-    hexagons, simbologies, simbologia_especialitzacio,
+    hexagons, simbologies, simbologia_agregacions, simbologia_especialitzacio,
     simbologia_hexagons, simbologia_accessibilitat, simbologia_general,
-    layout_common, layout_general, layout_atles, layout_analisi,
+    layout_common, layout_general, layout_atles, layout_maup, layout_analisi,
     layout_clusters, layout_especialitzacio, layout_bivariant_zones,
     layout_accessibilitat, fusionar_layouts
 ]
@@ -289,7 +291,7 @@ edificis_industrial_net = temporal.afegir_any_construccio(edificis_industrial)
 edificis_no_industrial_net = temporal.afegir_any_construccio(edificis_no_industrial)
 
 # ------------------------------------------------------------------------------
-# 5.4. Anàlisi industrial
+# 5.4. Anàlisi industrial - Densitat industrial
 # ------------------------------------------------------------------------------
 
 # Càlcul de densitat d'edificis industrials
@@ -303,8 +305,8 @@ densitat_industrial_districtes = agregacions.calcular_densitat_per_zona(
 )
 # {'Ciutat Vella': 2.8537925019109616, 'Eixample': 11.119591155446466, 'Sants-Montjuïc': 13.898692487894122,
 #  'Les Corts': 6.488354364332429, 'Sarrià-Sant Gervasi': 1.4062836045522231, 'Gràcia': 5.20799077025363,
-#  'Horta-Guinardó': 11.91101011481912, 'Nou Barris': 10.922900976136285,
-#  'Sant Andreu': 61.58532198416397, 'Sant Martí': 58.44760368555757}
+#  'Horta-Guinardó': 11.91101011481912, 'Nou Barris': 10.922900976136285, 'Sant Andreu': 61.58532198416397,
+#  'Sant Martí': 58.44760368555757}
 
 districtes_zones_densitat_industrial = agregacions.escriure_valors_zonals_a_capa(
     zones=districtes_base,
@@ -321,31 +323,32 @@ densitat_industrial_barris = agregacions.calcular_densitat_per_zona(
     camp_id_zona="NOM"
 )
 # {'el Raval': 2.7265634843773037, 'el Barri Gòtic': 2.452200668772121, 'la Barceloneta': 1.6958034661544819,
-# 'Sant Pere, Santa Caterina i la Ribera': 4.505849034472708, 'el Fort Pienc': 9.684127636162055,
-# 'la Sagrada Família': 24.95610253010519, "la Dreta de l'Eixample": 3.7738088165542747,
-# "l'Antiga Esquerra de l'Eixample": 4.884259988464307, "la Nova Esquerra de l'Eixample": 14.171689098468015,
-# 'Sant Antoni': 18.654236670243844, 'el Poble-sec': 6.324529389514533, 'la Marina del Prat Vermell': 15.592651312039054,
-# 'la Marina de Port': 2.3647930992850785, 'la Font de la Guatlla': 10.098647380844538,
-# "el Camp d'en Grassot i Gràcia Nova": 4.61164913145761, 'el Baix Guinardó': 17.778862115958393, 'el Guinardó': 8.40507309065514,
-# 'Can Baró': 18.22045119044464, 'el Carmel': 37.23441948550119, 'la Teixonera': 32.58827530724994,
-# 'Sant Genís dels Agudells': 2.3744865827312482, 'Montbau': 0.9737151239483247, "la Vall d'Hebron": 4.029382641168529,
-# 'la Clota': 56.025225238931164, "la Font d'en Fargues": 15.215544799622181, 'Horta': 12.703513507404692,
-# 'Vilapicina i la Torre Llobeta': 8.860848338453309, 'Porta': 13.144931606972728, 'el Turó de la Peira': 5.646325054113575,
-# 'Hostafrancs': 29.2734722755591, 'la Bordeta': 27.961625212707638, 'Sants - Badal': 21.708217944174613, 'Sants': 21.92494916055728,
-# 'les Corts': 11.34422263315873, 'la Maternitat i Sant Ramon': 9.397657425819444, 'Pedralbes': 1.8622052926612433,
-# 'Vallvidrera, el Tibidabo i les Planes': 0.8830403547994439, 'Sarrià': 2.953294189844949, 'les Tres Torres': 1.2691009607006392,
-# 'Sant Gervasi - la Bonanova': 2.238497094517822, 'el Putxet i el Farró': 3.5383220538145563,
+#  'Sant Pere, Santa Caterina i la Ribera': 4.505849034472708, 'el Fort Pienc': 9.684127636162055,
+#  'la Sagrada Família': 24.95610253010519, "la Dreta de l'Eixample": 3.7738088165542747,
+#  "l'Antiga Esquerra de l'Eixample": 4.884259988464307, "la Nova Esquerra de l'Eixample": 14.171689098468015,
+#  'Sant Antoni': 18.654236670243844, 'el Poble-sec': 6.324529389514533, 'la Marina del Prat Vermell': 15.592651312039054,
+#  'la Marina de Port': 2.3647930992850785, 'la Font de la Guatlla': 10.098647380844538,
+#  "el Camp d'en Grassot i Gràcia Nova": 4.61164913145761, 'el Baix Guinardó': 17.778862115958393, 'el Guinardó': 8.40507309065514,
+#  'Can Baró': 18.22045119044464, 'el Carmel': 37.23441948550119, 'la Teixonera': 32.58827530724994,
+#  'Sant Genís dels Agudells': 2.3744865827312482, 'Montbau': 0.9737151239483247, "la Vall d'Hebron": 4.029382641168529,
+#  'la Clota': 56.025225238931164, "la Font d'en Fargues": 15.215544799622181, 'Horta': 12.703513507404692,
+#  'Vilapicina i la Torre Llobeta': 8.860848338453309, 'Porta': 13.144931606972728, 'el Turó de la Peira': 5.646325054113575,
+#  'Hostafrancs': 29.2734722755591, 'la Bordeta': 27.961625212707638, 'Sants - Badal': 21.708217944174613, 'Sants': 21.92494916055728,
+#  'les Corts': 11.34422263315873, 'la Maternitat i Sant Ramon': 9.397657425819444, 'Pedralbes': 1.8622052926612433,
+#  'Vallvidrera, el Tibidabo i les Planes': 0.8830403547994439, 'Sarrià': 2.953294189844949, 'les Tres Torres': 1.2691009607006392,
+#  'Sant Gervasi - la Bonanova': 2.238497094517822, 'el Putxet i el Farró': 3.5383220538145563, 
 # 'Sant Gervasi - Galvany': 0.599082305312369, 'Vallcarca i els Penitents': 1.5987855670146418, 'el Coll': 2.8310591844621396,
-# 'la Salut': 3.0845678970070307, 'la Vila de Gràcia': 10.596522818136885, 'Navas': 0.0,
-# "el Camp de l'Arpa del Clot": 39.155687494662416, 'el Clot': 31.57326443505451, 'el Parc i la Llacuna del Poblenou': 98.92683222755115,
-# 'la Vila Olímpica del Poblenou': 25.95043566546357, 'el Poblenou': 82.9594560753457,
-# 'Diagonal Mar i el Front Marítim del Poblenou': 6.5202194375444655, 'el Besòs i el Maresme': 17.374017015289535,
-# 'Provençals del Poblenou': 160.2594171031141, 'Sant Martí de Provençals': 0.0, 'la Verneda i la Pau': 80.53251319047949,
-# 'Can Peguera': 0.0, 'la Guineueta': 6.536400701508535, 'Verdun': 29.521139741469945, 'la Prosperitat': 11.839946051622706,
-# 'Canyelles': 6.328301757792411, 'les Roquetes': 18.662007870325617, 'la Trinitat Nova': 3.467964647675853,
-# 'Torre Baró': 7.463437365028402, 'Ciutat Meridiana': 2.6547504133865965, 'Vallbona': 30.95285128736839,
-# 'la Trinitat Vella': 3.714655570609501, 'Baró de Viver': 4.349854459425396, 'el Bon Pastor': 195.3746320057572,
-# 'Sant Andreu': 10.17446973022927, 'la Sagrera': 8.111029348092325, 'el Congrés i els Indians': 24.43708933167582}
+#  'la Salut': 3.0845678970070307, 'la Vila de Gràcia': 10.596522818136885, 'Navas': 0.0,
+#  "el Camp de l'Arpa del Clot": 39.155687494662416, 'el Clot': 31.57326443505451,
+#  'el Parc i la Llacuna del Poblenou': 98.92683222755115, 'la Vila Olímpica del Poblenou': 25.95043566546357,
+#  'el Poblenou': 82.9594560753457, 'Diagonal Mar i el Front Marítim del Poblenou': 6.5202194375444655,
+#  'el Besòs i el Maresme': 17.374017015289535, 'Provençals del Poblenou': 160.2594171031141, 'Sant Martí de Provençals': 0.0,
+#  'la Verneda i la Pau': 80.53251319047949, 'Can Peguera': 0.0, 'la Guineueta': 6.536400701508535, 'Verdun': 29.521139741469945,
+#  'la Prosperitat': 11.839946051622706, 'Canyelles': 6.328301757792411, 'les Roquetes': 18.662007870325617,
+#  'la Trinitat Nova': 3.467964647675853, 'Torre Baró': 7.463437365028402, 'Ciutat Meridiana': 2.6547504133865965,
+#  'Vallbona': 30.95285128736839, 'la Trinitat Vella': 3.714655570609501, 'Baró de Viver': 4.349854459425396,
+#  'el Bon Pastor': 195.3746320057572, 'Sant Andreu': 10.17446973022927, 'la Sagrera': 8.111029348092325,
+#  'el Congrés i els Indians': 24.43708933167582}
 
 barris_zones_densitat_industrial = agregacions.escriure_valors_zonals_a_capa(
     zones=barris_base,
@@ -367,6 +370,42 @@ hexagons_zones_densitat_industrial = agregacions.escriure_valors_zonals_a_capa(
     dict_valors=densitat_industrial_hexagons,
     camp_id_zona="id",
     nom_camp_resultat="densitat_industrial_km2"
+)
+
+# Determinació dels rangs de valors
+# El valor 0 es tracta com una classe pròpia - "sense indústria"
+breaks_densitat_industrial = simbologia_agregacions.calcular_breaks_compartits(
+    diccionari_valors=densitat_industrial_hexagons,
+    n_classes=6
+)
+print(breaks_densitat_industrial)
+# [0.0, 0.0, 102.64004785641126, 256.60011964102813, 461.88021535314425, 821.1203828475225, 1539.600717834395]
+
+# Classificació dels valors de densitat en intervals
+# Ús de les dades d'hexàgons - l'agregació més petita
+# Comprovació de la distribució de les dades al contenir gran quantitat de valors 0
+recompte_classes_districtes = agregacions.comptar_zones_per_classe(
+    dict_valors=densitat_industrial_districtes,
+    breaks=breaks_densitat_industrial
+)
+
+recompte_classes_barris = agregacions.comptar_zones_per_classe(
+    dict_valors=densitat_industrial_barris,
+    breaks=breaks_densitat_industrial
+)
+
+recompte_classes_hexagons = agregacions.comptar_zones_per_classe(
+    dict_valors=densitat_industrial_hexagons,
+    breaks=breaks_densitat_industrial
+)
+
+# ------------------------------------------------------------------------------
+# 5.5. Agrupacions espacials - clústers industrials
+# ------------------------------------------------------------------------------
+
+clusters_dict = clusters.analisi_clusters(
+    layer=edificis_base,
+    usos=config.USOS
 )
 
 
@@ -394,15 +433,6 @@ hexagons_zones_densitat_industrial = agregacions.escriure_valors_zonals_a_capa(
 
 
 # ------------------------------------------------------------------
-# # ------------------------------------------------------------------------------
-# # 5.2. Agrupacions espacials - clústers
-# # ------------------------------------------------------------------------------
-
-# clusters_dict = clusters.analisi_clusters(
-#     layer=edificis_base,
-#     usos=config.USOS
-# )
-
 # # ------------------------------------------------------------------------------
 # # 5.3. Especialització funcional - Dominància i diversitat funcional
 # # ------------------------------------------------------------------------------
@@ -542,6 +572,18 @@ layers_simbologia_atles = simbologia_general.simbologia_atles(
 )
 
 # ------------------------------------------------------------------------------
+# 6.3. Agregacions - Densitat industrial
+# ------------------------------------------------------------------------------
+
+layers_simbologia_densitat_industrial = simbologia_general.simbologia_densitat_agregacions(
+    capa_districtes=districtes_zones_densitat_industrial,
+    capa_barris=barris_zones_densitat_industrial,
+    capa_hexagons=hexagons_zones_densitat_industrial
+)
+
+
+#------------------------
+# ------------------------------------------------------------------------------
 # 6.2. Agrupacions espacials - clústers
 # ------------------------------------------------------------------------------
 
@@ -613,8 +655,9 @@ totes_les_capes = {
     **layers_simbologia_base,
     "base_map": basemap_layer,
     **layers_simbologia_atles,
-    **layers_simbologia_clusters,
-    **layers_simbologia_zones,
+    **layers_simbologia_densitat_industrial
+    #**layers_simbologia_clusters,
+    #**layers_simbologia_zones,
     # **layers_simbologia_especialitzacio_districtes,
     # **layers_simbologia_especialitzacio_barris,
     # **layers_simbologia_especialitzacio_hexagons["hexagons"],
@@ -668,6 +711,21 @@ layout_atles.composicio_atles(
     capa_extent=terme_base,
     capa_cobertura=districtes_base
 )
+
+# ------------------------------------------------------------------------------
+# 7.3. Composició densitat industrial MAUP
+# ------------------------------------------------------------------------------
+
+layout_maup.composicio_maup_densitat_industrial(
+    capes=layers_simbologia_densitat_industrial,
+    capa_terme=layers_simbologia_base["TermeMunicipal"],
+    capa_extent=layers_simbologia_base["TermeMunicipal"],
+)
+
+
+
+
+
 
 # # ------------------------------------------------------------------------------
 # # 7.3. Composició anàlisi agrupacions espacials serveis públics

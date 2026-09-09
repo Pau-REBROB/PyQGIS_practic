@@ -179,6 +179,11 @@ MIN_EDIFICIS = 3
 # ANÀLISI
 # =============================================================================
 
+# Breaks calculats amb Jenks (5 classes) sobre densitat industrial/km² per hexàgon
+# Font: agregacions.calcular_breaks_compartits(densitat_industrial_hexagons, n_classes=5)
+# Arrodonits manualment per llegibilitat de llegenda
+BREAKS_DENSITAT_INDUSTRIAL = [0.0, 0.0, 100, 260, 460, 820, 1550]
+
 CONFIG_ANALISI = {
     "Clusters": {
         "eps": 100,#100-8 per retail està bastant bé
@@ -318,6 +323,36 @@ SIMBOLOGIA = {
             "stroke_color": (180, 140, 60, 85)   
         }
     },
+
+    "Densitat_industrial": {
+        "Districtes": {
+            "color_ramp": "Rocket",
+            "atribut": "densitat_industrial_km2",
+            "stroke_color": (150,150,150,255),
+            "stroke_width": 0.1,
+            "color_classe_zero": (240,240,240,255),
+            "invert_ramp": True
+        },
+        "Barris": {
+            "color_ramp": "Rocket",
+            "atribut": "densitat_industrial_km2",
+            "stroke_color": (150,150,150,255),
+            "stroke_width": 0.1,
+            "color_classe_zero": (240,240,240,255),
+            "invert_ramp": True
+        },
+        "Hexagons": {
+            "color_ramp": "Rocket",
+            "atribut": "densitat_industrial_km2",
+            "stroke_color": (200,200,200,255),
+            "stroke_width": 0.1,
+            "color_classe_zero": (240,240,240,255),
+            "invert_ramp": True
+        }
+    },
+
+
+
 
     "Clusters": {
         "nom": "clusters",
@@ -602,6 +637,55 @@ LAYOUTS = {
             # }
         }
     },
+
+    "ESTRUCTURA_MAUP": {
+        "Mapa_hexagons": {
+            "factor_escala": 1.00,
+            "size": (220.5, 205),
+            "position": (2.50, 2.50),
+            "rotacio": 0,
+            "offset_x": 1500,
+            "offset_y": 0
+        },
+        "Mapa_barris": {
+            "factor_escala": 1.00,
+            "size": (94.5, 100), 
+            "position": (200, 105),
+            "rotacio": 0,
+            "offset_x": 750,
+            "offset_y": 0
+        },
+        "Mapa_districtes": {
+            "factor_escala": 1.00,
+            "size": (94.5, 100),
+            "position": (200, 2.50),
+            "rotacio": 0,
+            "offset_x": 750,
+            "offset_y": 0
+        },
+        "Titol": {
+            "size": (205, 10),
+            "position": (2.50, 2.50)
+        },
+        "Subtitol_1": {
+            "size": (205, 10),
+            "position": (2.50, 12)
+        },
+        "Subtitol_2": {
+            "size": (294.50, 10),
+            "position": (2.50, 19.50)
+        },
+        "Llegenda": {
+            "titol": "Densitat edificis/km2",
+            "position": (2.50, 150)
+        },
+        "Peu": {
+            "size": (80, 10),
+            "position": (220, 202.50)
+        }
+    },
+
+
 
     "ESTRUCTURA_CLUSTERS": {
         "Mapa": {
@@ -1030,6 +1114,54 @@ LAYOUTS = {
             "output_path": f"{PATH_RESULTATS}/atles_districtes.pdf"
         }
     },
+
+    "MAUP":{
+        "Titol": {
+            "titol": "Densitat d'edificis industrials de Barcelona",
+            "font": "Calibri",
+            "font_size": 18,
+            "font_color": (0,0,0,255),
+            "alineacio": "left",
+            "backg_color": (0, 0, 0, 0),
+            "frame_color": (0, 0, 0, 0)
+        },
+        "Subtitol_1": {
+            "subtitol": "Anàlisi a diferents nivells d'agregació: districtes, barris i malla hexagonal",
+            "font": "Calibri",
+            "font_size": 14,
+            "font_color": (0,0,0,255),
+            "alineacio": "left",
+            "backg_color": (0, 0, 0, 0),#(150,150,150,180)
+            "frame_color": (0, 0, 0, 0)#(255, 255, 255, 200)
+        },
+        "Subtitol_2": {
+            "subtitol": "10 de 10 districtes i 68 de 73 barris cauen a la mateixa classe. La resolució hexagonal és l'única que distingeix les zones industrials reals",
+            "font": "Calibri",
+            "font_size": 14,
+            "font_color": (0,0,0,255),
+            "alineacio": "left",
+            "backg_color": (0, 0, 0, 0),#(150,150,150,180)
+            "frame_color": (0, 0, 0, 0)#(255, 255, 255, 200)
+        },
+        "Llegenda": {
+            "font": "Calibri",
+            "font_size": 12,
+            "font_color": (0,0,0,255),
+            "backg_color": (0, 0, 0, 0)
+        },
+        "Peu": {
+            "text": "Font: Cadastre, ICGC (CC-BY 4.0) · Elaboració pròpia",
+            "font": "Calibri",
+            "font_size": 10,
+            "font_color": (0,0,0,255)
+        },
+        "Exportacio": {
+            "output_path": f"{PATH_RESULTATS}/Densitat_industrial_MAUP.pdf",
+            "dpi": 500
+        }
+    },
+
+
 
     # "ANALISI":{
     #     "Titol": {

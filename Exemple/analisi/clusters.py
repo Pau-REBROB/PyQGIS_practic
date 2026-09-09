@@ -19,11 +19,11 @@ Les funcions s'organitzen en tres nivells:
 """
 
 from qgis.core import (
+    QgsSpatialIndex,
     QgsFeature,
     QgsFeatureRequest,
     QgsField,
-    QgsVectorLayer,
-    QgsWkbTypes
+    QgsVectorLayer
 )
 from qgis.PyQt.QtCore import QVariant
 
@@ -32,6 +32,41 @@ import numpy as np
 import processing
 
 import config
+
+def distancia_veins_propers(layer):
+    """
+    Calcula la distància de cada entitat al seu veí més proper, a partir
+    dels centroides de la capa.
+
+    Pensada com a pas exploratori previ a l'aplicació de DBSCAN: dona una
+    referència numèrica de l'escala espacial típica entre elements, útil
+    per triar un valor de partida raonable per al paràmetre `eps`.
+
+    Paràmetres
+    ----------
+    layer: QgsVectorLayer
+        Capa vectorial sobre la qual es calculen les distàncies.
+
+    Retorna
+    -------
+    list[float]
+        Llista de distàncies (una per entitat) al seu veí més proper.
+        Les entitats sense cap veí (capa d'una sola entitat) queden excloses.
+    """
+    index = QgsSpatialIndex(layer.getFeatures())
+
+    distancies = []
+
+    for feat in layer.getFeatures():
+        centroide = feat.geometry().centroid()
+        veins = index.nearestNeighbor(centroide.asPoint(), 2)
+
+        if len(veins) > 1:
+            vei = layer.getFeature(veins[1])
+            dist = centroide.distance(vei.geometry().centroid())
+            distancies.append(dist)
+
+    return distancies
 
 
 def filtrar_capa(layer, expressio):

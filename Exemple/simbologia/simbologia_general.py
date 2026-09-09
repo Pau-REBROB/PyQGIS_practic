@@ -10,6 +10,7 @@ from qgis.core import (QgsHeatmapRenderer, QgsStyle)
 
 import config
 import simbologia.simbologies as simbologies
+import simbologia.simbologia_agregacions as simbologia_agregacions
 import simbologia.simbologia_especialitzacio as simbologia_especialitzacio
 import simbologia.simbologia_hexagons as simbologia_hexagons
 import simbologia.simbologia_accessibilitat as simbologia_accessibilitat 
@@ -121,6 +122,38 @@ def simbologia_atles(edificis, districtes):
     )
 
     return layers_atles
+
+
+# ==============================================================================
+# DENSITAT EDIFICIS INDUSTRIALS
+# ==============================================================================
+
+def simbologia_densitat_agregacions(capa_districtes, capa_barris, capa_hexagons):
+    """
+    """
+    layers_densitat = {}
+
+    layers_densitat["Districtes"] = simbologia_agregacions.simbologia_densitat_industrial(
+        capa_zones=capa_districtes,
+        breaks=config.BREAKS_DENSITAT_INDUSTRIAL,
+        tipus_zona="Districtes"
+    )
+
+    layers_densitat["Barris"] = simbologia_agregacions.simbologia_densitat_industrial(
+        capa_zones=capa_barris,
+        breaks=config.BREAKS_DENSITAT_INDUSTRIAL,
+        tipus_zona="Barris"
+    )
+
+    layers_densitat["Hexagons"] = simbologia_agregacions.simbologia_densitat_industrial(
+        capa_zones=capa_hexagons,
+        breaks=config.BREAKS_DENSITAT_INDUSTRIAL,
+        tipus_zona="Hexagons"
+    )
+
+    return layers_densitat
+
+
 
 
 # ==============================================================================

@@ -116,6 +116,52 @@ def calcular_densitat_per_zona(edificis, camp_id_edifici, zones, camp_id_zona):
 #  una vegada per cada fid — més eficient quan hi ha molts candidats, perquè és una sola consulta a la capa en comptes de moltes.
 
 
+def comptar_zones_per_classe(dict_valors, breaks):
+    """
+    Compta quantes zones cauen a cada classe d'una classificació de breaks,
+    útil per diagnosticar l'efecte MAUP (Modifiable Areal Unit Problem):
+    com més gran és la unitat d'agregació, més es concentren els valors
+    en poques classes.
+
+    La primera classe és tancada als dos costats [breaks[0], breaks[1]]
+    (pensada per capturar exactament el valor 0 com a classe pròpia);
+    la resta de classes són obertes per l'esquerra i tancades per la
+    dreta (breaks[i], breaks[i+1]].
+
+    Paràmetres
+    ----------
+    diccionari_valors : dict
+        Diccionari { id_zona: valor }, típicament la sortida de
+        calcular_densitat_per_zona per a un nivell d'agregació concret.
+    breaks : list[float]
+        Llindars de classificació compartits (p. ex. config.BREAKS_DENSITAT_INDUSTRIAL).
+
+    Retorna
+    -------
+     dict
+        Diccionari { etiqueta_interval: recompte_zones }, amb tantes
+        entrades com classes (len(breaks) - 1). La primera clau és
+        "Sense indústria"; la resta, "lower-upper" amb 2 decimals.
+    """
+    valors = list(dict_valors.values())
+
+    recomptes = {}
+
+    for i in range(len(breaks) - 1):
+        lower, upper = breaks[i], breaks[i + 1]
+
+        if i == 0:
+            recompte = sum(1 for valor in valors if lower <= valor <= upper)
+            etiqueta = "Sense indústria"
+        else:
+            recompte = sum(1 for valor in valors if lower < valor <= upper)
+            etiqueta = f"{lower:.2f}-{upper:.2f}"
+
+        recomptes[etiqueta] = recompte
+
+    return recomptes
+
+
 def escriure_valors_zonals_a_capa(zones, dict_valors, camp_id_zona, nom_camp_resultat):
     """
     Escriu un diccionari de resultats { id_zona: valor } com a nou camp

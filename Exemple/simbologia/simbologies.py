@@ -323,7 +323,7 @@ def simbologia_graduada(layer, atribut, num_classes, color_ramp, mode, stroke_co
     return layer_clone
 
 
-def simbologia_graduada_manual(layer, color_ramp, intervals, atribut, stroke_color, stroke_width, invert_ramp=False):
+def simbologia_graduada_manual(layer, color_ramp, intervals, atribut, stroke_color, stroke_width, color_classe_zero=None, invert_ramp=False):
     """
     Aplica simbologia graduada amb intervals definits manualment
     a una capa vectorial.
@@ -347,6 +347,14 @@ def simbologia_graduada_manual(layer, color_ramp, intervals, atribut, stroke_col
         Color del contorn, en format (RGBA).
     stroke_width: float
         Gruix del contorn.
+    color_classe_zero : tuple[int,int,int,int], opcional
+        Color fix (RGBA) per a la primera classe, independent de la
+        rampa de colors. Útil quan la primera classe representa
+        "absència del fenomen" (p. ex. densitat 0) i es vol distingir
+        visualment de la resta amb un color neutre, en comptes que la
+        rampa hi interpoli el seu extrem més clar. Si no s'indica,
+        la primera classe es colora igual que la resta (comportament
+        per defecte, sense canvis respecte a versions anteriors).
     invert_ramp: bool
         Inversió de la rampa de colors.
         Per defecte False.
@@ -368,19 +376,20 @@ def simbologia_graduada_manual(layer, color_ramp, intervals, atribut, stroke_col
 
     # S'estableixen el nombre de salts de les dades, com al nombre d'intervals-1
     salts = len(intervals)-1
-
     rangs = []
 
     for i in range(salts):
         symbol = QgsFillSymbol()
-        
-        # S'estableix un color com el valor interpolat de la rampa de colors en funció del nombre d'intervals
-        if salts == 1:
-            fraccio = 0
+
+        if i == 0 and color_classe_zero is not None:
+            color = QColor(*color_classe_zero)
+        elif salts == 1:
+            color = rampa.color(0)
         else:
             fraccio = float(i) / (salts-1)
+            color = rampa.color(fraccio)
 
-        color = rampa.color(fraccio)
+        #color = rampa.color(fraccio)
         
         symbol.setColor(color)
         symbol.symbolLayer(0).setStrokeColor(QColor(*stroke_color))
