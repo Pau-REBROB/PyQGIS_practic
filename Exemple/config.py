@@ -31,7 +31,8 @@ LAYERS = {
         "Illes": f"{PATH_DADES_CADASTRE}/08900/A.ES.SDGC.CP.08900.cadastralzoning.gml"
     },
     "Graf": {
-        "Graf_trams": f"{PATH_DADES_GRAF}/BCN_GrafVial_Trams_ETRS89_SHP.shp"
+        "Graf_trams": f"{PATH_DADES_GRAF}/BCN_GrafVial_Trams_ETRS89_SHP.shp",
+        "Graf_osm": f"{PATH_DADES_GRAF}/graf_osm.geojson"
     }
 }
 

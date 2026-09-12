@@ -139,6 +139,11 @@ import layouts.fusionar_layouts as fusionar_layouts
 # Arxiu de configuració
 import config
 
+
+from qgis.core import (QgsVectorLayer)
+import processing
+
+
 # ------------------------------------------------------------------------------
 # 1.2. Recàrrega de mòduls
 # ------------------------------------------------------------------------------
@@ -174,6 +179,13 @@ project, root = inicialitzacio.inicialitzar_projecte()
 # Retorna un diccionari de capes i un diccionari d'índexs espacials
 dict_layers = importacio.carregar_capes(layers=config.LAYERS)
 
+# Graf OSM - ARA MANUALMENT
+graf_osm = QgsVectorLayer(
+    config.LAYERS["Graf"]["Graf_osm"],
+    "graf_osm",
+    "ogr"
+)
+
 # Carrega la capa de fons cartogràfic (CartoDB Positron No Labels)
 basemap_layer = importacio.carregar_basemap()
 
@@ -190,6 +202,41 @@ dict_layers_clean = preparacio_dades.preparar_grup(
     dict_layers=dict_layers,
     configuracio=config.CAMPS_CAPES
 )
+
+# Graf OSM
+CAMPS_GRAF_OSM = [
+    'osm_id',      # identificador únic — útil per depurar, localitzar un tram concret
+    'highway',     # tipus de via — per si vols filtrar per categoria més endavant
+    'name',        # nom del carrer — no imprescindible per al càlcul, però ajuda molt a interpretar resultats visualment
+    'oneway',      # sentit únic — necessari si QNEAT3 ha de respectar direccionalitat
+    'maxspeed',    # velocitat màxima — necessari només si calcules per temps (estrategia=1), no per distància
+    'access'       # de moment el mantens, per si cal revisar/refinar el filtre més endavant
+]
+processing.run("native:retainfields", {
+    'INPUT': graf_osm,
+    'FIELDS': CAMPS_GRAF_OSM,
+    'OUTPUT': f"{config.PATH_RESULTATS}/graf_pas1_filtrat.gpkg"
+})
+graf_pas1 = QgsVectorLayer(
+    f"{config.PATH_RESULTATS}/graf_pas1_filtrat.gpkg",
+    "pas1",
+    "ogr"
+)
+expressio = (
+    '"access" IS NULL OR "access" NOT IN '
+    "('customers','destination','emergency','employees','forestry','private','no','permit','psv')"
+)
+processing.run("native:extractbyexpression", {
+    'INPUT': graf_pas1,
+    'EXPRESSION': expressio,
+    'OUTPUT': f'{config.PATH_RESULTATS}/graf_filtrat.gpkg'
+})
+graf_net = QgsVectorLayer(
+    f"{config.PATH_RESULTATS}/graf_filtrat.gpkg",
+    "graf_net",
+    "ogr"
+)
+
 
 # Retorna un diccionari d'índex espacials de cada capa
 dict_indexs = preparacio_dades.crear_indexs(
