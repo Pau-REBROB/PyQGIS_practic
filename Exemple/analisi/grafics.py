@@ -109,6 +109,61 @@ def grafic_percentatge_usos_districtes(df, output_path):
     return fig
 
 
+def grafic_k_distance(distancies_k, k, output_path, eps_candidat=None):
+    """
+    Genera el gràfic de colze (k-distance plot) per ajudar a triar el
+    paràmetre eps de DBSCAN.
+
+    Representa les distàncies al k-èsim veí més proper, ordenades de
+    petita a gran. El punt d'inflexió de la corba (colze) indica la
+    transició entre distàncies típiques dins d'un clúster i distàncies
+    típiques entre clústers o soroll.
+
+    Paràmetres
+    ----------
+    distancies_k : list[float]
+        Distàncies ordenades, sortida de distancia_k_vei().
+    k : int
+        Nombre de veïns considerat (per a l'etiqueta de l'eix i el títol).
+    output_path : str
+        Ruta on es desarà la imatge.
+    eps_candidat : float, opcional
+        Si s'indica, dibuixa una línia horitzontal de referència en
+        aquest valor, per visualitzar un eps candidat sobre la corba.
+
+    Retorna
+    -------
+    matplotlib.figure.Figure
+        Figura generada.
+    """
+    fig, ax = plt.subplots(figsize=(10, 6))
+
+    ax.plot(range(len(distancies_k)), distancies_k, linewidth=1.5)
+
+    if eps_candidat is not None:
+        ax.axhline(eps_candidat, color="gray", linestyle="--", linewidth=1)
+        ax.text(0, eps_candidat, f" eps = {eps_candidat}", va="bottom", color="gray")
+
+    # Personalització de l'aspecte del gràfic
+    ax.set_title(f"K-distance plot (k={k})")
+    ax.set_xlabel("Edificis ordenats per distància")
+    ax.set_ylabel(f"Distància al {k}è veí (m)")
+
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.grid(axis="y", alpha=0.3)
+    plt.tight_layout()
+
+    plt.savefig(output_path, dpi=300)
+
+    plt.close(fig)
+
+    return fig
+
+
+
+
+
 def generar_grafics_districtes(resultats):
     """
     Genera tots els gràfics associats a l'anàlisi dels usos per districtes.

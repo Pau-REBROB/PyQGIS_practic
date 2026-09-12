@@ -186,39 +186,17 @@ BREAKS_DENSITAT_INDUSTRIAL = [0.0, 0.0, 100, 260, 460, 820, 1550]
 
 CONFIG_ANALISI = {
     "Clusters": {
-        "eps": 100,#100-8 per retail està bastant bé
-        "min_size": 5,
-        # "min_size": 20,
-        # "min_samples": 10
+        "eps": 200,
+        "min_size": 10
     },
 
-    "Isoarees": {
-        "distancia": 5000,
-        "interval": 250
+    "Isoarees_individuals": {
+        "distancia_max": 15000,
+        "interval": 500
     }
 }
 
-CONFIG_CLUSTERS_DISTRICTES = {
-    "default": {"min_size": 10, "min_samples": 5} #{"eps": 150, "min_size": 5},
-    # "Ciutat Vella": {"eps": 50,  "min_size": 10}, #60-5
-    # "Eixample": {"eps": 150,  "min_size": 5}, #80-10
-    # "Sants-Montjuïc": {"eps": 250, "min_size": 10}, #200-5
-    # "Les Corts": {"eps": 200, "min_size": 5},
-    # "Sarrià-Sant Gervasi": {"eps": 100, "min_size": 8},
-    # "Gràcia": {"eps": 100, "min_size": 10}, #default
-    # "Horta-Guinardó": {"eps": 70, "min_size": 10}, #200-5
-}
 
-CONFIG_CLUSTERS_BARRIS = {
-    "default": {"eps": 75, "min_size": 5},
-    #"Ciutat Vella": {"eps": 50,  "min_size": 10}, #60-5
-    #"Eixample": {"eps": 150,  "min_size": 5}, #80-10
-    #"Sants-Montjuïc": {"eps": 250, "min_size": 10}, #200-5
-    #"Les Corts": {"eps": 200, "min_size": 5},
-    #"Sarrià-Sant Gervasi": {"eps": 100, "min_size": 8},
-    #"Gràcia": {"eps": 100, "min_size": 10}, #default
-    #"Horta-Guinardó": {"eps": 70, "min_size": 10}, #200-5
-}
 
 CLASSIFICACIO_DOMINANCIA = {
     "Molt baixa": 5,
@@ -509,12 +487,13 @@ SIMBOLOGIA = {
 # EXPORTACIÓ
 # =============================================================================
 
-# EXPORTACIO_GRAFICS = {
-#     "Grafic_usos_districtes": f"{PATH_RESULTATS}/Grafic_nombreEdificis_districte.png",
-#     "Grafic_usos_percentatges_districtes": f"{PATH_RESULTATS}/Grafic_percentatgeEdificis_districte.png",
-#     "Grafic_nombre_clusters": f"{PATH_RESULTATS}/Grafic_nombreClusters.png",
-#     "Grafic_mida_clusters": f"{PATH_RESULTATS}/Grafic_midaClusters.png"
-# }
+EXPORTACIO_GRAFICS = {
+    "Grafic_usos_districtes": f"{PATH_RESULTATS}/Grafic_nombreEdificis_districte.png",
+    "Grafic_usos_percentatges_districtes": f"{PATH_RESULTATS}/Grafic_percentatgeEdificis_districte.png",
+    "Grafic_k_veins": f"{PATH_RESULTATS}/kdistance_industrial.png",
+    "Grafic_nombre_clusters": f"{PATH_RESULTATS}/Grafic_nombreClusters.png",
+    "Grafic_mida_clusters": f"{PATH_RESULTATS}/Grafic_midaClusters.png"
+}
 
 EXPORTACIO_ISOAREES = {
     "interpolation": f"{PATH_RESULTATS}/output_interpolation.tif",

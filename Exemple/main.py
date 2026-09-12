@@ -403,11 +403,106 @@ recompte_classes_hexagons = agregacions.comptar_zones_per_classe(
 # 5.5. Agrupacions espacials - clústers industrials
 # ------------------------------------------------------------------------------
 
-clusters_dict = clusters.analisi_clusters(
-    layer=edificis_base,
-    usos=config.USOS
+distancies_industrial = clusters.distancia_veins_propers(
+    layer=edificis_industrial_net
 )
 
+# Resultats distàncies
+import statistics
+print("Mitjana:", statistics.mean(distancies_industrial)) # 67,4
+print("Mediana:", statistics.median(distancies_industrial)) # 34,6
+
+distancies_k = clusters.distancia_k_vei(
+    edificis_industrial_net,
+    k=10
+)
+print(len(distancies_k))
+print(distancies_k[::25])  # una mostra cada 25 valors, per no saturar la resposta
+
+grafics.grafic_k_distance(
+    distancies_k=distancies_k,
+    k=10,
+    output_path=config.EXPORTACIO_GRAFICS["Grafic_k_veins"],
+    eps_candidat=150
+)
+
+# No existeix una zona de transició clara
+# Es proven diferents valors d'eps
+resultats_eps = {}
+for eps_prova in [100, 150, 200]:
+    config.CONFIG_ANALISI["Clusters"]["eps"] = eps_prova
+    resultat = clusters.analisi_clusters(
+        layer=edificis_industrial_net,
+        usos=["3_industrial"]
+    )
+    resultats_eps[eps_prova] = resultat["3_industrial"]["resum"]
+
+for eps_prova, resum in resultats_eps.items():
+    print(f"eps={eps_prova}:", resum)
+
+# A la vista dels resultats, eps = 200 min_size = 10
+
+resultat_clusters_industrials = clusters.analisi_clusters(
+    layer=edificis_industrial_net,
+    usos=["3_industrial"]
+)
+
+# Filtratge dels clústers
+## Diccionari de mides segons ID del clúster
+mides_per_cluster = {
+    feat["CLUSTER_ID"]: feat["CLUSTER_SIZE"]
+    for feat in resultat_clusters_industrials["3_industrial"]["clusters"].getFeatures()
+    if feat["CLUSTER_ID"] != -1 and feat["CLUSTER_SIZE"] is not None
+}
+
+## Valor de tall per obtenir els ID vàlids
+mida_minima = 50
+
+ids_seleccionats = [
+    cluster_id
+    for cluster_id, mida in mides_per_cluster.items()
+    if mida >= mida_minima
+]
+
+## Filtre per pertinença a la llista de IDs - no segons SIZE
+expressio = f'"CLUSTER_ID" IN ({", ".join(map(str, ids_seleccionats))})'
+
+clusters_seleccionats = clusters.filtrar_capa(
+    resultat_clusters_industrials["3_industrial"]["clusters"],
+    expressio
+)
+
+# ------------------------------------------------------------------------------
+# 5.6. Accessibilitat
+# ------------------------------------------------------------------------------
+
+# Càlcul d'isoàrees d'accessibilitat multi-origen
+isoarees_industrial = accessibilitat.analisi_accessibilitat(
+    graf=dict_layers_clean["Graf"]["Graf_trams"],
+    origen=clusters_seleccionats
+)
+
+# Càlcul d'isoàrees d'accessibilitat individualment
+isoarees_per_cluster = accessibilitat.analisi_accessibilitat_individual(
+    graf=dict_layers_clean["Graf"]["Graf_trams"],
+    origen=clusters_seleccionats,
+    **config.CONFIG_ANALISI["Isoarees_individuals"]
+)
+
+
+
+
+# Assignar el valor d'accessibilitat de les isoàrees als edificis
+edificis_accessibilitat = accessibilitat.assignar_isoarees_a_edificis(
+    edificis=edificis_base,
+    isoarees=isoarees
+)
+
+# Assignar el valor d'accessibilitat dels edificis a la malla hexagonal
+malla_accessibilitat = accessibilitat.assignar_accessibilitat_per_hexagons(
+    edificis=edificis_accessibilitat,
+    malla=malla_especialitzacio
+)
 
 
 #----------------
@@ -476,33 +571,6 @@ clusters_dict = clusters.analisi_clusters(
 
 # malla_especialitzacio_bivariantDDF = especialitzacio.afegir_classe_bivariant_DF_D(
 #     layer=malla_especialitzacio
-# )
-
-# # ------------------------------------------------------------------------------
-# # 5.4. Accessibilitat
-# # ------------------------------------------------------------------------------
-
-# # Comerços - 4_2_retail
-# clusters_retail = clusters_dict["4_2_retail"]["clusters"]
-# # Serveis públics - 4_3_publicServices
-# clusters_publicS = clusters_dict["4_3_publicServices"]["clusters"]
-
-# # Càlcul d'isoàrees d'accessibilitat
-# isoarees = accessibilitat.analisi_accessibilitat(
-#     graf=dict_layers_clean["Graf"]["Graf_trams"],
-#     origen=clusters_publicS
-# )
-
-# # Assignar el valor d'accessibilitat de les isoàrees als edificis
-# edificis_accessibilitat = accessibilitat.assignar_isoarees_a_edificis(
-#     edificis=edificis_base,
-#     isoarees=isoarees
-# )
-
-# # Assignar el valor d'accessibilitat dels edificis a la malla hexagonal
-# malla_accessibilitat = accessibilitat.assignar_accessibilitat_per_hexagons(
-#     edificis=edificis_accessibilitat,
-#     malla=malla_especialitzacio
 # )
 
 # # ------------------------------------------------------------------------------

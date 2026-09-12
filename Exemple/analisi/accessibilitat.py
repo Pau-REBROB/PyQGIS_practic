@@ -2,11 +2,12 @@ from qgis.core import (
     QgsField,
     QgsFeatureRequest,
     QgsProcessing,
-    QgsSpatialIndex,
-    QgsVectorLayer
+    QgsSpatialIndex
 )
 
 from PyQt5.QtCore import QVariant
+
+import analisi.clusters as clusters
 
 from statistics import median
 import processing
@@ -51,7 +52,7 @@ def generar_centroides_clusters(layer):
     return centroids['OUTPUT']
 
 
-def generar_isoarees(graf, points, strat, max_dist, interval):
+def generar_isoarees(graf, points, strat, max_dist, interval, tolerance=100):
     """
     Genera isoàrees de proximitat sobre la xarxa viària utilitzant
     el complement QNEAT3.
@@ -73,16 +74,19 @@ def generar_isoarees(graf, points, strat, max_dist, interval):
         Distància o temps màxim de càlcul.
     interval: float
         Interval de distància o temps entre isoàrees consecutives.
+    tolerance: float
+        Distància màxima (en unitats del CRS) per "lligar" cada punt
+        d'origen al node/aresta més proper de la xarxa viària. QNEAT3
+        fa aquest ajust internament; cal indicar-lo explícitament perquè
+        centroides que no cauen exactament sobre la xarxa (habitual amb
+        clústers grans, on el centroide pot quedar dins d'un pati o
+        illa d'edificis) es puguin connectar igualment al graf.
     
     Retorna
     -------
     QgsVectorLayer
         Capa vectorial amb les isoàrees generades.
     """
-
-    # output_interpolation = config.EXPORTACIO_ISOAREES["interpolation"]
-    # output_polygon = config.EXPORTACIO_ISOAREES["polygons"]
-
     resultat = processing.run(
         "qneat3:isoareaaspolygonsfromlayer",
         {
@@ -92,6 +96,7 @@ def generar_isoarees(graf, points, strat, max_dist, interval):
             'MAX_DIST': max_dist,
             'INTERVAL': interval,
             'STRATEGY': strat,
+            'TOLERANCE': tolerance,
             'OUTPUT_INTERPOLATION': QgsProcessing.TEMPORARY_OUTPUT,
             'OUTPUT_POLYGONS': QgsProcessing.TEMPORARY_OUTPUT
         }
@@ -104,7 +109,7 @@ def generar_isoarees(graf, points, strat, max_dist, interval):
     return layer_isoareas   
 
 
-def analisi_accessibilitat(graf, origen, estrategia=0, distancia_max=5000, interval=200):
+def analisi_accessibilitat(graf, origen, distancia_max, interval, estrategia=0):
     """
     Calcula les isoàrees d'accessibilitat a partir d'una capa d'origen.
 
@@ -121,6 +126,9 @@ def analisi_accessibilitat(graf, origen, estrategia=0, distancia_max=5000, inter
         Estratègia de càlcul.
         0 - distància més curta.
         1 - temps més curt.
+    tolerancia: float
+        Distància màxima (en unitats del CRS) per "lligar" cada punt
+        d'origen al node/aresta més proper de la xarxa viària.
     distancia_max: float
         Distància o temps màxim de càlcul.
     interval: float
@@ -143,6 +151,66 @@ def analisi_accessibilitat(graf, origen, estrategia=0, distancia_max=5000, inter
     )
 
     return isoarees
+
+
+def analisi_accessibilitat_individual(graf, origen, distancia_max, interval, estrategia=0):
+    """
+    Calcula les isoàrees d'accessibilitat de manera independent per a
+    cada clúster present a la capa d'origen.
+
+    A diferència de analisi_accessibilitat, que calcula un únic mapa
+    de cost amb tots els orígens competint entre si (com un diagrama
+    de Voronoi de cost), aquesta funció executa QNEAT3 una vegada per
+    clúster, evitant que la proximitat entre clústers veïns talli
+    o fragmenti les seves isoàrees respectives.
+
+    Paràmetres
+    ----------
+    graf: QgsVectorLayer
+        Capa vectorial del graf viari.
+    origen: QgsVectorLayer
+        Capa vectorial de punts (amb camp CLUSTER_ID) que defineixen
+        els clústers a analitzar.
+    estrategia: int
+        Estratègia de càlcul.
+        0 - distància més curta.
+        1 - temps més curt.
+    tolerancia: float
+        Distància màxima (en unitats del CRS) per "lligar" cada punt
+        d'origen al node/aresta més proper de la xarxa viària.
+    distancia_max: float
+        Distància o temps màxim de càlcul.
+    interval: float
+        Interval de distància o temps entre isoàrees consecutives.
+
+    Retorna
+    -------
+    dict
+        Diccionari { cluster_id: QgsVectorLayer } amb les isoàrees
+        calculades de manera independent per a cada clúster.
+    """
+    cluster_ids = {
+        feat["CLUSTER_ID"]
+        for feat in origen.getFeatures()
+        if feat["CLUSTER_ID"] is not None and feat["CLUSTER_ID"] != -1
+    }
+
+    resultats = {}
+
+    for cluster_id in cluster_ids:
+        origen_cluster = clusters.filtrar_capa(origen, f'"CLUSTER_ID" = {cluster_id}')
+
+        isoarees = analisi_accessibilitat(
+            graf=graf,
+            origen=origen_cluster,
+            estrategia=estrategia,
+            distancia_max=distancia_max,
+            interval=interval
+        )
+
+        resultats[cluster_id] = isoarees
+
+    return resultats
 
 
 def assignar_isoarees_a_edificis(edificis, isoarees):
