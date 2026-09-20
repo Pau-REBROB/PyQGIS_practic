@@ -6,8 +6,6 @@ Funcions d'alt nivell per aplicar la simbologia a les capes generades
 durant el projecte.
 """
 
-from qgis.core import (QgsHeatmapRenderer, QgsStyle)
-
 import config
 import simbologia.simbologies as simbologies
 import simbologia.simbologia_agregacions as simbologia_agregacions
@@ -154,13 +152,11 @@ def simbologia_densitat_agregacions(capa_districtes, capa_barris, capa_hexagons)
     return layers_densitat
 
 
-
-
 # ==============================================================================
-# AGRUPACIONS ESPACIALS
+# AGRUPACIONS ESPACIALS i ACCESSIBILITAT
 # ==============================================================================
 
-def simbologia_clusters(resultats):
+def simbologia_accessibilitat_clusters(capa_clusters, capa_edificis, capa_terme, capa_graf):
     """
     Aplica la simbologia als centroides dels clústers espacials.
 
@@ -189,130 +185,29 @@ def simbologia_clusters(resultats):
         }
     """
 
-    layers_clusters = {}
+    layers_accessibilitat = {}
 
-    for us, dades in resultats.items():
-        layer_simb = simbologies.simbologia_unica_punt(
-            layer=dades["clusters"],
-            fill_color=config.COLORS_USOS[us],
-            stroke_color=config.COLORS_USOS[us],
-            **config.SIMBOLOGIA["Clusters"]
-        )
+    layers_accessibilitat["clusters"] = simbologia_accessibilitat.simbologia_clusters(
+        clusters=capa_clusters
+    )
 
-        # Es recupera el nom original de la capa
-        layer_simb.setName(f"Cluster {config.ETIQUETES_USOS[us]}")
+    layers_accessibilitat["edificis"] = simbologia_accessibilitat.simbologia_edificis(
+        edificis=capa_edificis
+    )
 
-        layers_clusters[us] = layer_simb
+    layers_accessibilitat["terme"] = simbologia_accessibilitat.simbologia_terme_municipal(
+        terme=capa_terme
+    )
+
+    layers_accessibilitat["graf"] = simbologia_accessibilitat.simbologia_graf(
+        graf=capa_graf
+    ) 
     
-    return layers_clusters
+    return layers_accessibilitat
 
 
-def simbologia_zones(resultats):
-    """
-    Aplica la simbologia a les geometries envolvents
-    dels clústers espacials.
-
-    Cada agrupació espacial es representa amb el color associat al seu ús.
-
-    Paràmetres
-    ----------
-    resultats: dict
-        Diccionari retornat per `analisi_clusters()`, amb l'estructura:
-        {
-            us: {
-                "clusters": QgsVectorLayer,
-                "zones": QgsVectorLayer,
-                "resum": dict
-            },
-            ...
-        }
-    
-    Retorna
-    -------
-    dict
-        Diccionari amb les capes simbolitzades, amb l'estructura:
-        {
-            us: QgsVectorLayer,
-            ...
-        }
-    """
-
-    layers_zones = {}
-
-    for us, dades in resultats.items():
-        layer_simb = simbologies.simbologia_unica(
-            layer=dades["zones"],
-            fill_color=config.COLORS_ZONES[us],
-            stroke_color=config.COLORS_USOS[us],
-            **config.SIMBOLOGIA["Zones"]
-        )
-
-        # Es recupera el nom original de la capa
-        layer_simb.setName(f"Zona {config.ETIQUETES_USOS[us]}")
-
-        layers_zones[us] = layer_simb
-    
-    return layers_zones
 
 
-def simbologia_zones_clusters_per_districtes(resultats, us):
-    """
-    Aplica la simbologia a les zones envolvents dels clústers
-    generats per districte.
-    """
-
-    layers_zones = {}
-
-    for districte, dades in resultats.items():
-
-        layer_simb = simbologies.simbologia_unica(
-            layer=dades["zones"],
-            fill_color=config.COLORS_ZONES[us],
-            stroke_color=config.COLORS_USOS[us],
-            **config.SIMBOLOGIA["Zones"]
-        )
-
-        layer_simb.setName(
-            f"Zona {config.ETIQUETES_USOS[us]} - {districte}"
-        )
-
-        layers_zones[districte] = layer_simb
-
-    return layers_zones
-
-
-def simbologia_heatmap(layer, radi, color_ramp, max_val=0):
-    """
-    Aplica una simbologia de mapa de calor a una capa de punts.
-
-    Paràmetres
-    ----------
-    layer: QgsVectorLayer
-        Capa vectorial de punts.
-    radi: float
-        Radi del kernel en unitats del mapa (metres).
-    color_ramp: str
-        Nom de la rampa de colors de QGIS.
-    max_val: float
-        Valor màxim de densitat. 0 = automàtic.
-
-    Retorna
-    -------
-    QgsVectorLayer
-        Capa amb simbologia heatmap aplicada.
-    """
-
-    layer_clone = layer.clone()
-
-    renderer = QgsHeatmapRenderer()
-    renderer.setRadius(radi)
-    renderer.setMaximumValue(max_val)
-    renderer.setColorRamp(QgsStyle().defaultStyle().colorRamp(color_ramp))
-
-    layer_clone.setRenderer(renderer)
-    layer_clone.triggerRepaint()
-
-    return layer_clone
 
 
 # ==============================================================================

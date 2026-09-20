@@ -13,6 +13,7 @@ Organització
 """
 
 from qgis.core import (
+    QgsCoordinateReferenceSystem,
     QgsFeatureRequest,
     QgsProject,
     QgsSpatialIndex,
@@ -20,6 +21,8 @@ from qgis.core import (
     QgsVectorLayer, 
     edit
 )
+
+import processing
 
 import os
 
@@ -64,6 +67,44 @@ def preparar_capa(layer, camps):
     layer_clone.updateFields()
 
     return layer_clone
+
+
+def reprojectar_capa(layer, crs_desti):
+    """
+    Reprojecta una capa vectorial a un sistema de referència de coordenades
+    desitjat, si cal.
+
+    Si la capa ja es troba en el CRS de destinació, es retorna com ha entrat,
+    sense cap operació addicional.
+
+    Paràmetres
+    ----------
+    layer: QgsVectorLayer
+        Capa vectorial a reprojectar.
+    crs_desti: str
+        Codi EPSG de destinació (p. ex. "EPSG:25831").
+
+    Retorna
+    -------
+    QgsVectorLayer
+        Capa en el CRS de destinació (en memòria si calia reprojectar,
+        o la mateixa capa d'entrada si ja hi era).
+    """
+    crs_desti_obj = QgsCoordinateReferenceSystem(crs_desti)
+
+    if layer.crs() == crs_desti_obj:
+        return layer
+
+    resultat = processing.run("native:reprojectlayer", {
+        'INPUT': layer,
+        'TARGET_CRS': crs_desti_obj,
+        'OUTPUT': 'memory:'
+    })
+
+    layer_reproj = resultat['OUTPUT']
+    layer_reproj.setName(layer.name())
+
+    return layer_reproj
 
 
 def desar_i_carregar_capa(layer_clone):
@@ -140,7 +181,6 @@ def preparar_grup(dict_layers, configuracio):
             ...
         }
     """
-
     for grup, capes in dict_layers.items():
         
         for nom, capa in capes.items():
@@ -161,8 +201,15 @@ def preparar_grup(dict_layers, configuracio):
                     camps = configuracio[grup][nom]
                 else:
                     camps = configuracio[grup]["*"]      
-                layer_clone = preparar_capa(capa, camps)
+
+                layer_reproj = reprojectar_capa(
+                    layer=capa,
+                    crs_desti=config.SRC_PROJECTE
+                )
+
+                layer_clone = preparar_capa(layer_reproj, camps)
                 layer_clean = desar_i_carregar_capa(layer_clone)
+                print(f"Capa {nom} preparada i desada.")
             
             dict_layers[grup][nom] = layer_clean 
 

@@ -179,13 +179,6 @@ project, root = inicialitzacio.inicialitzar_projecte()
 # Retorna un diccionari de capes i un diccionari d'índexs espacials
 dict_layers = importacio.carregar_capes(layers=config.LAYERS)
 
-# Graf OSM - ARA MANUALMENT
-graf_osm = QgsVectorLayer(
-    config.LAYERS["Graf"]["Graf_osm"],
-    "graf_osm",
-    "ogr"
-)
-
 # Carrega la capa de fons cartogràfic (CartoDB Positron No Labels)
 basemap_layer = importacio.carregar_basemap()
 
@@ -202,41 +195,6 @@ dict_layers_clean = preparacio_dades.preparar_grup(
     dict_layers=dict_layers,
     configuracio=config.CAMPS_CAPES
 )
-
-# Graf OSM
-CAMPS_GRAF_OSM = [
-    'osm_id',      # identificador únic — útil per depurar, localitzar un tram concret
-    'highway',     # tipus de via — per si vols filtrar per categoria més endavant
-    'name',        # nom del carrer — no imprescindible per al càlcul, però ajuda molt a interpretar resultats visualment
-    'oneway',      # sentit únic — necessari si QNEAT3 ha de respectar direccionalitat
-    'maxspeed',    # velocitat màxima — necessari només si calcules per temps (estrategia=1), no per distància
-    'access'       # de moment el mantens, per si cal revisar/refinar el filtre més endavant
-]
-processing.run("native:retainfields", {
-    'INPUT': graf_osm,
-    'FIELDS': CAMPS_GRAF_OSM,
-    'OUTPUT': f"{config.PATH_RESULTATS}/graf_pas1_filtrat.gpkg"
-})
-graf_pas1 = QgsVectorLayer(
-    f"{config.PATH_RESULTATS}/graf_pas1_filtrat.gpkg",
-    "pas1",
-    "ogr"
-)
-expressio = (
-    '"access" IS NULL OR "access" NOT IN '
-    "('customers','destination','emergency','employees','forestry','private','no','permit','psv')"
-)
-processing.run("native:extractbyexpression", {
-    'INPUT': graf_pas1,
-    'EXPRESSION': expressio,
-    'OUTPUT': f'{config.PATH_RESULTATS}/graf_filtrat.gpkg'
-})
-graf_net = QgsVectorLayer(
-    f"{config.PATH_RESULTATS}/graf_filtrat.gpkg",
-    "graf_net",
-    "ogr"
-)
-
 
 # Retorna un diccionari d'índex espacials de cada capa
 dict_indexs = preparacio_dades.crear_indexs(
@@ -519,37 +477,85 @@ clusters_seleccionats = clusters.filtrar_capa(
     expressio
 )
 
+zones_clusters_seleccionats = clusters.envolvent_clusters(
+    layer=clusters_seleccionats
+)
+
 # ------------------------------------------------------------------------------
 # 5.6. Accessibilitat
 # ------------------------------------------------------------------------------
 
 # Càlcul d'isoàrees d'accessibilitat multi-origen
 isoarees_industrial = accessibilitat.analisi_accessibilitat(
-    graf=dict_layers_clean["Graf"]["Graf_trams"],
-    origen=clusters_seleccionats
+    graf=dict_layers_clean["Graf"]["Graf_osm"],
+    origen=clusters_seleccionats,
+    **config.CONFIG_ANALISI["Isoarees_globals"]
 )
 
 # Càlcul d'isoàrees d'accessibilitat individualment
 isoarees_per_cluster = accessibilitat.analisi_accessibilitat_individual(
-    graf=dict_layers_clean["Graf"]["Graf_trams"],
+    graf=dict_layers_clean["Graf"]["Graf_osm"],
     origen=clusters_seleccionats,
     **config.CONFIG_ANALISI["Isoarees_individuals"]
 )
 
+# Comparació de la cobertura de les isoàrees
+llindars_comparacio = [500, 1000, 1500, 2000, 2500, 3000]
 
+for cluster_id, isoarea in isoarees_per_cluster.items():
+    resultat = accessibilitat.area_coberta_per_llindar(
+        isoarees=isoarea,
+        llindars=llindars_comparacio
+    )
+    print(f"Cluster {cluster_id}:", resultat)
 
+# Resultats
+#Cluster 24: {
+#   500: 326306.46482907515, 1000: 1982951.445349127, 1500: 4909606.273723032,
+#   2000: 8576268.59377075, 2500: 13031288.592719823, 3000: 18227628.431523204
+# }
+#Cluster 2: {
+#   500: 359224.40429566335, 1000: 1489299.1504833587, 1500: 2872486.7499795556,
+#   2000: 4775327.897160877, 2500: 6652060.368146252, 3000: 8405186.772574663
+# }
+#Cluster 27: {
+#   500: 407035.93737074174, 1000: 1955767.351290375, 1500: 4139887.3407575935,
+#   2000: 7201950.9986871155, 2500: 10785305.45604671, 3000: 15074048.936193772
+# }
+#Cluster 28: {
+#   500: 389912.93736368464, 1000: 2085224.3000795022, 1500: 5092805.512293063,
+#   2000: 9104471.990774022, 2500: 13428742.272372171, 3000: 17920921.40379775
+# }
+
+resultats_area_per_cluster = {
+    cluster_id: accessibilitat.area_coberta_per_llindar(
+        isoarees=isoarea,
+        llindars=llindars_comparacio
+    )
+    for cluster_id, isoarea in isoarees_per_cluster.items()
+}
+
+grafics.grafic_area_accessibilitat(
+    resultats_per_cluster=resultats_area_per_cluster,
+    output_path=config.EXPORTACIO_GRAFICS["Grafic_area_isoarees"],
+    noms_clusters={24: "Poblenou", 2: "Zona Franca", 27: "Bon Pastor", 28: "Sant Martí"}
+)
 
 # Assignar el valor d'accessibilitat de les isoàrees als edificis
-edificis_accessibilitat = accessibilitat.assignar_isoarees_a_edificis(
+edificis_amb_accessibilitat = accessibilitat.assignar_isoarees_a_edificis(
     edificis=edificis_base,
-    isoarees=isoarees
+    isoarees=isoarees_industrial
 )
+# ## CAL FER UNA ITERACIÓ PER CLUSTER
+# resultat_edificis_accessibilitat = {}
+# for cluster_id, isoarea in isoarees_per_cluster.items():
+#     resultat_edificis_accessibilitat[cluster_id] = accessibilitat.assignar_isoarees_a_edificis(
+#         edificis=edificis_no_industrial,
+#         isoarees=isoarea
+#     )
 
-# Assignar el valor d'accessibilitat dels edificis a la malla hexagonal
-malla_accessibilitat = accessibilitat.assignar_accessibilitat_per_hexagons(
-    edificis=edificis_accessibilitat,
-    malla=malla_especialitzacio
-)
+
+
 
 
 #----------------
@@ -696,21 +702,20 @@ layers_simbologia_densitat_industrial = simbologia_general.simbologia_densitat_a
     capa_hexagons=hexagons_zones_densitat_industrial
 )
 
+# ------------------------------------------------------------------------------
+# 6.4. Clústers i accessibilitat
+# ------------------------------------------------------------------------------
+
+layers_simbologia_accessibilitat_clusters = simbologia_general.simbologia_accessibilitat_clusters(
+    capa_clusters=zones_clusters_seleccionats,
+    capa_edificis=edificis_amb_accessibilitat,
+    capa_terme=terme_base,
+    capa_graf=dict_layers_clean["Graf"]["Graf_osm"]
+)
+
+
 
 #------------------------
-# ------------------------------------------------------------------------------
-# 6.2. Agrupacions espacials - clústers
-# ------------------------------------------------------------------------------
-
-# Clústers
-layers_simbologia_clusters = simbologia_general.simbologia_clusters(
-    resultats=clusters_dict
-)
-
-# Zones
-layers_simbologia_zones = simbologia_general.simbologia_zones(
-    resultats=clusters_dict
-)
 
 # ------------------------------------------------------------------------------
 # 6.3. Especialització funcional - Dominància / Diversitat funcional
@@ -770,16 +775,8 @@ totes_les_capes = {
     **layers_simbologia_base,
     "base_map": basemap_layer,
     **layers_simbologia_atles,
-    **layers_simbologia_densitat_industrial
-    #**layers_simbologia_clusters,
-    #**layers_simbologia_zones,
-    # **layers_simbologia_especialitzacio_districtes,
-    # **layers_simbologia_especialitzacio_barris,
-    # **layers_simbologia_especialitzacio_hexagons["hexagons"],
-    # "terme_hexagons": layers_simbologia_especialitzacio_hexagons["terme_municipal"],
-    # **layers_simbologia_accessibilitat,
-    # **layers_simbologia_bivariant_valids,
-    # "hexagons_no_valids_DF_A": layer_simbologia_bivariant_no_valids
+    **layers_simbologia_densitat_industrial,
+    **layers_simbologia_accessibilitat_clusters
 }
 
 for capa in totes_les_capes.values():
@@ -837,6 +834,19 @@ layout_maup.composicio_maup_densitat_industrial(
     capa_extent=layers_simbologia_base["TermeMunicipal"],
 )
 
+# ------------------------------------------------------------------------------
+# 7.4. Composició d'accessibilitat
+# ------------------------------------------------------------------------------
+
+layout_accessibilitat.composicio_accessibilitat(
+    capes=[
+        layers_simbologia_accessibilitat_clusters["graf"],
+        layers_simbologia_accessibilitat_clusters["edificis"],
+        layers_simbologia_accessibilitat_clusters["clusters"],
+        layers_simbologia_accessibilitat_clusters["terme"]
+    ],
+    capa_extent=terme_base
+)
 
 
 
@@ -864,21 +874,6 @@ layout_especialitzacio.composicio_especialitzacio(
     capes=layers_simbologia_especialitzacio_hexagons["hexagons"],
     capa_terme=layers_simbologia_especialitzacio_hexagons["terme_municipal"],
     capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"]
-)
-
-# ------------------------------------------------------------------------------
-# 7.5. Composició d'accessibilitat
-# ------------------------------------------------------------------------------
-
-layout_accessibilitat.composicio_accessibilitat(
-    capes=[
-        layers_simbologia_zones["4_3_publicServices"],
-        layers_simbologia_accessibilitat["clusters"],
-        layers_simbologia_accessibilitat["accessibilitat"],
-        layers_simbologia_accessibilitat["terme"],
-        layers_simbologia_accessibilitat["graf"]
-    ],
-    capa_extent=layers_simbologia_accessibilitat["clusters"]
 )
 
 # ------------------------------------------------------------------------------

@@ -161,6 +161,57 @@ def grafic_k_distance(distancies_k, k, output_path, eps_candidat=None):
     return fig
 
 
+def grafic_area_accessibilitat(resultats_per_cluster, output_path, noms_clusters=None):
+    """
+    Genera un gràfic de línies comparant l'àrea acumulada coberta per
+    les isoàrees de diversos clústers, a mesura que augmenta la
+    distància/temps de referència.
+
+    Permet comparar l'accessibilitat de diferents zones industrials de
+    manera objectiva: com més ràpid creix la línia d'un clúster, més
+    connectat està a la xarxa viària respecte als altres.
+
+    Paràmetres
+    ----------
+    resultats_per_cluster: dict
+        Diccionari { cluster_id: { llindar: area_m2 } }, sortida de
+        area_coberta_per_llindar() per a cada clúster.
+    output_path: str
+        Ruta on es desarà la imatge.
+    noms_clusters: dict, opcional
+        Diccionari { cluster_id: nom } per mostrar noms descriptius
+        (p. ex. "Sant Andreu") a la llegenda, en comptes de l'ID numèric.
+
+    Retorna
+    -------
+    matplotlib.figure.Figure
+        Figura generada.
+    """
+    fig, ax = plt.subplots(figsize=(10, 6))
+
+    for cluster_id, resultats in resultats_per_cluster.items():
+        llindars = sorted(resultats.keys())
+        arees_km2 = [resultats[l] / 1_000_000 for l in llindars]  # m² -> km²
+
+        etiqueta = noms_clusters.get(cluster_id, f"Clúster {cluster_id}") if noms_clusters else f"Clúster {cluster_id}"
+
+        ax.plot(llindars, arees_km2, marker="o", linewidth=1.5, label=etiqueta)
+
+    ax.set_title("Àrea coberta per accessibilitat, per clúster industrial")
+    ax.set_xlabel("Distància (m)")
+    ax.set_ylabel("Àrea coberta (km²)")
+
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.grid(axis="y", alpha=0.3)
+    ax.legend()
+    plt.tight_layout()
+
+    plt.savefig(output_path, dpi=300)
+
+    plt.close(fig)
+
+    return fig
 
 
 

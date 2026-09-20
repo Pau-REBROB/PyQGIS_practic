@@ -88,6 +88,7 @@ def composicio_maup_densitat_industrial(capes, capa_terme, capa_extent):
         **cfg_layout["Peu"],
         **cfg_estructura["Peu"]
     )
+    
     # ------------------------------------------------------------------
     # EXPORTACIÓ
     # ------------------------------------------------------------------

@@ -32,7 +32,7 @@ LAYERS = {
     },
     "Graf": {
         "Graf_trams": f"{PATH_DADES_GRAF}/BCN_GrafVial_Trams_ETRS89_SHP.shp",
-        "Graf_osm": f"{PATH_DADES_GRAF}/graf_osm.geojson"
+        "Graf_osm": f"{PATH_DADES_GRAF}/graf_filtrat.gpkg"
     }
 }
 
@@ -73,7 +73,8 @@ CAMPS_CAPES = {
         'Illes': ['gml_id', 'areaValue', 'localId', 'nationalCadastralReference', 'pos']
     },
     "Graf": {
-        "*": ['COORD_X', 'COORD_Y', 'LONGITUD', 'ANGLE', 'C_Tram', 'Distric_D', 'NDistric_D', 'TVia_D', 'NVia_D', 'Distric_E', 'NDistric_E', 'TVia_E', 'NVia_E']
+        "Graf_trams": ['COORD_X', 'COORD_Y', 'LONGITUD', 'ANGLE', 'C_Tram', 'Distric_D', 'NDistric_D', 'TVia_D', 'NVia_D',
+              'Distric_E', 'NDistric_E', 'TVia_E', 'NVia_E'],
                 # 'COORD_X' coordenada UTM X
                 # 'COORD_Y' coordenada UTM Y
                 # 'LONGITUD' longitud de la via
@@ -87,8 +88,17 @@ CAMPS_CAPES = {
                 # 'NDistric_E' nom districte de la part esquerra
                 # 'TVia_E' tipus de via de la part esquerra
                 # 'NVia_E'  nom de la via de la part esquerra
+        "Graf_osm": ['osm_id', 'highway', 'name', 'oneway', 'maxspeed', 'access']
+                # 'osm_id' identificador únic d'OSM
+                # 'highway' tipus de via
+                # 'name' nom del carrer
+                # 'oneway' sentit únic de circulació
+                # 'maxspeed' velocitat màxima permesa
+                # 'access' restriccions d'accés (privat, només destí, etc.)
     }
 }
+
+SRC_PROJECTE = "EPSG:25831"
 
 # =============================================================================
 # CONSTANTS DEL PROJECTE
@@ -133,7 +143,7 @@ COLORS_ATLES = {
 COLORS_ZONES = {
     "1_residential": (245, 231, 190, 110),
     "2_agriculture": (105, 180, 75, 125),
-    "3_industrial": (125, 130, 135, 125),
+    "3_industrial": (125, 130, 135, 250),
     "4_1_office": (245, 175, 45, 130),
     "4_2_retail": (235, 105, 35, 130),
     "4_3_publicServices": (165, 125, 195, 125)
@@ -191,9 +201,13 @@ CONFIG_ANALISI = {
         "min_size": 10
     },
 
+    "Isoarees_globals": {
+        "distancia_max": 20000,
+        "interval": 100
+    },
     "Isoarees_individuals": {
         "distancia_max": 15000,
-        "interval": 500
+        "interval": 100
     }
 }
 
@@ -238,16 +252,13 @@ INTERVALS_SHANNON = [
 
 INTERVALS_ACCESSIBILITAT = [
     0,
-    100,
-    200,
-    400,
-    600,
-    800,
+    250,
+    500,
     1000,
-    1500,
     2000,
-    3000,
-    5000
+    5000,
+    10000,
+    15000
 ]
 
 # =============================================================================
@@ -327,6 +338,36 @@ SIMBOLOGIA = {
             "stroke_width": 0.1,
             "color_classe_zero": (240,240,240,255),
             "invert_ramp": True
+        }
+    },
+
+    "Accessibilitat": {
+        "Edificis": {
+            "color_ramp": "RdBu",
+            "intervals": INTERVALS_ACCESSIBILITAT,
+            "atribut": 'accessibilitat',
+            "stroke_color": (255,255,255,255),
+            "stroke_width": 0.015,
+            "invert_ramp": True
+        } ,
+        "Graf": {
+            "nom": "Graf viari",
+            "fill_color": (255,255,255,255),
+            "width": 0.025,
+            "outline_color": (50,50,50,255),
+            "outline_width": 0.05
+        },
+        "Clusters": {
+            "nom": "Agrupacions industrials",
+            "fill_color": COLORS_ZONES["3_industrial"],
+            "outline_width": 0.25,
+            "stroke_color": COLORS_USOS["3_industrial"]
+        },
+        "Terme": {
+            "nom": "terme municipal",
+            "fill_color": (0,0,0,0),
+            "outline_width": 0.2,
+            "stroke_color": (255,255,255,255)
         }
     },
 
@@ -450,37 +491,6 @@ SIMBOLOGIA = {
             "stroke_color": (180,180,180,255),
             "outline_width": 0.50
         }
-    },
-
-    "Accessibilitat": {
-        "Edificis": {
-            "color_ramp": "RdBu",
-            "intervals": INTERVALS_ACCESSIBILITAT,
-            "atribut": 'accessibilitat',
-            "stroke_color": (255,255,255,255),
-            "stroke_width": 0.025,
-            "invert_ramp": True
-        } ,
-        "Graf": {
-            "nom": "Graf viari",
-            "fill_color": (255,255,255,255),
-            "width": 0.025,
-            "outline_color": (50,50,50,255),
-            "outline_width": 0.05
-        },
-        "Clusters": {
-            "nom": "Agrupacions comercials",
-            "mida": 0.50,
-            "fill_color": COLORS_ZONES["4_2_retail"],
-            "outline_width": 0.25,
-            "stroke_color": COLORS_USOS["4_2_retail"]
-        },
-        "Terme": {
-            "nom": "terme municipal",
-            "fill_color": (0,0,0,0),
-            "outline_width": 0.2,
-            "stroke_color": (255,255,255,255)
-        }
     }
 }
 
@@ -492,6 +502,7 @@ EXPORTACIO_GRAFICS = {
     "Grafic_usos_districtes": f"{PATH_RESULTATS}/Grafic_nombreEdificis_districte.png",
     "Grafic_usos_percentatges_districtes": f"{PATH_RESULTATS}/Grafic_percentatgeEdificis_districte.png",
     "Grafic_k_veins": f"{PATH_RESULTATS}/kdistance_industrial.png",
+    "Grafic_area_isoarees": f"{PATH_RESULTATS}/area_isoarees_industrial.png",
     "Grafic_nombre_clusters": f"{PATH_RESULTATS}/Grafic_nombreClusters.png",
     "Grafic_mida_clusters": f"{PATH_RESULTATS}/Grafic_midaClusters.png"
 }
@@ -662,6 +673,39 @@ LAYOUTS = {
         "Peu": {
             "size": (80, 10),
             "position": (220, 202.50)
+        }
+    },
+
+    "ESTRUCTURA_ACCESS": {
+        "Mapa": {
+            "factor_escala": 0.75,
+            "size": (292, 205), 
+            "position": (2.50, 2.50),
+            "rotacio": 45,
+            "offset_x": 1000,
+            "offset_y": 500
+        },
+        "Titol": {
+            "size": (292, 10),
+            "position": (2.50, 2.50)
+        },
+        "Subtitol": {
+            "size": (292, 10),
+            "position": (2.50, 12)
+        },
+        "Llegenda": {
+            "position": (10, 35)
+        },
+        "Escala": {
+            "position": (10, 105)
+        },
+        "Nord": {
+            "size": (10, 10),
+            "position": (10, 95)
+        },
+        "Peu": {
+            "size": (200, 10),
+            "position": (160, 202.50)
         }
     },
 
@@ -987,32 +1031,7 @@ LAYOUTS = {
     #     }
     # },
 
-    "ESTRUCTURA_ACCESS": {
-        "Mapa": {
-            "factor_escala": 0.60,
-            "size": (290, 200),
-            "position": (3.5, 5),
-            "rotacio": 45,
-            "offset_x": 1000,
-            "offset_y": 500
-        },
-        "Capçalera": {
-            "text_size": (280, 5),
-            "text_position": (10, 10),
-            "backg_size": (280, 2),
-            "backg_position": (10, 20)
-        },
-        "Llegenda": {
-            "position": (240, 115) #(15, 60)
-        },
-        "Escala": {
-            "position": (240, 190) #(15, 190)
-        },
-        "Nord": {
-            "size": (10, 10),
-            "position": (240, 180) #(15, 180)
-        }
-    },
+    
     
 
     "GENERAL":{
@@ -1111,8 +1130,8 @@ LAYOUTS = {
             "font_size": 14,
             "font_color": (0,0,0,255),
             "alineacio": "left",
-            "backg_color": (0, 0, 0, 0),#(150,150,150,180)
-            "frame_color": (0, 0, 0, 0)#(255, 255, 255, 200)
+            "backg_color": (0, 0, 0, 0),
+            "frame_color": (0, 0, 0, 0)
         },
         "Subtitol_2": {
             "subtitol": "10 de 10 districtes i 68 de 73 barris cauen a la mateixa classe. La resolució hexagonal és l'única que distingeix les zones industrials reals",
@@ -1120,8 +1139,8 @@ LAYOUTS = {
             "font_size": 14,
             "font_color": (0,0,0,255),
             "alineacio": "left",
-            "backg_color": (0, 0, 0, 0),#(150,150,150,180)
-            "frame_color": (0, 0, 0, 0)#(255, 255, 255, 200)
+            "backg_color": (0, 0, 0, 0),
+            "frame_color": (0, 0, 0, 0)
         },
         "Llegenda": {
             "font": "Calibri",
@@ -1138,6 +1157,56 @@ LAYOUTS = {
         "Exportacio": {
             "output_path": f"{PATH_RESULTATS}/Densitat_industrial_MAUP.pdf",
             "dpi": 500
+        }
+    },
+
+    "ACCESSIBILITAT":{
+        "Mapa": {
+            "color_fons": (60,60,60,255)
+        },
+        "Titol": {
+            "titol": "Accessibilitat als principals nuclis industrials de Barcelona",
+            "font": "Calibri",
+            "font_size": 18,
+            "font_color": (255,255,255,255),
+            "alineacio": "left",
+            "backg_color": (0, 0, 0, 0),
+            "frame_color": (0, 0, 0, 0)
+        },
+        "Subtitol": {
+            "subtitol": "Accessibilitat calculada sobre la xarxa viària (accés rodat); no inclou transport públic ni desplaçaments a peu",
+            "font": "Calibri",
+            "font_size": 14,
+            "font_color": (255,255,255,255),
+            "alineacio": "left",
+            "backg_color": (0, 0, 0, 0),
+            "frame_color": (0, 0, 0, 0)
+        },
+        "Llegenda": {
+            "titol": "Distància mínima (metres)",
+            "font": "Calibri",
+            "font_size": 10,
+            "font_color": (255,255,255,255), 
+            "backg_color": (100,100,100,180)
+        },
+        "Escala": {
+            "tipus": "Single Box",
+            "font": "Calibri",
+            "font_size": 10,
+            "font_color": (255,255,255,255)
+        },
+        "Nord": {
+            "image_path": "C:/projectes_git/Dades/nord2.png"
+        },
+        "Peu": {
+            "text": "Font: Cadastre, ICGC (CC-BY 4.0), OpenStreetMap contributors (ODbL) · Elaboració pròpia",
+            "font": "Calibri",
+            "font_size": 10,
+            "font_color": (255,255,255,255)
+        },
+        "Exportacio": {
+            "output_path": f"{PATH_RESULTATS}/Accessibilitat.pdf",
+            "dpi": 600
         }
     },
 
@@ -1600,38 +1669,4 @@ LAYOUTS = {
     #         "dpi": 300
     #     }
     # },
-    "ACCESSIBILITAT":{
-        "Mapa": {
-            "color_fons": (60,60,60,255)
-        },
-        "Capçalera": {
-            "text": "Accessibilitat als nuclis comercials de Barcelona",
-            "font": "Calibri",
-            "font_size": 20,
-            "font_color": (255,255,255,255), #(0,0,0,255),
-            "color": (100,100,100,180),
-            "outline_color": (255, 255, 255, 200),
-            "outline_width": 0.5
-        },
-        "Llegenda": {
-            "titol": "Distància mínima",
-            "font": "Calibri",
-            "font_size": 10,
-            "font_color": (255,255,255,255), #(0,0,0,255),
-            "backg_color": (100,100,100,180)
-        },
-        "Escala": {
-            "tipus": "Single Box",
-            "font": "Calibri",
-            "font_size": 10,
-            "font_color": (255,255,255,255) #(0,0,0,255)
-        },
-        "Nord": {
-            "image_path": "C:/projectes_git/Dades/nord2.png"
-        },
-        "Exportacio": {
-            "output_path": f"{PATH_RESULTATS}/Accessibilitat.pdf",
-            "dpi": 600
-        }
-    }
 }

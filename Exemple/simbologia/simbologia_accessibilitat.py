@@ -39,12 +39,12 @@ def simbologia_clusters(clusters):
     Aplica una simbologia única a la capa d'agrupacions espacials.
     """
 
-    layer = simbologies.simbologia_unica_punt(
+    layer = simbologies.simbologia_unica(
         layer=clusters,
         **cfg_simbologa["Clusters"]
     )
 
-    layer.setName("Agrupacions comercials")
+    layer.setName("Agrupacions industrials")
 
     return layer
 

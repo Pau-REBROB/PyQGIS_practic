@@ -1,6 +1,7 @@
 from qgis.core import (
     QgsField,
     QgsFeatureRequest,
+    QgsGeometry,
     QgsProcessing,
     QgsSpatialIndex
 )
@@ -213,79 +214,131 @@ def analisi_accessibilitat_individual(graf, origen, distancia_max, interval, est
     return resultats
 
 
+def area_coberta_per_llindar(isoarees, llindars):
+    """
+    Calcula l'àrea acumulada coberta per una capa d'isoàrees fins a
+    cadascun dels llindars de distància/temps indicats.
+
+    Permet comparar l'accessibilitat de diversos orígens de manera
+    objectiva (a diferència de la forma visual del polígon), mirant
+    quanta superfície de territori queda coberta a la mateixa distància
+    per a cadascun.
+
+    Paràmetres
+    ----------
+    isoarees: QgsVectorLayer
+        Capa de polígons d'isoàrees, amb el camp 'cost_level' indicant
+        el llindar superior de cada anell.
+    llindars: list[float]
+        Llista de distàncies/temps per als quals es vol calcular
+        l'àrea acumulada coberta.
+
+    Retorna
+    -------
+    dict
+        Diccionari { llindar: area_m2 }, amb l'àrea total coberta
+        per tots els anells amb cost_level <= llindar.
+    """
+    resultats = {}
+
+    for llindar in llindars:
+        geometries = [
+            feat.geometry().makeValid()
+            for feat in isoarees.getFeatures()
+            if feat["cost_level"] <= llindar
+        ]
+
+        if geometries:
+            area_total = QgsGeometry.unaryUnion(geometries).area()
+        else:
+            area_total = 0
+
+        resultats[llindar] = area_total
+
+    return resultats
+
+
 def assignar_isoarees_a_edificis(edificis, isoarees):
     """
-    Assigna a cada edifici el nivell d'accessibilitat corresponent
-    a la isoàrea on es troba.
+     Assigna a cada edifici el nivell d'accessibilitat corresponent
+    a la isoàrea més ajustada que el conté.
 
-    Es crea l'índex espacial de les isoàrees i es copia el valor del
-    camp 'cost_level' al nou camp 'accessibilitat' dels edificis.
+    Les isoàrees generades per QNEAT3 són polígons niats: cadascuna
+    cobreix tot el territori accessible fins al seu cost_level,
+    incloent el territori de tots els nivells inferiors. Per això,
+    s'itera de la isoàrea de cost més baix a la més alta i s'assigna
+    a cada edifici el primer (i per tant més ajustat) cost_level que
+    el conté, sense tornar a processar-lo als nivells superiors.
 
     Paràmetres
     ----------
     edificis: QgsVectorLayer
         Capa vectorial dels edificis.
     isoarees: QgsVectorLayer
-        Capa vectorial de les isoàrees.
-    
+        Capa vectorial de les isoàrees, amb el camp 'cost_level'.
+
     Retorna
     -------
     QgsVectorLayer
         Capa d'edificis amb el nou camp 'accessibilitat'.
     """
-
-    # Crea la capa de sortida - còpia de la capa d'edificis
     layer = edificis.materialize(QgsFeatureRequest())
 
     provider = layer.dataProvider()
-
     provider.addAttributes([
         QgsField("accessibilitat", QVariant.Double)
     ])
-
     layer.updateFields()
 
-    # Ús d'índexs espacials
     # Crea l'índex del camp accessibilitat d'edificis
     idx_accessibilitat = layer.fields().indexOf("accessibilitat")
-    # Crea l'índex de les isoàrees
-    idx_isoarea = QgsSpatialIndex(isoarees.getFeatures())
 
-    # Crea un diccionari de cada isoàrea amb el seu id
-    # per poder recuperar cada isoàrea
-    dict_isoarees = {
-        feat.id(): feat 
-        for feat in isoarees.getFeatures()
-    }
+    # Índex espacial dels edificis, construït un sol cop i reutilitzat
+    # a cada iteració
+    index_edificis = QgsSpatialIndex(layer.getFeatures())
 
-    layer.startEditing()
+    # Isoàrees ordenades, de menor cost a major
+    isoarees_ordenades = sorted(
+        (feat for feat in isoarees.getFeatures()
+         if feat["cost_level"] is not None),
+         key=lambda feat: feat["cost_level"]
+    )
+
+    assignats = set()
 
     canvis = {}
 
-    # Per cada edifici:
-    #   buscar les isoàrees candidates
-    #   recuperar-les
-    #   comprovar quines contenen l'edifici
-    #   guardar el cost
-    for feature in layer.getFeatures():
-        geom = feature.geometry()
-        centroide = geom.centroid()
+    for isoarea in isoarees_ordenades:
+        geom_isoarea = isoarea.geometry()
 
-        candidats = idx_isoarea.intersects(geom.boundingBox())
+        if not geom_isoarea.isGeosValid():
+            geom_isoarea = geom_isoarea.makeValid()
 
-        costs = [
-            dict_isoarees[c]["cost_level"]
-            for c in candidats
-            if dict_isoarees[c].geometry().contains(centroide)
-        ]
+        cost = isoarea["cost_level"]
 
-        if costs:
-            canvis[feature.id()] = {idx_accessibilitat: min(costs)}
+        # Motor de geometria preparat un sol cop per isoàrea,
+        # reutilitzat per a tots els edificis candidats
+        engine = QgsGeometry.createGeometryEngine(geom_isoarea.constGet())
+        engine.prepareGeometry()
+
+        candidats = index_edificis.intersects(geom_isoarea.boundingBox())
+        request = QgsFeatureRequest().setFilterFids(candidats)
+
+        for edifici in layer.getFeatures(request):
+            if edifici.id() in assignats:
+                continue
+
+            centroide = edifici.geometry().centroid()
+
+            if engine.intersects(centroide.constGet()):
+                canvis[edifici.id()] = {idx_accessibilitat: cost}
+                assignats.add(edifici.id())
 
     provider.changeAttributeValues(canvis)
-    layer.commitChanges()
 
     return layer
+
+##FUNCIÓ PATRÓ ESTÀNDARD!!
 
 
 # def afegir_accessibilitat_edificis(edificis, edificis_access):
