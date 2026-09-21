@@ -214,6 +214,69 @@ def grafic_area_accessibilitat(resultats_per_cluster, output_path, noms_clusters
     return fig
 
 
+def grafic_scatter_any_accessibilitat(layer, cluster_ids_origen, output_path):
+    """
+    Genera un diagrama de dispersió comparant l'any de construcció dels
+    edificis industrials amb la seva accessibilitat a les zones
+    industrials consolidades.
+
+    S'exclouen els edificis que pertanyen als propis clústers d'origen
+    de l'anàlisi d'accessibilitat (distància ~0, trivial i no informativa),
+    conservant només els edificis industrials dispersos o de clústers
+    menors, per als quals la distància reflecteix una relació real amb
+    la indústria consolidada.
+
+    Paràmetres
+    ----------
+    layer: QgsVectorLayer
+        Capa d'edificis industrials amb els camps 'any_construccio',
+        'accessibilitat' i 'CLUSTER_ID' ja calculats.
+    cluster_ids_origen: set[int]
+        Identificadors dels clústers utilitzats com a origen del càlcul
+        d'accessibilitat (a excloure del gràfic).
+    output_path: str
+        Ruta on es desarà la imatge.
+
+    Retorna
+    -------
+    matplotlib.figure.Figure
+        Figura generada.
+    """
+    anys = []
+    accessibilitats = []
+
+    for feat in layer.getFeatures():
+        any_c = feat["any_construccio"]
+        acc = feat["accessibilitat"]
+        cluster_id = feat["CLUSTER_ID"]
+
+        if any_c is None or acc is None:
+            continue
+        if cluster_id in cluster_ids_origen:
+            continue
+
+        anys.append(any_c)
+        accessibilitats.append(acc)
+
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.scatter(anys, accessibilitats, alpha=0.4, s=20)
+
+    ax.set_title("Any de construcció vs. accessibilitat a la indústria consolidada")
+    ax.set_xlabel("Any de construcció")
+    ax.set_ylabel("Distància a la indústria consolidada (m)")
+
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.grid(alpha=0.3)
+    plt.tight_layout()
+
+    plt.savefig(output_path, dpi=300)
+    plt.close(fig)
+
+    return fig
+
+
+
 
 def generar_grafics_districtes(resultats):
     """

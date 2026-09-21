@@ -139,4 +139,13 @@ def afegir_any_construccio(edificis):
     return layer
 
 
+def percentatges_distribucio(distribucio):
+    """
+    """
+    total = sum(distribucio.values())
+
+    return {
+        periode: round(nombre / total * 100)
+        for periode, nombre in distribucio.items()
+    }
 

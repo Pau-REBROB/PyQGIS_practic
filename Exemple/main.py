@@ -1,28 +1,10 @@
 """
-Anàlisi geoespacial dels edificis industrials a Barcelona
+Anàlisi geoespacial de l'activitat industrial de Barcelona amb PyQGIS
 ========================================================================================
 
 Script principal que orquestra el flux complet d'anàlisi:
 
-    1. Inicialització del projecte QGIS i importació de mòduls
-    2. Preparació de les capes base
-        - Edificis (cadastre GML)
-        - Malla hexagonal
-        - Graf viari
-        - Límits administratius (districtes i barris)
-    3. Especialització funcional per hexàgon
-        - Agrupació d'edificis per hexàgon
-        - Càlcul de l'índex de Shannon i dominància
-        - Escriptura dels resultats a la malla
-    4. Anàlisi de clústers comercials i accessibilitat
-        - Identificació de nuclis comercials (DBSCAN)
-        - Càlcul d'isoàrees d'accessibilitat (QNEAT3)
-        - Assignació de l'accessibilitat als edificis
-        - Agregació de l'accessibilitat a la malla hexagonal
-    5. Cartografia i exportació dels resultats
-        - Aplicació de simbologia
-        - Generació del layout
-        - Exportació a PNG/PDF
+########
 
 Dades
 -----
@@ -37,18 +19,6 @@ Dependències
 Autor
 -----
     Pau Rebull Robert
-"""
-
-"""
-1. Crear Edificis_base (materialitzar + camps bàsics)
-2. Join espacial Edificis_base ↔ Malla → afegir hex_id als edificis
-3. DBSCAN sobre edificis retail → clusters
-4. QNEAT3 sobre clusters → isoàrees
-5. Assignar accessibilitat als edificis (isoàrees → edificis)
-6. Calcular especialització per hexàgon (edificis → malla)
-7. Calcular accessibilitat per hexàgon (edificis → malla)
-8. Classificació bivariant (malla → malla)
-9. Cartografia final
 """
 
 """
@@ -136,11 +106,8 @@ import layouts.layout_bivariant_zones as layout_bivariant_zones
 import layouts.layout_accessibilitat as layout_accessibilitat 
 import layouts.fusionar_layouts as fusionar_layouts
 
-# Arxiu de configuració
-import config
+import config #Arxiu de configuració
 
-
-from qgis.core import (QgsVectorLayer)
 import processing
 
 
@@ -196,10 +163,10 @@ dict_layers_clean = preparacio_dades.preparar_grup(
     configuracio=config.CAMPS_CAPES
 )
 
-# Retorna un diccionari d'índex espacials de cada capa
-dict_indexs = preparacio_dades.crear_indexs(
-    dict_layers=dict_layers_clean
-)
+# # Retorna un diccionari d'índex espacials de cada capa
+# dict_indexs = preparacio_dades.crear_indexs(
+#     dict_layers=dict_layers_clean
+# )
 
 
 # ==============================================================================
@@ -254,11 +221,11 @@ edificis_no_industrial = especialitzacio.filtrar_usos_edificis(
 )
 
 # ------------------------------------------------------------------------------
-# 5.3. Exploració de les dades
+# 5.3. Exploració temporal de les dades
 # ------------------------------------------------------------------------------
 
 # Edificis industrials
-temporal.extreure_any_edificis(edificis_industrial)
+distribucio_industrial = temporal.extreure_any_edificis(edificis_industrial)
 
 # Distribució anys de construcció
 # {
@@ -275,7 +242,7 @@ temporal.extreure_any_edificis(edificis_industrial)
 # }
 
 # Edificis no industrials
-temporal.extreure_any_edificis(edificis_no_industrial)
+distribucio_no_industrial = temporal.extreure_any_edificis(edificis_no_industrial)
 
 # Distribució anys de construcció
 # {
@@ -291,18 +258,55 @@ temporal.extreure_any_edificis(edificis_no_industrial)
 #     '2015-2026': 1217
 # }
 
+# Anàlisi de la distribució per períodes
+percentatge_industrial = temporal.percentatges_distribucio(
+    distribucio=distribucio_industrial
+)
+
+percentatge_no_industrial = temporal.percentatges_distribucio(
+    distribucio=distribucio_no_industrial
+)
+
+print("INDUSTRIAL")
+print(percentatge_industrial)
+
+print("NO INDUSTRIAL")
+print(percentatge_no_industrial)
+
 # Addició del camp "any_construcció"
 edificis_industrial_net = temporal.afegir_any_construccio(edificis_industrial)
 edificis_no_industrial_net = temporal.afegir_any_construccio(edificis_no_industrial)
 
 # ------------------------------------------------------------------------------
-# 5.4. Anàlisi industrial - Densitat industrial
+# 5.4.1. Nombre d'edificis
+# ------------------------------------------------------------------------------
+
+# Càlcul del nombre d'edificis industrials a cada zona
+# Escriptura dels resultats 
+
+## Per Districte
+edificis_per_districte = agregacions.calcular_edificis_per_zona(
+    edificis=edificis_base,
+    camp_id_edifici="gml_id",
+    zones=districtes_base,
+    camp_id_zona="NOM"
+)
+
+districtes_edificis_industrials = agregacions.escriure_valors_zonals_a_capa(
+    zones=districtes_base,
+    dict_valors=edificis_per_districte,
+    camp_id_zona="NOM",
+    nom_camp_resultat="nombre_edificis_industrials"
+)
+
+# ------------------------------------------------------------------------------
+# 5.4.1. Nombre d'edificis
 # ------------------------------------------------------------------------------
 
 # Càlcul de densitat d'edificis industrials
 # Escriptura dels resultats 
 ## Per Districte
-densitat_industrial_districtes = agregacions.calcular_densitat_per_zona(
+densitat_industrial_edificis_districtes = agregacions.calcular_densitat_edificis_per_zona(
     edificis=edificis_industrial_net,
     camp_id_edifici="gml_id",
     zones=districtes_base,
@@ -315,13 +319,13 @@ densitat_industrial_districtes = agregacions.calcular_densitat_per_zona(
 
 districtes_zones_densitat_industrial = agregacions.escriure_valors_zonals_a_capa(
     zones=districtes_base,
-    dict_valors=densitat_industrial_districtes,
+    dict_valors=densitat_industrial_edificis_districtes,
     camp_id_zona="NOM",
     nom_camp_resultat="densitat_industrial_km2"
 )
 
 ## Per Barri
-densitat_industrial_barris = agregacions.calcular_densitat_per_zona(
+densitat_industrial_edificis_barris = agregacions.calcular_densitat_edificis_per_zona(
     edificis=edificis_industrial_net,
     camp_id_edifici="gml_id",
     zones=barris_base,
@@ -357,13 +361,13 @@ densitat_industrial_barris = agregacions.calcular_densitat_per_zona(
 
 barris_zones_densitat_industrial = agregacions.escriure_valors_zonals_a_capa(
     zones=barris_base,
-    dict_valors=densitat_industrial_barris,
+    dict_valors=densitat_industrial_edificis_barris,
     camp_id_zona="NOM",
     nom_camp_resultat="densitat_industrial_km2"
 )
 
 ## Per Hexàgon
-densitat_industrial_hexagons = agregacions.calcular_densitat_per_zona(
+densitat_industrial_edificis_hexagons = agregacions.calcular_densitat_edificis_per_zona(
     edificis=edificis_industrial_net,
     camp_id_edifici="gml_id",
     zones=malla_base,
@@ -372,10 +376,55 @@ densitat_industrial_hexagons = agregacions.calcular_densitat_per_zona(
 
 hexagons_zones_densitat_industrial = agregacions.escriure_valors_zonals_a_capa(
     zones=malla_base,
-    dict_valors=densitat_industrial_hexagons,
+    dict_valors=densitat_industrial_edificis_hexagons,
     camp_id_zona="id",
     nom_camp_resultat="densitat_industrial_km2"
 )
+
+# ------------------------------------------------------------------------------
+# 5.4.2. Densitat industrial: Superfície construïda/Zona
+# ------------------------------------------------------------------------------
+
+# Càlcul de densitat de superfície industrial construïda
+# Escriptura dels resultats 
+## Districtes
+densitat_industrial_superficie_districtes = agregacions.calcular_densitat_superficie_per_zona(
+    edificis=edificis_industrial_net,
+    camp_id_edifici="gml_id",
+    zones=districtes_base,
+    camp_id_zona="NOM"
+)
+# {'Ciutat Vella': 2756.214039243008, 'Eixample': 7496.3354871570145, 'Sants-Montjuïc': 46590.48580396486,
+# 'Les Corts': 4642.236667450021, 'Sarrià-Sant Gervasi': 677.367099885937, 'Gràcia': 1254.3516585935552,
+# 'Horta-Guinardó': 3715.8437673325816, 'Nou Barris': 3890.805684515236, 'Sant Andreu': 94656.80741651809,
+#  'Sant Martí': 55717.32266324731}
+
+districtes_zones_densitat_industrial = agregacions.escriure_valors_zonals_a_capa(
+    zones=districtes_base,
+    dict_valors=densitat_industrial_superficie_districtes,
+    camp_id_zona="NOM",
+    nom_camp_resultat="densitat_industrial_km2"
+)
+
+## Barris
+densitat_industrial_superficie_barris = agregacions.calcular_densitat_superficie_per_zona(
+    edificis=edificis_industrial_net,
+    camp_id_edifici="gml_id",
+    zones=barris_base,
+    camp_id_zona="NOM"
+)
+# 
+
+barris_zones_densitat_industrial = agregacions.escriure_valors_zonals_a_capa(
+    zones=barris_base,
+    dict_valors=densitat_industrial_superficie_barris,
+    camp_id_zona="NOM",
+    nom_camp_resultat="densitat_industrial_km2"
+)
+
+
+
+
 
 # Determinació dels rangs de valors
 # El valor 0 es tracta com una classe pròpia - "sense indústria"
@@ -402,6 +451,28 @@ recompte_classes_barris = agregacions.comptar_zones_per_classe(
 recompte_classes_hexagons = agregacions.comptar_zones_per_classe(
     dict_valors=densitat_industrial_hexagons,
     breaks=breaks_densitat_industrial
+)
+
+# ------------------------------------------------------------------------------
+# 5.4. Anàlisi temporal
+# ------------------------------------------------------------------------------
+
+# El període 1960–1980 concentra el 43% dels industrials 
+# i, juntament amb els períodes anteriors, ens permet separar un parc industrial més antic del més recent.
+
+# Filtre edificis anteriors a 1980
+edificis_industrials_anteriors_1980 = clusters.filtrar_capa(
+    edificis_industrial_net,
+    expressio='"any_construccio" <= 1980'
+)
+
+malla_industrial_antic = hexagons.comptar_edificis_per_hexagon(
+    edificis=edificis_industrials_anteriors_1980,
+    malla=malla_base
+)
+malla_industrial = hexagons.comptar_edificis_per_hexagon(
+    edificis=edificis_industrial_net,
+    malla=malla_base
 )
 
 # ------------------------------------------------------------------------------
@@ -546,14 +617,46 @@ edificis_amb_accessibilitat = accessibilitat.assignar_isoarees_a_edificis(
     edificis=edificis_base,
     isoarees=isoarees_industrial
 )
-# ## CAL FER UNA ITERACIÓ PER CLUSTER
-# resultat_edificis_accessibilitat = {}
-# for cluster_id, isoarea in isoarees_per_cluster.items():
-#     resultat_edificis_accessibilitat[cluster_id] = accessibilitat.assignar_isoarees_a_edificis(
-#         edificis=edificis_no_industrial,
-#         isoarees=isoarea
-#     )
 
+# Assignació de ID clúster a cada edifici
+edificis_industrial_amb_cluster = clusters.assignar_cluster_id_a_edificis(
+    edificis=edificis_industrial_net,
+    clusters=resultat_clusters_industrials["3_industrial"]["clusters"],
+    camp_id_edifici="gml_id"
+)
+
+# Càlcul accessibilitat als edificis
+edificis_industrial_final = accessibilitat.assignar_isoarees_a_edificis(
+    edificis=edificis_industrial_amb_cluster,
+    isoarees=isoarees_industrial
+)
+
+# Gràfic de dispersió accessibilitat-any de construcció
+clusters_ids_origen = {24, 2, 27, 28}
+
+grafics.grafic_scatter_any_accessibilitat(
+    layer=edificis_industrial_final,
+    cluster_ids_origen=clusters_ids_origen,
+    output_path=config.EXPORTACIO_GRAFICS["Grafic_scatter_anyconstruccio_accessibilitat"]
+)
+
+# Estadística de la correlació
+from scipy import stats
+
+anys = []
+accessibilitats = []
+
+for feat in edificis_industrial_final.getFeatures():
+    if feat["CLUSTER_ID"] in clusters_ids_origen:
+        continue
+    if feat["any_construccio"] is None or feat["accessibilitat"] is None:
+        continue
+    anys.append(feat["any_construccio"])
+    accessibilitats.append(feat["accessibilitat"])
+
+correlacio, p_valor = stats.pearsonr(anys, accessibilitats)
+print(f"N = {len(anys)}")
+print(f"Correlació de Pearson: {correlacio:.3f} (p={p_valor:.4f})")
 
 
 

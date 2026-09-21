@@ -23,10 +23,14 @@ Els indicadors calculats son:
 
 from qgis.core import (
     QgsFeatureRequest,
-    QgsGeometry
+    QgsGeometry,
+    QgsField
 )
 
+from qgis.PyQt.QtCore import QVariant
+
 import processing
+from collections import Counter
 
 
 def crear_malla_hexagonal(capa_extent, mida_hexagon):
@@ -215,6 +219,39 @@ def assignar_hexagons_a_edificis(edificis, malla):
     )
 
     return resultat["OUTPUT"]
+
+
+def comptar_edificis_per_hexagon(edificis, malla, camp_id ="hex_id"):
+    """
+    """
+    resultat = malla.materialize(QgsFeatureRequest())
+
+    provider = resultat.dataProvider()
+    provider.addAttributes([
+        QgsField("nombre_edificis", QVariant.Int)
+    ])
+    resultat.updateFields()
+
+    idx_nombre = resultat.fields().indexOf("nombre_edificis")
+
+    comptador = Counter(
+        feat[camp_id]
+        for feat in edificis.getFeatures()
+        if feat[camp_id] is not None
+    )
+
+    # Diccionari de canvis en bloc: { id_feature: {idx_camp: valor} }
+    canvis = {
+        feature.id(): {idx_nombre: comptador.get(feature["id"], 0)}
+        for feature in resultat.getFeatures()
+    }
+
+    provider.changeAttributeValues(canvis)
+    resultat.updateFields()
+
+    return resultat
+    
+
 
 
 # def agregar_usos_per_hexagons(edificis_hex):

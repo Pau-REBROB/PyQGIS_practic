@@ -503,6 +503,7 @@ EXPORTACIO_GRAFICS = {
     "Grafic_usos_percentatges_districtes": f"{PATH_RESULTATS}/Grafic_percentatgeEdificis_districte.png",
     "Grafic_k_veins": f"{PATH_RESULTATS}/kdistance_industrial.png",
     "Grafic_area_isoarees": f"{PATH_RESULTATS}/area_isoarees_industrial.png",
+    "Grafic_scatter_anyconstruccio_accessibilitat": f"{PATH_RESULTATS}/any_construccio_accessibilitat.png",
     "Grafic_nombre_clusters": f"{PATH_RESULTATS}/Grafic_nombreClusters.png",
     "Grafic_mida_clusters": f"{PATH_RESULTATS}/Grafic_midaClusters.png"
 }

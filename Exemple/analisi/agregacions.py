@@ -27,7 +27,73 @@ from qgis.PyQt.QtCore import QVariant
 
 import config
 
-def calcular_densitat_per_zona(edificis, camp_id_edifici, zones, camp_id_zona):
+def calcular_edificis_per_zona(edificis, camp_id_edifici, zones, camp_id_zona):
+    """
+    Calcula la densitat d'edificis (edificis/km²) per cada zona.
+
+    Fa un join espacial entre els edificis i els polígons de zonificació:
+    primer descarta candidats per bounding box mitjançant l'índex espacial
+    (fase ràpida i aproximada) i després verifica la intersecció exacta amb
+    un geometry engine preparat (fase lenta i precisa). Compta els edificis
+    per identificador real (no per fid intern de QGIS) i divideix pel valor
+    de la superfície de la zona en km².
+
+    Paràmetres
+    ----------
+    edificis : QgsVectorLayer
+        Capa d'edificis a comptar.
+    camp_id_edifici : str
+        Nom del camp identificador de l'edifici dins de `edificis`
+        (p. ex. "gml_id" o "referenciaCadastral"), usat per identificar
+        cada edifici de manera estable, en lloc del fid intern de QGIS.
+    zones : QgsVectorLayer
+        Capa de polígons de zonificació (barris, districtes, etc.).
+    camp_id_zona : str
+        Nom del camp identificador de la zona dins de `zones`
+        (p. ex. "BARRI" o "DISTRICTE").
+
+    Retorna
+    -------
+    dict
+        Diccionari { id_zona: densitat_edificis_km2 }.
+        Les zones sense cap edifici assignat hi apareixen amb valor 0.
+    """
+    index_edificis = QgsSpatialIndex(edificis.getFeatures())
+
+    recompte = {}
+
+    for zona in zones.getFeatures():
+        id_zona = zona[camp_id_zona]
+        geometria_zona = zona.geometry()
+        # Superfície de la zona en km^2
+        superficie_zona = geometria_zona.area() / 1000000
+
+        # Fase ràpida: edificis candidats per bbox
+        candidats = index_edificis.intersects(geometria_zona.boundingBox())
+
+        # Geometry engine preparat un sol cop per zona, reutilitzat per
+        # a cada candidat (més ràpid que geometria_zona.intersects(...)
+        # cridat repetidament dins del bucle)
+        engine = QgsGeometry.createGeometryEngine(geometria_zona.constGet())
+        engine.prepareGeometry()
+
+        # Recuperació en bloc dels candidats (una sola consulta a la capa,
+        # en lloc d'una crida a getFeature() per cada fid)
+        request = QgsFeatureRequest().setFilterFids(candidats)
+
+        # Fase precisa: verificació exacta + identificador real per evitar duplicats
+        ids_edificis_zona = {
+            feature[camp_id_edifici]
+            for feature in edificis.getFeatures(request)
+            if engine.intersects(feature.geometry().constGet())
+        }
+        
+        recompte[id_zona] = len(ids_edificis_zona) if superficie_zona > 0 else 0
+
+    return recompte
+
+
+def calcular_densitat_edificis_per_zona(edificis, camp_id_edifici, zones, camp_id_zona):
     """
     Calcula la densitat d'edificis (edificis/km²) per cada zona.
 
@@ -114,6 +180,74 @@ def calcular_densitat_per_zona(edificis, camp_id_edifici, zones, camp_id_zona):
 # QgsFeatureRequest().setFilterFids(candidats) en comptes de getFeature(fid) dins d'un bucle. El mateix exemple oficial 
 # construeix una QgsFeatureRequest amb setFilterFids() per recuperar tots els candidats d'un cop, en lloc de cridar getFeature()
 #  una vegada per cada fid — més eficient quan hi ha molts candidats, perquè és una sola consulta a la capa en comptes de moltes.
+
+
+def calcular_densitat_superficie_per_zona(edificis, camp_id_edifici, zones, camp_id_zona):
+    """
+    Calcula la densitat de superfície construida per cada zona.
+
+    Fa un join espacial entre els edificis i els polígons de zonificació:
+    primer descarta candidats per bounding box mitjançant l'índex espacial
+    (fase ràpida i aproximada) i després verifica la intersecció exacta amb
+    un geometry engine preparat (fase lenta i precisa). Compta els edificis
+    per identificador real (no per fid intern de QGIS) i divideix pel valor
+    de la superfície de la zona en km².
+
+    Paràmetres
+    ----------
+    edificis : QgsVectorLayer
+        Capa d'edificis a comptar.
+    camp_id_edifici : str
+        Nom del camp identificador de l'edifici dins de `edificis`
+        (p. ex. "gml_id" o "referenciaCadastral"), usat per identificar
+        cada edifici de manera estable, en lloc del fid intern de QGIS.
+    zones : QgsVectorLayer
+        Capa de polígons de zonificació (barris, districtes, etc.).
+    camp_id_zona : str
+        Nom del camp identificador de la zona dins de `zones`
+        (p. ex. "BARRI" o "DISTRICTE").
+
+    Retorna
+    -------
+    dict
+        Diccionari { id_zona: densitat_edificis_km2 }.
+        Les zones sense cap edifici assignat hi apareixen amb valor 0.
+    """
+    index_edificis = QgsSpatialIndex(edificis.getFeatures())
+
+    densitats = {}
+
+    for zona in zones.getFeatures():
+        id_zona = zona[camp_id_zona]
+        geometria_zona = zona.geometry()
+        # Superfície de la zona en km^2
+        superficie_zona = geometria_zona.area() / 1000000
+
+        # Fase ràpida: edificis candidats per bbox
+        candidats = index_edificis.intersects(geometria_zona.boundingBox())
+
+        # Geometry engine preparat un sol cop per zona, reutilitzat per
+        # a cada candidat (més ràpid que geometria_zona.intersects(...)
+        # cridat repetidament dins del bucle)
+        engine = QgsGeometry.createGeometryEngine(geometria_zona.constGet())
+        engine.prepareGeometry()
+
+        # Recuperació en bloc dels candidats (una sola consulta a la capa,
+        # en lloc d'una crida a getFeature() per cada fid)
+        request = QgsFeatureRequest().setFilterFids(candidats)
+
+        # Fase precisa: verificació exacta + identificador real per evitar duplicats
+        superficie_edificis_zona = {
+            feature.geometry().area()
+            for feature in edificis.getFeatures(request)
+            if engine.intersects(feature.geometry().constGet())
+        }
+        
+        recommpte = sum(superficie_edificis_zona)
+
+        densitats[id_zona] = recommpte / superficie_zona if superficie_zona > 0 else 0
+
+    return densitats
 
 
 def comptar_zones_per_classe(dict_valors, breaks):

@@ -472,6 +472,55 @@ def analisi_clusters(layer, usos):
     return resultats_clusters
 
 
+def assignar_cluster_id_a_edificis(edificis, clusters, camp_id_edifici="gml_id"):
+    """
+    Assigna a cada edifici el CLUSTER_ID corresponent, a partir de la
+    capa de centroides classificats per DBSCAN.
+
+    Com que els centroides es generen directament a partir dels edificis
+    d'entrada, la relació es fa per identificador real de l'edifici
+    (no per posició espacial), evitant ambigüitats de join espacial.
+
+    Paràmetres
+    ----------
+    edificis: QgsVectorLayer
+        Capa d'edificis industrials.
+    clusters: QgsVectorLayer
+        Capa de centroides classificats (sortida de clusters_dbscan),
+        amb els camps CLUSTER_ID i camp_id_edifici.
+    camp_id_edifici: str
+        Nom del camp identificador comú entre totes dues capes.
+
+    Retorna
+    -------
+    QgsVectorLayer
+        Còpia dels edificis amb el nou camp CLUSTER_ID afegit
+        (valor -1 o NULL per als edificis sense clúster assignat).
+    """
+    dict_cluster_per_edifici = {
+        feat[camp_id_edifici]: feat["CLUSTER_ID"]
+        for feat in clusters.getFeatures()
+    }
+
+    layer = edificis.materialize(QgsFeatureRequest())
+
+    provider = layer.dataProvider()
+    provider.addAttributes([QgsField("CLUSTER_ID", QVariant.Int)])
+    layer.updateFields()
+
+    idx_cluster = layer.fields().indexOf("CLUSTER_ID")
+
+    canvis = {
+        feat.id(): {idx_cluster: dict_cluster_per_edifici[feat[camp_id_edifici]]}
+        for feat in layer.getFeatures()
+        if feat[camp_id_edifici] in dict_cluster_per_edifici
+    }
+
+    provider.changeAttributeValues(canvis)
+
+    return layer
+
+
 # =================================================================================
 # Identificació de clústers industrials (DBSCAN)
 # -----------------------------------------------
