@@ -278,15 +278,19 @@ edificis_industrial_net = temporal.afegir_any_construccio(edificis_industrial)
 edificis_no_industrial_net = temporal.afegir_any_construccio(edificis_no_industrial)
 
 # ------------------------------------------------------------------------------
+# 5.4. Agregacions
+# ------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
 # 5.4.1. Nombre d'edificis
 # ------------------------------------------------------------------------------
 
 # Càlcul del nombre d'edificis industrials a cada zona
 # Escriptura dels resultats 
 
-## Per Districte
+## Districtes
 edificis_per_districte = agregacions.calcular_edificis_per_zona(
-    edificis=edificis_base,
+    edificis=edificis_industrial_net,
     camp_id_edifici="gml_id",
     zones=districtes_base,
     camp_id_zona="NOM"
@@ -299,8 +303,139 @@ districtes_edificis_industrials = agregacions.escriure_valors_zonals_a_capa(
     nom_camp_resultat="nombre_edificis_industrials"
 )
 
+## Barris
+edificis_per_barri = agregacions.calcular_edificis_per_zona(
+    edificis=edificis_industrial_net,
+    camp_id_edifici="gml_id",
+    zones=barris_base,
+    camp_id_zona="NOM"
+)
+
+barris_edificis_industrials = agregacions.escriure_valors_zonals_a_capa(
+    zones=barris_base,
+    dict_valors=edificis_per_barri,
+    camp_id_zona="NOM",
+    nom_camp_resultat="nombre_edificis_industrials"
+)
+
+## Hexàgons
+edificis_per_hexagon = agregacions.calcular_edificis_per_zona(
+    edificis=edificis_industrial_net,
+    camp_id_edifici="gml_id",
+    zones=malla_base,
+    camp_id_zona="id"
+)
+
+hexagons_edificis_industrials = agregacions.escriure_valors_zonals_a_capa(
+    zones=malla_base,
+    dict_valors=edificis_per_hexagon,
+    camp_id_zona="id",
+    nom_camp_resultat="nombre_edificis_industrials"
+)
+
 # ------------------------------------------------------------------------------
-# 5.4.1. Nombre d'edificis
+# 5.4.2. Superfície construïda
+# ------------------------------------------------------------------------------
+
+# Càlcul de superfície industrial construïda per zona
+# Escriptura dels resultats sobre la capa de nombre d'edificis
+
+## Districtes
+superficie_industrial_per_districte = agregacions.calcular_superficie_per_zona(
+    edificis=edificis_industrial_net,
+    camp_id_edifici="gml_id",
+    zones=districtes_base,
+    camp_id_zona="NOM"
+)
+
+districtes_superficie_industrial = agregacions.escriure_valors_zonals_a_capa(
+    zones=districtes_edificis_industrials,
+    dict_valors=superficie_industrial_per_districte,
+    camp_id_zona="NOM",
+    nom_camp_resultat="superficie_construida_km2"
+)
+
+## Barris
+superficie_industrial_per_barri = agregacions.calcular_superficie_per_zona(
+    edificis=edificis_industrial_net,
+    camp_id_edifici="gml_id",
+    zones=barris_base,
+    camp_id_zona="NOM"
+)
+
+barris_superficie_industrial = agregacions.escriure_valors_zonals_a_capa(
+    zones=barris_edificis_industrials,
+    dict_valors=superficie_industrial_per_barri,
+    camp_id_zona="NOM",
+    nom_camp_resultat="superficie_construida_km2"
+)
+
+## Hexàgons
+superficie_per_hexagon = agregacions.calcular_superficie_per_zona(
+    edificis=edificis_industrial_net,
+    camp_id_edifici="gml_id",
+    zones=malla_base,
+    camp_id_zona="id"
+)
+
+hexagons_superficie_industrial = agregacions.escriure_valors_zonals_a_capa(
+    zones=hexagons_edificis_industrials,
+    dict_valors=superficie_per_hexagon,
+    camp_id_zona="id",
+    nom_camp_resultat="superficie_construida_km2"
+)
+
+# ------------------------------------------------------------------------------
+# 5.4.3. Densitat de superfície construïda per zona
+# ------------------------------------------------------------------------------
+
+# Càlcul de superfície industrial construïda per zona
+# Escriptura dels resultats sobre la capa de superfície construïda
+
+## Districtes
+densitat_superficie_industrial_districtes = agregacions.calcular_densitat_superficie_per_zona(
+    edificis=edificis_industrial_net,
+    zones=districtes_base,
+    camp_id_zona="NOM"
+)
+
+districtes_densitat_superficie_industrial = agregacions.escriure_valors_zonals_a_capa(
+    zones=districtes_superficie_industrial,
+    dict_valors=densitat_superficie_industrial_districtes,
+    camp_id_zona="NOM",
+    nom_camp_resultat="densitat_superficie_industrial_km2"
+)
+
+## Barris
+densitat_superficie_industrial_barris = agregacions.calcular_densitat_superficie_per_zona(
+    edificis=edificis_industrial_net,
+    zones=barris_base,
+    camp_id_zona="NOM"
+)
+
+barris_densitat_superficie_industrial = agregacions.escriure_valors_zonals_a_capa(
+    zones=barris_superficie_industrial,
+    dict_valors=densitat_superficie_industrial_barris,
+    camp_id_zona="NOM",
+    nom_camp_resultat="densitat_superficie_industrial_km2"
+)
+
+## Hexàgons
+densitat_superficie_industrial_hexagons = agregacions.calcular_densitat_superficie_per_zona(
+    edificis=edificis_industrial_net,
+    zones=malla_base,
+    camp_id_zona="id"
+)
+
+hexagons_densitat_superficie_industrial = agregacions.escriure_valors_zonals_a_capa(
+    zones=hexagons_superficie_industrial,
+    dict_valors=densitat_superficie_industrial_hexagons,
+    camp_id_zona="id",
+    nom_camp_resultat="densitat_superficie_industrial_km2"
+)
+
+# ------------------------------------------------------------------------------
+# 5.4.4. Densitat de d'edificis per zona
 # ------------------------------------------------------------------------------
 
 # Càlcul de densitat d'edificis industrials
@@ -381,46 +516,7 @@ hexagons_zones_densitat_industrial = agregacions.escriure_valors_zonals_a_capa(
     nom_camp_resultat="densitat_industrial_km2"
 )
 
-# ------------------------------------------------------------------------------
-# 5.4.2. Densitat industrial: Superfície construïda/Zona
-# ------------------------------------------------------------------------------
 
-# Càlcul de densitat de superfície industrial construïda
-# Escriptura dels resultats 
-## Districtes
-densitat_industrial_superficie_districtes = agregacions.calcular_densitat_superficie_per_zona(
-    edificis=edificis_industrial_net,
-    camp_id_edifici="gml_id",
-    zones=districtes_base,
-    camp_id_zona="NOM"
-)
-# {'Ciutat Vella': 2756.214039243008, 'Eixample': 7496.3354871570145, 'Sants-Montjuïc': 46590.48580396486,
-# 'Les Corts': 4642.236667450021, 'Sarrià-Sant Gervasi': 677.367099885937, 'Gràcia': 1254.3516585935552,
-# 'Horta-Guinardó': 3715.8437673325816, 'Nou Barris': 3890.805684515236, 'Sant Andreu': 94656.80741651809,
-#  'Sant Martí': 55717.32266324731}
-
-districtes_zones_densitat_industrial = agregacions.escriure_valors_zonals_a_capa(
-    zones=districtes_base,
-    dict_valors=densitat_industrial_superficie_districtes,
-    camp_id_zona="NOM",
-    nom_camp_resultat="densitat_industrial_km2"
-)
-
-## Barris
-densitat_industrial_superficie_barris = agregacions.calcular_densitat_superficie_per_zona(
-    edificis=edificis_industrial_net,
-    camp_id_edifici="gml_id",
-    zones=barris_base,
-    camp_id_zona="NOM"
-)
-# 
-
-barris_zones_densitat_industrial = agregacions.escriure_valors_zonals_a_capa(
-    zones=barris_base,
-    dict_valors=densitat_industrial_superficie_barris,
-    camp_id_zona="NOM",
-    nom_camp_resultat="densitat_industrial_km2"
-)
 
 
 
