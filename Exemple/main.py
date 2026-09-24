@@ -98,6 +98,7 @@ import simbologia.simbologia_general as simbologia_general
 import layouts.layout_common as layout_common
 import layouts.layout_general as layout_general
 import layouts.layout_atles as layout_atles
+import layouts.layout_comparacio_agregacions as layout_comparacio_agregacions
 import layouts.layout_maup as layout_maup
 import layouts.layout_analisi as layout_analisi
 import layouts.layout_clusters as layout_clusters
@@ -120,9 +121,9 @@ _moduls = [
     agregacions, grafics, clusters, accessibilitat, especialitzacio,
     hexagons, simbologies, simbologia_agregacions, simbologia_especialitzacio,
     simbologia_hexagons, simbologia_accessibilitat, simbologia_general,
-    layout_common, layout_general, layout_atles, layout_maup, layout_analisi,
-    layout_clusters, layout_especialitzacio, layout_bivariant_zones,
-    layout_accessibilitat, fusionar_layouts
+    layout_common, layout_general, layout_atles, layout_comparacio_agregacions,
+    layout_maup, layout_analisi, layout_clusters, layout_especialitzacio,
+    layout_bivariant_zones, layout_accessibilitat, fusionar_layouts
 ]
 
 for _modul in _moduls:
@@ -890,10 +891,9 @@ layers_simbologia_atles = simbologia_general.simbologia_atles(
 # 6.3.1. Agregacions - Nombre d'edificis / Superfície construïda
 # ------------------------------------------------------------------------------
 
-layers_simbologia_densitat_industrial = simbologia_general.simbologia_densitat_agregacions(
-    capa_districtes=districtes_zones_densitat_industrial,
-    capa_barris=barris_zones_densitat_industrial,
-    capa_hexagons=hexagons_zones_densitat_industrial
+layers_simbologia_comparacio_industrial = simbologia_general.simbologia_comparacio_agregacions(
+    capa_edificis=hexagons_edificis_industrials,
+    capa_superficie=hexagons_superficie_industrial
 )
 
 # ------------------------------------------------------------------------------
@@ -901,9 +901,9 @@ layers_simbologia_densitat_industrial = simbologia_general.simbologia_densitat_a
 # ------------------------------------------------------------------------------
 
 layers_simbologia_densitat_industrial = simbologia_general.simbologia_densitat_agregacions(
-    capa_districtes=districtes_zones_densitat_industrial,
-    capa_barris=barris_zones_densitat_industrial,
-    capa_hexagons=hexagons_zones_densitat_industrial
+    capa_districtes=districtes_densitat_superficie_industrial,
+    capa_barris=barris_densitat_superficie_industrial,
+    capa_hexagons=hexagons_densitat_superficie_industrial
 )
 
 # ------------------------------------------------------------------------------
@@ -979,8 +979,9 @@ totes_les_capes = {
     **layers_simbologia_base,
     "base_map": basemap_layer,
     **layers_simbologia_atles,
+    **layers_simbologia_comparacio_industrial,
     **layers_simbologia_densitat_industrial,
-    **layers_simbologia_accessibilitat_clusters
+    #**layers_simbologia_accessibilitat_clusters
 }
 
 for capa in totes_les_capes.values():
@@ -1029,10 +1030,30 @@ layout_atles.composicio_atles(
 )
 
 # ------------------------------------------------------------------------------
-# 7.3. Composició densitat industrial MAUP
+# 7.3. Composició comparativa agregacions
 # ------------------------------------------------------------------------------
 
-layout_maup.composicio_maup_densitat_industrial(
+layout_comparacio_agregacions.composicio_agregacio_comparacio_unitat(
+    capes=layers_simbologia_comparacio_industrial,
+    capa_terme=layers_simbologia_base["TermeMunicipal"],
+    capa_extent=layers_simbologia_base["TermeMunicipal"],
+)
+
+# ------------------------------------------------------------------------------
+# 7.4. Composició densitat superfície industrials MAUP
+# ------------------------------------------------------------------------------
+
+layout_maup.composicio_maup_densitat_superficie_industrial(
+    capes=layers_simbologia_densitat_industrial,
+    capa_terme=layers_simbologia_base["TermeMunicipal"],
+    capa_extent=layers_simbologia_base["TermeMunicipal"]
+)
+
+# ------------------------------------------------------------------------------
+# 7.5. Composició densitat d'edificis industrials MAUP
+# ------------------------------------------------------------------------------
+
+layout_maup.composicio_maup_densitat_edificis_industrials(
     capes=layers_simbologia_densitat_industrial,
     capa_terme=layers_simbologia_base["TermeMunicipal"],
     capa_extent=layers_simbologia_base["TermeMunicipal"],

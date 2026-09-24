@@ -43,6 +43,24 @@ def calcular_breaks_compartits(diccionari_valors, n_classes):
     return breaks
 
 
+def simbologia_hexagons_industrials(capa_analisi, breaks, element_analisi):
+    """
+    """
+    layer = simbologies.simbologia_graduada_manual(
+        layer=capa_analisi,
+        intervals=breaks,
+        **config.SIMBOLOGIA["Agregacions_comparacio"][element_analisi]
+    )
+
+    # Reetiqueta només la primera classe (0-0) com a "Sense indústria"
+    renderer = layer.renderer()
+    renderer.updateRangeLabel(0, "Sense indústria")
+
+    layer.setName(f"Comparació {element_analisi} industrials")
+
+    return layer
+
+
 def simbologia_densitat_industrial(capa_zones, breaks, tipus_zona):
     """
     Aplica la simbologia graduada de densitat industrial a una capa de

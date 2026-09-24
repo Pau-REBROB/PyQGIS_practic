@@ -317,10 +317,29 @@ SIMBOLOGIA = {
         }
     },
 
+    "Agregacions_comparacio": {
+        "Edificis": {
+            "color_ramp": "Rocket",
+            "atribut": "nombre_edificis_industrials",
+            "stroke_color": (150,150,150,255),
+            "stroke_width": 0.1,
+            "color_classe_zero": (240,240,240,255),
+            "invert_ramp": True
+        },
+        "Superficie":{
+            "color_ramp": "Rocket",
+            "atribut": "superficie_construida_km2",
+            "stroke_color": (150,150,150,255),
+            "stroke_width": 0.1,
+            "color_classe_zero": (240,240,240,255),
+            "invert_ramp": True
+        }
+    },
+
     "Densitat_industrial": {
         "Districtes": {
             "color_ramp": "Rocket",
-            "atribut": "densitat_industrial_km2",
+            "atribut": "densitat_superficie_industrial_km2",
             "stroke_color": (150,150,150,255),
             "stroke_width": 0.1,
             "color_classe_zero": (240,240,240,255),
@@ -328,7 +347,7 @@ SIMBOLOGIA = {
         },
         "Barris": {
             "color_ramp": "Rocket",
-            "atribut": "densitat_industrial_km2",
+            "atribut": "densitat_superficie_industrial_km2",
             "stroke_color": (150,150,150,255),
             "stroke_width": 0.1,
             "color_classe_zero": (240,240,240,255),
@@ -336,7 +355,7 @@ SIMBOLOGIA = {
         },
         "Hexagons": {
             "color_ramp": "Rocket",
-            "atribut": "densitat_industrial_km2",
+            "atribut": "densitat_superficie_industrial_km2",
             "stroke_color": (200,200,200,255),
             "stroke_width": 0.1,
             "color_classe_zero": (240,240,240,255),
@@ -633,7 +652,93 @@ LAYOUTS = {
         }
     },
 
-    "ESTRUCTURA_MAUP": {
+    "ESTRUCTURA_AGREGACIO_COMPARACIO": {
+        "Mapa_edificis": {
+            "factor_escala": 1.05,
+            "size": (146, 205),
+            "position": (2.50, 2.50),
+            "rotacio": 0,
+            "offset_x": 200,
+            "offset_y": 500
+        },
+        "Mapa_superficie": {
+            "factor_escala": 1.05,
+            "size": (146, 205),
+            "position": (148.50, 2.50),
+            "rotacio": 0,
+            "offset_x": 200,
+            "offset_y": 500
+        },
+        "Titol": {
+            "size": (205, 10),
+            "position": (2.50, 2.50)
+        },
+        "Subtitol": {
+            "size": (280, 10),
+            "position": (2.50, 12)
+        },
+        "Llegenda_edificis": {
+            "titol": "Nombre d'edificis industrials\nper hexagon",
+            "position": (2.50, 150)
+        },
+        "Llegenda_superficie": {
+            "titol": "Superfície industrial\nper hexagon (km^2)",
+            "position": (145, 150)
+        },
+        "Peu": {
+            "size": (80, 10),
+            "position": (220, 202.50)
+        }
+    },
+
+    "ESTRUCTURA_MAUP_SUPERFICIE": {
+        "Mapa_hexagons": {
+            "factor_escala": 1.00,
+            "size": (220.5, 205),
+            "position": (2.50, 2.50),
+            "rotacio": 0,
+            "offset_x": 1500,
+            "offset_y": 0
+        },
+        "Mapa_barris": {
+            "factor_escala": 1.00,
+            "size": (94.5, 100), 
+            "position": (200, 105),
+            "rotacio": 0,
+            "offset_x": 750,
+            "offset_y": 0
+        },
+        "Mapa_districtes": {
+            "factor_escala": 1.00,
+            "size": (94.5, 100),
+            "position": (200, 2.50),
+            "rotacio": 0,
+            "offset_x": 750,
+            "offset_y": 0
+        },
+        "Titol": {
+            "size": (205, 10),
+            "position": (2.50, 2.50)
+        },
+        "Subtitol_1": {
+            "size": (205, 10),
+            "position": (2.50, 12)
+        },
+        "Subtitol_2": {
+            "size": (294.50, 10),
+            "position": (2.50, 19.50)
+        },
+        "Llegenda": {
+            "titol": "Densitat km2 construïts/km2 hexagon",
+            "position": (2.50, 150)
+        },
+        "Peu": {
+            "size": (80, 10),
+            "position": (220, 202.50)
+        }
+    },
+
+    "ESTRUCTURA_MAUP_EDIFICIS": {
         "Mapa_hexagons": {
             "factor_escala": 1.00,
             "size": (220.5, 205),
@@ -1118,7 +1223,96 @@ LAYOUTS = {
         }
     },
 
-    "MAUP":{
+    "AGREGACIO_COMPARACIO":{
+        "Titol": {
+            "titol": "Nombre d'edificis industrials vs Superfície industrial construïda",
+            "font": "Calibri",
+            "font_size": 18,
+            "font_color": (0,0,0,255),
+            "alineacio": "left",
+            "backg_color": (0, 0, 0, 0),
+            "frame_color": (0, 0, 0, 0)
+        },
+        "Subtitol": {
+            "subtitol": "La concentració d'edificis industrials no sempre coincideix amb la concentració de superfície industrial",
+            "font": "Calibri",
+            "font_size": 14,
+            "font_color": (0,0,0,255),
+            "alineacio": "left",
+            "backg_color": (0, 0, 0, 0),
+            "frame_color": (0, 0, 0, 0)
+        },
+        "Llegenda_edificis": {
+            "font": "Calibri",
+            "font_size": 12,
+            "font_color": (0,0,0,255),
+            "backg_color": (0, 0, 0, 0)
+        },
+        "Llegenda_superficie": {
+            "font": "Calibri",
+            "font_size": 12,
+            "font_color": (0,0,0,255),
+            "backg_color": (0, 0, 0, 0)
+        },
+        "Peu": {
+            "text": "Font: Cadastre, ICGC (CC-BY 4.0) · Elaboració pròpia",
+            "font": "Calibri",
+            "font_size": 10,
+            "font_color": (0,0,0,255)
+        },
+        "Exportacio": {
+            "output_path": f"{PATH_RESULTATS}/Comparacio_edificis_superficie.pdf",
+            "dpi": 500
+        }
+    },
+
+    "MAUP_SUPERFICIE":{
+        "Titol": {
+            "titol": "Densitat de superfície industrial construïda de Barcelona",
+            "font": "Calibri",
+            "font_size": 18,
+            "font_color": (0,0,0,255),
+            "alineacio": "left",
+            "backg_color": (0, 0, 0, 0),
+            "frame_color": (0, 0, 0, 0)
+        },
+        "Subtitol_1": {
+            "subtitol": "Anàlisi a diferents nivells d'agregació: districtes, barris i malla hexagonal",
+            "font": "Calibri",
+            "font_size": 14,
+            "font_color": (0,0,0,255),
+            "alineacio": "left",
+            "backg_color": (0, 0, 0, 0),
+            "frame_color": (0, 0, 0, 0)
+        },
+        "Subtitol_2": {
+            "subtitol": "###10 de 10 districtes i 68 de 73 barris cauen a la mateixa classe###. La resolució hexagonal és l'única que distingeix les zones industrials reals",
+            "font": "Calibri",
+            "font_size": 14,
+            "font_color": (0,0,0,255),
+            "alineacio": "left",
+            "backg_color": (0, 0, 0, 0),
+            "frame_color": (0, 0, 0, 0)
+        },
+        "Llegenda": {
+            "font": "Calibri",
+            "font_size": 12,
+            "font_color": (0,0,0,255),
+            "backg_color": (0, 0, 0, 0)
+        },
+        "Peu": {
+            "text": "Font: Cadastre, ICGC (CC-BY 4.0) · Elaboració pròpia",
+            "font": "Calibri",
+            "font_size": 10,
+            "font_color": (0,0,0,255)
+        },
+        "Exportacio": {
+            "output_path": f"{PATH_RESULTATS}/Densitat_superficie_industrial_MAUP.pdf",
+            "dpi": 500
+        }
+    },
+
+    "MAUP_EDIFICIS":{
         "Titol": {
             "titol": "Densitat d'edificis industrials de Barcelona",
             "font": "Calibri",

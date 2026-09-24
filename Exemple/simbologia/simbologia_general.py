@@ -123,7 +123,31 @@ def simbologia_atles(edificis, districtes):
 
 
 # ==============================================================================
-# DENSITAT EDIFICIS INDUSTRIALS
+# AGREGACIÓ INDUSTRIAL COMPARADA
+# ==============================================================================
+
+def simbologia_comparacio_agregacions(capa_edificis, capa_superficie):
+    """
+    """
+    layers_comparacio = {}
+
+    layers_comparacio["Edificis"] = simbologia_agregacions.simbologia_hexagons_industrials(
+        capa_analisi=capa_edificis,
+        breaks=config.BREAKS_NOMBRE_EDIFICIS_INDUSTRIAL,
+        element_analisi="Edificis"
+    )
+
+    layers_comparacio["Superficie"] = simbologia_agregacions.simbologia_hexagons_industrials(
+        capa_analisi=capa_superficie,
+        breaks=config.BREAKS_SUPERFICIE_INDUSTRIAL,
+        element_analisi="Superficie"
+    )
+
+    return layers_comparacio
+
+
+# ==============================================================================
+# DENSITAT SUPERFÍCIE INDUSTRIAL
 # ==============================================================================
 
 def simbologia_densitat_agregacions(capa_districtes, capa_barris, capa_hexagons):
@@ -133,19 +157,19 @@ def simbologia_densitat_agregacions(capa_districtes, capa_barris, capa_hexagons)
 
     layers_densitat["Districtes"] = simbologia_agregacions.simbologia_densitat_industrial(
         capa_zones=capa_districtes,
-        breaks=config.BREAKS_DENSITAT_INDUSTRIAL,
+        breaks=config.BREAKS_DENSITAT_SUPERFICIE_INDUSTRIAL,
         tipus_zona="Districtes"
     )
 
     layers_densitat["Barris"] = simbologia_agregacions.simbologia_densitat_industrial(
         capa_zones=capa_barris,
-        breaks=config.BREAKS_DENSITAT_INDUSTRIAL,
+        breaks=config.BREAKS_DENSITAT_SUPERFICIE_INDUSTRIAL,
         tipus_zona="Barris"
     )
 
     layers_densitat["Hexagons"] = simbologia_agregacions.simbologia_densitat_industrial(
         capa_zones=capa_hexagons,
-        breaks=config.BREAKS_DENSITAT_INDUSTRIAL,
+        breaks=config.BREAKS_DENSITAT_SUPERFICIE_INDUSTRIAL,
         tipus_zona="Hexagons"
     )
 
