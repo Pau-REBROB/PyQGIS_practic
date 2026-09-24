@@ -310,7 +310,7 @@ def calcular_densitat_superficie_per_zona(edificis, zones, camp_id_zona):
 
         # Fase precisa: verificació exacta + identificador real per evitar duplicats
         superficie_edificis_zona = {
-            feature.geometry().area()
+            feature.geometry().area() / 1000000
             for feature in edificis.getFeatures(request)
             if engine.intersects(feature.geometry().constGet())
         }

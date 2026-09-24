@@ -190,10 +190,13 @@ MIN_EDIFICIS = 3
 # ANÀLISI
 # =============================================================================
 
-# Breaks calculats amb Jenks (5 classes) sobre densitat industrial/km² per hexàgon
-# Font: agregacions.calcular_breaks_compartits(densitat_industrial_hexagons, n_classes=5)
+# Breaks calculats amb Jenks (6 classes) sobre cada variable per hexàgon
+# Font: agregacions.calcular_breaks_compartits(, n_classes=6)
 # Arrodonits manualment per llegibilitat de llegenda
-BREAKS_DENSITAT_INDUSTRIAL = [0.0, 0.0, 100, 260, 460, 820, 1550]
+BREAKS_NOMBRE_EDIFICIS_INDUSTRIAL = [0, 0, 2, 5, 9, 16, 30]
+BREAKS_DENSITAT_EDIFICIS_INDUSTRIAL = [0, 0, 100, 260, 460, 820, 1550]
+BREAKS_SUPERFICIE_INDUSTRIAL = [0, 0, 0.01, 0.03, 0.07, 0.11, 0.20]
+BREAKS_DENSITAT_SUPERFICIE_INDUSTRIAL = [0, 0, 0.5, 1.5, 3.4, 5.8, 10.1]
 
 CONFIG_ANALISI = {
     "Clusters": {
