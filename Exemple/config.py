@@ -198,6 +198,8 @@ BREAKS_DENSITAT_EDIFICIS_INDUSTRIAL = [0, 0, 100, 260, 460, 820, 1550]
 BREAKS_SUPERFICIE_INDUSTRIAL = [0, 0, 0.01, 0.03, 0.07, 0.11, 0.20]
 BREAKS_DENSITAT_SUPERFICIE_INDUSTRIAL = [0, 0, 0.5, 1.5, 3.4, 5.8, 10.1]
 
+BREAKS_SIMBOLOGIA_TEMPORAL = [1900, 1936, 1945, 1960, 1980, 2000, 2015, 2026]
+
 CONFIG_ANALISI = {
     "Clusters": {
         "eps": 200,
@@ -360,6 +362,25 @@ SIMBOLOGIA = {
             "stroke_width": 0.1,
             "color_classe_zero": (240,240,240,255),
             "invert_ramp": True
+        }
+    },
+
+    "Temporal": {
+        "General": {
+            "Industria": {
+                "color_ramp": "Reds",
+                "atribut": "any_construccio",
+                "stroke_color": (200,200,200,255),
+                "stroke_width": 0.1,
+                "invert_ramp": True
+            },
+            "No_industria": {
+                "color_ramp": "Blues",
+                "atribut": "any_construccio",
+                "stroke_color": (200,200,200,255),
+                "stroke_width": 0.1,
+                "invert_ramp": True
+            }
         }
     },
 
@@ -784,6 +805,48 @@ LAYOUTS = {
             "position": (220, 202.50)
         }
     },
+
+    "ESTRUCTURA_TEMPORAL": {
+        "GENERAL": {
+            "Mapa": {
+                "factor_escala": 0.60,
+                #"size": (292, 205),
+                "size": (205,292),
+                "position": (2.5, 2.5),
+                "rotacio": 0,
+                #"offset_x": 1000,
+                "offset_x": 2000,
+                #"offset_y": -250,
+                "offset_y": 0
+            },
+            "Titol": {
+                "size": (280, 5),
+                "position": (4, 3),
+                "alineacio": "left"
+            },
+            "Subtitol": {
+                "size": (280, 5),
+                "position": (4, 10),
+                "alineacio": "left"
+            },
+            "Llegenda_industria": {
+                "position": (165, 210)
+            },
+            "Llegenda_no_industria": {
+                "position": (205, 210)
+            },
+            "Escala": {
+                "position": (165, 280)
+            },
+            "Nord": {
+                "size": (10, 10),
+                "position": (165, 265)
+            }
+        }
+    },
+
+
+
 
     "ESTRUCTURA_ACCESS": {
         "Mapa": {
@@ -1286,7 +1349,7 @@ LAYOUTS = {
             "frame_color": (0, 0, 0, 0)
         },
         "Subtitol_2": {
-            "subtitol": "###10 de 10 districtes i 68 de 73 barris cauen a la mateixa classe###. La resolució hexagonal és l'única que distingeix les zones industrials reals",
+            "subtitol": "10 de 10 districtes i 70 de 73 barris cauen a la mateixa classe. La resolució hexagonal és l'única que distingeix les zones industrials reals",
             "font": "Calibri",
             "font_size": 14,
             "font_color": (0,0,0,255),
@@ -1357,6 +1420,57 @@ LAYOUTS = {
             "dpi": 500
         }
     },
+
+    "TEMPORAL":{
+        "GENERAL": {
+            "Titol": {
+                "titol": "Usos dels edificis de Barcelona",
+                "font": "Calibri",
+                "font_size": 18,
+                "font_color": (0,0,0,255),
+                "backg_color": (0,0,0,0),
+                "frame_color": (0,0,0,0)
+            },
+            "Subtitol": {
+                "subtitol": "Font: Cadastre",
+                "font": "Calibri",
+                "font_size": 14,
+                "font_color": (0,0,0,255),
+                "backg_color": (0,0,0,0),
+                "frame_color": (0,0,0,0)
+            },
+            "Llegenda_industria": {
+                "titol": "Any de construcció",
+                "font": "Calibri",
+                "font_size": 12,
+                "font_color": (0,0,0,255),
+                "backg_color": (180,180,180,150)
+            },
+            "Llegenda_no_industria": {
+                "titol": "Any de construcció",
+                "font": "Calibri",
+                "font_size": 12,
+                "font_color": (0,0,0,255),
+                "backg_color": (180,180,180,150)
+            },
+            "Escala": {
+                "tipus": "Single Box",
+                "font": "Calibri",
+                "font_size": 10,
+                "font_color": (0,0,0,255)
+            },
+            "Nord": {
+                "image_path": "C:/projectes_git/Dades/nord2.png"
+            },
+            "Exportacio": {
+                "output_path": f"{PATH_RESULTATS}/Antiguitat_edificis.pdf",
+                "dpi": 500
+            }
+        }
+    },
+
+
+
 
     "ACCESSIBILITAT":{
         "Mapa": {

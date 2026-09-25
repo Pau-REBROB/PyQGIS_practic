@@ -91,6 +91,7 @@ import analisi.especialitzacio as especialitzacio
 import analisi.hexagons as hexagons
 import simbologia.simbologies as simbologies
 import simbologia.simbologia_agregacions as simbologia_agregacions
+import simbologia.simbologia_temporal as simbologia_temporal
 import simbologia.simbologia_especialitzacio as simbologia_especialitzacio
 import simbologia.simbologia_hexagons as simbologia_hexagons
 import simbologia.simbologia_accessibilitat as simbologia_accessibilitat
@@ -100,6 +101,7 @@ import layouts.layout_general as layout_general
 import layouts.layout_atles as layout_atles
 import layouts.layout_comparacio_agregacions as layout_comparacio_agregacions
 import layouts.layout_maup as layout_maup
+import layouts.layout_temporal as layout_temporal
 import layouts.layout_analisi as layout_analisi
 import layouts.layout_clusters as layout_clusters
 import layouts.layout_especialitzacio as layout_especialitzacio
@@ -119,11 +121,11 @@ import processing
 _moduls = [
     config, inicialitzacio, importacio, preparacio_dades, temporal,
     agregacions, grafics, clusters, accessibilitat, especialitzacio,
-    hexagons, simbologies, simbologia_agregacions, simbologia_especialitzacio,
-    simbologia_hexagons, simbologia_accessibilitat, simbologia_general,
-    layout_common, layout_general, layout_atles, layout_comparacio_agregacions,
-    layout_maup, layout_analisi, layout_clusters, layout_especialitzacio,
-    layout_bivariant_zones, layout_accessibilitat, fusionar_layouts
+    hexagons, simbologies, simbologia_agregacions, simbologia_temporal,
+    simbologia_especialitzacio, simbologia_hexagons, simbologia_accessibilitat,
+    simbologia_general, layout_common, layout_general, layout_atles,
+    layout_comparacio_agregacions, layout_maup, layout_temporal, layout_analisi, layout_clusters,
+    layout_especialitzacio, layout_bivariant_zones, layout_accessibilitat, fusionar_layouts
 ]
 
 for _modul in _moduls:
@@ -523,49 +525,60 @@ breaks_densitat_superficie_industrial = simbologia_agregacions.calcular_breaks_c
 print(breaks_densitat_superficie_industrial)
 # [0.0, 0.0, 0.49731742831919135, 1.5061137303810943, 3.3906986510964585, 5.788236578024638, 10.141907124808178]
 
+# Classificació dels valors de densitat en intervals
+# Ús de les dades d'hexàgons - l'agregació més petita
+# Comprovació de la distribució de les dades al contenir gran quantitat de valors 0
+recompte_classes_districtes = agregacions.comptar_zones_per_classe(
+    dict_valors=densitat_superficie_industrial_districtes,
+    breaks=breaks_densitat_superficie_industrial
+)
+print(recompte_classes_districtes)
 
+recompte_classes_barris = agregacions.comptar_zones_per_classe(
+    dict_valors=densitat_superficie_industrial_barris,
+    breaks=breaks_densitat_superficie_industrial
+)
+print(recompte_classes_barris)
 
-
-
-# # Classificació dels valors de densitat en intervals
-# # Ús de les dades d'hexàgons - l'agregació més petita
-# # Comprovació de la distribució de les dades al contenir gran quantitat de valors 0
-# recompte_classes_districtes = agregacions.comptar_zones_per_classe(
-#     dict_valors=densitat_edificis_industrials_hexagons,
-#     breaks=breaks_densitat_edificis_industrial
-# )
-
-# recompte_classes_barris = agregacions.comptar_zones_per_classe(
-#     dict_valors=densitat_industrial_barris,
-#     breaks=breaks_densitat_industrial
-# )
-
-# recompte_classes_hexagons = agregacions.comptar_zones_per_classe(
-#     dict_valors=densitat_industrial_hexagons,
-#     breaks=breaks_densitat_industrial
-# )
+recompte_classes_hexagons = agregacions.comptar_zones_per_classe(
+    dict_valors=densitat_superficie_industrial_hexagons,
+    breaks=breaks_densitat_superficie_industrial
+)
 
 # ------------------------------------------------------------------------------
-# 5.4. Anàlisi temporal
+# 5.5.1. Anàlisi temporal - Visió general
 # ------------------------------------------------------------------------------
 
-# El període 1960–1980 concentra el 43% dels industrials 
-# i, juntament amb els períodes anteriors, ens permet separar un parc industrial més antic del més recent.
+# Veient els resultats de l'exploració temporal de l'apartat 5.3.
+# Es divideixen les dades en els intervals següents:
+# {
+#   < 1900, 1900-1936, 1936-1945, 1945-1960, 1960-1980, 1980-2000, 2000-2010, 2010-2026
+# }
 
-# Filtre edificis anteriors a 1980
-edificis_industrials_anteriors_1980 = clusters.filtrar_capa(
-    edificis_industrial_net,
-    expressio='"any_construccio" <= 1980'
-)
+# ------------------------------------------------------------------------------
+# 5.5.2. Anàlisi temporal - Antiguitat relativa de la indústria
+# ------------------------------------------------------------------------------
 
-malla_industrial_antic = hexagons.comptar_edificis_per_hexagon(
-    edificis=edificis_industrials_anteriors_1980,
-    malla=malla_base
-)
-malla_industrial = hexagons.comptar_edificis_per_hexagon(
-    edificis=edificis_industrial_net,
-    malla=malla_base
-)
+
+
+
+# # El període 1960–1980 concentra el 43% dels industrials 
+# # i, juntament amb els períodes anteriors, ens permet separar un parc industrial més antic del més recent.
+
+# # Filtre edificis anteriors a 1980
+# edificis_industrials_anteriors_1980 = clusters.filtrar_capa(
+#     edificis_industrial_net,
+#     expressio='"any_construccio" <= 1980'
+# )
+
+# malla_industrial_antic = hexagons.comptar_edificis_per_hexagon(
+#     edificis=edificis_industrials_anteriors_1980,
+#     malla=malla_base
+# )
+# malla_industrial = hexagons.comptar_edificis_per_hexagon(
+#     edificis=edificis_industrial_net,
+#     malla=malla_base
+# )
 
 # ------------------------------------------------------------------------------
 # 5.5. Agrupacions espacials - clústers industrials
@@ -770,11 +783,6 @@ print(f"Correlació de Pearson: {correlacio:.3f} (p={p_valor:.4f})")
 
 # concentració d'edificis industrials per districte/barri.
 
-
-# Accessibilitat?
-
-
-
 # ------------------------------------------------------------------
 # # ------------------------------------------------------------------------------
 # # 5.3. Especialització funcional - Dominància i diversitat funcional
@@ -846,22 +854,6 @@ print(f"Correlació de Pearson: {correlacio:.3f} (p={p_valor:.4f})")
 #     malla=malla_bivariant_DF_A
 # )
 
-# # ------------------------------------------------------------------------------
-# # 5.2. Agregacions zonals - APARCAT FINS A ANYS DE CONSTRUCCIÓ
-# # ------------------------------------------------------------------------------
-
-# districtes_agregacions = agregacions.analisi_usos_zones(
-#     edificis=edificis_base,
-#     zones=districtes_base,
-#     idx_zones=dict_indexs["Limits_administratius"]["Districtes"]
-# )
-
-# barris_agregacions = agregacions.analisi_usos_zones(
-#     edificis=edificis_base,
-#     zones=barris_base,
-#     idx_zones=dict_indexs["Limits_administratius"]["Barris"]
-# )
-
 
 # ==============================================================================
 # 6. SIMBOLOGIA
@@ -905,6 +897,17 @@ layers_simbologia_densitat_industrial = simbologia_general.simbologia_densitat_a
     capa_barris=barris_densitat_superficie_industrial,
     capa_hexagons=hexagons_densitat_superficie_industrial
 )
+
+# ------------------------------------------------------------------------------
+# 6.4.1. Anàlisi temporal - Visió general
+# ------------------------------------------------------------------------------
+
+layers_simbologia_parc_edificis = simbologia_general.simbologia_temporal_general(
+    edificis_industrials=edificis_industrial_net,
+    edificis_no_industrials=edificis_no_industrial_net
+)
+
+
 
 # ------------------------------------------------------------------------------
 # 6.4. Clústers i accessibilitat
@@ -981,6 +984,7 @@ totes_les_capes = {
     **layers_simbologia_atles,
     **layers_simbologia_comparacio_industrial,
     **layers_simbologia_densitat_industrial,
+    **layers_simbologia_parc_edificis
     #**layers_simbologia_accessibilitat_clusters
 }
 
@@ -1058,6 +1062,19 @@ layout_maup.composicio_maup_densitat_edificis_industrials(
     capa_terme=layers_simbologia_base["TermeMunicipal"],
     capa_extent=layers_simbologia_base["TermeMunicipal"],
 )
+
+# ------------------------------------------------------------------------------
+# 7.6. Composició antiguitat edificis
+# ------------------------------------------------------------------------------
+
+layout_temporal.composicio_antiguitat_parc_edificis(
+    capes=layers_simbologia_parc_edificis,
+    capa_extent=layers_simbologia_base["TermeMunicipal"],
+    capes_llegenda=layers_simbologia_parc_edificis,
+)
+
+
+
 
 # ------------------------------------------------------------------------------
 # 7.4. Composició d'accessibilitat

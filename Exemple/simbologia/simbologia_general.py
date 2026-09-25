@@ -9,6 +9,7 @@ durant el projecte.
 import config
 import simbologia.simbologies as simbologies
 import simbologia.simbologia_agregacions as simbologia_agregacions
+import simbologia.simbologia_temporal as simbologia_temporal
 import simbologia.simbologia_especialitzacio as simbologia_especialitzacio
 import simbologia.simbologia_hexagons as simbologia_hexagons
 import simbologia.simbologia_accessibilitat as simbologia_accessibilitat 
@@ -174,6 +175,30 @@ def simbologia_densitat_agregacions(capa_districtes, capa_barris, capa_hexagons)
     )
 
     return layers_densitat
+
+
+# ==============================================================================
+# ANÀLISI TEMPORAL
+# ==============================================================================
+
+def simbologia_temporal_general(edificis_industrials, edificis_no_industrials):
+    """
+    """
+    layers_general = {}
+
+    layers_general["Industrial"] = simbologia_temporal.simbologia_temporal_parc_edificis(
+        edificis=edificis_industrials,
+        breaks=config.BREAKS_SIMBOLOGIA_TEMPORAL,
+        tipus="Industria"
+    )
+
+    layers_general["No_industrial"] = simbologia_temporal.simbologia_temporal_parc_edificis(
+        edificis=edificis_no_industrials,
+        breaks=config.BREAKS_SIMBOLOGIA_TEMPORAL,
+        tipus="No_industria"
+    )
+
+    return layers_general
 
 
 # ==============================================================================
