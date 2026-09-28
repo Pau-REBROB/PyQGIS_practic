@@ -201,6 +201,17 @@ def simbologia_temporal_general(edificis_industrials, edificis_no_industrials):
     return layers_general
 
 
+def simbologia_temporal_barris(barris):
+    """
+    """
+    layer = simbologia_temporal.simbologia_temporal_antiguitat_relativa_barris(
+        barris=barris,
+        breaks=config.BREAKS_ANTIGUITAT_RELATIVA
+    )
+
+    return layer
+
+
 # ==============================================================================
 # AGRUPACIONS ESPACIALS i ACCESSIBILITAT
 # ==============================================================================

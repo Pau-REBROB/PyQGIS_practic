@@ -5,7 +5,7 @@ import layouts.layout_common as layout_common
 
 import config
 
-def composicio_antiguitat_parc_edificis(capes, capa_extent, capes_llegenda):
+def composicio_antiguitat_parc_edificis(capes, capa_extent, capa_terme, capes_llegenda):
     """
     """
     cfg_layout = config.LAYOUTS["TEMPORAL"]["GENERAL"]
@@ -25,7 +25,7 @@ def composicio_antiguitat_parc_edificis(capes, capa_extent, capes_llegenda):
 
     mapa = layout_common.afegir_mapa(
         layout=layout,
-        capes=list(capes.values()),
+        capes=[capa_terme] + list(capes.values()),
         capa_extent=capa_extent,
         **cfg_estructura["Mapa"]
     )
@@ -53,7 +53,7 @@ def composicio_antiguitat_parc_edificis(capes, capa_extent, capes_llegenda):
     layout_common.afegir_llegenda(
         layout=layout,
         mapa=mapa,
-        capes=list(capes_llegenda.values()),
+        capes=[capes_llegenda["Industrial"]],
         **cfg_layout["Llegenda_industria"],
         **cfg_estructura["Llegenda_industria"]
     )
@@ -61,7 +61,7 @@ def composicio_antiguitat_parc_edificis(capes, capa_extent, capes_llegenda):
     layout_common.afegir_llegenda(
         layout=layout,
         mapa=mapa,
-        capes=list(capes_llegenda.values()),
+        capes=[capes_llegenda["No_industrial"]],
         **cfg_layout["Llegenda_no_industria"],
         **cfg_estructura["Llegenda_no_industria"]
     )

@@ -559,27 +559,35 @@ recompte_classes_hexagons = agregacions.comptar_zones_per_classe(
 # 5.5.2. Anàlisi temporal - Antiguitat relativa de la indústria
 # ------------------------------------------------------------------------------
 
+anys_industrial_barris = agregacions.agrupar_valors_per_zona(
+    edificis=edificis_industrial_net,
+    camp_valor="any_construccio",
+    zones=barris_base,
+    camp_id_zona="NOM"
+)
 
+anys_resta_usos_barris = agregacions.agrupar_valors_per_zona(
+    edificis=edificis_no_industrial_net,
+    camp_valor="any_construccio",
+    zones=barris_base,
+    camp_id_zona="NOM"
+)
 
+diferencia_anys_industrial_barris = agregacions.calcular_diferencia_mediana_per_zona(
+    valors_industrial=anys_industrial_barris,
+    valors_resta=anys_resta_usos_barris
+)
+##FACTORITZAR LES DUES PRIMERES DINS CALCULAR DIFERENCIA MEDIANA
 
-# # El període 1960–1980 concentra el 43% dels industrials 
-# # i, juntament amb els períodes anteriors, ens permet separar un parc industrial més antic del més recent.
+# Escriptura dels resultats
+barris_diferencia_mediana = agregacions.escriure_valors_zonals_a_capa(
+    zones=barris_base,
+    dict_valors=diferencia_anys_industrial_barris,
+    camp_id_zona="NOM",
+    nom_camp_resultat="diferencia_mediana_any_industria"
+)
 
-# # Filtre edificis anteriors a 1980
-# edificis_industrials_anteriors_1980 = clusters.filtrar_capa(
-#     edificis_industrial_net,
-#     expressio='"any_construccio" <= 1980'
-# )
-
-# malla_industrial_antic = hexagons.comptar_edificis_per_hexagon(
-#     edificis=edificis_industrials_anteriors_1980,
-#     malla=malla_base
-# )
-# malla_industrial = hexagons.comptar_edificis_per_hexagon(
-#     edificis=edificis_industrial_net,
-#     malla=malla_base
-# )
-
+############################333
 # ------------------------------------------------------------------------------
 # 5.5. Agrupacions espacials - clústers industrials
 # ------------------------------------------------------------------------------
@@ -907,8 +915,16 @@ layers_simbologia_parc_edificis = simbologia_general.simbologia_temporal_general
     edificis_no_industrials=edificis_no_industrial_net
 )
 
+# ------------------------------------------------------------------------------
+# 6.4.2. Anàlisi temporal - Antiguitat relativa
+# ------------------------------------------------------------------------------
+
+layer_simbologia_antiguitat_relativa_barris = simbologia_general.simbologia_temporal_barris(
+    barris=barris_diferencia_mediana
+)
 
 
+########################################
 # ------------------------------------------------------------------------------
 # 6.4. Clústers i accessibilitat
 # ------------------------------------------------------------------------------
@@ -984,7 +1000,8 @@ totes_les_capes = {
     **layers_simbologia_atles,
     **layers_simbologia_comparacio_industrial,
     **layers_simbologia_densitat_industrial,
-    **layers_simbologia_parc_edificis
+    **layers_simbologia_parc_edificis,
+    "antiguitat_relativa": layer_simbologia_antiguitat_relativa_barris
     #**layers_simbologia_accessibilitat_clusters
 }
 
@@ -1070,6 +1087,7 @@ layout_maup.composicio_maup_densitat_edificis_industrials(
 layout_temporal.composicio_antiguitat_parc_edificis(
     capes=layers_simbologia_parc_edificis,
     capa_extent=layers_simbologia_base["TermeMunicipal"],
+    capa_terme=layers_simbologia_base["TermeMunicipal"],
     capes_llegenda=layers_simbologia_parc_edificis,
 )
 

@@ -200,6 +200,8 @@ BREAKS_DENSITAT_SUPERFICIE_INDUSTRIAL = [0, 0, 0.5, 1.5, 3.4, 5.8, 10.1]
 
 BREAKS_SIMBOLOGIA_TEMPORAL = [1900, 1936, 1945, 1960, 1980, 2000, 2015, 2026]
 
+BREAKS_ANTIGUITAT_RELATIVA = [-46, -30, -20, -10, 0, 0, 10, 20, 30, 45]
+
 CONFIG_ANALISI = {
     "Clusters": {
         "eps": 200,
@@ -368,19 +370,27 @@ SIMBOLOGIA = {
     "Temporal": {
         "General": {
             "Industria": {
-                "color_ramp": "Reds",
+                "color_ramp": "Oranges",
                 "atribut": "any_construccio",
                 "stroke_color": (200,200,200,255),
                 "stroke_width": 0.1,
                 "invert_ramp": True
             },
             "No_industria": {
-                "color_ramp": "Blues",
+                "color_ramp": "Purples",
                 "atribut": "any_construccio",
                 "stroke_color": (200,200,200,255),
                 "stroke_width": 0.1,
                 "invert_ramp": True
             }
+        },
+        "Antiguitat_relativa": {
+            "color_ramp": "RdBu",
+            "atribut": "diferencia_mediana_any_industria",
+            "stroke_color": (150,150,150,255),
+            "stroke_width": 0.1,
+            "color_classe_zero": (240,240,240,255),
+            "invert_ramp": True
         }
     },
 
@@ -810,14 +820,11 @@ LAYOUTS = {
         "GENERAL": {
             "Mapa": {
                 "factor_escala": 0.60,
-                #"size": (292, 205),
                 "size": (205,292),
-                "position": (2.5, 2.5),
+                "position": (2.50, 2.50),
                 "rotacio": 0,
-                #"offset_x": 1000,
                 "offset_x": 2000,
-                #"offset_y": -250,
-                "offset_y": 0
+                "offset_y": -250
             },
             "Titol": {
                 "size": (280, 5),
@@ -830,17 +837,17 @@ LAYOUTS = {
                 "alineacio": "left"
             },
             "Llegenda_industria": {
-                "position": (165, 210)
+                "position": (165, 175)
             },
             "Llegenda_no_industria": {
-                "position": (205, 210)
+                "position": (165, 235)
             },
             "Escala": {
-                "position": (165, 280)
+                "position": (125, 280)
             },
             "Nord": {
                 "size": (10, 10),
-                "position": (165, 265)
+                "position": (125, 265)
             }
         }
     },
@@ -1424,7 +1431,7 @@ LAYOUTS = {
     "TEMPORAL":{
         "GENERAL": {
             "Titol": {
-                "titol": "Usos dels edificis de Barcelona",
+                "titol": "Antiguitat del parc d'edificis de Barcelona",
                 "font": "Calibri",
                 "font_size": 18,
                 "font_color": (0,0,0,255),
@@ -1432,7 +1439,7 @@ LAYOUTS = {
                 "frame_color": (0,0,0,0)
             },
             "Subtitol": {
-                "subtitol": "Font: Cadastre",
+                "subtitol": "Diferenciació entre edificis d'ús industrial i la resta d'usos",
                 "font": "Calibri",
                 "font_size": 14,
                 "font_color": (0,0,0,255),
@@ -1440,18 +1447,18 @@ LAYOUTS = {
                 "frame_color": (0,0,0,0)
             },
             "Llegenda_industria": {
-                "titol": "Any de construcció",
+                "titol": "Edificis industrials",
                 "font": "Calibri",
                 "font_size": 12,
                 "font_color": (0,0,0,255),
-                "backg_color": (180,180,180,150)
+                "backg_color": (200,200,200,80)
             },
             "Llegenda_no_industria": {
-                "titol": "Any de construcció",
+                "titol": "Resta d'usos",
                 "font": "Calibri",
                 "font_size": 12,
                 "font_color": (0,0,0,255),
-                "backg_color": (180,180,180,150)
+                "backg_color": (200,200,200,80)
             },
             "Escala": {
                 "tipus": "Single Box",

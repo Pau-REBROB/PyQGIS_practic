@@ -25,6 +25,8 @@ from qgis.core import (
 )
 from qgis.PyQt.QtCore import QVariant
 
+from statistics import median
+
 import config
 
 def calcular_edificis_per_zona(edificis, camp_id_edifici, zones, camp_id_zona):
@@ -424,6 +426,133 @@ def escriure_valors_zonals_a_capa(zones, dict_valors, camp_id_zona, nom_camp_res
 #  de canvis i s'aplica d'un sol cop amb provider.changeAttributeValues(canvis). És el patró que la documentació oficial mostra
 #  per actualitzar valors després d'afegir un camp.
 
+
+def agrupar_valors_per_zona(edificis, camp_valor, zones, camp_id_zona):
+    """
+    Agrupa el valor d'un camp dels edificis per zona.
+
+    Cada edifici s'assigna a la zona que conté el seu centroide, de manera
+    que cap edifici compta dues vegades encara que toqui el límit entre
+    dues zones. Els edificis sense valor al camp s'ignoren.
+
+    Paràmetres
+    ----------
+    edificis : QgsVectorLayer
+        Capa d'edificis.
+    camp_valor : str
+        Camp dels edificis a agrupar (p. ex. "any_construccio").
+    zones : QgsVectorLayer
+        Capa de polígons de zonificació (barris, districtes, etc.).
+    camp_id_zona : str
+        Nom del camp identificador de la zona dins de `zones`.
+
+    Retorna
+    -------
+    dict
+        Diccionari { id_zona: [valors] }. Les zones sense cap edifici
+        hi apareixen amb una llista buida.
+    """
+    index_edificis = QgsSpatialIndex(edificis.getFeatures())
+    valors_per_zona = {}
+
+    for zona in zones.getFeatures():
+        geometria_zona = zona.geometry()
+
+        engine = QgsGeometry.createGeometryEngine(geometria_zona.constGet())
+        engine.prepareGeometry()
+
+        candidats = index_edificis.intersects(geometria_zona.boundingBox())
+        request = QgsFeatureRequest().setFilterFids(candidats)
+
+        valors_per_zona[zona[camp_id_zona]] = [
+            feature[camp_valor]
+            for feature in edificis.getFeatures(request)
+            if feature[camp_valor] is not None
+            and engine.intersects(feature.geometry().centroid().constGet())
+        ]
+
+    return valors_per_zona
+
+
+def agrupar_valors_per_zona(edificis, camp_valor, zones, camp_id_zona):
+    """
+    Agrupa el valor d'un camp dels edificis per zona.
+
+    Cada edifici s'assigna a la zona que conté el seu centroide, de manera
+    que cap edifici compta dues vegades encara que toqui el límit entre
+    dues zones. Els edificis sense valor al camp s'ignoren.
+
+    Paràmetres
+    ----------
+    edificis : QgsVectorLayer
+        Capa d'edificis.
+    camp_valor : str
+        Camp dels edificis a agrupar (p. ex. "any_construccio").
+    zones : QgsVectorLayer
+        Capa de polígons de zonificació (barris, districtes, etc.).
+    camp_id_zona : str
+        Nom del camp identificador de la zona dins de `zones`.
+
+    Retorna
+    -------
+    dict
+        Diccionari { id_zona: [valors] }. Les zones sense cap edifici
+        hi apareixen amb una llista buida.
+    """
+    index_edificis = QgsSpatialIndex(edificis.getFeatures())
+    valors_per_zona = {}
+
+    for zona in zones.getFeatures():
+        geometria_zona = zona.geometry()
+
+        engine = QgsGeometry.createGeometryEngine(geometria_zona.constGet())
+        engine.prepareGeometry()
+
+        candidats = index_edificis.intersects(geometria_zona.boundingBox())
+        request = QgsFeatureRequest().setFilterFids(candidats)
+
+        valors_per_zona[zona[camp_id_zona]] = [
+            feature[camp_valor]
+            for feature in edificis.getFeatures(request)
+            if feature[camp_valor] is not None
+            and engine.intersects(feature.geometry().centroid().constGet())
+        ]
+
+    return valors_per_zona
+
+
+def calcular_diferencia_mediana_per_zona(valors_industrial, valors_resta, minim_edificis=5):
+    """
+    Calcula la diferència entre la mediana d'un valor a dos conjunts
+    d'edificis (industrials i resta) per zona.
+
+    Un valor positiu indica que el conjunt industrial té valors més alts
+    (p. ex. anys de construcció més recents) que la resta.
+
+    Paràmetres
+    ----------
+    valors_industrial, valors_resta : dict
+        Diccionaris { id_zona: [valors] }, sortida d'agrupar_valors_per_zona.
+    minim_edificis : int
+        Nombre mínim d'edificis industrials perquè la mediana sigui
+        fiable; per sota, la zona queda amb valor None.
+
+    Retorna
+    -------
+    dict
+        Diccionari { id_zona: diferencia_mediana o None }.
+    """
+    diferencia = {}
+
+    for id_zona, valors_ind in valors_industrial.items():
+        valors_res = valors_resta.get(id_zona, [])
+
+        if len(valors_ind) < minim_edificis or not valors_res:
+            diferencia[id_zona] = None
+        else:
+            diferencia[id_zona] = median(valors_ind) - median(valors_res)
+
+    return diferencia
 
 
 def agregar_usos_zones(edificis, zones, idx_zones):
