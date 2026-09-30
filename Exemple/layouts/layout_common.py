@@ -215,6 +215,85 @@ def afegir_mapa(layout, capes, capa_extent, factor_escala, size, position, rotac
         
     return layout_map
 
+
+def calcular_extent_ampliat(geometria, marge_percentual=0.3):
+    """
+    Calcula un extent ampliat al voltant d'una geometria, afegint-hi
+    un marge proporcional a la seva mida, per deixar context visual
+    al voltant en un mapa retallat.
+
+    Paràmetres
+    ----------
+    geometria: QgsGeometry
+        Geometria de referència (p. ex. l'envolupant d'un clúster).
+    marge_percentual: float
+        Marge a afegir a cada costat, com a fracció de l'amplada/alçada
+        de la geometria (0.3 = 30% de marge a cada banda).
+
+    Retorna
+    -------
+    dict
+        Diccionari { nom: QgsRectangle }, amb tots els extents ajustats
+        a la mateixa mida (la del clúster més gran) perquè els mapes
+        siguin comparables a la mateixa escala.
+    """
+    bbox = geometria.boundingBox()
+
+    marge_x = bbox.width() * marge_percentual
+    marge_y = bbox.height() * marge_percentual
+
+    return QgsRectangle(
+        bbox.xMinimum() - marge_x,
+        bbox.yMinimum() - marge_y,
+        bbox.xMaximum() + marge_x,
+        bbox.yMaximum() + marge_y
+    )
+
+
+def calcular_extents_per_cluster(zones, dict_clusters, marge_percentual=0.3):
+    """
+    Calcula un extent ampliat i uniforme per a cadascun dels clústers
+    indicats, a partir de la capa d'envolupants.
+
+    Paràmetres
+    ----------
+    zones: QgsVectorLayer
+        Capa d'envolupants de clústers, amb el camp CLUSTER_ID.
+    dict_clusters: dict
+        Diccionari { cluster_id: nom }, identificant els clústers
+        a incloure.
+    marge_percentual: float
+        Marge de context a cada costat del bounding box del clúster.
+
+    Retorna
+    -------
+    dict
+        Diccionari { nom: QgsRectangle }, amb tots els extents ajustats
+        a la mateixa mida (la del clúster més gran) perquè els mapes
+        siguin comparables a la mateixa escala.
+    """
+    extents_bruts = {}
+    
+    for feat in zones.getFeatures():
+        cluster_id = feat["CLUSTER_ID"]
+        if cluster_id in dict_clusters:
+            nom = dict_clusters[cluster_id]
+            extents_bruts[nom] = calcular_extent_ampliat(
+                clusters=feat.geometry()
+            )
+
+    costat_maxim = max(max(e.width(), e.height()) for e in extents_bruts.values())
+
+    extents_finals = {}
+
+    for nom, extent in extents_bruts.items():
+        cx, cy = extent.center().x(), extent.center().y()
+        meitat = costat_maxim / 2
+        extents_finals[nom] = QgsRectangle(cx - meitat, cy - meitat, cx + meitat, cy + meitat)
+
+    return extents_finals
+
+
 # =============================================================================
 # TÍTOLS
 # =============================================================================

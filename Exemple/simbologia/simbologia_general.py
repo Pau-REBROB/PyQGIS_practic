@@ -204,12 +204,35 @@ def simbologia_temporal_general(edificis_industrials, edificis_no_industrials):
 def simbologia_temporal_barris(barris):
     """
     """
-    layer = simbologia_temporal.simbologia_temporal_antiguitat_relativa_barris(
+    layers_temporal = {}
+
+    layers_temporal["Barris_categoritzats"] = simbologia_temporal.simbologia_temporal_antiguitat_relativa_barris(
         barris=barris,
         breaks=config.BREAKS_ANTIGUITAT_RELATIVA
     )
 
-    return layer
+    layers_temporal["Barris_neutres"] = simbologia_temporal.simbologia_temporal_barris_neutres(
+        barris=barris
+    )
+
+    return layers_temporal
+
+
+def simbologia_temporal_edificis(edificis):
+    """
+    """
+    layers_temporal = {}
+
+    layers_temporal["Edificis_categoritzats"] = simbologia_temporal.simbologia_temporal_antiguitat_relativa_edificis(
+        edificis=edificis,
+        breaks=config.BREAKS_ANTIGUITAT_RELATIVA_EDIFICIS
+    )
+
+    layers_temporal["Edificis_neutres"] = simbologia_temporal.simbologia_temporal_edificis_neutres(
+        edificis=edificis
+    )
+
+    return layers_temporal
 
 
 # ==============================================================================

@@ -140,6 +140,28 @@ COLORS_ATLES = {
     "4_3_publicServices": (165, 145, 180, 75)
 }
 
+ETIQUETES_ANTIGUITAT = {
+    0: "Molt més antiga (> 25 anys)",
+    1: "Més antiga (> 15 anys)",
+    2: "Lleugerament més antiga (5-15 anys)",
+    3: "Similar (+- 5 anys)",
+    4: "Lleugerament més moderna (5-15 anys)",
+    5: "Més moderna (< 15 anys)",
+    6: "Molt més moderna (< 25 anys)"
+}
+
+ETIQUETES_ANTIGUITAT_EDIFICIS = {
+    0: "Molt més antiga (> 40 anys)",
+    1: "Més antiga (> 20 anys)",
+    2: "Lleugerament més antiga (5-20 anys)",
+    3: "Similar (+- 5 anys)",
+    4: "Lleugerament més moderna (5-20 anys)",
+    5: "Més moderna (< 20 anys)",
+    6: "Molt més moderna (< 40 anys)"
+}
+
+
+
 COLORS_ZONES = {
     "1_residential": (245, 231, 190, 110),
     "2_agriculture": (105, 180, 75, 125),
@@ -200,7 +222,10 @@ BREAKS_DENSITAT_SUPERFICIE_INDUSTRIAL = [0, 0, 0.5, 1.5, 3.4, 5.8, 10.1]
 
 BREAKS_SIMBOLOGIA_TEMPORAL = [1900, 1936, 1945, 1960, 1980, 2000, 2015, 2026]
 
-BREAKS_ANTIGUITAT_RELATIVA = [-46, -30, -20, -10, 0, 0, 10, 20, 30, 45]
+BREAKS_ANTIGUITAT_RELATIVA = [-46, -25, -15, -5, 5, 15, 25, 46]
+
+BREAKS_ANTIGUITAT_RELATIVA_EDIFICIS = [-136, -40, -20, -5, 5, 20, 40, 87]
+
 
 CONFIG_ANALISI = {
     "Clusters": {
@@ -385,12 +410,30 @@ SIMBOLOGIA = {
             }
         },
         "Antiguitat_relativa": {
-            "color_ramp": "RdBu",
-            "atribut": "diferencia_mediana_any_industria",
-            "stroke_color": (150,150,150,255),
-            "stroke_width": 0.1,
-            "color_classe_zero": (240,240,240,255),
-            "invert_ramp": True
+            "Barris_categoritzats": {
+                "color_ramp": "RdBu",
+                "atribut": "diferencia_mediana_any_industria",
+                "stroke_color": (150,150,150,255),
+                "stroke_width": 0.1,
+                "invert_ramp": False
+            },
+            "Barris_neutres": {
+                "fill_color": (240,240,240,255),
+                "outline_width": 0.1,
+                "stroke_color": (200,200,200,255)
+            },
+            "Edificis_categoritzats": {
+                "color_ramp": "RdBu",
+                "atribut": "diferencia_any_barri",
+                "stroke_color": (150,150,150,255),
+                "stroke_width": 0.1,
+                "invert_ramp": False
+            },
+            "Edificis_neutres": {
+                "fill_color": (240,240,240,255),
+                "outline_width": 0.1,
+                "stroke_color": (200,200,200,255)
+            }
         }
     },
 
@@ -849,6 +892,84 @@ LAYOUTS = {
                 "size": (10, 10),
                 "position": (125, 265)
             }
+        },
+        "RELATIVA": {
+            "Barris": {
+                "Mapa": {
+                    "factor_escala": 0.75,
+                    "size": (292, 205), 
+                    "position": (2.50, 2.50),
+                    "rotacio": 45,
+                    "offset_x": 1000,
+                    "offset_y": 500
+                },
+                "Titol": {
+                    "size": (292, 10),
+                    "position": (2.50, 2.50)
+                },
+                "Subtitol": {
+                    "size": (292, 10),
+                    "position": (2.50, 12)
+                },
+                "Llegenda": {
+                    "position": (10, 35)
+                },
+                "Escala": {
+                    "position": (10, 105)
+                },
+                "Nord": {
+                    "size": (10, 10),
+                    "position": (10, 95)
+                },
+                "Peu": {
+                    "size": (200, 10),
+                    "position": (160, 202.50)
+                }
+            },
+            "Clusters": {
+                "Mapa_zonaFranca": {
+                    "factor_escala": 0.75,
+                    "size": (292, 205), 
+                    "position": (2.50, 2.50),
+                    "rotacio": 45,
+                    "offset_x": 1000,
+                    "offset_y": 500
+                },
+                "Mapa_poblenou": {
+                    "factor_escala": 0.75,
+                    "size": (292, 205), 
+                    "position": (2.50, 2.50),
+                    "rotacio": 45,
+                    "offset_x": 1000,
+                    "offset_y": 500
+                },
+                "Mapa_santMarti": {
+                    "factor_escala": 0.75,
+                    "size": (292, 205), 
+                    "position": (2.50, 2.50),
+                    "rotacio": 45,
+                    "offset_x": 1000,
+                    "offset_y": 500
+                },
+                "Mapa_santAndreu": {
+                    "factor_escala": 0.75,
+                    "size": (292, 205), 
+                    "position": (2.50, 2.50),
+                    "rotacio": 45,
+                    "offset_x": 1000,
+                    "offset_y": 500
+                },
+                "Titol": {
+                    "size": (292, 10),
+                    "position": (2.50, 2.50)
+                },
+                "Subtitol": {
+                    "size": (292, 10),
+                    "position": (2.50, 12)
+                },
+                "Llegenda": {
+                    "position": (10, 35)
+            },
         }
     },
 
@@ -1472,6 +1593,55 @@ LAYOUTS = {
             "Exportacio": {
                 "output_path": f"{PATH_RESULTATS}/Antiguitat_edificis.pdf",
                 "dpi": 500
+            }
+        },
+        "RELATIVA": {
+            # "Mapa": {
+            #     "color_fons": (60,60,60,255)
+            # },
+            "Titol": {
+                "titol": "Antiguitat del parc d'edificis industrials respecte la resta d'usos",
+                "font": "Calibri",
+                "font_size": 18,
+                "font_color": (0,0,0,255),
+                "alineacio": "left",
+                "backg_color": (0, 0, 0, 0),
+                "frame_color": (0, 0, 0, 0)
+            },
+            "Subtitol": {
+                "subtitol": "subtitol??",
+                "font": "Calibri",
+                "font_size": 14,
+                "font_color": (0,0,0,255),
+                "alineacio": "left",
+                "backg_color": (0, 0, 0, 0),
+                "frame_color": (0, 0, 0, 0)
+            },
+            "Llegenda": {
+                "titol": "Antiguitat relativa",
+                "font": "Calibri",
+                "font_size": 10,
+                "font_color": (0,0,0,255), 
+                "backg_color": (100,100,100,180)
+            },
+            "Escala": {
+                "tipus": "Single Box",
+                "font": "Calibri",
+                "font_size": 10,
+                "font_color": (0,0,0,255)
+            },
+            "Nord": {
+                "image_path": "C:/projectes_git/Dades/nord2.png"
+            },
+            "Peu": {
+                "text": "Font: Cadastre, ICGC (CC-BY 4.0), OpenStreetMap contributors (ODbL) · Elaboració pròpia",
+                "font": "Calibri",
+                "font_size": 10,
+                "font_color": (0,0,0,255)
+            },
+            "Exportacio": {
+                "output_path": f"{PATH_RESULTATS}/antiguitat_relativa.pdf",
+                "dpi": 600
             }
         }
     },

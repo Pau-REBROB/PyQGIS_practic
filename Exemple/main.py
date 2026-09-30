@@ -587,9 +587,28 @@ barris_diferencia_mediana = agregacions.escriure_valors_zonals_a_capa(
     nom_camp_resultat="diferencia_mediana_any_industria"
 )
 
-############################333
+# Càlcul de la diferència mediana de cada edifici industrial respecte el barri 
+from statistics import median
+
+mediana_resta_per_zona = {
+    id_zona: median(valors)
+    for id_zona, valors in anys_resta_usos_barris.items()
+    if valors
+}
+
+edificis_diferencia_mediana = temporal.assignar_diferencia_any_a_edificis(
+    edificis_industrial=edificis_industrial_net,
+    camp_any="any_construccio",
+    zones=barris_base,
+    camp_id_zona="NOM",
+    mediana_resta_per_zona=mediana_resta_per_zona
+)
+
+# Identificació de les zones de major concentració industrial (clústers)
+# per a la seva representació enlloc de tots els edificis industrials
+
 # ------------------------------------------------------------------------------
-# 5.5. Agrupacions espacials - clústers industrials
+# 5.6. Agrupacions espacials - clústers industrials
 # ------------------------------------------------------------------------------
 
 distancies_industrial = clusters.distancia_veins_propers(
@@ -605,6 +624,7 @@ distancies_k = clusters.distancia_k_vei(
     edificis_industrial_net,
     k=10
 )
+
 print(len(distancies_k))
 print(distancies_k[::25])  # una mostra cada 25 valors, per no saturar la resposta
 
@@ -618,6 +638,7 @@ grafics.grafic_k_distance(
 # No existeix una zona de transició clara
 # Es proven diferents valors d'eps
 resultats_eps = {}
+
 for eps_prova in [100, 150, 200]:
     config.CONFIG_ANALISI["Clusters"]["eps"] = eps_prova
     resultat = clusters.analisi_clusters(
@@ -629,7 +650,9 @@ for eps_prova in [100, 150, 200]:
 for eps_prova, resum in resultats_eps.items():
     print(f"eps={eps_prova}:", resum)
 
-# A la vista dels resultats, eps = 200 min_size = 10
+# A la vista dels resultats:
+# eps = 200 
+# min_size = 10
 
 resultat_clusters_industrials = clusters.analisi_clusters(
     layer=edificis_industrial_net,
@@ -661,10 +684,25 @@ clusters_seleccionats = clusters.filtrar_capa(
     expressio
 )
 
-zones_clusters_seleccionats = clusters.envolvent_clusters(
-    layer=clusters_seleccionats
+# Identificació dels clústers
+dict_clusters_industrials = {
+    10: "Poblenou", 
+    26: "Zona Franca", 
+    13: "Sant Andreu", 
+    14: "Sant Martí"
+}
+
+# zones_clusters_seleccionats = clusters.envolvent_clusters(
+#     layer=clusters_seleccionats
+# )
+
+# Extensió de cada clúster i uniformització en una única extensió
+extents_clusters = layout_common.calcular_extents_per_cluster(
+    zones=resultat_clusters_industrials,
+    dict_clusters=dict_clusters_industrials
 )
 
+##########################################3
 # ------------------------------------------------------------------------------
 # 5.6. Accessibilitat
 # ------------------------------------------------------------------------------
@@ -919,10 +957,13 @@ layers_simbologia_parc_edificis = simbologia_general.simbologia_temporal_general
 # 6.4.2. Anàlisi temporal - Antiguitat relativa
 # ------------------------------------------------------------------------------
 
-layer_simbologia_antiguitat_relativa_barris = simbologia_general.simbologia_temporal_barris(
+layers_simbologia_antiguitat_relativa_barris = simbologia_general.simbologia_temporal_barris(
     barris=barris_diferencia_mediana
 )
 
+layers_simbologia_antiguitat_relativa_edificis = simbologia_general.simbologia_temporal_edificis(
+    edificis=edificis_diferencia_mediana
+)
 
 ########################################
 # ------------------------------------------------------------------------------
@@ -1001,7 +1042,8 @@ totes_les_capes = {
     **layers_simbologia_comparacio_industrial,
     **layers_simbologia_densitat_industrial,
     **layers_simbologia_parc_edificis,
-    "antiguitat_relativa": layer_simbologia_antiguitat_relativa_barris
+    **layers_simbologia_antiguitat_relativa_barris,
+    **layers_simbologia_antiguitat_relativa_edificis
     #**layers_simbologia_accessibilitat_clusters
 }
 
@@ -1091,6 +1133,14 @@ layout_temporal.composicio_antiguitat_parc_edificis(
     capes_llegenda=layers_simbologia_parc_edificis,
 )
 
+# ------------------------------------------------------------------------------
+# 7.7. Composició antiguitat relativa parc industrial
+# ------------------------------------------------------------------------------
+
+layout_temporal.composicio_antiguitat_relativa(
+    capes=layers_simbologia_antiguitat_relativa_barris,
+    capa_extent=layers_simbologia_base["TermeMunicipal"]
+)
 
 
 
