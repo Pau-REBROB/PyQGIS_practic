@@ -276,7 +276,7 @@ def envolvent_clusters(layer):
     # Dissolució de les geometria de les envolents per unificar-les
     resultat_dissolved = processing.run("native:dissolve", {
         'INPUT': resultat_hull['OUTPUT'],
-        'FIELD': [],
+        'FIELD': 'CLUSTER_ID',
         'SEPARATE_DISJOINT': True,
         'OUTPUT': 'memory:'
     })
@@ -520,6 +520,37 @@ def assignar_cluster_id_a_edificis(edificis, clusters, camp_id_edifici="gml_id")
 
     return layer
 
+
+def identificar_clusters_per_mida(clusters, noms_ordenats):
+    """
+    Assigna un nom descriptiu a cada clúster segons la seva posició en
+    un rànquing de mida (àrea), en comptes de dependre del CLUSTER_ID
+    assignat per DBSCAN, que no és estable entre execucions.
+
+    Paràmetres
+    ----------
+    clusters: QgsVectorLayer
+        Capa d'envolupants de clústers, amb els camps CLUSTER_ID i area.
+    noms_ordenats: list[str]
+        Noms a assignar, en ordre de mida decreixent (el primer nom
+        correspon al clúster més gran, i així successivament).
+
+    Retorna
+    -------
+    dict
+        Diccionari { cluster_id: nom }, amb tants elements com
+        len(noms_ordenats), corresponents als clústers més grans.
+    """
+    clusters_per_mida = sorted(
+        ((feat["CLUSTER_ID"], feat["area"]) for feat in clusters.getFeatures()),
+        key=lambda x: x[1],
+        reverse=True
+    )
+
+    return {
+        cluster_id: nom
+        for (cluster_id, _), nom in zip(clusters_per_mida, noms_ordenats)
+    }
 
 # =================================================================================
 # Identificació de clústers industrials (DBSCAN)

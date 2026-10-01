@@ -279,8 +279,12 @@ def calcular_extents_per_cluster(zones, dict_clusters, marge_percentual=0.3):
         if cluster_id in dict_clusters:
             nom = dict_clusters[cluster_id]
             extents_bruts[nom] = calcular_extent_ampliat(
-                clusters=feat.geometry()
+                geometria=feat.geometry()
             )
+
+    print(zones.featureCount())
+    ids_unics = {feat["CLUSTER_ID"] for feat in zones.getFeatures()}
+    print("CLUSTER_ID únics:", ids_unics)
 
     costat_maxim = max(max(e.width(), e.height()) for e in extents_bruts.values())
 
@@ -292,6 +296,45 @@ def calcular_extents_per_cluster(zones, dict_clusters, marge_percentual=0.3):
         extents_finals[nom] = QgsRectangle(cx - meitat, cy - meitat, cx + meitat, cy + meitat)
 
     return extents_finals
+
+
+def extents_manuals_a_dict(coordenades):
+    """
+    Converteix un diccionari de coordenades manuals en un diccionari
+    d'extents (QgsRectangle), per a casos on els requadres de cada
+    zona s'han determinat manualment en comptes de calcular-se a
+    partir de la geometria d'un clúster.
+
+    Paràmetres
+    ----------
+    coordenades: dict
+        Diccionari { nom: (xmin, ymin, xmax, ymax) }, amb les
+        coordenades de cada requadre en el CRS del projecte.
+
+    Retorna
+    -------
+    dict
+        Diccionari { nom: QgsRectangle }.
+    """
+    return {
+        nom: QgsRectangle(xmin, ymin, xmax, ymax)
+        for nom, (xmin, ymin, xmax, ymax) in coordenades.items()
+    }
+
+
+def uniformitzar_extents(extents_dict):
+    """
+    (docstring igual, ajustant la descripció del paràmetre a dict)
+    """
+    costat_maxim = max(max(e.width(), e.height()) for e in extents_dict.values())
+
+    extents_uniformes = {}
+    for nom, e in extents_dict.items():
+        cx, cy = e.center().x(), e.center().y()
+        meitat = costat_maxim / 2
+        extents_uniformes[nom] = QgsRectangle(cx - meitat, cy - meitat, cx + meitat, cy + meitat)
+
+    return extents_uniformes
 
 
 # =============================================================================
@@ -575,7 +618,7 @@ def afegir_capçalera(layout, backg_size, backg_position, color, outline_color, 
 # LLEGENDA
 # =============================================================================
 
-def afegir_llegenda(layout, mapa, capes, titol, font, font_size, font_color, position, backg_color):
+def afegir_llegenda(layout, mapa, capes, titol, font, font_size, font_color, position, backg_color, size=None):
     """
     Afegeix una llegenda a una composició.
 
@@ -643,7 +686,14 @@ def afegir_llegenda(layout, mapa, capes, titol, font, font_size, font_color, pos
 
     # Posició i mida
     legend.attemptMove(QgsLayoutPoint(*position, QgsUnitTypes.LayoutMillimeters))
-    legend.adjustBoxSize()
+    if size is not None:
+        legend.setResizeToContents(False)
+        legend.setSplitLayer(True)
+        legend.setColumnCount(3)
+        legend.attemptResize(QgsLayoutSize(*size, QgsUnitTypes.LayoutMillimeters))
+    else:
+        legend.setResizeToContents(True)
+        legend.adjustBoxSize()
 
     # Definició del format de text - tot igual
     text_format = QgsTextFormat()

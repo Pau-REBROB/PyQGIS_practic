@@ -175,7 +175,7 @@ def composicio_antiguitat_relativa(capes, capa_extent):
     )
 
 
-def composicio_antiguitat_relativa_clusters(capes, extensions):
+def composicio_antiguitat_relativa_clusters(capes, capa_barris, extensions, capa_general_barris, capa_terme):
     """
     """
     cfg_layout = config.LAYOUTS["TEMPORAL"]["RELATIVA"]["Clusters"]
@@ -195,30 +195,30 @@ def composicio_antiguitat_relativa_clusters(capes, extensions):
 
     mapa_zonaFranca = layout_common.afegir_mapa(
         layout=layout,
-        capes=list(capes.values()),
+        capes=[capa_barris] + list(capes.values()),
         capa_extent=extensions["Zona Franca"],
         **cfg_estructura["Mapa_zonaFranca"]
     )
 
-    mapa_poblenou = layout_common.afegir_mapa(
-        layout=layout,
-        capes=list(capes.values()),
-        capa_extent=extensions["Poblenou"],
-        **cfg_estructura["Mapa_poblenou"]
-    )
-
     mapa_santMarti = layout_common.afegir_mapa(
         layout=layout,
-        capes=list(capes.values()),
+        capes=[capa_barris] + list(capes.values()),
         capa_extent=extensions["Sant Martí"],
         **cfg_estructura["Mapa_santMarti"]
     )
 
     mapa_santAndreu = layout_common.afegir_mapa(
         layout=layout,
-        capes=list(capes.values()),
+        capes=[capa_barris] + list(capes.values()),
         capa_extent=extensions["Sant Andreu"],
         **cfg_estructura["Mapa_santAndreu"]
+    )
+
+    mapa_general = layout_common.afegir_mapa(
+        layout=layout,
+        capes=list(capa_general_barris.values()),
+        capa_extent=capa_terme,
+        **cfg_estructura["Mapa_general"]
     )
 
     # ------------------------------------------------------------------
@@ -244,7 +244,7 @@ def composicio_antiguitat_relativa_clusters(capes, extensions):
     layout_common.afegir_llegenda(
         layout=layout,
         mapa=mapa_zonaFranca,
-        capes=list(capes.values())[0],
+        capes=list(capes.values()),
         **cfg_layout["Llegenda"],
         **cfg_estructura["Llegenda"]
     )

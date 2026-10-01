@@ -430,164 +430,161 @@ SIMBOLOGIA = {
                 "invert_ramp": False
             },
             "Edificis_neutres": {
-                "fill_color": (240,240,240,255),
+                "fill_color": (220,220,220,255),
                 "outline_width": 0.1,
                 "stroke_color": (200,200,200,255)
             }
         }
     },
 
-    "Accessibilitat": {
-        "Edificis": {
-            "color_ramp": "RdBu",
-            "intervals": INTERVALS_ACCESSIBILITAT,
-            "atribut": 'accessibilitat',
-            "stroke_color": (255,255,255,255),
-            "stroke_width": 0.015,
-            "invert_ramp": True
-        } ,
-        "Graf": {
-            "nom": "Graf viari",
-            "fill_color": (255,255,255,255),
-            "width": 0.025,
-            "outline_color": (50,50,50,255),
-            "outline_width": 0.05
-        },
-        "Clusters": {
-            "nom": "Agrupacions industrials",
-            "fill_color": COLORS_ZONES["3_industrial"],
-            "outline_width": 0.25,
-            "stroke_color": COLORS_USOS["3_industrial"]
-        },
-        "Terme": {
-            "nom": "terme municipal",
-            "fill_color": (0,0,0,0),
-            "outline_width": 0.2,
-            "stroke_color": (255,255,255,255)
-        }
-    },
+    # "Accessibilitat": {
+    #     "Edificis": {
+    #         "color_ramp": "RdBu",
+    #         "intervals": INTERVALS_ACCESSIBILITAT,
+    #         "atribut": 'accessibilitat',
+    #         "stroke_color": (255,255,255,255),
+    #         "stroke_width": 0.015,
+    #         "invert_ramp": True
+    #     } ,
+    #     "Graf": {
+    #         "nom": "Graf viari",
+    #         "fill_color": (255,255,255,255),
+    #         "width": 0.025,
+    #         "outline_color": (50,50,50,255),
+    #         "outline_width": 0.05
+    #     },
+    #     "Clusters": {
+    #         "nom": "Agrupacions industrials",
+    #         "fill_color": COLORS_ZONES["3_industrial"],
+    #         "outline_width": 0.25,
+    #         "stroke_color": COLORS_USOS["3_industrial"]
+    #     },
+    #     "Terme": {
+    #         "nom": "terme municipal",
+    #         "fill_color": (0,0,0,0),
+    #         "outline_width": 0.2,
+    #         "stroke_color": (255,255,255,255)
+    #     }
+    # },
 
+    # "Clusters": {
+    #     "nom": "clusters",
+    #     "mida": 0.50,
+    #     "outline_width": 0.2
+    # },
+    # "Zones": {
+    #     "nom": "zones",
+    #     "outline_width": 0.2,
+    # },
+    # "Isoarees": {
+    #     "atribut": 'cost_level',
+    #     "num_classes": 7,
+    #     "color_ramp": "Spectral",
+    #     "mode": "Jenks",
+    #     "stroke_color": (255,255,255,100),
+    #     "stroke_width": 0.2
+    # },
+    # "Us_predominant": {
+    #     "Districtes": {
+    #         "atribut": 'us_predominant',
+    #         #"nom": "Ús predominant districtes",
+    #         "colors_categories": COLORS_USOS,
+    #         "outline_width": 0.5,
+    #         "stroke_color": (120,120,120,255)
+    #     },
+    #     "Barris": {
+    #         "atribut": 'us_predominant',
+    #         #"nom": "Ús predominant barris",
+    #         "colors_categories": COLORS_USOS,
+    #         "outline_width": 0.35,
+    #         "stroke_color": (120,120,120,255)
+    #     },
+    # },
+    # "Dominancia": {
+    #     "Districtes": {
+    #         "atribut": 'dominancia',
+    #         "num_classes": 5,
+    #         "color_ramp": "YlOrRd",
+    #         "mode": "Jenks",
+    #         "stroke_color": (120,120,120,255),
+    #         "stroke_width": 0.50
+    #     },
+    #     "Barris": {
+    #         "atribut": 'dominancia',
+    #         "num_classes": 5,
+    #         "color_ramp": "YlOrRd",
+    #         "mode": "Jenks",
+    #         "stroke_color": (120,120,120,255),
+    #         "stroke_width": 0.35
+    #     },
+    # },
+    # "Shannon": {
+    #     "Districtes": {
+    #         "atribut": 'shannon_norm',
+    #         "num_classes": 5,
+    #         "color_ramp": "Blues",
+    #         "mode": "Jenks",
+    #         "stroke_color": (120,120,120,255),
+    #         "stroke_width": 0.50
+    #     },
+    #     "Barris": {
+    #         "atribut": 'shannon_norm',
+    #         "num_classes": 5,
+    #         "color_ramp": "Blues",
+    #         "mode": "Jenks",
+    #         "stroke_color": (120,120,120,255),
+    #         "stroke_width": 0.35
+    #     },
+    # },
+    # "Bivariant": {
+    #     "Districtes": {
+    #         "atribut": 'classe_bivariant',
+    #         "colors_categories": COLORS_BIVARIANT,
+    #         "outline_width": 0.50,
+    #         "stroke_color": (120,120,120,255)    
+    #     },
+    #     "Barris": {
+    #         "atribut": 'classe_bivariant',
+    #         "colors_categories": COLORS_BIVARIANT,
+    #         "outline_width": 0.35,
+    #         "stroke_color": (120,120,120,255)    
+    #     }
+    # },
 
-
-
-    "Clusters": {
-        "nom": "clusters",
-        "mida": 0.50,
-        "outline_width": 0.2
-    },
-    "Zones": {
-        "nom": "zones",
-        "outline_width": 0.2,
-    },
-    "Isoarees": {
-        "atribut": 'cost_level',
-        "num_classes": 7,
-        "color_ramp": "Spectral",
-        "mode": "Jenks",
-        "stroke_color": (255,255,255,100),
-        "stroke_width": 0.2
-    },
-    "Us_predominant": {
-        "Districtes": {
-            "atribut": 'us_predominant',
-            #"nom": "Ús predominant districtes",
-            "colors_categories": COLORS_USOS,
-            "outline_width": 0.5,
-            "stroke_color": (120,120,120,255)
-        },
-        "Barris": {
-            "atribut": 'us_predominant',
-            #"nom": "Ús predominant barris",
-            "colors_categories": COLORS_USOS,
-            "outline_width": 0.35,
-            "stroke_color": (120,120,120,255)
-        },
-    },
-    "Dominancia": {
-        "Districtes": {
-            "atribut": 'dominancia',
-            "num_classes": 5,
-            "color_ramp": "YlOrRd",
-            "mode": "Jenks",
-            "stroke_color": (120,120,120,255),
-            "stroke_width": 0.50
-        },
-        "Barris": {
-            "atribut": 'dominancia',
-            "num_classes": 5,
-            "color_ramp": "YlOrRd",
-            "mode": "Jenks",
-            "stroke_color": (120,120,120,255),
-            "stroke_width": 0.35
-        },
-    },
-    "Shannon": {
-        "Districtes": {
-            "atribut": 'shannon_norm',
-            "num_classes": 5,
-            "color_ramp": "Blues",
-            "mode": "Jenks",
-            "stroke_color": (120,120,120,255),
-            "stroke_width": 0.50
-        },
-        "Barris": {
-            "atribut": 'shannon_norm',
-            "num_classes": 5,
-            "color_ramp": "Blues",
-            "mode": "Jenks",
-            "stroke_color": (120,120,120,255),
-            "stroke_width": 0.35
-        },
-    },
-    "Bivariant": {
-        "Districtes": {
-            "atribut": 'classe_bivariant',
-            "colors_categories": COLORS_BIVARIANT,
-            "outline_width": 0.50,
-            "stroke_color": (120,120,120,255)    
-        },
-        "Barris": {
-            "atribut": 'classe_bivariant',
-            "colors_categories": COLORS_BIVARIANT,
-            "outline_width": 0.35,
-            "stroke_color": (120,120,120,255)    
-        }
-    },
-
-    "Especialitzacio": {
-        "Hexagons_dominancia": {
-            "color_ramp": "YlOrRd",
-            "intervals": INTERVALS_DOMINANCIA,
-            "atribut": 'dominancia',
-            "stroke_color": (200,200,200,255),
-            "stroke_width": 0.15
-        },
-        "Hexagons_shannon": {
-            "color_ramp": "Blues",
-            "intervals": INTERVALS_SHANNON,
-            "atribut": 'shannon_norm',
-            "stroke_color": (200,200,200,255),
-            "stroke_width": 0.15
-        },
-        "Hexagons_bivariant": {
-            "atribut": 'classe_bivariant',
-            "colors_categories": COLORS_BIVARIANT,
-            "outline_width": 0.25,
-            "stroke_color": (255,255,255,100)
-        },
-        "Hexagons_no_valids": {
-            "nom": "sense dades",
-            "fill_color": COLORS_BIVARIANT["No_valid"],
-            "outline_width": 0.2,
-            "stroke_color": (255,255,255,200)
-        },
-        "Terme": {
-            "nom": "Terme municipal",
-            "fill_color": (0,0,0,0),
-            "stroke_color": (180,180,180,255),
-            "outline_width": 0.50
-        }
-    }
+    # "Especialitzacio": {
+    #     "Hexagons_dominancia": {
+    #         "color_ramp": "YlOrRd",
+    #         "intervals": INTERVALS_DOMINANCIA,
+    #         "atribut": 'dominancia',
+    #         "stroke_color": (200,200,200,255),
+    #         "stroke_width": 0.15
+    #     },
+    #     "Hexagons_shannon": {
+    #         "color_ramp": "Blues",
+    #         "intervals": INTERVALS_SHANNON,
+    #         "atribut": 'shannon_norm',
+    #         "stroke_color": (200,200,200,255),
+    #         "stroke_width": 0.15
+    #     },
+    #     "Hexagons_bivariant": {
+    #         "atribut": 'classe_bivariant',
+    #         "colors_categories": COLORS_BIVARIANT,
+    #         "outline_width": 0.25,
+    #         "stroke_color": (255,255,255,100)
+    #     },
+    #     "Hexagons_no_valids": {
+    #         "nom": "sense dades",
+    #         "fill_color": COLORS_BIVARIANT["No_valid"],
+    #         "outline_width": 0.2,
+    #         "stroke_color": (255,255,255,200)
+    #     },
+    #     "Terme": {
+    #         "nom": "Terme municipal",
+    #         "fill_color": (0,0,0,0),
+    #         "stroke_color": (180,180,180,255),
+    #         "outline_width": 0.50
+    #     }
+    # }
 }
 
 # =============================================================================
@@ -928,32 +925,32 @@ LAYOUTS = {
             },
             "Clusters": {
                 "Mapa_zonaFranca": {
-                    "factor_escala": 0.75,
-                    "size": (292, 205), 
-                    "position": (2.50, 2.50),
+                    "factor_escala": 0.90,
+                    "size": (143.50, 100), 
+                    "position": (2.50, 105),
                     "rotacio": 45,
-                    "offset_x": 1000,
-                    "offset_y": 500
-                },
-                "Mapa_poblenou": {
-                    "factor_escala": 0.75,
-                    "size": (292, 205), 
-                    "position": (2.50, 2.50),
-                    "rotacio": 45,
-                    "offset_x": 1000,
-                    "offset_y": 500
+                    "offset_x": 800,
+                    "offset_y": -500
                 },
                 "Mapa_santMarti": {
-                    "factor_escala": 0.75,
-                    "size": (292, 205), 
-                    "position": (2.50, 2.50),
+                    "factor_escala": 0.60,
+                    "size": (143.50, 100), 
+                    "position": (151, 105),
                     "rotacio": 45,
-                    "offset_x": 1000,
-                    "offset_y": 500
+                    "offset_x": 250,
+                    "offset_y": -600
                 },
                 "Mapa_santAndreu": {
-                    "factor_escala": 0.75,
-                    "size": (292, 205), 
+                    "factor_escala": 0.70,
+                    "size": (143.50, 100), 
+                    "position": (151, 2.50),
+                    "rotacio": 45,
+                    "offset_x": 0,
+                    "offset_y": 0
+                },
+                "Mapa_general": {
+                    "factor_escala": 0.80,
+                    "size": (143.50, 100), 
                     "position": (2.50, 2.50),
                     "rotacio": 45,
                     "offset_x": 1000,
@@ -968,314 +965,314 @@ LAYOUTS = {
                     "position": (2.50, 12)
                 },
                 "Llegenda": {
-                    "position": (10, 35)
-            },
-        }
-    },
-
-
-
-
-    "ESTRUCTURA_ACCESS": {
-        "Mapa": {
-            "factor_escala": 0.75,
-            "size": (292, 205), 
-            "position": (2.50, 2.50),
-            "rotacio": 45,
-            "offset_x": 1000,
-            "offset_y": 500
-        },
-        "Titol": {
-            "size": (292, 10),
-            "position": (2.50, 2.50)
-        },
-        "Subtitol": {
-            "size": (292, 10),
-            "position": (2.50, 12)
-        },
-        "Llegenda": {
-            "position": (10, 35)
-        },
-        "Escala": {
-            "position": (10, 105)
-        },
-        "Nord": {
-            "size": (10, 10),
-            "position": (10, 95)
-        },
-        "Peu": {
-            "size": (200, 10),
-            "position": (160, 202.50)
-        }
-    },
-
-
-
-    "ESTRUCTURA_CLUSTERS": {
-        "Mapa": {
-            "factor_escala": 0.65,
-            "size": (292, 205),
-            "position": (2.5, 2.5),
-            "rotacio": 45,
-            "offset_x": 1000,
-            "offset_y": -400
-        },
-        "Capçalera": {
-            "text_size": (280, 5),
-            "text_position": (5, 5),
-            "backg_size": (280, 1),
-            "backg_position": (5, 12)
-        },
-        # "Titol": {
-        #     "size": (280, 5),
-        #     "position": (10, 10)
-        # },
-        "Llegenda": {
-            "position": (10, 30)
-        },
-        "Escala": {
-            "position": (260, 190)
-        },
-        "Nord": {
-            "size": (10, 10),
-            "position": (260, 180)
-        }
-    },
-
-    "ESTRUCTURA_ESPECIALITZACIO": {
-        "Mapa_dominancia": {
-            "factor_escala": 0.30,
-            "size": (65, 220),
-            "position": (2.50, 14),
-            "rotacio": 0,
-            "offset_x": 1500,
-            "offset_y": 0
-        },
-        "Mapa_shannon": {
-            "factor_escala": 0.30,
-            "size": (65, 220), 
-            "position": (72.5, 14),
-            "rotacio": 0,
-            "offset_x": 1500,
-            "offset_y": 0
-        },
-        "Mapa_bivariant": {
-            "factor_escala": 0.30,
-            "size": (65, 220),
-            "position": (140, 14),
-            "rotacio": 0,
-            "offset_x": 1500,
-            "offset_y": 0
-        },
-        # "Fons": {
-        #     "size": (292, 198.50),
-        #     "position": (2.50, 20)
-        # },
-        "Fons": {
-            "size": (205, 280),
-            "position": (2.50, 2.50)
-        },
-        "Titol": {
-            "size": (205, 10),
-            "position": (2.50, 2.50)
-        },
-        "Subtitol": {
-            "size": (205, 10),
-            "position": (2.50, 10)
-        },
-        "Titol_dominancia": {
-            "size": (65, 10),
-            "position": (2.50, 240)
-        },
-        "Titol_shannon": {
-            "size": (65, 10),
-            "position": (70, 240)
-        },
-        "Titol_bivariant": {
-            "size": (65, 10),
-            "position": (140, 240)
-        },
-        "Llegenda_dominancia": {
-            "titol": "Diferència entre usos",
-            "position": (2.50, 252)
-        },
-        "Llegenda_shannon": {
-            "titol": "Índex de Shannon normalitzat",
-            "position": (70, 252)
-        },
-        "Llegenda_bivariant": {
-            #"titol": "Índex bivariant",
-            "position": (161, 262)
-        },
-        "Eix_dominancia_llegenda": {
-            "position": (161, 252),
-            "size": (50, 10),
-            "alineacio": "left",
-            "rotacio": 0
-        },
-        "Eix_diversitat_llegenda": {
-            "position": (144, 292),
-            "size": (50, 10),
-            "alineacio": "left",
-            "rotacio": -90
-        },
-        "Labels_superiors_llegenda": {
-            "position": (164, 257),
-            "size": (26, 6)
-        },
-        "Labels_laterals_llegenda": {
-            "position": (151, 266),
-            "size": (6, 26)
-        },
-    },
-
-    "ESTRUCTURA_BIVARIANT": {
-        "Districtes": {
-            "Mapa": {
-                "factor_escala": 0.75,
-                "size": (280, 190),
-                "position": (10, 20),
-                "rotacio": 45,
-                "offset_x": 3000,
-                "offset_y": 300
-            },
-            "Capçalera": {
-                "text_size": (280, 5),
-                "text_position": (10, 10),
-                "backg_size": (280, 2),
-                "backg_position": (10, 20)
-            },
-            "Llegenda": {
-                "position": (238, 143)
-            },
-            "Eix_dominancia_llegenda": {
-                "position": (238, 131),
-                "size": (50, 10),
-                "alineacio": "left",
-                "rotacio": 0
-            },
-            "Eix_diversitat_llegenda": {
-                "position": (221, 175),
-                "size": (50, 10),
-                "alineacio": "left",
-                "rotacio": -90
-            },
-            "Labels_superiors_llegenda": {
-                "position": (240, 137),
-                "size": (26, 6)
-            },
-            "Labels_laterals_llegenda": {
-                "position": (228, 145),
-                "size": (6, 26)
-            },
-            "Escala": {
-                "position": (221, 180),
-            },
-            "Nord": {
-                "size": (10, 10),
-                "position": (221, 192)
-            }
-        },
-        "Barris": {
-            "Mapa": {
-                "factor_escala": 0.75,
-                "size": (280, 190),
-                "position": (10, 20),
-                "rotacio": 45,
-                "offset_x": 3000,
-                "offset_y": 300
-            },
-            "Capçalera": {
-                "text_size": (280, 5),
-                "text_position": (10, 10),
-                "backg_size": (280, 2),
-                "backg_position": (10, 20)
-            },
-            "Llegenda": {
-                "position": (238, 143)
-            },
-            "Eix_dominancia_llegenda": {
-                "position": (238, 131),
-                "size": (50, 10),
-                "alineacio": "left",
-                "rotacio": 0
-            },
-            "Eix_diversitat_llegenda": {
-                "position": (221, 175),
-                "size": (50, 10),
-                "alineacio": "left",
-                "rotacio": -90
-            },
-            "Labels_superiors_llegenda": {
-                "position": (240, 137),
-                "size": (26, 6)
-            },
-            "Labels_laterals_llegenda": {
-                "position": (228, 145),
-                "size": (6, 26)
-            },
-            "Escala": {
-                "position": (221, 180),
-            },
-            "Nord": {
-                "size": (10, 10),
-                "position": (221, 192)
-            }
-        },
-        "Hexagons": {
-            "Mapa": {
-                "factor_escala": 0.75,
-                "size": (280, 190),
-                "position": (10, 20),
-                "rotacio": 45,
-                "offset_x": 3000,
-                "offset_y": 300
-            },
-            "Text_titol": {
-                "size": (280, 5),
-                "position": (10, 7.5)
-            },
-            "Subtitol": {
-                "text_size": (280, 5),
-                "text_position": (10, 17.5),
-                "backg_size": (280, 2),
-                "backg_position": (10, 27.5)
-            },
-            "Llegenda": {
-                "position": (243, 132)
-            },
-            "Eix_accessibilitat_llegenda": {
-                "position": (243, 120),
-                "size": (50, 10),
-                "alineacio": "left",
-                "rotacio": 0
-            },
-            "Eix_diversitat_llegenda": {
-                "position": (226, 164),
-                "size": (50, 10),
-                "alineacio": "left",
-                "rotacio": -90
-            },
-            "Labels_superiors_llegenda": {
-                "position": (245, 126),
-                "size": (26, 6)
-            },
-            "Labels_laterals_llegenda": {
-                "position": (233, 134),
-                "size": (6, 26)
-            },
-            "Llegenda_no_valids": {
-                "position": (226, 166)
-            },
-            "Escala": {
-                "position": (226, 185),
-            },
-            "Nord": {
-                "size": (10, 10),
-                "position": (226, 197)
+                    "position": (2.50, 12),
+                    "size": (292, 30)
+                }
             }
         }
     },
+
+
+
+
+    # "ESTRUCTURA_ACCESS": {
+    #     "Mapa": {
+    #         "factor_escala": 0.75,
+    #         "size": (292, 205), 
+    #         "position": (2.50, 2.50),
+    #         "rotacio": 45,
+    #         "offset_x": 1000,
+    #         "offset_y": 500
+    #     },
+    #     "Titol": {
+    #         "size": (292, 10),
+    #         "position": (2.50, 2.50)
+    #     },
+    #     "Subtitol": {
+    #         "size": (292, 10),
+    #         "position": (2.50, 12)
+    #     },
+    #     "Llegenda": {
+    #         "position": (10, 35)
+    #     },
+    #     "Escala": {
+    #         "position": (10, 105)
+    #     },
+    #     "Nord": {
+    #         "size": (10, 10),
+    #         "position": (10, 95)
+    #     },
+    #     "Peu": {
+    #         "size": (200, 10),
+    #         "position": (160, 202.50)
+    #     }
+    # },
+
+    # "ESTRUCTURA_CLUSTERS": {
+    #     "Mapa": {
+    #         "factor_escala": 0.65,
+    #         "size": (292, 205),
+    #         "position": (2.5, 2.5),
+    #         "rotacio": 45,
+    #         "offset_x": 1000,
+    #         "offset_y": -400
+    #     },
+    #     "Capçalera": {
+    #         "text_size": (280, 5),
+    #         "text_position": (5, 5),
+    #         "backg_size": (280, 1),
+    #         "backg_position": (5, 12)
+    #     },
+    #     # "Titol": {
+    #     #     "size": (280, 5),
+    #     #     "position": (10, 10)
+    #     # },
+    #     "Llegenda": {
+    #         "position": (10, 30)
+    #     },
+    #     "Escala": {
+    #         "position": (260, 190)
+    #     },
+    #     "Nord": {
+    #         "size": (10, 10),
+    #         "position": (260, 180)
+    #     }
+    # },
+
+    # "ESTRUCTURA_ESPECIALITZACIO": {
+    #     "Mapa_dominancia": {
+    #         "factor_escala": 0.30,
+    #         "size": (65, 220),
+    #         "position": (2.50, 14),
+    #         "rotacio": 0,
+    #         "offset_x": 1500,
+    #         "offset_y": 0
+    #     },
+    #     "Mapa_shannon": {
+    #         "factor_escala": 0.30,
+    #         "size": (65, 220), 
+    #         "position": (72.5, 14),
+    #         "rotacio": 0,
+    #         "offset_x": 1500,
+    #         "offset_y": 0
+    #     },
+    #     "Mapa_bivariant": {
+    #         "factor_escala": 0.30,
+    #         "size": (65, 220),
+    #         "position": (140, 14),
+    #         "rotacio": 0,
+    #         "offset_x": 1500,
+    #         "offset_y": 0
+    #     },
+    #     # "Fons": {
+    #     #     "size": (292, 198.50),
+    #     #     "position": (2.50, 20)
+    #     # },
+    #     "Fons": {
+    #         "size": (205, 280),
+    #         "position": (2.50, 2.50)
+    #     },
+    #     "Titol": {
+    #         "size": (205, 10),
+    #         "position": (2.50, 2.50)
+    #     },
+    #     "Subtitol": {
+    #         "size": (205, 10),
+    #         "position": (2.50, 10)
+    #     },
+    #     "Titol_dominancia": {
+    #         "size": (65, 10),
+    #         "position": (2.50, 240)
+    #     },
+    #     "Titol_shannon": {
+    #         "size": (65, 10),
+    #         "position": (70, 240)
+    #     },
+    #     "Titol_bivariant": {
+    #         "size": (65, 10),
+    #         "position": (140, 240)
+    #     },
+    #     "Llegenda_dominancia": {
+    #         "titol": "Diferència entre usos",
+    #         "position": (2.50, 252)
+    #     },
+    #     "Llegenda_shannon": {
+    #         "titol": "Índex de Shannon normalitzat",
+    #         "position": (70, 252)
+    #     },
+    #     "Llegenda_bivariant": {
+    #         #"titol": "Índex bivariant",
+    #         "position": (161, 262)
+    #     },
+    #     "Eix_dominancia_llegenda": {
+    #         "position": (161, 252),
+    #         "size": (50, 10),
+    #         "alineacio": "left",
+    #         "rotacio": 0
+    #     },
+    #     "Eix_diversitat_llegenda": {
+    #         "position": (144, 292),
+    #         "size": (50, 10),
+    #         "alineacio": "left",
+    #         "rotacio": -90
+    #     },
+    #     "Labels_superiors_llegenda": {
+    #         "position": (164, 257),
+    #         "size": (26, 6)
+    #     },
+    #     "Labels_laterals_llegenda": {
+    #         "position": (151, 266),
+    #         "size": (6, 26)
+    #     },
+    # },
+
+    # "ESTRUCTURA_BIVARIANT": {
+    #     "Districtes": {
+    #         "Mapa": {
+    #             "factor_escala": 0.75,
+    #             "size": (280, 190),
+    #             "position": (10, 20),
+    #             "rotacio": 45,
+    #             "offset_x": 3000,
+    #             "offset_y": 300
+    #         },
+    #         "Capçalera": {
+    #             "text_size": (280, 5),
+    #             "text_position": (10, 10),
+    #             "backg_size": (280, 2),
+    #             "backg_position": (10, 20)
+    #         },
+    #         "Llegenda": {
+    #             "position": (238, 143)
+    #         },
+    #         "Eix_dominancia_llegenda": {
+    #             "position": (238, 131),
+    #             "size": (50, 10),
+    #             "alineacio": "left",
+    #             "rotacio": 0
+    #         },
+    #         "Eix_diversitat_llegenda": {
+    #             "position": (221, 175),
+    #             "size": (50, 10),
+    #             "alineacio": "left",
+    #             "rotacio": -90
+    #         },
+    #         "Labels_superiors_llegenda": {
+    #             "position": (240, 137),
+    #             "size": (26, 6)
+    #         },
+    #         "Labels_laterals_llegenda": {
+    #             "position": (228, 145),
+    #             "size": (6, 26)
+    #         },
+    #         "Escala": {
+    #             "position": (221, 180),
+    #         },
+    #         "Nord": {
+    #             "size": (10, 10),
+    #             "position": (221, 192)
+    #         }
+    #     },
+    #     "Barris": {
+    #         "Mapa": {
+    #             "factor_escala": 0.75,
+    #             "size": (280, 190),
+    #             "position": (10, 20),
+    #             "rotacio": 45,
+    #             "offset_x": 3000,
+    #             "offset_y": 300
+    #         },
+    #         "Capçalera": {
+    #             "text_size": (280, 5),
+    #             "text_position": (10, 10),
+    #             "backg_size": (280, 2),
+    #             "backg_position": (10, 20)
+    #         },
+    #         "Llegenda": {
+    #             "position": (238, 143)
+    #         },
+    #         "Eix_dominancia_llegenda": {
+    #             "position": (238, 131),
+    #             "size": (50, 10),
+    #             "alineacio": "left",
+    #             "rotacio": 0
+    #         },
+    #         "Eix_diversitat_llegenda": {
+    #             "position": (221, 175),
+    #             "size": (50, 10),
+    #             "alineacio": "left",
+    #             "rotacio": -90
+    #         },
+    #         "Labels_superiors_llegenda": {
+    #             "position": (240, 137),
+    #             "size": (26, 6)
+    #         },
+    #         "Labels_laterals_llegenda": {
+    #             "position": (228, 145),
+    #             "size": (6, 26)
+    #         },
+    #         "Escala": {
+    #             "position": (221, 180),
+    #         },
+    #         "Nord": {
+    #             "size": (10, 10),
+    #             "position": (221, 192)
+    #         }
+    #     },
+    #     "Hexagons": {
+    #         "Mapa": {
+    #             "factor_escala": 0.75,
+    #             "size": (280, 190),
+    #             "position": (10, 20),
+    #             "rotacio": 45,
+    #             "offset_x": 3000,
+    #             "offset_y": 300
+    #         },
+    #         "Text_titol": {
+    #             "size": (280, 5),
+    #             "position": (10, 7.5)
+    #         },
+    #         "Subtitol": {
+    #             "text_size": (280, 5),
+    #             "text_position": (10, 17.5),
+    #             "backg_size": (280, 2),
+    #             "backg_position": (10, 27.5)
+    #         },
+    #         "Llegenda": {
+    #             "position": (243, 132)
+    #         },
+    #         "Eix_accessibilitat_llegenda": {
+    #             "position": (243, 120),
+    #             "size": (50, 10),
+    #             "alineacio": "left",
+    #             "rotacio": 0
+    #         },
+    #         "Eix_diversitat_llegenda": {
+    #             "position": (226, 164),
+    #             "size": (50, 10),
+    #             "alineacio": "left",
+    #             "rotacio": -90
+    #         },
+    #         "Labels_superiors_llegenda": {
+    #             "position": (245, 126),
+    #             "size": (26, 6)
+    #         },
+    #         "Labels_laterals_llegenda": {
+    #             "position": (233, 134),
+    #             "size": (6, 26)
+    #         },
+    #         "Llegenda_no_valids": {
+    #             "position": (226, 166)
+    #         },
+    #         "Escala": {
+    #             "position": (226, 185),
+    #         },
+    #         "Nord": {
+    #             "size": (10, 10),
+    #             "position": (226, 197)
+    #         }
+    #     }
+    # },
 
     # "ESTRUCTURA_HEXAGONS": {
     #     "Mapa": {
@@ -1596,52 +1593,51 @@ LAYOUTS = {
             }
         },
         "RELATIVA": {
-            # "Mapa": {
-            #     "color_fons": (60,60,60,255)
-            # },
-            "Titol": {
-                "titol": "Antiguitat del parc d'edificis industrials respecte la resta d'usos",
-                "font": "Calibri",
-                "font_size": 18,
-                "font_color": (0,0,0,255),
-                "alineacio": "left",
-                "backg_color": (0, 0, 0, 0),
-                "frame_color": (0, 0, 0, 0)
-            },
-            "Subtitol": {
-                "subtitol": "subtitol??",
-                "font": "Calibri",
-                "font_size": 14,
-                "font_color": (0,0,0,255),
-                "alineacio": "left",
-                "backg_color": (0, 0, 0, 0),
-                "frame_color": (0, 0, 0, 0)
-            },
-            "Llegenda": {
-                "titol": "Antiguitat relativa",
-                "font": "Calibri",
-                "font_size": 10,
-                "font_color": (0,0,0,255), 
-                "backg_color": (100,100,100,180)
-            },
-            "Escala": {
-                "tipus": "Single Box",
-                "font": "Calibri",
-                "font_size": 10,
-                "font_color": (0,0,0,255)
-            },
-            "Nord": {
-                "image_path": "C:/projectes_git/Dades/nord2.png"
-            },
-            "Peu": {
-                "text": "Font: Cadastre, ICGC (CC-BY 4.0), OpenStreetMap contributors (ODbL) · Elaboració pròpia",
-                "font": "Calibri",
-                "font_size": 10,
-                "font_color": (0,0,0,255)
-            },
-            "Exportacio": {
-                "output_path": f"{PATH_RESULTATS}/antiguitat_relativa.pdf",
-                "dpi": 600
+            "Clusters":{
+                "Titol": {
+                    "titol": "Antiguitat del parc d'edificis industrials respecte la resta d'usos",
+                    "font": "Calibri",
+                    "font_size": 18,
+                    "font_color": (0,0,0,255),
+                    "alineacio": "left",
+                    "backg_color": (0, 0, 0, 0),
+                    "frame_color": (0, 0, 0, 0)
+                },
+                "Subtitol": {
+                    "subtitol": "Antiguitat relativa de les zones amb major presència industrial de Barcelona",
+                    "font": "Calibri",
+                    "font_size": 14,
+                    "font_color": (0,0,0,255),
+                    "alineacio": "left",
+                    "backg_color": (0, 0, 0, 0),
+                    "frame_color": (0, 0, 0, 0)
+                },
+                "Llegenda": {
+                    "titol": "Antiguitat relativa",
+                    "font": "Calibri",
+                    "font_size": 10,
+                    "font_color": (0,0,0,255), 
+                    "backg_color": (100,100,100,180)
+                },
+                "Escala": {
+                    "tipus": "Single Box",
+                    "font": "Calibri",
+                    "font_size": 10,
+                    "font_color": (0,0,0,255)
+                },
+                "Nord": {
+                    "image_path": "C:/projectes_git/Dades/nord2.png"
+                },
+                "Peu": {
+                    "text": "Font: Cadastre, ICGC (CC-BY 4.0), OpenStreetMap contributors (ODbL) · Elaboració pròpia",
+                    "font": "Calibri",
+                    "font_size": 10,
+                    "font_color": (0,0,0,255)
+                },
+                "Exportacio": {
+                    "output_path": f"{PATH_RESULTATS}/antiguitat_relativa.pdf",
+                    "dpi": 600
+                }
             }
         }
     },
@@ -1649,57 +1645,55 @@ LAYOUTS = {
 
 
 
-    "ACCESSIBILITAT":{
-        "Mapa": {
-            "color_fons": (60,60,60,255)
-        },
-        "Titol": {
-            "titol": "Accessibilitat als principals nuclis industrials de Barcelona",
-            "font": "Calibri",
-            "font_size": 18,
-            "font_color": (255,255,255,255),
-            "alineacio": "left",
-            "backg_color": (0, 0, 0, 0),
-            "frame_color": (0, 0, 0, 0)
-        },
-        "Subtitol": {
-            "subtitol": "Accessibilitat calculada sobre la xarxa viària (accés rodat); no inclou transport públic ni desplaçaments a peu",
-            "font": "Calibri",
-            "font_size": 14,
-            "font_color": (255,255,255,255),
-            "alineacio": "left",
-            "backg_color": (0, 0, 0, 0),
-            "frame_color": (0, 0, 0, 0)
-        },
-        "Llegenda": {
-            "titol": "Distància mínima (metres)",
-            "font": "Calibri",
-            "font_size": 10,
-            "font_color": (255,255,255,255), 
-            "backg_color": (100,100,100,180)
-        },
-        "Escala": {
-            "tipus": "Single Box",
-            "font": "Calibri",
-            "font_size": 10,
-            "font_color": (255,255,255,255)
-        },
-        "Nord": {
-            "image_path": "C:/projectes_git/Dades/nord2.png"
-        },
-        "Peu": {
-            "text": "Font: Cadastre, ICGC (CC-BY 4.0), OpenStreetMap contributors (ODbL) · Elaboració pròpia",
-            "font": "Calibri",
-            "font_size": 10,
-            "font_color": (255,255,255,255)
-        },
-        "Exportacio": {
-            "output_path": f"{PATH_RESULTATS}/Accessibilitat.pdf",
-            "dpi": 600
-        }
-    },
-
-
+    # "ACCESSIBILITAT":{
+    #     "Mapa": {
+    #         "color_fons": (60,60,60,255)
+    #     },
+    #     "Titol": {
+    #         "titol": "Accessibilitat als principals nuclis industrials de Barcelona",
+    #         "font": "Calibri",
+    #         "font_size": 18,
+    #         "font_color": (255,255,255,255),
+    #         "alineacio": "left",
+    #         "backg_color": (0, 0, 0, 0),
+    #         "frame_color": (0, 0, 0, 0)
+    #     },
+    #     "Subtitol": {
+    #         "subtitol": "Accessibilitat calculada sobre la xarxa viària (accés rodat); no inclou transport públic ni desplaçaments a peu",
+    #         "font": "Calibri",
+    #         "font_size": 14,
+    #         "font_color": (255,255,255,255),
+    #         "alineacio": "left",
+    #         "backg_color": (0, 0, 0, 0),
+    #         "frame_color": (0, 0, 0, 0)
+    #     },
+    #     "Llegenda": {
+    #         "titol": "Distància mínima (metres)",
+    #         "font": "Calibri",
+    #         "font_size": 10,
+    #         "font_color": (255,255,255,255), 
+    #         "backg_color": (100,100,100,180)
+    #     },
+    #     "Escala": {
+    #         "tipus": "Single Box",
+    #         "font": "Calibri",
+    #         "font_size": 10,
+    #         "font_color": (255,255,255,255)
+    #     },
+    #     "Nord": {
+    #         "image_path": "C:/projectes_git/Dades/nord2.png"
+    #     },
+    #     "Peu": {
+    #         "text": "Font: Cadastre, ICGC (CC-BY 4.0), OpenStreetMap contributors (ODbL) · Elaboració pròpia",
+    #         "font": "Calibri",
+    #         "font_size": 10,
+    #         "font_color": (255,255,255,255)
+    #     },
+    #     "Exportacio": {
+    #         "output_path": f"{PATH_RESULTATS}/Accessibilitat.pdf",
+    #         "dpi": 600
+    #     }
+    # },
 
     # "ANALISI":{
     #     "Titol": {
@@ -2085,7 +2079,8 @@ LAYOUTS = {
                 "dpi": 500
             }
         }
-    },
+    }
+}
 
     # "HEXAGONS": {
     #     "Text_titol": {
@@ -2157,5 +2152,4 @@ LAYOUTS = {
     #         "output_path": f"{PATH_RESULTATS}/Analisi_bivariant_hexagons.pdf",
     #         "dpi": 300
     #     }
-    # },
-}
+    # }

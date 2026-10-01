@@ -218,18 +218,18 @@ def simbologia_temporal_barris(barris):
     return layers_temporal
 
 
-def simbologia_temporal_edificis(edificis):
+def simbologia_temporal_edificis(edificis_industrials, edificis_no_industrials):
     """
     """
     layers_temporal = {}
 
     layers_temporal["Edificis_categoritzats"] = simbologia_temporal.simbologia_temporal_antiguitat_relativa_edificis(
-        edificis=edificis,
+        edificis=edificis_industrials,
         breaks=config.BREAKS_ANTIGUITAT_RELATIVA_EDIFICIS
     )
 
     layers_temporal["Edificis_neutres"] = simbologia_temporal.simbologia_temporal_edificis_neutres(
-        edificis=edificis
+        edificis=edificis_no_industrials
     )
 
     return layers_temporal

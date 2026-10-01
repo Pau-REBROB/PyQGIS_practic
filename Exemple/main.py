@@ -685,22 +685,36 @@ clusters_seleccionats = clusters.filtrar_capa(
 )
 
 # Identificació dels clústers
-dict_clusters_industrials = {
-    10: "Poblenou", 
-    26: "Zona Franca", 
-    13: "Sant Andreu", 
-    14: "Sant Martí"
-}
+clusters_industrials = ["Sant Andreu","Sant Martí","Poblenou","Zona Franca"]
+
+dict_clusters_industrials = clusters.identificar_clusters_per_mida(
+    clusters=resultat_clusters_industrials["3_industrial"]["zones"],
+    noms_ordenats=clusters_industrials
+)
 
 # zones_clusters_seleccionats = clusters.envolvent_clusters(
 #     layer=clusters_seleccionats
 # )
 
+
+
+# Extent ajustat manualment per cobrir tota l'àrea de Sant Martí, fragmentada en 3 clústers DBSCAN
+coordenades_clusters = {
+    "Sant Martí": (430453.5797, 4581873.7943, 434732.6889, 4585961.1227),
+    "Zona Franca": (424808.0322, 4574897.7675, 427127.3813, 4577043.3153),
+    "Sant Andreu": (431328.5796, 4585673.4515, 434624.8122, 4588861.8073)
+}
+
 # Extensió de cada clúster i uniformització en una única extensió
-extents_clusters = layout_common.calcular_extents_per_cluster(
-    zones=resultat_clusters_industrials,
-    dict_clusters=dict_clusters_industrials
+extents_clusters = layout_common.extents_manuals_a_dict(
+    coordenades=coordenades_clusters
 )
+
+extents_clusters_uniformes = layout_common.uniformitzar_extents(
+    extents_dict=extents_clusters
+)
+
+
 
 ##########################################3
 # ------------------------------------------------------------------------------
@@ -962,8 +976,12 @@ layers_simbologia_antiguitat_relativa_barris = simbologia_general.simbologia_tem
 )
 
 layers_simbologia_antiguitat_relativa_edificis = simbologia_general.simbologia_temporal_edificis(
-    edificis=edificis_diferencia_mediana
+    edificis_industrials=edificis_diferencia_mediana,
+    edificis_no_industrials=edificis_no_industrial_net
 )
+
+
+
 
 ########################################
 # ------------------------------------------------------------------------------
@@ -976,10 +994,6 @@ layers_simbologia_accessibilitat_clusters = simbologia_general.simbologia_access
     capa_terme=terme_base,
     capa_graf=dict_layers_clean["Graf"]["Graf_osm"]
 )
-
-
-
-#------------------------
 
 # ------------------------------------------------------------------------------
 # 6.3. Especialització funcional - Dominància / Diversitat funcional
@@ -1137,9 +1151,12 @@ layout_temporal.composicio_antiguitat_parc_edificis(
 # 7.7. Composició antiguitat relativa parc industrial
 # ------------------------------------------------------------------------------
 
-layout_temporal.composicio_antiguitat_relativa(
-    capes=layers_simbologia_antiguitat_relativa_barris,
-    capa_extent=layers_simbologia_base["TermeMunicipal"]
+layout_temporal.composicio_antiguitat_relativa_clusters(
+    capes=layers_simbologia_antiguitat_relativa_edificis,
+    capa_barris=layers_simbologia_base["Barris"],
+    extensions=extents_clusters_uniformes,
+    capa_general_barris=layers_simbologia_antiguitat_relativa_barris,
+    capa_terme=layers_simbologia_base["TermeMunicipal"]
 )
 
 
