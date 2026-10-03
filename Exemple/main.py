@@ -92,9 +92,9 @@ import analisi.hexagons as hexagons
 import simbologia.simbologies as simbologies
 import simbologia.simbologia_agregacions as simbologia_agregacions
 import simbologia.simbologia_temporal as simbologia_temporal
-import simbologia.simbologia_especialitzacio as simbologia_especialitzacio
-import simbologia.simbologia_hexagons as simbologia_hexagons
-import simbologia.simbologia_accessibilitat as simbologia_accessibilitat
+#import simbologia.simbologia_especialitzacio as simbologia_especialitzacio
+#import simbologia.simbologia_hexagons as simbologia_hexagons
+#import simbologia.simbologia_accessibilitat as simbologia_accessibilitat
 import simbologia.simbologia_general as simbologia_general
 import layouts.layout_common as layout_common
 import layouts.layout_general as layout_general
@@ -102,11 +102,11 @@ import layouts.layout_atles as layout_atles
 import layouts.layout_comparacio_agregacions as layout_comparacio_agregacions
 import layouts.layout_maup as layout_maup
 import layouts.layout_temporal as layout_temporal
-import layouts.layout_analisi as layout_analisi
-import layouts.layout_clusters as layout_clusters
-import layouts.layout_especialitzacio as layout_especialitzacio
-import layouts.layout_bivariant_zones as layout_bivariant_zones
-import layouts.layout_accessibilitat as layout_accessibilitat 
+#import layouts.layout_analisi as layout_analisi
+#import layouts.layout_clusters as layout_clusters
+#import layouts.layout_especialitzacio as layout_especialitzacio
+#import layouts.layout_bivariant_zones as layout_bivariant_zones
+#import layouts.layout_accessibilitat as layout_accessibilitat 
 import layouts.fusionar_layouts as fusionar_layouts
 
 import config #Arxiu de configuració
@@ -122,10 +122,10 @@ _moduls = [
     config, inicialitzacio, importacio, preparacio_dades, temporal,
     agregacions, grafics, clusters, accessibilitat, especialitzacio,
     hexagons, simbologies, simbologia_agregacions, simbologia_temporal,
-    simbologia_especialitzacio, simbologia_hexagons, simbologia_accessibilitat,
+    #simbologia_especialitzacio, simbologia_hexagons, simbologia_accessibilitat,
     simbologia_general, layout_common, layout_general, layout_atles,
-    layout_comparacio_agregacions, layout_maup, layout_temporal, layout_analisi, layout_clusters,
-    layout_especialitzacio, layout_bivariant_zones, layout_accessibilitat, fusionar_layouts
+    layout_comparacio_agregacions, layout_maup, layout_temporal, 
+    #layout_analisi, layout_clusters,layout_especialitzacio, layout_bivariant_zones, layout_accessibilitat, fusionar_layouts
 ]
 
 for _modul in _moduls:
@@ -1161,23 +1161,19 @@ layout_temporal.composicio_antiguitat_relativa_clusters(
 
 
 
-# ------------------------------------------------------------------------------
-# 7.4. Composició d'accessibilitat
-# ------------------------------------------------------------------------------
+# # ------------------------------------------------------------------------------
+# # 7.4. Composició d'accessibilitat
+# # ------------------------------------------------------------------------------
 
-layout_accessibilitat.composicio_accessibilitat(
-    capes=[
-        layers_simbologia_accessibilitat_clusters["graf"],
-        layers_simbologia_accessibilitat_clusters["edificis"],
-        layers_simbologia_accessibilitat_clusters["clusters"],
-        layers_simbologia_accessibilitat_clusters["terme"]
-    ],
-    capa_extent=terme_base
-)
-
-
-
-
+# layout_accessibilitat.composicio_accessibilitat(
+#     capes=[
+#         layers_simbologia_accessibilitat_clusters["graf"],
+#         layers_simbologia_accessibilitat_clusters["edificis"],
+#         layers_simbologia_accessibilitat_clusters["clusters"],
+#         layers_simbologia_accessibilitat_clusters["terme"]
+#     ],
+#     capa_extent=terme_base
+# )
 
 # # ------------------------------------------------------------------------------
 # # 7.3. Composició anàlisi agrupacions espacials serveis públics

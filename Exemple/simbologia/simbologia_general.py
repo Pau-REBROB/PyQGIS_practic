@@ -10,9 +10,9 @@ import config
 import simbologia.simbologies as simbologies
 import simbologia.simbologia_agregacions as simbologia_agregacions
 import simbologia.simbologia_temporal as simbologia_temporal
-import simbologia.simbologia_especialitzacio as simbologia_especialitzacio
-import simbologia.simbologia_hexagons as simbologia_hexagons
-import simbologia.simbologia_accessibilitat as simbologia_accessibilitat 
+#import simbologia.simbologia_especialitzacio as simbologia_especialitzacio
+#import simbologia.simbologia_hexagons as simbologia_hexagons
+#import simbologia.simbologia_accessibilitat as simbologia_accessibilitat 
 
 # ==============================================================================
 # CAPES BASE
@@ -235,204 +235,201 @@ def simbologia_temporal_edificis(edificis_industrials, edificis_no_industrials):
     return layers_temporal
 
 
-# ==============================================================================
-# AGRUPACIONS ESPACIALS i ACCESSIBILITAT
-# ==============================================================================
+# # ==============================================================================
+# # AGRUPACIONS ESPACIALS i ACCESSIBILITAT
+# # ==============================================================================
 
-def simbologia_accessibilitat_clusters(capa_clusters, capa_edificis, capa_terme, capa_graf):
-    """
-    Aplica la simbologia als centroides dels clústers espacials.
+# def simbologia_accessibilitat_clusters(capa_clusters, capa_edificis, capa_terme, capa_graf):
+#     """
+#     Aplica la simbologia als centroides dels clústers espacials.
 
-    Cada agrupació espacial es representa amb el color associat al seu ús.
+#     Cada agrupació espacial es representa amb el color associat al seu ús.
 
-    Paràmetres
-    ----------
-    resultats: dict
-        Diccionari retornat per `analisi_clusters()`, amb l'estructura:
-        {
-            us: {
-                "clusters": QgsVectorLayer,
-                "zones": QgsVectorLayer,
-                "resum": dict
-            },
-            ...
-        }
+#     Paràmetres
+#     ----------
+#     resultats: dict
+#         Diccionari retornat per `analisi_clusters()`, amb l'estructura:
+#         {
+#             us: {
+#                 "clusters": QgsVectorLayer,
+#                 "zones": QgsVectorLayer,
+#                 "resum": dict
+#             },
+#             ...
+#         }
     
-    Retorna
-    -------
-    dict
-        Diccionari amb les capes simbolitzades, amb l'estructura:
-        {
-            us: QgsVectorLayer,
-            ...
-        }
-    """
+#     Retorna
+#     -------
+#     dict
+#         Diccionari amb les capes simbolitzades, amb l'estructura:
+#         {
+#             us: QgsVectorLayer,
+#             ...
+#         }
+#     """
 
-    layers_accessibilitat = {}
+#     layers_accessibilitat = {}
 
-    layers_accessibilitat["clusters"] = simbologia_accessibilitat.simbologia_clusters(
-        clusters=capa_clusters
-    )
+#     layers_accessibilitat["clusters"] = simbologia_accessibilitat.simbologia_clusters(
+#         clusters=capa_clusters
+#     )
 
-    layers_accessibilitat["edificis"] = simbologia_accessibilitat.simbologia_edificis(
-        edificis=capa_edificis
-    )
+#     layers_accessibilitat["edificis"] = simbologia_accessibilitat.simbologia_edificis(
+#         edificis=capa_edificis
+#     )
 
-    layers_accessibilitat["terme"] = simbologia_accessibilitat.simbologia_terme_municipal(
-        terme=capa_terme
-    )
+#     layers_accessibilitat["terme"] = simbologia_accessibilitat.simbologia_terme_municipal(
+#         terme=capa_terme
+#     )
 
-    layers_accessibilitat["graf"] = simbologia_accessibilitat.simbologia_graf(
-        graf=capa_graf
-    ) 
+#     layers_accessibilitat["graf"] = simbologia_accessibilitat.simbologia_graf(
+#         graf=capa_graf
+#     ) 
     
-    return layers_accessibilitat
+#     return layers_accessibilitat
 
 
+# # ==============================================================================
+# # ESPECIALITZACIÓ FUNCIONAL 
+# # ==============================================================================
 
+# def simbologia_especialitzacio_funcional(zones, ua):
+#     """
+#     Aplica les diferents simbologies d'especialització
+#     a la capa de districtes.
 
-
-
-# ==============================================================================
-# ESPECIALITZACIÓ FUNCIONAL 
-# ==============================================================================
-
-def simbologia_especialitzacio_funcional(zones, ua):
-    """
-    Aplica les diferents simbologies d'especialització
-    a la capa de districtes.
-
-    Paràmetres
-    ----------
-    zones: QgsVectorLayer
-        Capa vectorial de les unitats administratives.
-    ua: str
-        Nom de la unitat administrativa.
+#     Paràmetres
+#     ----------
+#     zones: QgsVectorLayer
+#         Capa vectorial de les unitats administratives.
+#     ua: str
+#         Nom de la unitat administrativa.
     
-    Retorna
-    -------
-    dict
-        Diccionari amb les capes simbolitzades, amb l'estructura:
-        {
-            "us_predominant": QgsVectorLayer,
-            "dominancia": QgsVectorLayer,
-            "index_shannon": QgsVectorLayer,
-            "bivariant: QgsVectorLayer
-        }
-    """
+#     Retorna
+#     -------
+#     dict
+#         Diccionari amb les capes simbolitzades, amb l'estructura:
+#         {
+#             "us_predominant": QgsVectorLayer,
+#             "dominancia": QgsVectorLayer,
+#             "index_shannon": QgsVectorLayer,
+#             "bivariant: QgsVectorLayer
+#         }
+#     """
 
-    layers_especialitzacio = {}
+#     layers_especialitzacio = {}
 
-    zona_us_pred = simbologia_especialitzacio.simbologia_us_predominant(
-        zones=zones,
-        ua=ua
-    )
-    layers_especialitzacio["us_predominant"] = zona_us_pred
+#     zona_us_pred = simbologia_especialitzacio.simbologia_us_predominant(
+#         zones=zones,
+#         ua=ua
+#     )
+#     layers_especialitzacio["us_predominant"] = zona_us_pred
 
-    zona_domin = simbologia_especialitzacio.simbologia_dominancia(
-        zones=zones,
-        ua=ua
-    )
-    layers_especialitzacio["dominancia"] = zona_domin
+#     zona_domin = simbologia_especialitzacio.simbologia_dominancia(
+#         zones=zones,
+#         ua=ua
+#     )
+#     layers_especialitzacio["dominancia"] = zona_domin
 
-    zona_shan = simbologia_especialitzacio.simbologia_shannon(
-        zones=zones,
-        ua=ua
-    )
+#     zona_shan = simbologia_especialitzacio.simbologia_shannon(
+#         zones=zones,
+#         ua=ua
+#     )
 
-    layers_especialitzacio["index_shannon"] = zona_shan
+#     layers_especialitzacio["index_shannon"] = zona_shan
 
-    zona_bivariant = simbologia_especialitzacio.simbologia_bivariant(
-        zones=zones,
-        ua=ua
-    )
-    layers_especialitzacio["bivariant"] = zona_bivariant
+#     zona_bivariant = simbologia_especialitzacio.simbologia_bivariant(
+#         zones=zones,
+#         ua=ua
+#     )
+#     layers_especialitzacio["bivariant"] = zona_bivariant
     
-    return layers_especialitzacio
+#     return layers_especialitzacio
 
 
-def simbologia_hexagons_especialitzacio_funcional(hexagons, terme):
-    """
-    Aplica les diferents simbologies d'especialització
-    a la malla hexagonal amb els atributs d'especialització funcional.
+# def simbologia_hexagons_especialitzacio_funcional(hexagons, terme):
+#     """
+#     Aplica les diferents simbologies d'especialització
+#     a la malla hexagonal amb els atributs d'especialització funcional.
 
-    Paràmetres
-    ----------
-    hexagons: QgsVectorLayer
-        Capa vectorial de districtes.
+#     Paràmetres
+#     ----------
+#     hexagons: QgsVectorLayer
+#         Capa vectorial de districtes.
     
-    Retorna
-    -------
-    dict
-        Diccionari amb les capes simbolitzades, amb l'estructura:
-        {
-            "us_predominant": QgsVectorLayer,
-            "dominancia": QgsVectorLayer,
-            "index_shannon": QgsVectorLayer,
-            "bivariant: QgsVectorLayer
-        }
-    """
+#     Retorna
+#     -------
+#     dict
+#         Diccionari amb les capes simbolitzades, amb l'estructura:
+#         {
+#             "us_predominant": QgsVectorLayer,
+#             "dominancia": QgsVectorLayer,
+#             "index_shannon": QgsVectorLayer,
+#             "bivariant: QgsVectorLayer
+#         }
+#     """
 
-    layers_hexagons = {
-        "hexagons": {
-            "dominancia": simbologia_hexagons.simbologia_dominancia(hexagons),
-            "shannon": simbologia_hexagons.simbologia_shannon(hexagons),
-            "bivariant": simbologia_hexagons.simbologia_bivariant(hexagons),
-        },
-        "terme_municipal": simbologia_hexagons.simbologia_terme_municipal(terme) 
-    }
+#     layers_hexagons = {
+#         "hexagons": {
+#             "dominancia": simbologia_hexagons.simbologia_dominancia(hexagons),
+#             "shannon": simbologia_hexagons.simbologia_shannon(hexagons),
+#             "bivariant": simbologia_hexagons.simbologia_bivariant(hexagons),
+#         },
+#         "terme_municipal": simbologia_hexagons.simbologia_terme_municipal(terme) 
+#     }
     
-    return layers_hexagons
+#     return layers_hexagons
 
 
-# ==============================================================================
-# ACCESSIBILITAT
-# ==============================================================================
+# # ==============================================================================
+# # ACCESSIBILITAT
+# # ==============================================================================
 
-def simbologia_composicio_accessibilitat(edificis, graf, clusters, terme):
-    """
-    Aplica les diferents simbologies d'accessibilitat a la
-    capa d'edificis i del graf viari.
+# def simbologia_composicio_accessibilitat(edificis, graf, clusters, terme):
+#     """
+#     Aplica les diferents simbologies d'accessibilitat a la
+#     capa d'edificis i del graf viari.
 
-    Paràmetres
-    ----------
-    edificis: QgsVectorLayer
-        Capa vectorial dels edificis amb el camp d'accessibilitat.
-    graf: QgsVectorLayer
-        Capa vectorial del graf viari.
-    clusters: QgsVectorLayer
-        Capa vectorial de les zones dels clústers comercials.
-    terme: QgsVectorLayer
-        Capa vectorial del terme municipal.
+#     Paràmetres
+#     ----------
+#     edificis: QgsVectorLayer
+#         Capa vectorial dels edificis amb el camp d'accessibilitat.
+#     graf: QgsVectorLayer
+#         Capa vectorial del graf viari.
+#     clusters: QgsVectorLayer
+#         Capa vectorial de les zones dels clústers comercials.
+#     terme: QgsVectorLayer
+#         Capa vectorial del terme municipal.
 
-    Retorna
-    -------
-    dict
-        Diccionari amb les capes simbolitzades, amb l'estructura:
-        {
-            "accessibilitat": QgsVectorLayer,
-            "graf": QgsVectorLayer,
-            "clusters": QgsVectorLayer,
-            "terme": QgsVectorLayer
-        }
-    """
+#     Retorna
+#     -------
+#     dict
+#         Diccionari amb les capes simbolitzades, amb l'estructura:
+#         {
+#             "accessibilitat": QgsVectorLayer,
+#             "graf": QgsVectorLayer,
+#             "clusters": QgsVectorLayer,
+#             "terme": QgsVectorLayer
+#         }
+#     """
 
-    layers_access = {}
+#     layers_access = {}
  
-    layers_access["accessibilitat"] = simbologia_accessibilitat.simbologia_edificis(
-        edificis=edificis
-    )
+#     layers_access["accessibilitat"] = simbologia_accessibilitat.simbologia_edificis(
+#         edificis=edificis
+#     )
 
-    layers_access["graf"] = simbologia_accessibilitat.simbologia_graf(
-        graf=graf
-    )
+#     layers_access["graf"] = simbologia_accessibilitat.simbologia_graf(
+#         graf=graf
+#     )
 
-    layers_access["clusters"] = simbologia_accessibilitat.simbologia_clusters(
-        clusters=clusters
-    )
+#     layers_access["clusters"] = simbologia_accessibilitat.simbologia_clusters(
+#         clusters=clusters
+#     )
 
-    layers_access["terme"] = simbologia_accessibilitat.simbologia_terme_municipal(
-        terme=terme
-    )
+#     layers_access["terme"] = simbologia_accessibilitat.simbologia_terme_municipal(
+#         terme=terme
+#     )
 
-    return layers_access 
+#     return layers_access 
+

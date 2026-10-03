@@ -1,5 +1,6 @@
 """
 """
+from qgis.core import QgsFeatureRequest
 
 import layouts.layout_common as layout_common
 
@@ -193,12 +194,35 @@ def composicio_antiguitat_relativa_clusters(capes, capa_barris, extensions, capa
     # MAPES
     # ------------------------------------------------------------------
 
+    mapa_general = layout_common.afegir_mapa(
+        layout=layout,
+        capes=list(capa_general_barris.values()),
+        capa_extent=capa_terme,
+        **cfg_estructura["Mapa_general"]
+    )
+
+    #capa_barris_transparent = capa_general_barris["Barris_categoritzats"].materialize(QgsFeatureRequest())
+    #capa_barris_transparent.renderer().symbol().setOpacity(0)
+
     mapa_zonaFranca = layout_common.afegir_mapa(
         layout=layout,
         capes=[capa_barris] + list(capes.values()),
         capa_extent=extensions["Zona Franca"],
         **cfg_estructura["Mapa_zonaFranca"]
     )
+
+    capa_barris_transparent_zonaFranca = capa_general_barris["Barris_categoritzats"].materialize(QgsFeatureRequest())
+    capa_barris_transparent_zonaFranca.setExtent(extensions["Zona Franca"])
+    capa_barris_transparent_zonaFranca.renderer().symbol().setOpacity(0)
+    locator_zonaFranca = layout_common.afegir_mapa_localitzador(
+        layout=layout,
+        capa_localitzador=capa_barris_transparent_zonaFranca,
+        capa_extensio=capa_terme,
+        mapa=mapa_zonaFranca,
+        size=(143.50, 78), 
+        position=(2.50, 50)
+    )
+    locator_zonaFranca.setBackgroundEnabled(False)
 
     mapa_santMarti = layout_common.afegir_mapa(
         layout=layout,
@@ -207,6 +231,19 @@ def composicio_antiguitat_relativa_clusters(capes, capa_barris, extensions, capa
         **cfg_estructura["Mapa_santMarti"]
     )
 
+    capa_barris_transparent_santMarti = capa_general_barris["Barris_categoritzats"].materialize(QgsFeatureRequest())
+    capa_barris_transparent_santMarti.setExtent(extensions["Sant Martí"])
+    capa_barris_transparent_santMarti.renderer().symbol().setOpacity(0)
+    locator_santMarti = layout_common.afegir_mapa_localitzador(
+        layout=layout,
+        capa_localitzador=capa_barris_transparent_santMarti,
+        capa_extensio=capa_terme,
+        mapa=mapa_santMarti,
+        size=(143.50, 78), 
+        position=(2.50, 50)
+    )
+    locator_santMarti.setBackgroundEnabled(False)
+
     mapa_santAndreu = layout_common.afegir_mapa(
         layout=layout,
         capes=[capa_barris] + list(capes.values()),
@@ -214,12 +251,18 @@ def composicio_antiguitat_relativa_clusters(capes, capa_barris, extensions, capa
         **cfg_estructura["Mapa_santAndreu"]
     )
 
-    mapa_general = layout_common.afegir_mapa(
+    capa_barris_transparent_santAndreu = capa_general_barris["Barris_categoritzats"].materialize(QgsFeatureRequest())
+    capa_barris_transparent_santAndreu.setExtent(extensions["Sant Martí"])
+    capa_barris_transparent_santAndreu.renderer().symbol().setOpacity(0)
+    locator_santAndreu = layout_common.afegir_mapa_localitzador(
         layout=layout,
-        capes=list(capa_general_barris.values()),
-        capa_extent=capa_terme,
-        **cfg_estructura["Mapa_general"]
+        capa_localitzador=capa_barris_transparent_santAndreu,
+        capa_extensio=capa_terme,
+        mapa=mapa_santAndreu,
+        size=(143.50, 78), 
+        position=(2.50, 50)
     )
+    locator_santAndreu.setBackgroundEnabled(False)
 
     # ------------------------------------------------------------------
     # TÍTOLS
@@ -248,24 +291,6 @@ def composicio_antiguitat_relativa_clusters(capes, capa_barris, extensions, capa
         **cfg_layout["Llegenda"],
         **cfg_estructura["Llegenda"]
     )
-
-    # # ------------------------------------------------------------------
-    # # ESCALA I NORD
-    # # ------------------------------------------------------------------
-
-    # layout_common.afegir_escala(
-    #     layout=layout,
-    #     mapa=mapa_,
-    #     **cfg_layout["Escala"],
-    #     **cfg_estructura["Escala"]
-    # )
-
-    # layout_common.afegir_nord(
-    #     layout=layout,
-    #     mapa=mapa,
-    #     **cfg_layout["Nord"],
-    #     **cfg_estructura["Nord"]
-    # )
 
     # ------------------------------------------------------------------
     # EXPORTACIÓ

@@ -45,63 +45,6 @@ import config
 import layouts.layout_common as layout_common
 import layouts.fusionar_layouts as fusionar_layouts
 
-def afegir_mapa_localitzador(layout, capa_localitzador, capa_extensio, mapa, size, position):
-    """
-    Afegeix un mapa localitzador a la composició de l'atles.
-
-    El mapa localitzador mostra una vista general del municipi i 
-    ressalta, mitjançant un "overview", l'extensió que representa 
-    el mapa principal de cada pàgina de l'atles.
-
-    Paràmetres
-    ----------
-    layout: QgsPrintLayout
-        Composició sobre la qual s'afegeix el mapa localitzador.
-    capa_localitzador: QgsVectorLayer
-        Capa utilitzada per a representar el mapa localitzador.
-    capa_extensio: QgsVectorLayer
-        Capa utilitzada per a definir l'extensió fixa del mapa localitzador.
-    mapa: QgsLayoutItemMap
-        Mapa principal de la composició, que servirà de referència per a
-        generar l'overview.
-    size: tuple[int,int]
-        Amplada i alçada de la imatge, en mil·límetres.
-    position: tuple[int,int]
-        Coordenada X i Y de la imatge - cantonada superior esquerra - en mil·límetres.
-
-    Retorna
-    -------
-    QgsLayoutItemMap
-        Element de mapa corresponent al localitzador.
-    """
-
-    # Crear del mapa
-    locator = QgsLayoutItemMap(layout)
-    layout.addLayoutItem(locator)
-
-    # Afegir la capa que farà de localitzador
-    locator.setLayers([capa_localitzador])
-    locator.setKeepLayerSet(True)
-
-    locator.attemptResize(QgsLayoutSize(*size, QgsUnitTypes.LayoutMillimeters))
-    locator.attemptMove(QgsLayoutPoint(*position, QgsUnitTypes.LayoutMillimeters))
-
-    # Extensió fixa del mapa localitzador
-    locator.zoomToExtent(capa_extensio.extent())
-
-    # L'overview representa sobre el mapa localitzador
-    # l'extensió visible del mapa principal
-    overview = locator.overview()
-    overview.setLinkedMap(mapa)
-    overview.setEnabled(True)
-    
-    # Afegir un marc per diferenciar visualment el mapa localitzador
-    locator.setFrameEnabled(True)
-    locator.setFrameStrokeWidth(QgsLayoutMeasurement(0.5, QgsUnitTypes.LayoutMillimeters))
-
-
-    return locator
-
 
 def generar_atles(layout, capa_cobertura, camp, mapa):
     """
@@ -289,7 +232,7 @@ def composicio_atles(districtes, capes, capa_extent, capa_cobertura):
             **cfg_estructura["Mapa"]
         )
 
-        afegir_mapa_localitzador(
+        layout_common.afegir_mapa_localitzador(
             layout=layout,
             capa_localitzador=capa_cobertura,
             capa_extensio=capa_extent,

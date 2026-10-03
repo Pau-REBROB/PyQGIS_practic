@@ -216,6 +216,63 @@ def afegir_mapa(layout, capes, capa_extent, factor_escala, size, position, rotac
     return layout_map
 
 
+def afegir_mapa_localitzador(layout, capa_localitzador, capa_extensio, mapa, size, position):
+    """
+    Afegeix un mapa localitzador a la composició de l'atles.
+
+    El mapa localitzador mostra una vista general del municipi i 
+    ressalta, mitjançant un "overview", l'extensió que representa 
+    el mapa principal de cada pàgina de l'atles.
+
+    Paràmetres
+    ----------
+    layout: QgsPrintLayout
+        Composició sobre la qual s'afegeix el mapa localitzador.
+    capa_localitzador: QgsVectorLayer
+        Capa utilitzada per a representar el mapa localitzador.
+    capa_extensio: QgsVectorLayer
+        Capa utilitzada per a definir l'extensió fixa del mapa localitzador.
+    mapa: QgsLayoutItemMap
+        Mapa principal de la composició, que servirà de referència per a
+        generar l'overview.
+    size: tuple[int,int]
+        Amplada i alçada de la imatge, en mil·límetres.
+    position: tuple[int,int]
+        Coordenada X i Y de la imatge - cantonada superior esquerra - en mil·límetres.
+
+    Retorna
+    -------
+    QgsLayoutItemMap
+        Element de mapa corresponent al localitzador.
+    """
+
+    # Crear del mapa
+    locator = QgsLayoutItemMap(layout)
+    layout.addLayoutItem(locator)
+
+    # Afegir la capa que farà de localitzador
+    locator.setLayers([capa_localitzador])
+    locator.setKeepLayerSet(True)
+
+    locator.attemptResize(QgsLayoutSize(*size, QgsUnitTypes.LayoutMillimeters))
+    locator.attemptMove(QgsLayoutPoint(*position, QgsUnitTypes.LayoutMillimeters))
+
+    # Extensió fixa del mapa localitzador
+    locator.zoomToExtent(capa_extensio.extent())
+
+    # L'overview representa sobre el mapa localitzador
+    # l'extensió visible del mapa principal
+    overview = locator.overview()
+    overview.setLinkedMap(mapa)
+    overview.setEnabled(True)
+    
+    # Afegir un marc per diferenciar visualment el mapa localitzador
+    locator.setFrameEnabled(True)
+    locator.setFrameStrokeWidth(QgsLayoutMeasurement(0.5, QgsUnitTypes.LayoutMillimeters))
+
+    return locator
+
+
 def calcular_extent_ampliat(geometria, marge_percentual=0.3):
     """
     Calcula un extent ampliat al voltant d'una geometria, afegint-hi
@@ -689,7 +746,7 @@ def afegir_llegenda(layout, mapa, capes, titol, font, font_size, font_color, pos
     if size is not None:
         legend.setResizeToContents(False)
         legend.setSplitLayer(True)
-        legend.setColumnCount(3)
+        legend.setColumnCount(4)
         legend.attemptResize(QgsLayoutSize(*size, QgsUnitTypes.LayoutMillimeters))
     else:
         legend.setResizeToContents(True)

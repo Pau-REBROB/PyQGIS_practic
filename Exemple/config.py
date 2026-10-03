@@ -413,26 +413,26 @@ SIMBOLOGIA = {
             "Barris_categoritzats": {
                 "color_ramp": "RdBu",
                 "atribut": "diferencia_mediana_any_industria",
-                "stroke_color": (150,150,150,255),
+                "stroke_color": (100,100,100,255),
                 "stroke_width": 0.1,
                 "invert_ramp": False
             },
             "Barris_neutres": {
-                "fill_color": (240,240,240,255),
-                "outline_width": 0.1,
-                "stroke_color": (200,200,200,255)
+                "fill_color": (180,180,180,255),
+                "outline_width": 0.060,
+                "stroke_color": (100,100,100,255)
             },
             "Edificis_categoritzats": {
                 "color_ramp": "RdBu",
                 "atribut": "diferencia_any_barri",
-                "stroke_color": (150,150,150,255),
+                "stroke_color": (100,100,100,255),
                 "stroke_width": 0.1,
                 "invert_ramp": False
             },
             "Edificis_neutres": {
-                "fill_color": (220,220,220,255),
-                "outline_width": 0.1,
-                "stroke_color": (200,200,200,255)
+                "fill_color": (180,180,180,255),
+                "outline_width": 0.060,
+                "stroke_color": (100,100,100,255)
             }
         }
     },
@@ -925,34 +925,34 @@ LAYOUTS = {
             },
             "Clusters": {
                 "Mapa_zonaFranca": {
-                    "factor_escala": 0.90,
-                    "size": (143.50, 100), 
-                    "position": (2.50, 105),
+                    "factor_escala": 0.60,
+                    "size": (143.50, 78), 
+                    "position": (151, 129.50),
                     "rotacio": 45,
-                    "offset_x": 800,
+                    "offset_x": 1000,
                     "offset_y": -500
                 },
                 "Mapa_santMarti": {
                     "factor_escala": 0.60,
-                    "size": (143.50, 100), 
-                    "position": (151, 105),
+                    "size": (143.50, 78), 
+                    "position": (2.50, 129.50),
                     "rotacio": 45,
-                    "offset_x": 250,
-                    "offset_y": -600
+                    "offset_x": 100,
+                    "offset_y": -800
                 },
                 "Mapa_santAndreu": {
-                    "factor_escala": 0.70,
-                    "size": (143.50, 100), 
-                    "position": (151, 2.50),
+                    "factor_escala": 0.60,
+                    "size": (143.50, 78), 
+                    "position": (151, 50),
                     "rotacio": 45,
                     "offset_x": 0,
                     "offset_y": 0
                 },
                 "Mapa_general": {
-                    "factor_escala": 0.80,
-                    "size": (143.50, 100), 
-                    "position": (2.50, 2.50),
-                    "rotacio": 45,
+                    "factor_escala": 0.90,
+                    "size": (143.50, 78), 
+                    "position": (2.50, 50),
+                    "rotacio": 0,
                     "offset_x": 1000,
                     "offset_y": 500
                 },
@@ -965,8 +965,8 @@ LAYOUTS = {
                     "position": (2.50, 12)
                 },
                 "Llegenda": {
-                    "position": (2.50, 12),
-                    "size": (292, 30)
+                    "position": (2.50, 23),
+                    "size": (292, 25)
                 }
             }
         }
@@ -1617,7 +1617,7 @@ LAYOUTS = {
                     "font": "Calibri",
                     "font_size": 10,
                     "font_color": (0,0,0,255), 
-                    "backg_color": (100,100,100,180)
+                    "backg_color": (200,200,200,180)
                 },
                 "Escala": {
                     "tipus": "Single Box",
