@@ -1,0 +1,1 @@
+# Inicialització d'un projecte
