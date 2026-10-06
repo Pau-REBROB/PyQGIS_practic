@@ -17,20 +17,25 @@ from qgis.core import *
 import qgis.utils
 ```
 
+## Projectes
+En el cas que no es treballi directament a la consola Python de QGIS serà sempre necessari importar la classe `QgsProject` per poder gestionar el projecte actiu.
 
-# En el supòsit que no es treballi a la consola Python de QGIS
-from qgis.core import QgsProject
+`from qgis.core import QgsProject`
 
-# Sempre és necessari crear una instància de la classe `QgsProject`
-## Al ser una classe *singleton* - és a dir, d'instància única - cal utilitzar el mètode `.instance()`
-project = QgsProject.instance()
+Per manipular el projecte és necessari crear una instància de la classe `QgsProject`. Al ser una classe *singleton* - d'instància única - cal utilitzar el mètode `.instance()`
 
-# Si es vol importar un projecte existent a l'aplicatiu de QGIS en blanc, cal cridar-lo amb el mètode `.read()`
-project.read("Filepath_projecte/Nom_projecte.qgs")
-# Per desar els canvis en el projecte, s'utilitza el mètode `.write()`
-## Si no s'especifica cap ruta, el projecte es guardarà en el mateix directori sota el mateix nom
-## Si es fa passar una ruta diferent com a argument, el projecte es guardarà en un nou directori i/o amb un nom diferent  
-project.write()
+`project = QgsProject.instance()`
+
+A partir d'ara, s'assumirà que la classe `QgsProject` ha estat sempre cridada i s'ha creat una instància del projecte amb el nom *project*.
+
+Per importar un projecte existent de QGIS cal cridar-lo amb el mètode `.read()`.
+
+`project.read("project_filepath/project_name.qgs")`
+
+Per desar els canvis en el projecte, s'utilitza el mètode `.write()`, especificant el directori on es vol guardar el projecte i el seu nom. Si no s'especifica cap ruta, el projecte es guardarà en el mateix directori sota el mateix nom. 
+
+
+
 
 
 # Les banderes (*flags*) permeten evitar carregar tot un projecte sencer de QGIS, evitant errors i accelerant el rendiment
