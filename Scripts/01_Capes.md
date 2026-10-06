@@ -1,8 +1,37 @@
-# Creació, gestió i tipus de capes
-jdjvndjv
+# Importació, gestió i tipus de capes
+Les capes d'un projecte - tant capes vectorials com capes ràster - poden ser importades des d'una font externa, i en molts formats diferents. En qualsevol cas, serà necessari primer crear una instància del tipus de capa perquè sigui reconeguda per QGIS.
+
+## Importació de capes
+Per a declarar una capa vectorial s'utilitza la classe `QgsVectorLayer`, i per una capa ràster s'utilitza la classe `QgsRasterLayer`.
+
+En ambdos casos caldrà especificar:
+- La ruta de l'arxiu que conté les dades (*source*).
+- El nom que es desitja donar a la capa (*layer name*), com a nom identificatiu en el panell de capes.
+- Proveïdor de les dades (*provider*).
+
+```
+from qgis.core import (QgsVectorLayer, QgsRasterLayer)
+
+vlayer = QgsVectorLayer("layer_filepath", "layer_name", "provider")
+rlayer = QgsRasterLayer("layer_filepath", "layer_name", "provider")
+```
+
+En el cas de capes vectorials, el proveïdor principal és ***"ogr"*** de la llibreria GDAL, que suporta gran varietat de formats incloent els Shapefile, GeoJSON, GeoPackage i DXF d'AutoCAD.
+
+En el cas de voler importar un geopackage, cal especificar a la ruta de les dades la capa que es vol importar.\
+`vlayer = QgsVectorLayer("Projecte/Dades/dades.gpkg|layername=Aeroports", "Aeroports", "ogr")`
+
+Altres proveïdors disponibles permeten carregar arxius CSV (*"delimitedtext"*), establir connexions WFS (*"WFS"*) o carregar capes des d'un servidor PostgreSQL (*"postgres"*).
+
+En el cas de capes ràster, GDAL és, de nou, el proveïdor que suporta la majoria de formats.\
+`rlayer = QgsRasterLayer("GPKG:Projecte/Dades/dades.gpkg:dem", "DEM", "gdal")`
+
+Altres proveïdors disponibles permeten establir connexions WMS (*"wms"*) o carregar capes des d'un servidor PostgreSQL (*"postgresraster"*).
 
 
+És molt important remarcar que la generació de la capa 
 
+Les capes d'un projecte poden ser creades in-situ en el mateix script o la mateixa consola Python de QGIS - procediment que es tractarà més endavant
 
 
 
@@ -10,39 +39,8 @@ jdjvndjv
 
 # En el supòsit que no es treballi a la consola Python de QGIS
 import os
-from qgis.core import QgsVectorLayer
-
-# Per importar i afegir al projecte una capa vectorial cal crear una instància de la classe `QgsVectorLayer`
-# Cal especificar:
-## Ruta on es troba la capa (*source*)
-## Nom que es desitja donar (*layer name*) com a identificador en el panell de capes
-## Proveïdor de dades vectorials
-vlayer = QgsVectorLayer("Filepath_capa", "Nom_capa", "Proveïdor")
-
-# El proveïdor "ogr" de la llibreria GDAL suporta gran varietat de formats, incloent els Shapefile, GeoJSON, GeoPackage i DXF d'AutoCAD
-# En el cas dels geopackage, cal especificar la capa que es vol importar
-vlayer = QgsVectorLayer("Projecte/Dades/dades.gpkg|layername=Aeroports", "Aeroports", "ogr")
-
-# Altres proveïdors disponibles permeten carregar arxius CSV ("delimitedtext"), establir connexions WFS ("WFS") o carregar capes des d'un servidor PostgreSQL ("postgres")
 
 
-"""Capes ràster"""
-
-# En el supòsit que no es treballi a la consola Python de QGIS
-import os
-from qgis.core import QgsRasterLayer
-
-# Per importar i afegir al projecte una capa vectorial cal crear una instància de la classe `QgsRasterLayer`
-# Cal especificar:
-## Ruta on es troba la capa (*source*)
-## Nom que es desitja donar (*layer name*) com a identificador en el panell de capes
-## Proveïdor de dades raster
-vlayer = QgsRasterLayer("Filepath_capa", "Nom_capa", "Proveïdor")
-
-# De nou, GDAL és el proveïdor que suporta la majoria de formats
-rlayer = QgsRasterLayer("GPKG:Projecte/Dades/dades.gpkg:dem", "DEM", "gdal")
-
-# Altres proveïdors disponibles permeten establir connexions WMS ("wms") o carregar capes des d'un servidor PostgreSQL ("postgresraster")
 
 
 """Addició de capes al llenç"""
