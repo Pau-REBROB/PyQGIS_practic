@@ -18,6 +18,7 @@ import qgis.utils
 ```
 
 ## Projectes
+### Creació
 En el cas que no es treballi directament a la consola Python de QGIS serà sempre necessari importar la classe `QgsProject` per poder gestionar el projecte actiu.
 
 `from qgis.core import QgsProject`
@@ -26,8 +27,9 @@ Per manipular el projecte és necessari crear una instància de la classe `QgsPr
 
 `project = QgsProject.instance()`
 
-A partir d'ara, s'assumirà que la classe `QgsProject` ha estat sempre cridada i s'ha creat una instància del projecte amb el nom *project*.
+A partir d'ara, s'assumirà que la classe *QgsProject* ha estat sempre cridada i s'ha creat una instància del projecte amb el nom ***project***.
 
+### Manipulació
 Per importar un projecte existent de QGIS cal cridar-lo amb el mètode `.read()`.
 
 `project.read("project_filepath/project_name.qgs")`
