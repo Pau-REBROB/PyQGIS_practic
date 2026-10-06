@@ -1,11 +1,16 @@
 # Inicialització d'un projecte
 Un *script* de PyQGIS és un *script* en codi Python que pot ser interpretat per QGIS.
 QGIS disposa d'una consola Python per importar o executar codi PyQGIS de manera interactiva, però els scripts poden també executar-se fora de l'entorn de QGIS. 
+
 ## Importació de mòduls
 El mòdul principal per treballar amb PyQGIS és ***core***. Aquest mòdul proporciona les classes fonamentals per crear i treballar amb les dades espacials, gestionar capes i projectes i executar operacions d'anàlisi geoespacial.
+
 `from qgis.core import *`
+
 El mòdul ***utils*** proporciona variables i funcions auxiliars essencialment per treballar amb el canvas de QGIS.
+
 `import qgis.utils`
+
 Si el projecte s'inicia des de la consola Python de QGIS aquestes importacions no seran necessàries, ja que s'executen a l'arrencar el projecte.
 ```
 from qgis.core import *
