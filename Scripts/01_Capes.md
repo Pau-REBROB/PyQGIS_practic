@@ -28,51 +28,32 @@ En el cas de capes ràster, GDAL és, de nou, el proveïdor que suporta la major
 
 Altres proveïdors disponibles permeten establir connexions WMS (*"wms"*) o carregar capes des d'un servidor PostgreSQL (*"postgresraster"*).
 
+Encara que no estigui estrictament relacionat amb QGIS, si les dades es troben allotjades en local pot ser necessària la importació de la llibreria ***os*** per a la manipulació d'arxius i directoris.\
+`import os`
 
-És molt important remarcar que la generació de la capa 
+## Addició de capes
+La importació d'una capa i la seva declaració en una instància de la classe *QgsVectorLayer* o *QgsRasterLayer* no implica la seva addició al llenç de la interfície de QGIS.
 
-Les capes d'un projecte poden ser creades in-situ en el mateix script o la mateixa consola Python de QGIS - procediment que es tractarà més endavant
-
-
-
-"""Capes vectorials"""
-
-# En el supòsit que no es treballi a la consola Python de QGIS
-import os
-
-
-
-
-"""Addició de capes al llenç"""
-
-# Per a afegir una capa ja importada al llenç cal afegir-la a la instància del projecte utilitzant el mètode `.addMapLayer()`
+La capa importada - o creada, tot i que la creació in-situ en el mateix script o la mateixa consola Python de QGIS és un procediment que es tractarà més endavant - forma part del projecte, però no del canvas. Per afegir una capa ja importada al llenç cal afegir-la a la instància del projecte utilitzant el mètode `.addMapLayer()`.\
+```
 project.addMapLayer(vlayer)
 project.addMapLayer(rlayer)
+```
 
-# Aquest mètode, declarant la capa amb una instància QgsVectorLayer/QgsRasterLayer + utilitzant la instància del projecte, és el mètode més indicat per a importar capes
-# De manera més ràpida i alternativa, es pot fer ús del mètode `addVectorLayer()` o `addRasterLayer()` de la classe `QgsInterface` per a carregar i visualitzar una capa
+Aquest mètode - declaració de la capa amb una instància QgsVectorLayer/QgsRasterLayer + utilitzar la instància del projecte - és el mètode més indicat per a importar capes a un projecte i afegir-les al llenç.
+
+De manera més ràpida i alternativa, es pot fer ús del mètode `.addVectorLayer()` o `.addRasterLayer()` de la classe `QgsInterface` per a carregar i visualitzar una capa de manera directa.
+```
 vlayer = iface.addVectorLayer()
 rlayer = iface.addRasterLayer()
-# Igual que amb la classe QgsVectorLayer o QgsRasterLayer, cal especificar 
-## Ruta on es troba la capa (*source*)
-## Nom que es desitja donar (*layer name*) com a identificador en el panell de capes
-## Proveïdor de dades vectorials
-# `iface` - o QgsInterface - és una instància proporcionada per QGIS que enllaça la GUI amb el codi Python que, internament, utilitza el mètode indicat anterior (és un *wrapper*) 
-# Per tant, ÚNICAMENT es pot fer servir quan es treballa a la GUI, és a dir, a la consola Python de QGIS
+```
 
-# Es pot parlar d'un tercer mètode per afegir capes a un projecte
-# Si al mètode `.addMapLayer()` s'afegeix el paràmetre *False* en segona posició - corresponent a l'argument *addToLegend* -, la capa s'afegeix al projecte, però no al llenç del mapa
-project.addMapLayer(vlayer, False)
-# La capa segueix activa dins del projecte, tal i com reflectirà l'arbre de capes (*layer tree*)
+A l'igual que amb el mètode anterior, cal especificar la ruta on es troba la capa (*source*), el nom que es desitja donar (*layer name*) com a identificador en el panell de capes i el proveïdor de dades vectorials o ràster.
 
+Com que *iface* - o QgsInterface - és una instància proporcionada per QGIS que enllaça la GUI amb el codi Python, aquest segon mètode únicament es pot fer servir quan es treballa a la GUI, és a dir, a la consola Python de QGIS.
 
-"""Manipulació de capes"""
+## Manipulació de capes existents
 
-# Les capes que s'importen a un projecte son declarades com a variables utilitzant la classe `QgsVectorLayer` o `QgsRasterLayer`
-# A l'existir com a variables, es poden aplicar sobre el nom de la variable els mètodes propis de les classes vectorials i ràster
-layer.name()
-layer.id()
-layer.source()  # etcètera
 
 # Què passa quan s'obra un projecte que ja conté totes les capes necessàries carregades?
 ## En aquest cas, no es pot accedir a l'objecte que representa cada capa vectorial perquè no ha estat creat
@@ -101,3 +82,24 @@ layers_dict['Nom_capa']
 # Per fer-ho, s'utilitza el mètode `.mapLayersByName('Nom_capa')[0]`, on l'índex [0] especifica la selecció del primer element que tingui aquest nom
 project.mapLayersByName('Nom_capa')[0]
 # El resultat és el mateix que el valor del diccionari de capes que s'obté amb `.mapLayers().values()`
+
+
+
+
+
+"""Addició de capes al llenç"""
+
+# Es pot parlar d'un tercer mètode per afegir capes a un projecte
+# Si al mètode `.addMapLayer()` s'afegeix el paràmetre *False* en segona posició - corresponent a l'argument *addToLegend* -, la capa s'afegeix al projecte, però no al llenç del mapa
+project.addMapLayer(vlayer, False)
+# La capa segueix activa dins del projecte, tal i com reflectirà l'arbre de capes (*layer tree*)
+
+
+"""Manipulació de capes"""
+
+# Les capes que s'importen a un projecte son declarades com a variables utilitzant la classe `QgsVectorLayer` o `QgsRasterLayer`
+# A l'existir com a variables, es poden aplicar sobre el nom de la variable els mètodes propis de les classes vectorials i ràster
+layer.name()
+layer.id()
+layer.source()  # etcètera
+
