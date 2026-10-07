@@ -34,7 +34,7 @@ Encara que no estigui estrictament relacionat amb QGIS, si les dades es troben a
 ## Addició de capes
 La importació d'una capa i la seva declaració en una instància de la classe *QgsVectorLayer* o *QgsRasterLayer* no implica la seva addició al llenç de la interfície de QGIS.
 
-La capa importada - o creada, tot i que la creació in-situ en el mateix script o la mateixa consola Python de QGIS és un procediment que es tractarà més endavant - forma part del projecte, però no del canvas. Per afegir una capa ja importada al llenç cal afegir-la a la instància del projecte utilitzant el mètode `.addMapLayer()`.\
+La capa importada - o creada, tot i que la creació in-situ en el mateix script o la mateixa consola Python de QGIS és un procediment que es tractarà més endavant - forma part del projecte, però no del canvas. Per afegir una capa ja importada al llenç cal afegir-la a la instància del projecte utilitzant el mètode `.addMapLayer()`.
 ```
 project.addMapLayer(vlayer)
 project.addMapLayer(rlayer)
@@ -53,35 +53,37 @@ A l'igual que amb el mètode anterior, cal especificar la ruta on es troba la ca
 Com que *iface* - o QgsInterface - és una instància proporcionada per QGIS que enllaça la GUI amb el codi Python, aquest segon mètode únicament es pot fer servir quan es treballa a la GUI, és a dir, a la consola Python de QGIS.
 
 ## Manipulació de capes existents
+Què passa quan s'obra un projecte que ja conté totes les capes necessàries carregades? En aquest cas, no es pot accedir a l'objecte que representa cada capa perquè no ha estat declarat pròpiament.
 
+En aquests casos, convé crear un objecte per cada capa continguda en el projecte per tal de poder manipular-la segons convingui.
 
-# Què passa quan s'obra un projecte que ja conté totes les capes necessàries carregades?
-## En aquest cas, no es pot accedir a l'objecte que representa cada capa vectorial perquè no ha estat creat
-## Tampoc es pot accedir a les capes a través del nom que consta en el panell de capes, al ser el nom simplement una propietat més de l'objecte que no està creat
-# Així doncs, en aquests casos convé crear un objecte per cada capa continguda en el projecte
+El mètode `.mapLayers()` retorna un diccionari de les capes presents al projecte. Les claus (*keys*) d'aquest diccionari son els identificadors únics de les capes `.layer.id()`, mentre que els valors (*values*) son els objectes vectorials o ràster (la pròpia capa), que es mostren com a informació referent a la capa: classe, nom i proveïdor - <QgsVectorLayer: 'name' (ogr)>
+```
+project.mapLayers()  # diccionari de capes
+project.mapLayers().keys()  # identificadors de les capes
+project.mapLayers().values()  # capes vectorials/ràster
+```
 
-# El mètode `mapLayers()` retorna un diccionari de les capes presents al projecte 
-project.mapLayers()
-## Les claus (*keys*) del diccionari son els identificadors únics de les capes `layer.id()`
-project.mapLayers().keys()
-## Els valors (*values*) del diccionari son la informació referent a la capa: classe, nom i proveïdor - <QgsVectorLayer: 'name' (ogr)>
-project.mapLayers().values()
-# Així, es pot accedir al nom d'una capa present al panell de capes aplicant el mètode `.name()` en el llistat de valors
-# Per fer-ho, no es pot aplicar el mètode directament sobre el diccionari de capes, sinó que cal iterar per cada capa
+Així doncs, per crear un objecte per cada capa present al projecte es pot utilitzar el seu identificador únic (*layer.id()*) o el nom amb què ha estat declarada i que apareix al panell de capes.
+
+L'identificador *id* no és un element que permet relacionar fàcilment amb quina capa s'està tractant, de manera que l'element més indicat és el nom de la capa. Per accedir al nom s'utilitza el mètode `.name()` sobre els valors del diccionari de capes.  
+```
 for layer in project.mapLayers().values():
   print(layer.name())
+```
 
-# Modificant aquesta iteració es pot generar un diccionari de capes amb la clau sent el nom de la capa i el valor sent la pròpia capa de classe QgsVectorLayer o QgsRasterLayer
+Modificant aquesta iteració es pot generar un diccionari de capes amb la clau sent el nom de la capa i el valor sent la pròpia capa de classe QgsVectorLayer o QgsRasterLayer.
+```
 layers = project.mapLayers().values()
 layers_dict = {layer.name(): layer for layer in layers}
-# Accedir a una capa és equivalent a accedir a un element d'un diccionari
-layers_dict['Nom_capa']
-# D'aquesta manera, es millora la comprensió i legibilitat del projecte i l'accés a les capes
+```
 
-# Es pot accedir a les capes de manera directa consultant el panell de capes utilitzant el nom de la capa que hi figura
-# Per fer-ho, s'utilitza el mètode `.mapLayersByName('Nom_capa')[0]`, on l'índex [0] especifica la selecció del primer element que tingui aquest nom
-project.mapLayersByName('Nom_capa')[0]
-# El resultat és el mateix que el valor del diccionari de capes que s'obté amb `.mapLayers().values()`
+Amb aquest nou diccionari, accedir a una capa és equivalent a accedir a un element d'un diccionari `layers_dict["layer_name"]`. D'aquesta manera, es millora la comprensió i la legibilitat del projecte i l'accés a les capes.
+
+Una altra manera de generar un objecte d'una capa ja present és utilitzant directament el nom que hi figura al panell de capes amb el mètode `.mapLayersByName()`.\
+`layer = project.mapLayersByName('layer_name')[0]`
+
+L'índex *[0]* especifica la selecció del primer element que tingui aquest nom.
 
 
 
