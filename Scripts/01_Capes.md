@@ -42,6 +42,11 @@ project.addMapLayer(rlayer)
 
 Aquest mètode - declaració de la capa amb una instància QgsVectorLayer/QgsRasterLayer + utilitzar la instància del projecte - és el mètode més indicat per a importar capes a un projecte i afegir-les al llenç.
 
+Si al mètode *.addMapLayer()* s'afegeix el paràmetre *False* com a segon argument - corresponent a l'argument *addToLegend* - la capa s'afegeix al projecte, però NO al llenç del mapa.\
+`project.addMapLayer(layer, False)`
+
+La capa segueix activa dins del projecte i es veurà reflectida l'arbre de capes (*layer tree*). Més endavant es parlarà més a fons d'aquest mètode i l'arbre de capes.
+
 De manera més ràpida i alternativa, es pot fer ús del mètode `.addVectorLayer()` o `.addRasterLayer()` de la classe `QgsInterface` per a carregar i visualitzar una capa de manera directa.
 ```
 vlayer = iface.addVectorLayer()
@@ -85,23 +90,13 @@ Una altra manera de generar un objecte d'una capa ja present és utilitzant dire
 
 L'índex *[0]* especifica la selecció del primer element que tingui aquest nom.
 
-
-
-
-
-"""Addició de capes al llenç"""
-
-# Es pot parlar d'un tercer mètode per afegir capes a un projecte
-# Si al mètode `.addMapLayer()` s'afegeix el paràmetre *False* en segona posició - corresponent a l'argument *addToLegend* -, la capa s'afegeix al projecte, però no al llenç del mapa
-project.addMapLayer(vlayer, False)
-# La capa segueix activa dins del projecte, tal i com reflectirà l'arbre de capes (*layer tree*)
-
-
-"""Manipulació de capes"""
-
-# Les capes que s'importen a un projecte son declarades com a variables utilitzant la classe `QgsVectorLayer` o `QgsRasterLayer`
-# A l'existir com a variables, es poden aplicar sobre el nom de la variable els mètodes propis de les classes vectorials i ràster
+## Manipulació de capes
+Les capes que d'un projecte que son declarades com a variables, ja sigui importades utilitzant la classe `QgsVectorLayer` o `QgsRasterLayer` o ja presents al projecte el mètode *.mapLayers()*, permeten que s'apliquin sobre elles els mètodes propis de les classes vectorials i ràster.
+```
 layer.name()
 layer.id()
-layer.source()  # etcètera
+layer.source()
+# etcètera
+```
 
+Aquests mètodes son molt i variats, diferents segons si es tracta d'objectes vectorials o ràster, i s'aniran veient a mesura que es parli de la manipulació de geometries, sistemes de referència o selecció d'elements.
