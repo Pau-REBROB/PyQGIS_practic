@@ -2,6 +2,7 @@
 Les capes vectorials son una instància de la classe `QgsVectorLayer`.
 
 ## Estructura de les capes vectorials: *features*, *fields* i *attributes*
+### *Features*
 Les capes vectorials estan formades per un conjunt de ***features*** (elements), que son les geometries vectorials individuals continguts a la capa.
 
 Amb el mètode `.getFeatures()` s'accedeix al conjunt d'elements de la capa vectorial.\
@@ -32,6 +33,9 @@ for feat in features:
     # etcètera
 ```
 
+Més endavant es parlarà a fons de la manipulació dels *features* de capes vectorials.
+
+### *Fields*
 Cada *feature* conté la informació estructurada en ***fields*** (en camps), que es corresponen amb les columnes de la seva taula d'atributs.
 
 Es pot conèixer el conjunt de camps d'una capa o d'un element amb el mètode `.fields()`; aquest mètode ha d'anar acompanyat del mètode `.names()` per visualitzar els noms dels camps.\
@@ -48,6 +52,7 @@ for field in vlayer.fields():
   print(field.name(), field.typeName())
 ```
 
+### *Attributes*
 El valor concret d'un camp (*field*) específic per a un element (*feature*) particular és el seu ***attribute*** (atribut).
 
 Si els *features* son els registres (files) i els *fields* son els camps (columnes) d'una taula de dades, els atributs es corresponen amb les cel·les.
@@ -88,23 +93,15 @@ Existeixen dues maneres de generar índexs espacials a PyQGIS:
 - Es poden modificar les dades originals generant-hi un índex espacial amb el mètode `.createSpatialIndex()`, que és persistent.
 `vlayer.dataProvider().createSpatialIndex()`
 
-
-
-"""Elements de capes vectorials"""
-
-# En el supòsit que no es treballi a la consola Python de QGIS
-import os
-from qgis.core import (
-  QgsVectorLayer,
-  QgsVectorFileWriter
-)
+## Manipulació de capes vectorials
+### Importació de capes
+cece
 
 # Per a la seva importació, cal especificar:
 ## Ruta on es troba la capa (*source*)
 ## Nom que es desitja donar (*layer name*) com a identificador en el panell de capes
 ## Proveïdor de dades vectorials
 vlayer = QgsVectorLayer("Filepath_capa", "Nom_capa", "Proveïdor")
-
 
 # Quan s'importa una capa vectorial, QGIS escull un dels seus camps com a camp de visualització (*display field*)
 ## El mètode `.displayField()` permet conèixer aquest camp
@@ -114,7 +111,8 @@ vlayer.displayField()
 vlayer.setDisplayField('"FIELD"')
 
 
-"""Creació de capes vectorials"""
+### Creació de capes
+cerv
 
 # La manera de crear una capa vectorial més habitual és utilitzant, de nou, una instància de `QgsVectorLayer`
 vlayer = QgsVectorLayer("Geometry_type?crs&field1&field2&index", "layer_name", "memory")
@@ -130,7 +128,10 @@ vlayer = QgsVectorLayer("Geometry_type?crs&field1&field2&index", "layer_name", "
 vlayer = QgsVectorLayer("Polygon?crs=epsg:25831&field=id:integer(10)&field=barri:string(50)&index=yes", "temporary_polygons", "memory")
 
 
-"""Modificació de capes vectorials"""
+
+### Manipulació de capes
+csecv
+
 
 # Tot i que es poden crear capes vectorials des de zero amb tots els camps desitjats amb el proveïdor de memòria, la pràctica habitual és crear una capa amb la informació mínima
 vlayer = QgsVectorLayer("Polygon?crs=epsg:25831", "layer_name", "memory")
@@ -150,7 +151,9 @@ vlayer.dataProvider().capabilitiesString()
 ## etc.
 
 
-"""Exportació de capes vectorials"""
+### Exportació de capes
+csdv
+
 
 # La classe `QgsVectorFileWriter` permet escriure arxius vectorials en el disc fent ús de `.writeAsVectorFormatV3()`
 # La classe suporta tots els formats vectorials que suporta GDAL
@@ -169,3 +172,14 @@ save_options.layerName = 'my_new_layer_name'
 save_options.actionOnExistingFile = QgsVectorFileWriter.CreateOrOverwriteLayer
 
 # Amb l'extensió de sortida de l'arxiu, QGIS inferiex el driver que ha d'utilitzar
+
+
+
+
+# En el supòsit que no es treballi a la consola Python de QGIS
+import os
+from qgis.core import (
+  QgsVectorLayer,
+  QgsVectorFileWriter
+)
+
