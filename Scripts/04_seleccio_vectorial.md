@@ -22,6 +22,9 @@ Utilitzant PyQGIS es poden realitzar seleccions i filtres vectorials sobre quals
 El mètode `.selectAll()` permet seleccionar tots els elements d'una capa vectorial.\
 `vlayer.selectAll()`
 
+De manera inversa, el mètode `.removeSelection()` permet deseleccionar tots els elements d'una capa.\
+`vlayer.removeSelection()`
+
 Com que normalment no es desitjarà seleccionar tots els elements, sinó aquells que compleixin amb alguna condició, es pot utilitzar el mètode `.selectByExpression()` per a seleccionar elements en funció dels seus atributs.
 `layer.selectByExpression('expression', behaviour)`
 
@@ -33,37 +36,32 @@ El segon paràmetre és el comportament de la selecció. El comportament és un 
 - `QgsVectorLayer.RemoveFromSelection`
 - `QgsVectorLayer.IntersectSelection`
 
+La manera habitual de treballar és guardant l'expressió en una variable independent.\
+`expr = '"FIELD" < 1000'`
 
+L'expressió es troba escrita entre comes simples (''), però el nom dels camps de la capa entre comes dobles (""), seguint la nomenclatura de QGIS. Quan es necessita utilitzar un atribut de tipus textual, aquest ha d'estar entre comes simples, també, pel que cal fer ús de la barra d'escapament.\
+`expr = '"FIELD" = \'Male\''`
 
+Es poden encadenar tantes condicions com es consideri fent ús dels operadors booleans.\
+`expr = '"FIELD1" = \'Male\' and "FIELD2" < 100'`
 
+Guardada l'expressió de selecció, es fa ús de la classe `QgsFeatureRequest` per a crear una petició - un *request* - de selecció que s'aplica sobre els *features* de la capa vectorial sobre la que es vol treballar.
+```python
+from qgis.core import QgsFeatureRequest
 
-
-
-
-# La manera habitual de treballar és guardant l'expressió en una variable independent
-expr = '"FIELD" < 1000'
-## L'expressió es troba escrita entre comes simples (''), però el nom dels camps de la capa entre comes dobles ("")
-## Quan es vol utilitzar un atribut de tipus textual, aquest ha d'estar entre comes simples, també, pel que cal fer ús de la barra d'escapament
-expr = '"FIELD" = \'Male\''
-# Es poden encadenar tantes condicions com es consideri fent ús dels operadors booleans
 expr = '"FIELD1" = \'Male\' and "FIELD2" < 100'
-
-# Guardada l'expressió de selecció, es fa ús de la classe `QgsFeatureRequest()` per a crear una petició (*request*) de selecció
 request = QgsFeatureRequest().setFilterExpression(expr)
-# Amb el mètode `.getFeatures()` s'obtenen els elements d'una capa que compleixen amb la petició
-layer.getFeatures(request)
 
-# El *request* és una manera eficient d'accedir a les dades, sense necessitat de seleccionar-les gràficament al canvas i sense alterar la selecció actual 
-## Es pot entendre com un filtre de dades
-# Un cop obtingudes (que NO seleccionades) les dades que compleixen amb les condicions, es pot treballar amb elles
-## Per a treballar amb els elements d'una capa vectorial sempre s'ha de treballar amb els *features*
-for feature in layer.getFeatures(request):
+for feature in vlayer.getFeatures(request):
   geom = feature.geometry()
   area = geom.area()
-  # etc.
+  # etcètera
+```
 
-# Per a deseleccionar tots els elements, s'utilitza el mètode `.removeSelection()` 
-layer.removeSelection()
+El *request* és una manera eficient d'accedir a les dades sense necessitat de seleccionar-les gràficament al canvas i sense alterar la selecció actual. Es pot entendre, de fet, com un filtre de dades vectorials.
+
+
+
 
 
 """Càlculs sobre seleccions"""
