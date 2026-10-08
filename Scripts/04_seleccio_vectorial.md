@@ -28,10 +28,10 @@ Com que normalment no es desitjarà seleccionar tots els elements, sinó aquells
 El primer paràmetre és l'expressió de selecció, entre **comes simples**.
 
 El segon paràmetre és el comportament de la selecció. El comportament és un valor de la classe `QgsVectorLayer.SelectionBehavior` que determina com afecta la selecció respecte els elements ja seleccionats:
-- QgsVectorLayer.SetSelection (per defecte)
-- QgsVectorLayer.AddToSelection
-- QgsVectorLayer.RemoveFromSelection
-- QgsVectorLayer.IntersectSelection
+- `QgsVectorLayer.SetSelection` (per defecte)
+- `QgsVectorLayer.AddToSelection`
+- `QgsVectorLayer.RemoveFromSelection`
+- `QgsVectorLayer.IntersectSelection`
 
 
 
