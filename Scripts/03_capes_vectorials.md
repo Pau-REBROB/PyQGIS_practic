@@ -1,6 +1,13 @@
 # Capes vectorials a PyQGIS
-vdsv
+Les capes vectorials son una instància de la classe `QgsVectorLayer`.
 
+## Estructura de les capes vectorials
+Les capes vectorials estan formades per un conjunt de ***features*** (elements), que son les geometries vectorials individuals continguts a la capa.
+
+Amb el mètode `.getFeatures()` s'accedeix al conjunt d'elements de la capa vectorial.\
+`features = vlayer.getFeatures()`
+
+El mètode retorna un llistat de tots els *features* presents, que és un objecte de la classe `QgsFeatureIterator`. Aquest fet condiciona la manera de treballar amb les capes vectorials: sempre s'ha d'iterar sobre el conjunt de 
 
 
 
@@ -14,17 +21,13 @@ from qgis.core import (
   QgsVectorFileWriter
 )
 
-# Les capes vectorials son una instància de la classe `QgsVectorLayer`
 # Per a la seva importació, cal especificar:
 ## Ruta on es troba la capa (*source*)
 ## Nom que es desitja donar (*layer name*) com a identificador en el panell de capes
 ## Proveïdor de dades vectorials
 vlayer = QgsVectorLayer("Filepath_capa", "Nom_capa", "Proveïdor")
 
-# Les capes vectorials estan formades per un conjunt de *FEATURES*, que representen elements individuals dins la capa (les geometries vectorials)
-# S'accedeix al conjunt de *features* d'una capa vectorial a través del mètode `.getFeatures()`, que retorna els elements en format llista 
-features = vlayer.getFeatures()
-# El resultat del mètode és un objecte de classe `QgsFeatureIterator` 
+
 # Aquest fet fa que SEMPRE s'hagi d'iterar sobre el conjunt d'elements d'una capa vectorial per tal de treuer'n informació - no es poden aplicar els mètodes sobre *features*
 for feature in features:
   print("Feature ID: ", feature.id())
