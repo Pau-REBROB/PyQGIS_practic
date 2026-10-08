@@ -7,8 +7,26 @@ Les capes vectorials estan formades per un conjunt de ***features*** (elements),
 Amb el mètode `.getFeatures()` s'accedeix al conjunt d'elements de la capa vectorial.\
 `features = vlayer.getFeatures()`
 
-El mètode retorna un llistat de tots els *features* presents, que és un objecte de la classe `QgsFeatureIterator`. Aquest fet condiciona la manera de treballar amb les capes vectorials: sempre s'ha d'iterar sobre el conjunt de 
+El mètode retorna un llistat de tots els *features* presents, que és un objecte de la classe `QgsFeatureIterator`. Aquest fet condiciona la manera de treballar amb les capes vectorials: sempre s'ha d'iterar sobre el conjunt de features per extreure'n informació o manipular-los; els mètodes no poden aplicar-se mai directament sobre un element, ja que no son accessibles de manera directa.
+```
+features = vlayer.getFeatures()
 
+for feat in features:
+  print("Feature ID: ", feat.id())
+  geom = feat.geometry()
+  buffer = geom.buffer()
+  # etcètera
+```
+
+La iteració sobre tots els elements és condició necessària per treballar amb capes vectorials, però un cop començada es pot aïllar el *feature* o *features* d'interès identificant-los pel seu *id* o amb una condició lògica i treballar únicament sobre aquests.
+```
+features = vlayer.getFeatures()
+
+for feat in features:
+  area = feat.geometry().area()
+  buffer = geom.buffer()
+  # etcètera
+```
 
 
 
@@ -27,12 +45,6 @@ from qgis.core import (
 ## Proveïdor de dades vectorials
 vlayer = QgsVectorLayer("Filepath_capa", "Nom_capa", "Proveïdor")
 
-
-# Aquest fet fa que SEMPRE s'hagi d'iterar sobre el conjunt d'elements d'una capa vectorial per tal de treuer'n informació - no es poden aplicar els mètodes sobre *features*
-for feature in features:
-  print("Feature ID: ", feature.id())
-  geom = feature.geometry()  
-  # etcètera
 
 # Cada *feature* conté la informació estructurada en *FIELDS* - en camps, equivalent a les columnes d'una taula de dades
 # Es pot conèixer el conjunt de camps d'un element amb el mètode `.fields()`
