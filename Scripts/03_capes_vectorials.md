@@ -20,7 +20,7 @@ for feat in features:
 ```
 
 La iteració sobre tots els elements és condició necessària per treballar amb capes vectorials, però un cop començada es pot aïllar el *feature* o *features* d'interès identificant-los pel seu *id* o amb una condició lògica i treballar únicament sobre aquests.
-```
+```python
 features = vlayer.getFeatures()
 
 for feat in features:
@@ -39,7 +39,7 @@ Més endavant es parlarà a fons de la manipulació dels *features* de capes vec
 Cada *feature* conté la informació estructurada en ***fields*** (en camps), que es corresponen amb les columnes de la seva taula d'atributs.
 
 Es pot conèixer el conjunt de camps d'una capa o d'un element amb el mètode `.fields()`; aquest mètode ha d'anar acompanyat del mètode `.names()` per visualitzar els noms dels camps.\
-```
+```python
 vlayer.fields().names()  # camps d'una capa
 feature.fields().names()  # camps d'un element
 ```
@@ -47,7 +47,7 @@ feature.fields().names()  # camps d'un element
 El mètode `.typeName()` permet conèixer el tipus de dada que emmagatzema un camp; El tipus de camp és heredat de la font de dades, de manera que no estan estandarditzats dins de QGIS.
 
 La millor manera de conèixer els camps presents a cada capa és utilitzant els mètodes anteriors en un loop.
-```
+```python
 for field in vlayer.fields():
   print(field.name(), field.typeName())
 ```
@@ -72,7 +72,7 @@ A diferència dels camps, totes les maneres d'accedir als atributs d'un element 
 Com ja s'ha vist a mode d'exemple, iterant sobre els elements d'una capa vectorial es pot accedir a les seves geometries amb el mètode `.geometry()`.
 
 Un cop les geometries son accessibles, es poden aplicar predicats - *intersects*, *within*, *equals*, etc. - i operacions espacials - unió, envolvent, àrea, buffer, etc. - sobre elles.
-```
+```python
 features = vlayer.getFeatures()
 
 for feature in features:
@@ -89,7 +89,7 @@ Més endavant es parlarà de la manipulació de geometries vectorials en més de
 
 Existeixen dues maneres de generar índexs espacials a PyQGIS:
 - Es poden guardar en memòria en un objecte manipulable de la classe `QgsSpatialIndex`, que haurà de ser cridat en les operacions espacials en el lloc de la pròpia capa vectorial.\
-```
+```python
 from qgis.core import QgsSpatialIndex
 
 index = QgsSpatialIndex(vlayer.getFeatures())
@@ -100,7 +100,7 @@ index = QgsSpatialIndex(vlayer.getFeatures())
 ## Gestió de capes vectorials
 ### Importació de capes
 Tal i com s'ha explicat anteriorment, el mètode d'importació més adient és amb la combinació de crear una instància de capa vectorial amb *QgsVectorLayer* i l'addició al projecte amb el mètode *.addMapLayer()*.
-```
+```python
 vlayer = QgsVectorLayer("layer_filepath", "layer_name", "provider")
 project.addMapLayer(vlayer)
 ```
@@ -113,7 +113,7 @@ El mètode `.setDisplayExpression()` permet establir una expressió - o un camp 
 
 ### Creació de capes
 La manera més habitual de crear una capa vectorial és utilitzant, de nou, una instància de *QgsVectorLayer*.\
-```
+```python
 vlayer = QgsVectorLayer(
   "Geometry_type?crs&field1&field2&index",
   "layer_name",
@@ -139,7 +139,7 @@ Un cop creada, és més flexible poblar la capa i afegir els camps i les geometr
 
 ### Manipulació de capes
 Es poden conèixer les possibilitats de manipulació d'una capa vectorial amb el mètode `.capabilitiesString()`. El mètode retorna un llistat de totes les accions que es poden realitzar sobre la capa referents als seus *features*, geometries i índexs.
-```
+```python
 vlayer[.dataProvider()].capabilitiesString()
 # Afegeix objectes
 # Suprimeix objectes
@@ -157,7 +157,7 @@ vlayer[.dataProvider()].capabilitiesString()
 La classe `QgsVectorFileWriter` permet escriure arxius vectorials en el disc fent ús del mètode `.writeAsVectorFormatV3()`.
 
 La classe suporta tots els formats vectorials que suporta GDAL, però requereix d'un context de transformació i unes opcions de guardat.\
-```
+```python
 from qgis.core import QgsVectorFileWriter
 
 QgsVectorFileWriter.writeAsVectorFormatV3(vlayer, "file_path/file_name", transform_context, save_options)
@@ -169,7 +169,7 @@ El context de transformació es pot extreure directament del projecte.\
 Amb el context, QGIS aplica automàticament l'encoding, les geometries o el SRC heredat del projecte.
 
 Si es necessita d'un control més extens de les opcions de guardat, es poden definir totes les que es necessitin. En son exemples:
-```
+```python
 save_options = QgsVectorFileWriter.SaveVectorOptions()
 
 save_options.driverName = "ESRI Shapefile" # Tot i que amb l'extensió de sortida de l'arxiu, QGIS inferiex el driver que ha d'utilitzar
