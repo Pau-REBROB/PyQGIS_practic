@@ -23,9 +23,13 @@ La iteració sobre tots els elements és condició necessària per treballar amb
 features = vlayer.getFeatures()
 
 for feat in features:
+  # Determinació de l'àrea de cada element
   area = feat.geometry().area()
-  buffer = geom.buffer()
-  # etcètera
+
+  # Filtre d'àrea per valor mínim
+  if area > 50:
+    buffer = area.buffer()
+    # etcètera
 ```
 
 
