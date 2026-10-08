@@ -89,97 +89,91 @@ Més endavant es parlarà de la manipulació de geometries vectorials en més de
 
 Existeixen dues maneres de generar índexs espacials a PyQGIS:
 - Es poden guardar en memòria en un objecte manipulable de la classe `QgsSpatialIndex`, que haurà de ser cridat en les operacions espacials en el lloc de la pròpia capa vectorial.\
-`index = QgsSpatialIndex(vlayer.getFeatures())`
+```
+from qgis.core import QgsSpatialIndex
+
+index = QgsSpatialIndex(vlayer.getFeatures())
+```
 - Es poden modificar les dades originals generant-hi un índex espacial amb el mètode `.createSpatialIndex()`, que és persistent.
 `vlayer.dataProvider().createSpatialIndex()`
 
-## Manipulació de capes vectorials
+## Gestió de capes vectorials
 ### Importació de capes
-cece
+Tal i com s'ha explicat anteriorment, el mètode d'importació més adient és amb la combinació de crear una instància de capa vectorial amb *QgsVectorLayer* i l'addició al projecte amb el mètode *.addMapLayer()*.
+```
+vlayer = QgsVectorLayer("layer_filepath", "layer_name", "provider")
+project.addMapLayer(vlayer)
+```
 
-# Per a la seva importació, cal especificar:
-## Ruta on es troba la capa (*source*)
-## Nom que es desitja donar (*layer name*) com a identificador en el panell de capes
-## Proveïdor de dades vectorials
-vlayer = QgsVectorLayer("Filepath_capa", "Nom_capa", "Proveïdor")
+Quan s'importa una capa vectorial, QGIS escull un dels seus camps com a camp de visualització (*display field*). El mètode `.displayField()` permet conèixer aquest camp.\
+`vlayer.displayField()`
 
-# Quan s'importa una capa vectorial, QGIS escull un dels seus camps com a camp de visualització (*display field*)
-## El mètode `.displayField()` permet conèixer aquest camp
-vlayer.displayField()
-## El mètode `.setDisplayExpression()` permet establir un camp o una expressió nova com a camp de visualització
-## Al ser una expressió, ha d'estar escrit entre cometes simples
-vlayer.setDisplayField('"FIELD"')
-
+El mètode `.setDisplayExpression()` permet establir una expressió - o un camp en forma d'expressió - com a nou camp de visualització. Al necessitar d'una expressió, ha d'estar escrit entre cometes simples; més endavant es parlarà de les expressions a QGIS i PyQGIS.\
+`vlayer.setDisplayExpression('"FIELD"')`
 
 ### Creació de capes
-cerv
+La manera més habitual de crear una capa vectorial és utilitzant, de nou, una instància de *QgsVectorLayer*.\
+```
+vlayer = QgsVectorLayer(
+  "Geometry_type?crs&field1&field2&index",
+  "layer_name",
+  "memory"
+)
+```
 
-# La manera de crear una capa vectorial més habitual és utilitzant, de nou, una instància de `QgsVectorLayer`
-vlayer = QgsVectorLayer("Geometry_type?crs&field1&field2&index", "layer_name", "memory")
+La definició de la capa ha d'incorporar, en un URI:
+- Tipus de geometria: "Point","LineString","Polygon","MultiPoint","MultiLineString","MultiPolygon" o "None".
+- SRC definit de qualsevol de les maneres acceptades per `QgsCoordinateReferenceSystem.createFromString()` - com pot ser epsg:25831.
+- Camps, que han de tenir un nom i, opcionalment, el tipus de dada que suporta - string, integer, double - amb la seva longitud i precisió.
+- Índexs, per especificar si es crearan índexs espacials.
 
-# El provider *memory*, que emmagatzema la capa temporalment a la RAM, és l'únic que permet crear capes vectorials des de zero
-# La resta de proveïdors necessiten que les dades estiguin físicament guardades en algun lloc
+El provider *memory*, que emmagatzema la capa temporalment a la RAM, és l'únic que permet crear capes vectorials des de zero. La resta de proveïdors necessiten que les dades estiguin físicament guardades en algun lloc de l'equip.
 
-# La definició de la capa ha d'incorporar, en un URI
-## Tipus de geometria: "Point","LineString","Polygon","MultiPoint","MultiLineString","MultiPolygon" o "None"
-## SRC definit de qualsevol de les maneres acceptades per QgsCoordinateReferenceSystem.createFromString(): crs=epsg:25831
-## Camps, que han de tenir un nom i, opcionalment, el tipus de dada que suporta - string, integer, double - amb la seva longitud i precisió: field=id:integer(10)
-## Índex, per especificar si es crearan índex espacials: index=yes
-vlayer = QgsVectorLayer("Polygon?crs=epsg:25831&field=id:integer(10)&field=barri:string(50)&index=yes", "temporary_polygons", "memory")
+Un exemple d'una capa poligonal de barris quedaria com:\
+`vlayer = QgsVectorLayer("Polygon?crs=epsg:25831&field=id:integer(10)&field=barri:string(50)&index=yes", "temporary_polygons", "memory")`
 
+Tot i que es poden crear capes vectorials des de zero amb tots els camps desitjats amb el proveïdor de memòria, la pràctica habitual és crear una capa amb la informació mínima.\
+`vlayer = QgsVectorLayer("Polygon?crs=epsg:25831", "layer_name", "memory")`
 
+Un cop creada, és més flexible poblar la capa i afegir els camps i les geometries desitjades fent ús del *provider* o del mode d'edició de la capa, tal i com es veurà en un altre script.
 
 ### Manipulació de capes
-csecv
-
-
-# Tot i que es poden crear capes vectorials des de zero amb tots els camps desitjats amb el proveïdor de memòria, la pràctica habitual és crear una capa amb la informació mínima
-vlayer = QgsVectorLayer("Polygon?crs=epsg:25831", "layer_name", "memory")
-
-# Un cop creada, és més flexible modificar la capa i afegir els camps i les geometries fent ús del *provider* o amb el mode edició de la capa, tal i com es veurà en un altre script
-
-# Es poden conèixer les possibilitats de manipulació d'una capa vectorial amb el mètode `.capabilitiesString()`
-vlayer.dataProvider().capabilitiesString()
-## 'Afegeix objectes
-## Suprimeix objectes
-## Canvia els valors dels atributs
-## Afegeix atributs
-## Suprimeix els atributs
-## Canvia els noms dels atributs
-## Fast Access to Features at ID
-## Canvia geometries'
-## etc.
-
+Es poden conèixer les possibilitats de manipulació d'una capa vectorial amb el mètode `.capabilitiesString()`. El mètode retorna un llistat de totes les accions que es poden realitzar sobre la capa referents als seus *features*, geometries i índexs.
+```
+vlayer[.dataProvider()].capabilitiesString()
+# Afegeix objectes
+# Suprimeix objectes
+# Canvia els valors dels atributs
+# Afegeix atributs
+# Suprimeix els atributs
+# Canvia els noms dels atributs
+# Crea l'índex espacial
+# Crea índexs d'atributs
+# Fast Access to Features at ID
+# Canvia geometries
+```
 
 ### Exportació de capes
-csdv
+La classe `QgsVectorFileWriter` permet escriure arxius vectorials en el disc fent ús del mètode `.writeAsVectorFormatV3()`.
 
+La classe suporta tots els formats vectorials que suporta GDAL, però requereix d'un context de transformació i unes opcions de guardat.\
+```
+from qgis.core import QgsVectorFileWriter
 
-# La classe `QgsVectorFileWriter` permet escriure arxius vectorials en el disc fent ús de `.writeAsVectorFormatV3()`
-# La classe suporta tots els formats vectorials que suporta GDAL
-# El mètode necessita d'un context de transformació i unes opcions de guardat
 QgsVectorFileWriter.writeAsVectorFormatV3(vlayer, "file_path/file_name", transform_context, save_options)
+```
 
-# El context de transformació es pot extreure directament del projecte
-transform_context = project.transformContext()
-# Amb el context, QGIS aplica automàticament l'encoding, les geometries o el SRC
-# Si es necessita d'un control més extens de les opcions de guardat, es poden definir totes les que es necessiti
+El context de transformació es pot extreure directament del projecte.\
+`transform_context = project.transformContext()`
+
+Amb el context, QGIS aplica automàticament l'encoding, les geometries o el SRC heredat del projecte.
+
+Si es necessita d'un control més extens de les opcions de guardat, es poden definir totes les que es necessitin. En son exemples:
+```
 save_options = QgsVectorFileWriter.SaveVectorOptions()
-## Per exemple
-save_options.driverName = "ESRI Shapefile"
+
+save_options.driverName = "ESRI Shapefile" # Tot i que amb l'extensió de sortida de l'arxiu, QGIS inferiex el driver que ha d'utilitzar
 save_options.fileEncoding = "UTF-8"
 save_options.layerName = 'my_new_layer_name'
 save_options.actionOnExistingFile = QgsVectorFileWriter.CreateOrOverwriteLayer
-
-# Amb l'extensió de sortida de l'arxiu, QGIS inferiex el driver que ha d'utilitzar
-
-
-
-
-# En el supòsit que no es treballi a la consola Python de QGIS
-import os
-from qgis.core import (
-  QgsVectorLayer,
-  QgsVectorFileWriter
-)
-
+```
