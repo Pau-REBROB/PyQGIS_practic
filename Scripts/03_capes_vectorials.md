@@ -1,7 +1,7 @@
 # Capes vectorials a PyQGIS
 Les capes vectorials son una instància de la classe `QgsVectorLayer`.
 
-## Estructura de les capes vectorials
+## Estructura de les capes vectorials: *features*, *fields* i *attributes*
 Les capes vectorials estan formades per un conjunt de ***features*** (elements), que son les geometries vectorials individuals continguts a la capa.
 
 Amb el mètode `.getFeatures()` s'accedeix al conjunt d'elements de la capa vectorial.\
@@ -32,6 +32,36 @@ for feat in features:
     # etcètera
 ```
 
+Cada *feature* conté la informació estructurada en ***fields*** (en camps), que es corresponen amb les columnes de la seva taula d'atributs.
+
+Es pot conèixer el conjunt de camps d'una capa o d'un element amb el mètode `.fields()`; aquest mètode ha d'anar acompanyat del mètode `.names()` per visualitzar els noms dels camps.\
+```
+vlayer.fields().names()  # camps d'una capa
+feature.fields().names()  # camps d'un element
+```
+
+El mètode `.typeName()` permet conèixer el tipus de dada que emmagatzema un camp; El tipus de camp és heredat de la font de dades, de manera que no estan estandarditzats dins de QGIS.
+
+La millor manera de conèixer els camps presents a cada capa és utilitzant els mètodes anteriors en un loop.
+```
+for field in vlayer.fields():
+  print(field.name(), field.typeName())
+```
+
+# El valor concret d'un camp (*field*) específic per a un element (*feature*) particular és el seu *ATTRIBUTE*
+## Si els features son els registres (files) i els fields son els camps (columnes) d'una taula de dades, els atributs es corresponen amb les cel·les
+# Es pot accedir a la informació dels atributs d'un element i un camp concrets a través del nom del camp
+feature['nom']
+# Alternativament, s'hi pot accedir a través de l'índex del camp
+feature[i]
+# Per accedir al llistat d'atributs d'un element s'utilitza el mètode `.attributes()`
+feature.attributes()
+# Totes les maneres per a accedir als atributs d'un element es realitzen en els propis features, NO sobre la capa vectorial
+
+# És molt important remarcar l'ús de la iteració sobre els elements (*features*) de les capes vectorials per tal d'accedir i manipular les dades
+
+
+
 
 
 """Elements de capes vectorials"""
@@ -50,33 +80,13 @@ from qgis.core import (
 vlayer = QgsVectorLayer("Filepath_capa", "Nom_capa", "Proveïdor")
 
 
-# Cada *feature* conté la informació estructurada en *FIELDS* - en camps, equivalent a les columnes d'una taula de dades
-# Es pot conèixer el conjunt de camps d'un element amb el mètode `.fields()`
-feature.fields().names()
-# El mètode `.typeName()` permet conèixer el tipus de dada que emmagatzema un camp
-## El tipus de camp és heredat de la font de dades, de manera que no estan estandarditzats dins de QGIS
-# La millor manera de conèixer els camps presents a cada capa és utilitzant els mètodes anteriors en un loop
-for field in vlayer.fields():
-  print(field.name(), field.typeName())
-  
+ 
 # Quan s'importa una capa vectorial, QGIS escull un dels seus camps com a camp de visualització (*display field*)
 ## El mètode `.displayField()` permet conèixer aquest camp
 vlayer.displayField()
 ## El mètode `.setDisplayExpression()` permet establir un camp o una expressió nova com a camp de visualització
 ## Al ser una expressió, ha d'estar escrit entre cometes simples
 vlayer.setDisplayField('"FIELD"')
-
-# El valor concret d'un camp (*field*) específic per a un element (*feature*) particular és el seu *ATTRIBUTE*
-## Si els features son els registres (files) i els fields son els camps (columnes) d'una taula de dades, els atributs es corresponen amb les cel·les
-# Es pot accedir a la informació dels atributs d'un element i un camp concrets a través del nom del camp
-feature['nom']
-# Alternativament, s'hi pot accedir a través de l'índex del camp
-feature[i]
-# Per accedir al llistat d'atributs d'un element s'utilitza el mètode `.attributes()`
-feature.attributes()
-# Totes les maneres per a accedir als atributs d'un element es realitzen en els propis features, NO sobre la capa vectorial
-
-# És molt important remarcar l'ús de la iteració sobre els elements (*features*) de les capes vectorials per tal d'accedir i manipular les dades
 
 
 """Accés a geometries vectorials"""
