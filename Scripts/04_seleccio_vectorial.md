@@ -1,4 +1,5 @@
 # Selecció i filtre d'elements vectorials
+## Fent ús de la GUI
 Tota selecció o filtratge d'elements de capes vectorials s'ha de realitzar sobre la capa activa del projecte en el supòsit que es treballi des de la GUI de QGIS.
 
 Si les capes del projecte necessàries estan en el llenç i es desitja observar les seleccions i els filtres sobre la interfície gràfica, s'ha de fer ús de *iface* per treballar amb una capa que serà la capa activa del projecte.
@@ -12,36 +13,32 @@ Per a establir una capa com la capa activa del projecte, en canvi, s'utilitza el
 A nivell estètic, per a modificar el color de la selecció en el canvas s'utilitza el mètode `.setSelectionColor()`. Aquest canvi només serà visible mentre es mantingui el projecte obert, ja que no és un canvi permanent.\
 `iface.mapCanvas().setSelectionColor(QColor("color"))`
 
+Si es treballa amb scripts de PyQGIS, en canvi, no és necessari establir una capa com a capa activa per a realitzar una selecció o un filtratge.
+
+## Fent ús d'scripts
+Utilitzant PyQGIS es poden realitzar seleccions i filtres vectorials sobre qualsevol capa del projecte; els canvis, però, no seran visibles al llenç fins que no s'exportin explícitament com a noves capes del projecte.
+
+### Selecció d'elements
+El mètode `.selectAll()` permet seleccionar tots els elements d'una capa vectorial.\
+`vlayer.selectAll()`
+
+Com que normalment no es desitjarà seleccionar tots els elements, sinó aquells que compleixin amb alguna condició, es pot utilitzar el mètode `.selectByExpression()` per a seleccionar elements en funció dels seus atributs.
+`layer.selectByExpression('expression', behaviour)`
+
+El primer paràmetre és l'expressió de selecció, entre **comes simples**.
+
+El segon paràmetre és el comportament de la selecció. El comportament és un valor de la classe `QgsVectorLayer.SelectionBehavior` que determina com afecta la selecció respecte els elements ja seleccionats:
+- QgsVectorLayer.SetSelection (per defecte)
+- QgsVectorLayer.AddToSelection
+- QgsVectorLayer.RemoveFromSelection
+- QgsVectorLayer.IntersectSelection
 
 
 
 
 
 
-# En el supòsit que no es treballi a la consola Python de QGIS
-from qgis.core import (
-    QgsVectorLayer,
-    QgsFeatureRequest,
-    QgsExpression,
-    QgsExpressionContext,
-    QgsExpressionContextUtils
-)
 
-
-
-# Amb PyQGIS, però, no fa falta establir una capa com a capa activa per a realitzar una selecció
-# El mètode `.selectAll()` permet seleccionar tots els elements d'una capa vectorial
-layer.selectAll()
-
-# Per a seleccionar elements en funció dels seus atributs, en canvi, s'utilitza el mètode `.selectByExpression()`
-## El primer paràmetre és l'expressió de selecció, entre COMES SIMPLES
-## El segon paràmetre és el comportament de la seelcció
-### El comportament és un valor de la classe `QgsVectorLayer.SelectionBehaviour` que determina com afecta la selecció respecte els elements ja seleccionats:
-### QgsVectorLayer.SetSelection
-### QgsVectorLayer.addToSelection
-### QgsVectorLayer.RemoveFromSelection
-### QgsVectorLayer.IntersectSelection
-layer.selectByExpression('expression', behaviour)
 
 # La manera habitual de treballar és guardant l'expressió en una variable independent
 expr = '"FIELD" < 1000'
@@ -97,3 +94,14 @@ for feat in layer.getFeatures(request):
     context.setFeature(feat)
     val = expr.evaluate(context)
     #print(feat.id(), val)
+
+
+# En el supòsit que no es treballi a la consola Python de QGIS
+from qgis.core import (
+    QgsVectorLayer,
+    QgsFeatureRequest,
+    QgsExpression,
+    QgsExpressionContext,
+    QgsExpressionContextUtils
+)
+
