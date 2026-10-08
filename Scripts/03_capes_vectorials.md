@@ -48,19 +48,45 @@ for field in vlayer.fields():
   print(field.name(), field.typeName())
 ```
 
-# El valor concret d'un camp (*field*) específic per a un element (*feature*) particular és el seu *ATTRIBUTE*
-## Si els features son els registres (files) i els fields son els camps (columnes) d'una taula de dades, els atributs es corresponen amb les cel·les
-# Es pot accedir a la informació dels atributs d'un element i un camp concrets a través del nom del camp
-feature['nom']
-# Alternativament, s'hi pot accedir a través de l'índex del camp
-feature[i]
-# Per accedir al llistat d'atributs d'un element s'utilitza el mètode `.attributes()`
-feature.attributes()
-# Totes les maneres per a accedir als atributs d'un element es realitzen en els propis features, NO sobre la capa vectorial
+El valor concret d'un camp (*field*) específic per a un element (*feature*) particular és el seu ***attribute*** (atribut).
 
-# És molt important remarcar l'ús de la iteració sobre els elements (*features*) de les capes vectorials per tal d'accedir i manipular les dades
+Si els *features* son els registres (files) i els *fields* son els camps (columnes) d'una taula de dades, els atributs es corresponen amb les cel·les.
 
+Es pot accedir a la informació dels atributs d'un element i un camp concrets a través del nom del camp.\
+`feature['field_name']`
 
+Alternativament, s'hi pot accedir a través de l'índex del camp.\
+`feature[i]`
+
+Per accedir al llistat d'atributs d'un element s'utilitza el mètode `.attributes()`. 
+`feature.attributes()`
+
+A diferència dels camps, totes les maneres d'accedir als atributs d'un element es realitzen únicament sobre els propis *features*, i no sobre la capa vectorial o els camps.
+
+## Geometries vectorials
+Com ja s'ha vist a mode d'exemple, iterant sobre els elements d'una capa vectorial es pot accedir a les seves geometries amb el mètode `.geometry()`.
+
+Un cop les geometries son accessibles, es poden aplicar predicats - *intersects*, *within*, *equals*, etc. - i operacions espacials - unió, envolvent, àrea, buffer, etc. - sobre elles.
+```
+features = vlayer.getFeatures()
+
+for feature in features:
+  geom = feature.geometry()
+  area = geom.area()
+  perim = geom.length()
+  print(f"Àrea de l'element: {area}; Perímetre de l'element: {perim}")
+```
+
+Més endavant es parlarà de la manipulació de geometries vectorials en més detall.
+
+## Índexs espacials
+És sabuda la importància dels índexs espacials en els processos d'anàlisi i manipulació de geometries.
+
+Existeixen dues maneres de generar índexs espacials a PyQGIS:
+- Es poden guardar en memòria en un objecte manipulable de la classe `QgsSpatialIndex`, que haurà de ser cridat en les operacions espacials en el lloc de la pròpia capa vectorial.\
+`index = QgsSpatialIndex(vlayer.getFeatures())`
+- Es poden modificar les dades originals generant-hi un índex espacial amb el mètode `.createSpatialIndex()`, que és persistent.
+`vlayer.dataProvider().createSpatialIndex()`
 
 
 
@@ -80,35 +106,12 @@ from qgis.core import (
 vlayer = QgsVectorLayer("Filepath_capa", "Nom_capa", "Proveïdor")
 
 
- 
 # Quan s'importa una capa vectorial, QGIS escull un dels seus camps com a camp de visualització (*display field*)
 ## El mètode `.displayField()` permet conèixer aquest camp
 vlayer.displayField()
 ## El mètode `.setDisplayExpression()` permet establir un camp o una expressió nova com a camp de visualització
 ## Al ser una expressió, ha d'estar escrit entre cometes simples
 vlayer.setDisplayField('"FIELD"')
-
-
-"""Accés a geometries vectorials"""
-
-# Iterant sobre els elements d'una capa vectorial es pot accedir a les geometries d'aquests elements amb el mètode `.geometry()`
-# Amb les geometries disponibles, es poden aplicar predicats - intersects, within, equals, etc. - i operacions espacials - unió, envolvent, àrea, buffer, etc. - sobre elles
-features = vlayer.getFeatures()
-for feature in features:
-  geom = feature.geometry()
-  area = geom.area()
-  perim = geom.length()
-  print(f"Àrea de l'element: {area}; Perímetre de l'element: {perim}")
-
-
-"""Índex espacials"""
-
-# És sabuda la importància dels índex espacials en els processos d'anàlisi i manipulació de geometries
-# Existeixen dues maneres de generar índex espacials
-## Es poden guardar en memòria en un objecte manipulable, que haurà de ser cridat en les operacions espacials en el lloc de la pròpia capa vectorial
-index = QgsSpatialIndex(vlayer.getFeatures())
-## Es poden modificar les dades originals generant-hi un índex espacial, que és persistent
-vlayer.dataProvider().createSpatialIndex()
 
 
 """Creació de capes vectorials"""
