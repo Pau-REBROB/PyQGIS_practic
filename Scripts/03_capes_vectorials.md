@@ -9,7 +9,7 @@ Amb el mètode `.getFeatures()` s'accedeix al conjunt d'elements de la capa vect
 `features = vlayer.getFeatures()`
 
 El mètode retorna un llistat de tots els *features* presents, que és un objecte de la classe `QgsFeatureIterator`. Aquest fet condiciona la manera de treballar amb les capes vectorials: sempre s'ha d'iterar sobre el conjunt de features per extreure'n informació o manipular-los; els mètodes no poden aplicar-se mai directament sobre un element, ja que no son accessibles de manera directa.
-```
+```python
 features = vlayer.getFeatures()
 
 for feat in features:
