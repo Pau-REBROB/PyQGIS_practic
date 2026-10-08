@@ -45,6 +45,11 @@ L'expressió es troba escrita entre comes simples (''), però el nom dels camps 
 Es poden encadenar tantes condicions com es consideri fent ús dels operadors booleans.\
 `expr = '"FIELD1" = \'Male\' and "FIELD2" < 100'`
 
+El resultat de la selecció es mostrarà ressaltat al canvas en el cas que la capa hi estigui present. Aquest resultat NO representa una capa vectorial, no es tracta d'un objecte de la classe *QgsVectorLayer* ja que no s'han agafat els *features* de la capa original que complien amb l'expressió, sinó que simplement s'han ressaltat.
+
+### Filtre d'elements
+Per tal d'aconseguir un *subset* d'elements de la capa vectorial original cal iterar sobre els seus *features*. 
+
 Guardada l'expressió de selecció, es fa ús de la classe `QgsFeatureRequest` per a crear una petició - un *request* - de selecció que s'aplica sobre els *features* de la capa vectorial sobre la que es vol treballar.
 ```python
 from qgis.core import QgsFeatureRequest
@@ -58,48 +63,51 @@ for feature in vlayer.getFeatures(request):
   # etcètera
 ```
 
+FILTRATGE PER GUARDAR-SE EN UNA CAPA DIFERENT!
+
 El *request* és una manera eficient d'accedir a les dades sense necessitat de seleccionar-les gràficament al canvas i sense alterar la selecció actual. Es pot entendre, de fet, com un filtre de dades vectorials.
 
+### Càlculs sobre seleccions
+És habitual voler realitzar càlculs que involucren un o més camps d'una capa sobre la qual s'ha aplicat un filtre previ d'elements. Realitzat el filtratge d'elements amb un request de `QgsFeatureRequest()`, es poden seguir utilitzant expressions per a avaluar els diferents elements.
 
+Amb la classe `QgsExpression` es poden crear expressions d'avaluació seguint la mateixa lògica que els *requests*.\
+`expr = QgsExpression('"FIELD" > 500')`
 
+Ara bé, perquè les expressions funcionin necessiten d'un context d'avaluació, que es crea amb un objecte de la classe `QgsExpressionContext`. El context global - variables globals, variables del projecte, variables de la capa, SRC, etc. - es carrega al context local de l'expressió.
+```python
+context = QgsExpressionContext()
+context.appendScopes(QgsExpressionContextUtils.globalProjectLayerScopes(vlayer))
+```
 
+Amb l'expressió i el context, es poden avaluar els elements d'una capa vectorial un a un utilitzant un loop (com sempre).
+```python
+from qgis.core import (QgsExpression, QgsExpressionContext, QgsExpressionContextUtils)
 
-"""Càlculs sobre seleccions"""
-
-# És habitual voler realitzar càlculs que involucren un o més camps d'una capa sobre un conjunt concret d'elements d'aquesta - o sobre tots
-# Realitzat el filtratge d'elements amb un request de `QgsFeatureRequest()`, es poden seguir utilitzant expressions per a avaluar els diferents elements
-# Amb la classe `QgsExpression()` es poden crear expressions d'avaluació seguint la mateixa lògica que els *requests*
 expr = QgsExpression('"FIELD" > 500')
 
-# Perquè les expressions funcionin necessiten d'un context d'avaluació, que es crea amb un objecte de la classe `QgsExpressionContext()`
-# El context global - variables globals, variables del projecte, variables de la capa, SRC, etc. - es carrega al context
 context = QgsExpressionContext()
-context.appendScopes(QgsExpressionContextUtils.globalProjectLayerScopes(layer))
+context.appendScopes(QgsExpressionContextUtils.globalProjectLayerScopes(vlayer))
 
-# Amb l'expressió i el context, es poden avaluar els elements d'una capa vectorial
 for feature in layer.getFeatures():
     context.setFeature(feature)
     if expr.evaluate(context):
         # Operacions sobre els features
+```
 
-# Les diferències entre utilitzar una `QgsExpression()` i un request `QgsFeatureRequest().setFilterExpression()` son diverses
-## `QgsExpression` fa una avaluació manual feature a feature, client-side - agafa totes les dades del servidor i, en local, retorna les que compleixen les condicions
-## `QgsFeatureRequest().setFilterExpression()` fa un filtrat server-side - filtra les dades del servidor i retorna les que compleixen les condicions
-# La manera més eficient de treballar és amb un patró híbrid: primer filtrar i després avaluar
+Pot semblar que no hi hagi diferència entre utilitzar una `QgsExpression()` i un *request* de `QgsFeatureRequest().setFilterExpression()`, però les diferències son diverses.
+
+`QgsExpression` fa una avaluació manual feature a feature, client-side - agafa totes les dades del servidor i, en local, retorna les que compleixen les condicions.
+
+`QgsFeatureRequest().setFilterExpression()` fa un filtrat server-side - filtra les dades del servidor i retorna les que compleixen les condicions.
+
+La manera més eficient de treballar és amb un patró híbrid: primer filtrar i després avaluar.
+```python
 request = QgsFeatureRequest().setFilterExpression('"population" > 5000')
+
 expr = QgsExpression('"area" / "population")
+
 for feat in layer.getFeatures(request):
     context.setFeature(feat)
     val = expr.evaluate(context)
     #print(feat.id(), val)
-
-
-# En el supòsit que no es treballi a la consola Python de QGIS
-from qgis.core import (
-    QgsVectorLayer,
-    QgsFeatureRequest,
-    QgsExpression,
-    QgsExpressionContext,
-    QgsExpressionContextUtils
-)
-
+```
