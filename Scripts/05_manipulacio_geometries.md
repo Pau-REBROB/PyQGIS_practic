@@ -7,14 +7,14 @@ Es poden generar geometries de tres maneres diferents:
 ### Creació de geometries a partir de coordenades
 Com que totes les geometries deriven d'elements puntuals, es poden utilitzar les coordenades de cada punt que conforma la geometria.
 
-Els objectes tipus punts son de la classe `QgsPointXY`.\
+Els objectes tipus punts son de la classe `QgsPointXY`.
 ```python
 from qgis.core import QgsPointXY
 
 pt = QgsPointXY(1,3)
 ```
 
-Alternativament, es pot utilitzar la classe `QgsPoint`, que permet declarar una dimensió Z i una dimensió M.\
+Alternativament, es pot utilitzar la classe `QgsPoint`, que permet declarar una dimensió Z i una dimensió M.
 ```python
 from qgis.core import QgsPoint
 
@@ -51,48 +51,53 @@ geom = QgsGeometry.fromWKT("POLYGON ((1 3, 2 4, 1 1, 1 3))")  # En aquest cas, c
 ### Creació de geometries a partir de WKB
 .....
 
-## Accés a les geometries
+## Manipulació de geometries
+Com s'ha explicat anteriorment, per a accedir a les geometries dels elements d'una capa vectorial és necessari accedir primer al *feature* corresponent; un cop s'ha accedit a l'element, es pot accedir a la pròpia geometria amb el mètode `.geometry()`.
 
+Per conèixer el tipus de geometria que emmagatzema una variable o un *feature* es poden utilitzar diferents mètodes:
 
-
-
-
-
-
-
-
-"""Accés a les geometries"""
-
-# Per accedir a una geometria ja s'ha vist que cal iterar sobre els elements (*features*) de la capa vectorial
-# Per cada element, es pot accedir a la seva geometria amb el mètode `.geometry()`
-
-# Per conèixer el tipus de geometria que engloba una variable es poden utilitzar diferents mètodes
-## El mètode `.wkbType()` retorna 1 per punts, 2 per línies i 3 per polígons
+El mètode `.wkbType()` retorna 1 per punts, 2 per línies i 3 per polígons.
+```python
 geom.wkbType()
 # <WkbType.Point: 1>
 # <WkbType.LineString: 2>
 # <WkbType.Polygon: 3>
+```
 
-## El mètode `.type()` funciona de manera anàloga a l'anterior, però retorna valors de 0-1-2
+El mètode `.type()` funciona de manera anàloga a l'anterior, però retorna valors de 0-1-2.
+```python
 geom.type()
 # <GeometryType.Point: 0>
 # <GeometryType.Line: 1>
 # <GeometryType.Polygon: 2>
+```
 
-## El mètode `.displayString`, de la classe `QgsWkbTypes`, retorna una geometria en format llegible per humans
+El mètode `.displayString()`, de la classe `QgsWkbTypes`, retorna una geometria en format WKB en un format llegible per humans.
+```python
+from qgis.core import QgsWkbTypes
+
 QgsWkbTypes.displayString(geom.wkbType())
 # 'Point'
 # 'LineString'
 # 'Polygon'
+```
 
-# Per conèixer el valor dels diferents vèrtex d'una geometria s'utilitzen els mètodes `.asX()`
-# És necessari, llavors, conèixer el tipus de geometria amb anterioritat
+Per conèixer el valor dels diferents vèrtex d'una geometria s'utilitzen els diferents mètodes `.as--()`, segons el tipus de geometria a analitzar. És necessari, doncs, conèixer el tipus de geometria amb anterioritat.
+```python
 geom.asPoint()
 # <QgsPointXY: POINT(1 3)>
+
 geom.asPolyline()
 # [<QgsPointXY: POINT(1 3)>, <QgsPointXY: POINT(2 4)>]
+
 geom.asPolygon()
 # [[<QgsPointXY: POINT(1 3)>, <QgsPointXY: POINT(2 4)>, <QgsPointXY: POINT(1 1)>, <QgsPointXY: POINT(1 3)>]]
+```
+
+## Geometries multipart
+vds
+
+
 
 
 """Geometries multipart"""
