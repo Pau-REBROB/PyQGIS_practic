@@ -65,6 +65,8 @@ QgsUnitTypes.toString(crs.mapUnits())    # metres
 ## Transformació entre SRC
 Per a transformar una geometria en un altre sistema de referència cal, primer, crear una instància del SRC d'origen i de destí.
 ```python
+from qgis.core import QgsCoordinateReferenceSystem
+
 crs_origen = QgsCoordinateReferenceSystem('EPSG:25831')
 crs_desti = QgsCoordinateReferenceSystem('EPSG:4326')
 ```
