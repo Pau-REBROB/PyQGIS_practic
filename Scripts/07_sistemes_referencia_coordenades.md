@@ -38,7 +38,7 @@ crs.createFromParameters('')
 Sigui quin sigui el mètode de creació, és bona pràctica comprovar la correcta creació de SRC abans de seguir amb l'anàlisi espacial.\
 `print(crs.isValid())`
 
-Per assignar un sistema de referència a una capa s'utilitza el mètode `.setCrs()`.
+Per assignar un sistema de referència a una capa s'utilitza el mètode `.setCrs()`.\
 `layer.setCrs(crs)`
 
 ## Informació del SRC
