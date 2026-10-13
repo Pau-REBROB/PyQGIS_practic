@@ -95,38 +95,43 @@ geom.asPolygon()
 ```
 
 ## Geometries multipart
-vds
+Per conèixer si una geometria és de tipus multipart es pot utilitzar el mètode `.isMultipart()`, que retorna *True* o *False*.
 
+Generar una geometria multipart té un procediment anàleg al de les geometries simples, i implica l'ús de mètodes específics per a aquests tipus de geometries.
 
+### Creació de geometries multipart a partir de coordenades
+De nou, cal declarar tots els punts que formen part de les geometries a partir de les classes `QgsPoint` o `QgsPointXY`.
+```python
+from qgis.core import (
+  QgsPointXY,
+  QgsGeometry
+)
 
-
-"""Geometries multipart"""
-
-# Per saber si una geometria és de tipus multipart es pot utilitzar el mètode `.isMultipart()`, que retorna True o False
-geom.isMultipart()
-
-# Generar una geometria multipart implica l'ús dels mètodes específics per a aquest tipus de geometria
-## A partir de coordenades
-### Multipunt
+# Multipunt
 pt1 = QgsPointXY(1,3)
 pt2 = QgsPointXY(2,6)
 geom = QgsGeometry.fromMultiPointXY([pt1, pt2])
 
-### Multilínia
-pts1 = [QgsPointXY(1,3), QgsPointXY(2,4)]
-pts2 = [QgsPointXY(0,1), QgsPointXY(2,2)]
-geom = QgsGeometry.fromMultiPolylineXY([pts1, pts2])
+# Multilínia
+line1 = [QgsPointXY(1,3), QgsPointXY(2,4)]
+line2 = [QgsPointXY(0,1), QgsPointXY(2,2)]
+geom = QgsGeometry.fromMultiPolylineXY([line1, line2])
 
-### Multipolígon
+# Multipolígon
 ring1 = [[QgsPointXY(1,3), QgsPointXY(2,4), QgsPointXY(1,1)]]
 ring2 = [[QgsPointXY(0,1), QgsPointXY(2,2), QgsPointXY(5,4)]]
 geom = QgsGeometry.fromMultiPolygonXY([ring1, ring2])
+```
 
-## A partir de WKT
+## Creació de geometries multipart a partir de WKT
+En aquest cas, s'utilitza el mateix mètode `.fromWKT()` per a totes les geometries.
+```python
 geom = QgsGeometry.fromWKT("MULTIPOINT (1 3, 2 4)")
 geom = QgsGeometry.fromWKT("MULTILINESTRING ((1 3, 2 4), (0 1, 2 2))")
 geom = QgsGeometry.fromWKT("MULTIPOLYGON (((1 3, 2 4, 1 1, 1 3)), ((0 1, 2 2, 5 4, 0 1)))")  # En aquest cas, cal tancar explícitament el polígon
+```
 
+### Accés a geometries multipart
 
 # El mètode `.wkbType()` retorna 4 per multi-punts, 5 per multi-línies i 6 per multi-polígons
 geom.wkbType()
