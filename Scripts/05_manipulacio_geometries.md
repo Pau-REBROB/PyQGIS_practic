@@ -1,53 +1,64 @@
 # Manipulació de geometries vectorials
+Les geometries disponibles a QGIS estan representades com a instàncies de la classe `QgsGeometry`, i totes segueixen els estàndards de l'OGC de *Standard Feature Access*.
 
+## Creació de geometries
+Es poden generar geometries de tres maneres diferents:
 
+### Creació de geometries a partir de coordenades
+Com que totes les geometries deriven d'elements puntuals, es poden utilitzar les coordenades de cada punt que conforma la geometria.
 
+Els objectes tipus punts son de la classe `QgsPointXY`.\
+```python
+from qgis.core import QgsPointXY
 
+pt = QgsPointXY(1,3)
+```
 
+Alternativament, es pot utilitzar la classe `QgsPoint`, que permet declarar una dimensió Z i una dimensió M.\
+```python
+from qgis.core import QgsPoint
 
-"""Creació de geometries vectorials"""
+pt = QgsPointXY(1,3,5)
+```
 
-# En el supòsit que no es treballi a la consola Python de QGIS
+Declarats els punts, es construeix la geometria amb els diferents mètodes `.from--XY()`, en funció del tipus de geometria.
+```python
 from qgis.core import (
-  QgsVectorLayer  
-  QgsGeometry,
-  QgsGeometryCollection,
-  QgsPoint,
   QgsPointXY,
-  QgsLineString,
-  QgsWkbTypes,
-  QgsUnitTypes,
+  QgsGeometry
 )
 
-# Les geometries disponibles a QGIS estan representades per la classe `QgsGeometry`
-# Totes segueixen els estàndards de l'OGC de Standard Feature Access
+pt = QgsPointXY(1,3)
+geom = QgsGeometry.fromPointXY(pt)  # Punts
 
-# Es poden generar geometries de 3 maneres diferents
-## A partir de coordenades
-### Totes les geometries es construeixen a partir d'objectes tipus punt, de la classe QgsPointXY
-pt = QgsPointXY(1,3)
-### Alternativament, es pot utilitzar la classe QgsPoint, que permet declarar una dimensió Z i M
-pt = QgsPoint(1,3,5)
-### Declarats els punts, es construeix la geometria amb els mètodes `.from--XY()`
-#### Punts
-pt = QgsPointXY(1,3)
-geom = QgsGeometry.fromPointXY(pt)
-#### Línies
-pts = [QgsPointXY(1,3), QgsPointXY(2,4)]  # LLista de punts
-geom = QgsGeometry.fromPolylineXY(pts)
-#### Polígons
+line = [QgsPointXY(1,3), QgsPointXY(2,4)]  # LLista de punts
+geom = QgsGeometry.fromPolylineXY(line)  # Línies
+
 ring = [[QgsPointXY(1,3), QgsPointXY(2,4), QgsPointXY(1,1)]]  # LLista de llista de punts
-geom = QgsGeometry.fromPolygonXY(ring)
+geom = QgsGeometry.fromPolygonXY(ring)  # Polígons
+```
 
-### Quan els punts es declaren amb més coordenades que X-Y, els mètodes de creació de geometries han d'obviar el XY final
+### Creació de geometries a partir de WKT
+En aquest cas, s'utilitza el mètode `.fromWKT()` en tots els tipus de geometries.
+```python
+from qgis.core import QgsGeometry
 
-## A partir de WKT
-### S'utilitza el mètode `.fromWKT()` en tots els casos
 geom = QgsGeometry.fromWKT("POINT (1 3)")
 geom = QgsGeometry.fromWKT("LINESTRING (1 3, 2 4)")
 geom = QgsGeometry.fromWKT("POLYGON ((1 3, 2 4, 1 1, 1 3))")  # En aquest cas, cal tancar explícitament el polígon
+```
 
-## A partir de WKB
+### Creació de geometries a partir de WKB
+.....
+
+## Accés a les geometries
+
+
+
+
+
+
+
 
 
 """Accés a les geometries"""
@@ -155,3 +166,17 @@ wkt = "GEOMETRYCOLLECTION(POINT(1 3), LINESTRING(0 1, 2 2), POLYGON((2 3, 2 6, 3
 geom = QgsGeometry.fromWkt(wkt)
 # QGIS reconeix internament que es tracte d'una col·lecció de geometries encara que no s'utilitzi la seva classe
 # <QgsGeometry: GeometryCollection (Point (1 1),LineString (0 0, 2 2),Polygon ((2 3, 2 6, 3 1, 2 3)))>
+
+
+
+# En el supòsit que no es treballi a la consola Python de QGIS
+from qgis.core import (
+  QgsVectorLayer  
+  QgsGeometry,
+  QgsGeometryCollection,
+  QgsPoint,
+  QgsPointXY,
+  QgsLineString,
+  QgsWkbTypes,
+  QgsUnitTypes,
+)
