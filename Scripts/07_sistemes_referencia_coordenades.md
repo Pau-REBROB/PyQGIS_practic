@@ -1,5 +1,5 @@
 # Sistemes de referència de coordenades a PyQGIS
-## Assignació d'un SRC
+## Creació i assignació d'un SRC
 Els sistemes de referència de coordenades es troben inscrits dins la classe `QgsCoordinateReferenceSystem`.
 
 Existeixen diferents maneres de generar una instància d'aquesta classe:
@@ -38,6 +38,9 @@ crs.createFromParameters('')
 Sigui quin sigui el mètode de creació, és bona pràctica comprovar la correcta creació de SRC abans de seguir amb l'anàlisi espacial.\
 `print(crs.isValid())`
 
+Per assignar un sistema de referència a una capa s'utilitza el mètode `.setCrs()`.
+`layer.setCrs(crs)`
+
 ## Informació del SRC
 Per conèixer el sistema de referència associat a una capa s'utilitza el mètode `.crs()`.\
 `layer.crs()    # <QgsCoordinateReferenceSystem: EPSG:25831>`
@@ -60,39 +63,61 @@ QgsUnitTypes.toString(crs.mapUnits())    # metres
 ```
 
 ## Transformació entre SRC
-
-
-
-
-
-"""Transformacions entre sistemes de referència"""
-
-# Per a transformar una geometria en un altre sistema de referència cal, primer, crear una instància del SRC d'origen i de destí
+Per a transformar una geometria en un altre sistema de referència cal, primer, crear una instància del SRC d'origen i de destí.
+```python
 crs_origen = QgsCoordinateReferenceSystem('EPSG:25831')
 crs_desti = QgsCoordinateReferenceSystem('EPSG:4326')
+```
 
-# A partir d'aquí, caldrà fer ús de la classe `QgsCoordinateTransform` i el mètode `.transform()`, però es pot procedir de dues maneres
-## Amb el mètode més robust, es crea un context de transformació de manera explícita
+Un cop creades, caldrà fer ús de la classe `QgsCoordinateTransform` i el mètode `.transform()` per aconseguir la transformació. Es pot procedir, però, de dues maneres diferents.
+
+Amb el mètode més robust, es crea un context de transformació de manera explícita.
+```python
+from qgis.core import QgsCoordinateTransform
+
 transform_context = project.transformContext()
 xform = QgsCoordinateTransform(crs_origen, crs_desti, transform_context)
+
 geom = xform.transform(old_geom) / geom = old_geom.transform(xform)
+```
 
-## Amb el mètode més ràpid, s'utilitza la instància del projecte per a proporcionar el context de transformació
+Amb el mètode més ràpid, s'utilitza la instància del projecte per a proporcionar el context de transformació.
+```python
+from qgis.core import QgsCoordinateTransform
+
 transform = QgsCoordinateTransform(crs_origen, crs_desti, project)
-geom = old_geom.transform(transform)
 
-# Aquest procediment, tal i com està escrit, és vàlid per a transformar coordenades
-# Les variables `geom` no son objectes de classe QgsGeometry, sinó coordenades de la forma QgsPointXY
+geom = old_geom.transform(transform)
+```
+
+Aquests dos procediments son vàlids per a transformar coordenades. Les variables *geom* especificades no son objectes de classe *QgsGeometry*, sinó coordenades de la forma *QgsPointXY*.
+```python
+from qgis.core import QgsCoordinateTransform
+
 crs_origen = QgsCoordinateReferenceSystem('EPSG:25831')
 crs_desti = QgsCoordinateReferenceSystem('EPSG:4326')
+
 coords_25831 = QgsPointXY(429482.6,4584386.8)
+
 transform_context = project.transformContext()
 xform = QgsCoordinateTransform(crs_origen, crs_desti, transform_context)
+
 coords_4326 = xform.transform(coords_25831)
 # <QgsPointXY: POINT(2.15630120301015449 41.40793551458637012)>
+```
 
-# Per a transformar les geometries d'una capa sencera cal recórrer els seus *features* individuals
-# Per tal de guardar els canvis a la capa, cal inicialitzar el mode edició
+Per poder transformar les geometries d'una capa sencera cal recórrer els seus *features* individuals. A més, cal guardar els canvis de geometria a la pròpia capa, pel que cal inicialitzar el mode edició.
+```python
+from qgis.core import QgsCoordinateTransform
+
+# Definició del SRC d'origen i destí
+crs_origen = QgsCoordinateReferenceSystem('EPSG:25831')
+crs_desti = QgsCoordinateReferenceSystem('EPSG:4326')
+
+# Definició del context de transformació utilitzant el projecte
+transform = QgsCoordinateTransform(crs_origen, crs_desti, project)
+
+# Transformació de les geometries
 layer.startEditing()
 
 for feature in layer.getFeatures():
@@ -101,25 +126,22 @@ for feature in layer.getFeatures():
     layer.changeGeometry(feature.id(), geom)
 
 layer.commitChanges()
+
 # És necessari reassignar el sistema de coordenades a la capa transformada
 layer.setCrs(crs_desti)
+```
 
-# L'alternativa més ràpida i optimitzada és utilitzar el mètode de reprojecció propi de QGIS, fent ús de *processing*
+L'alternativa més ràpida i optimitzada és utilitzar el mètode de reprojecció propi de QGIS - *native:reprojectlayer* - fent ús de *processing*.
+```python
+import processing
+
 result= processing.run("native:reprojectlayer", {
     'INPUT': layer,
     'TARGET_CRS': crs_desti,
     'OUTPUT': 'memory:'
 })
+
 reprojected = result['OUTPUT']
+
 project.addMapLayer(reprojected)
-
-
-
-# En el supòsit que no es treballi a la consola Python de QGIS
-from qgis.core import (
-    QgsCoordinateReferenceSystem,
-    QgsCoordinateTransform,
-    QgsUnitTypes
-) 
-import processing
-
+```
