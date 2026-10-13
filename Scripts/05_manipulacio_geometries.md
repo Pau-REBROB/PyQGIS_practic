@@ -131,32 +131,42 @@ geom = QgsGeometry.fromWKT("MULTILINESTRING ((1 3, 2 4), (0 1, 2 2))")
 geom = QgsGeometry.fromWKT("MULTIPOLYGON (((1 3, 2 4, 1 1, 1 3)), ((0 1, 2 2, 5 4, 0 1)))")  # En aquest cas, cal tancar explícitament el polígon
 ```
 
-### Accés a geometries multipart
+### Manipulació de geometries multipart
+Els mètodes de manipulació i consulta son els mateixos que els de les geometries simples.
 
-# El mètode `.wkbType()` retorna 4 per multi-punts, 5 per multi-línies i 6 per multi-polígons
+El mètode `.wkbType()` retorna 4 per multi-punts, 5 per multi-línies i 6 per multi-polígons.
+```python
 geom.wkbType()
 # <WkbType.MultiPoint: 4>
 # <WkbType.MultiLineString: 5>
 # <WkbType.MultiPolygon: 6>
+```
 
-# El mètode `.type()`, en canvi, retorna el mateix resultat que per a les geometries simples: point, line, polygon
+El mètode `.type()`, en canvi, retorna el mateix resultat que per a les geometries simples: point, line, polygon.
 
-## El mètode `.displayString` de la classe `QgsWkbTypes` retorna una geometria en format llegible per humans
+El mètode `.displayString` de la classe `QgsWkbTypes` retorna les geometries en forma d'*string* llegible per humans.
+```python
+from qgis.core import QgsWkbTypes
+
 QgsWkbTypes.displayString(geom.wkbType())
 # 'MultiPoint'
 # 'MultiLineString'
 # 'MultiPolygon'
+```
 
-# També existeixen els mètodes `.asX()` per conèixer el valor dels diferents vèrtex d'una geometria multipart
+També es poden utilitzar els mètodes `.as--()` per conèixer el valor dels diferents vèrtex d'una geometria multipart.
+```python
 geom.asMultiPoint()
 # [<QgsPointXY: POINT(1 3)>, <QgsPointXY: POINT(2 4)>]
 geom.asMultiPolyline()
 # [[<QgsPointXY: POINT(1 3)>, <QgsPointXY: POINT(2 4)>], [<QgsPointXY: POINT(0 1)>, <QgsPointXY: POINT(2 2)>]]
 geom.asMultiPolygon()
 # [[[<QgsPointXY: POINT(1 3)>, <QgsPointXY: POINT(2 4)>, <QgsPointXY: POINT(1 1)>, <QgsPointXY: POINT(1 3)>]], [[<QgsPointXY: POINT(0 1)>, <QgsPointXY: POINT(2 2)>, <QgsPointXY: POINT(5 4)>, <QgsPointXY: POINT(0 1)>]]]
+```
 
+## Col·leccions de geometries
+vdsvs
 
-"""Col·leccions de geometries"""
 
 # Una col·lecció de geometries - o *geometry collection* - és un objecte on es barregen dos o més tipus de geometries bàsiques o multipart
 # A QGIS existeix la classe `QgsGeometryCollection`, que permet afegir geometries amb el mètode `.addGeometry()`
