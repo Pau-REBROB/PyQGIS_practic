@@ -1,55 +1,68 @@
 # Sistemes de referència de coordenades a PyQGIS
+## Assignació d'un SRC
+Els sistemes de referència de coordenades es troben inscrits dins la classe `QgsCoordinateReferenceSystem`.
 
+Existeixen diferents maneres de generar una instància d'aquesta classe:
 
+La més senzilla és utilitzant el codi EPSG.
+```python
+from qgis.core import QgsCoordinateReferenceSystem
 
-
-
-# En el supòsit que no es treballi a la consola Python de QGIS
-from qgis.core import (
-    QgsCoordinateReferenceSystem,
-    QgsCoordinateTransform,
-    QgsUnitTypes
-) 
-import processing
-
-"""Creació de sistemes de referència de coordenades"""
-
-# Els sistemes de referència de coordenades es troben inscrits dins la classe `QgsCoordinateReferenceSystem`
-
-# Existeixen diferents maneres de generar instàncies d'aquesta classe
-## Especificant el SRC amb codi EPSG
 crs = QgsCoordinateReferenceSystem('EPSG:25831')
+```
 
-## Especificant el SRC en format WKT
+També es pot utilitzar un format WKT.
+```python
+from qgis.core import QgsCoordinateReferenceSystem
+
 wkt = 'PROJCS["ETRS89 / UTM zone 31N",GEOGCS["ETRS89",DATUM["European_Terrestrial_Reference_System_1989",SPHEROID["GRS 1980",6378137,298.257222101,AUTHORITY["EPSG","7019"]],TOWGS84[0,0,0,0,0,0,0],AUTHORITY["EPSG","6258"]], \
 PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["degree",0.0174532925199433,AUTHORITY["EPSG","9122"]],AUTHORITY["EPSG","4258"]],PROJECTION["Transverse_Mercator"], \
 PARAMETER["latitude_of_origin",0],PARAMETER["central_meridian",3],PARAMETER["scale_factor",0.9996],PARAMETER["false_easting",500000],PARAMETER["false_northing",0],UNIT["metre",1,AUTHORITY["EPSG","9001"]], \
 AXIS["Easting",EAST],AXIS["Northing",NORTH],AUTHORITY["EPSG","25831"]]'
-crs =  QgsCoordinateReferenceSystem(wkt)
 
-## Creant un CRS buit, que després és especificat amb el mètode `.createFromX()`
+crs =  QgsCoordinateReferenceSystem(wkt)
+```
+
+Si no es coneix quin sistema de referència han de tenir les dades, es pot crear un SRC buit i després omplir-se amb un dels mètodes `.createFrom--()`.
+```python
+from qgis.core import QgsCoordinateReferenceSystem
+
 crs = QgsCoordinateReferenceSystem()
+
+# Diferent alternatives
 crs.createFromProj('')
 crs.createFromWkt('')
 crs.createFromParameters('')
+```
 
-# Sigui quin sigui el mètode, és bona pràctica comprobar la correcta creació de SRC
-print(crs.isValid())
+Sigui quin sigui el mètode de creació, és bona pràctica comprovar la correcta creació de SRC abans de seguir amb l'anàlisi espacial.\
+`print(crs.isValid())`
 
+## Informació del SRC
+Per conèixer el sistema de referència associat a una capa s'utilitza el mètode `.crs()`.\
+`layer.crs()    # <QgsCoordinateReferenceSystem: EPSG:25831>`
 
-"""Informació dels sistemes de referència de coordenades"""
+Per obtenir-lo en un format més llegible, es pot afegir el mètode `.authid()`.\
+`layer.crs().authid()    # 'EPSG:25831'`
 
-# Existeixen un seguit de mètodes per a extreure informació sobre una instància de SRC
+Existeixen un seguit de mètodes per a extreure informació sobre una instància de SRC.
+```python
 crs.authid()    # 'EPSG:25831'
-crs.description()    # 'ETRS89 / UTM zone 31N'
-crs.isGeographic()    # False
-crs.toWkt()    # 'PROJCS["ETRS89 / UTM zone 31N",GEOGCS["ETRS89",DATUM["European_Terrestrial_Reference_System_1989",SPHEROID["GRS 1980",6378137,298.257222101,AUTHORITY["EPSG","7019"]],AUTHORITY["EPSG","6258"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["degree",0.0174532925199433,AUTHORITY["EPSG","9122"]],AUTHORITY["EPSG","4258"]],PROJECTION["Transverse_Mercator"],PARAMETER["latitude_of_origin",0],PARAMETER["central_meridian",3],PARAMETER["scale_factor",0.9996],PARAMETER["false_easting",500000],PARAMETER["false_northing",0],UNIT["metre",1,AUTHORITY["EPSG","9001"]],AXIS["Easting",EAST],AXIS["Northing",NORTH],AUTHORITY["EPSG","25831"]]'
-QgsUnitTypes.toString(crs.mapUnits())    # metres
 
-# Per conèixer el sistema de referència associat a una capa s'utilitza el mètode `.crs()`
-layer.crs()    # <QgsCoordinateReferenceSystem: EPSG:25831>
-# Per obtenir-lo en un format més llegible es pot afegir el mètode `.authid()`
-layer.crs().authid()    # 'EPSG:25831'
+crs.description()    # 'ETRS89 / UTM zone 31N'
+
+crs.isGeographic()    # False
+
+crs.toWkt()    # 'PROJCS["ETRS89 / UTM zone 31N",GEOGCS["ETRS89",DATUM["European_Terrestrial_Reference_System_1989",SPHEROID["GRS 1980",6378137,298.257222101,AUTHORITY["EPSG","7019"]],AUTHORITY["EPSG","6258"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["degree",0.0174532925199433,AUTHORITY["EPSG","9122"]],AUTHORITY["EPSG","4258"]],PROJECTION["Transverse_Mercator"],PARAMETER["latitude_of_origin",0],PARAMETER["central_meridian",3],PARAMETER["scale_factor",0.9996],PARAMETER["false_easting",500000],PARAMETER["false_northing",0],UNIT["metre",1,AUTHORITY["EPSG","9001"]],AXIS["Easting",EAST],AXIS["Northing",NORTH],AUTHORITY["EPSG","25831"]]'
+
+from qgis.core import QgsUnitTypes
+QgsUnitTypes.toString(crs.mapUnits())    # metres
+```
+
+## Transformació entre SRC
+
+
+
 
 
 """Transformacions entre sistemes de referència"""
@@ -99,3 +112,14 @@ result= processing.run("native:reprojectlayer", {
 })
 reprojected = result['OUTPUT']
 project.addMapLayer(reprojected)
+
+
+
+# En el supòsit que no es treballi a la consola Python de QGIS
+from qgis.core import (
+    QgsCoordinateReferenceSystem,
+    QgsCoordinateTransform,
+    QgsUnitTypes
+) 
+import processing
+
