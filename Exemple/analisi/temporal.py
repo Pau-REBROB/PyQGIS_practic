@@ -69,7 +69,7 @@ def extreure_any_edificis(edificis):
     anys = [
         a 
         for a in anys
-        if a is not None
+        if a is not None and a >= 1500
     ]
 
     distribucio = Counter(anys)
@@ -203,11 +203,49 @@ def afegir_any_construccio(edificis):
 
 def percentatges_distribucio(distribucio):
     """
+    Calcula el percentatge que representa cada període
+    respecte el total d'elements de la distribució.
+
+    Parameters
+    ----------
+    distribucio : dict
+        Diccionari amb el nombre d'elements per període.
+
+    Returns
+    -------
+    dict
+        Diccionari amb els percentatges de cada període,
+        arrodonits a dos decimals.
+
+    Raises
+    ------
+    ValueError
+        Si la distribució és buida, conté valors negatius
+        o el total és zero.
     """
+    # Validacions
+    if not distribucio:
+        raise ValueError(
+            "La distribució és buida."
+        )
+
+    if any(
+        not isinstance(n, (int, float)) or n < 0 or isinstance(n, bool) or n < 0
+        for n in distribucio.values()
+    ):
+        raise ValueError(
+            "La distribució ha de contenir valors numèrics no negatius."
+        )
+    
     total = sum(distribucio.values())
 
+    if total == 0:
+        raise ValueError(
+            "El total de la distribució és zero."
+        )
+
     return {
-        periode: round(nombre / total * 100)
+        periode: round(nombre / total * 100, 2)
         for periode, nombre in distribucio.items()
     }
 
@@ -241,13 +279,75 @@ def assignar_diferencia_any_a_edificis(edificis_industrial, camp_any, zones, cam
         Còpia dels edificis industrials amb el nou camp
         'diferencia_any_barri'.
     """
+    # Validacions
+    if edificis_industrial is None or not edificis_industrial.isValid():
+        raise ValueError(
+            "La capa d'edificis industrials no és vàlida."
+        )
+
+    if zones is None or not zones.isValid():
+        raise ValueError(
+            "La capa de zones no és vàlida."
+        )
+
+    if not isinstance(camp_any, str) or not camp_any:
+        raise ValueError(
+            "El nom del camp d'any no és vàlid."
+        )
+
+    if edificis_industrial.fields().indexFromName(camp_any) == -1:
+        raise ValueError(
+            f"La capa d'edificis no conté el camp obligatori '{camp_any}'."
+        )
+
+    if not isinstance(camp_id_zona, str) or not camp_id_zona:
+        raise ValueError(
+            "El nom del camp identificador de zona no és vàlid."
+        )
+
+    if zones.fields().indexFromName(camp_id_zona) == -1:
+        raise ValueError(
+            f"La capa de zones no conté el camp obligatori '{camp_id_zona}'."
+        )
+
+    if not isinstance(mediana_resta_per_zona, dict):
+        raise ValueError(
+            "Les medianes per zona han de ser un diccionari."
+        )
+
+    if edificis_industrial.crs() != zones.crs():
+        raise ValueError(
+            "Les capes d'edificis i zones tenen SRC diferents."
+        )
+
+    # Crear una còpia de la capa
     layer = edificis_industrial.materialize(QgsFeatureRequest())
 
+    if not layer.isValid():
+        raise RuntimeError(
+            "No s'ha pogut crear una còpia vàlida de la capa d'edificis."
+        )
+    
     provider = layer.dataProvider()
-    provider.addAttributes([QgsField("diferencia_any_barri", QVariant.Double)])
+
+    resultat = provider.addAttributes([
+        QgsField("diferencia_any_barri", QVariant.Double)
+    ])
+    
+    if not resultat:
+        raise RuntimeError(
+            "No s'ha pogut crear el camp 'diferencia_any_barri'."
+        )
+    
     layer.updateFields()
 
     idx_diferencia = layer.fields().indexOf("diferencia_any_barri")
+
+    if idx_diferencia == -1:
+        raise RuntimeError(
+            "El camp 'diferencia_any_barri' no s'ha incorporat correctament."
+        )
+    
     index_edificis = QgsSpatialIndex(layer.getFeatures())
 
     canvis = {}
@@ -260,6 +360,12 @@ def assignar_diferencia_any_a_edificis(edificis_industrial, camp_any, zones, cam
             continue
 
         geometria_zona = zona.geometry()
+
+        if geometria_zona.isNull() or geometria_zona.isEmpty():
+            raise ValueError(
+                f"La zona amb identificador '{id_zona}' té una geometria buida."
+            )
+        
         engine = QgsGeometry.createGeometryEngine(geometria_zona.constGet())
         engine.prepareGeometry()
 
@@ -268,11 +374,29 @@ def assignar_diferencia_any_a_edificis(edificis_industrial, camp_any, zones, cam
 
         for edifici in layer.getFeatures(request):
             any_edifici = edifici[camp_any]
+            
             if any_edifici is None:
                 continue
-            if engine.intersects(edifici.geometry().centroid().constGet()):
+            
+            geometria_edifici = edifici.geometry()
+
+            if geometria_edifici.isNull() or geometria_edifici.isEmpty():
+                continue
+
+            centroide = geometria_edifici.centroid()
+
+            if centroide.isNull() or centroide.isEmpty():
+                continue
+
+            if engine.contains(centroide.constGet()):
                 canvis[edifici.id()] = {idx_diferencia: any_edifici - mediana_zona}
 
-    provider.changeAttributeValues(canvis)
+    if canvis:
+        resultat = provider.changeAttributeValues(canvis)
+    if not resultat:
+        raise RuntimeError(
+            "No s'han pogut actualitzar els valors del camp "
+            "'diferencia_any_barri'."
+        )
 
     return layer

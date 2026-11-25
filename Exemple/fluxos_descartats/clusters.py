@@ -209,3 +209,18 @@ def analisi_clusters(layer, usos):
         )
 
     return resultats_clusters
+
+
+# # ------------------------------------------------------------------------------
+# # 7.3. Composició anàlisi agrupacions espacials serveis públics
+# # ------------------------------------------------------------------------------
+
+# layout_clusters.composicio_clusters(
+#     capes=[
+#         layers_simbologia_zones['4_2_retail'],
+#         layers_simbologia_base["TermeMunicipal"],
+#         layers_simbologia_base["Edificis"],
+#         basemap_layer
+#     ],
+#     capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"]
+# )

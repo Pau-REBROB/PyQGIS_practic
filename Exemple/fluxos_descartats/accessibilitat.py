@@ -529,3 +529,145 @@ def frequencies(layer):
     for valor, n in sorted(freq.items()):
         print(f"{valor:>6} m → {n:>6} ({n / len(valors) * 100:5.1f} %)")
 
+# # ------------------------------------------------------------------------------
+# # 5.6. Accessibilitat
+# # ------------------------------------------------------------------------------
+
+# # Càlcul d'isoàrees d'accessibilitat multi-origen
+# isoarees_industrial = accessibilitat.analisi_accessibilitat(
+#     graf=dict_layers_clean["Graf"]["Graf_osm"],
+#     origen=clusters_seleccionats,
+#     **config.CONFIG_ANALISI["Isoarees_globals"]
+# )
+
+# # Càlcul d'isoàrees d'accessibilitat individualment
+# isoarees_per_cluster = accessibilitat.analisi_accessibilitat_individual(
+#     graf=dict_layers_clean["Graf"]["Graf_osm"],
+#     origen=clusters_seleccionats,
+#     **config.CONFIG_ANALISI["Isoarees_individuals"]
+# )
+
+# # Comparació de la cobertura de les isoàrees
+# llindars_comparacio = [500, 1000, 1500, 2000, 2500, 3000]
+
+# for cluster_id, isoarea in isoarees_per_cluster.items():
+#     resultat = accessibilitat.area_coberta_per_llindar(
+#         isoarees=isoarea,
+#         llindars=llindars_comparacio
+#     )
+#     print(f"Cluster {cluster_id}:", resultat)
+
+# # Resultats
+# #Cluster 24: {
+# #   500: 326306.46482907515, 1000: 1982951.445349127, 1500: 4909606.273723032,
+# #   2000: 8576268.59377075, 2500: 13031288.592719823, 3000: 18227628.431523204
+# # }
+# #Cluster 2: {
+# #   500: 359224.40429566335, 1000: 1489299.1504833587, 1500: 2872486.7499795556,
+# #   2000: 4775327.897160877, 2500: 6652060.368146252, 3000: 8405186.772574663
+# # }
+# #Cluster 27: {
+# #   500: 407035.93737074174, 1000: 1955767.351290375, 1500: 4139887.3407575935,
+# #   2000: 7201950.9986871155, 2500: 10785305.45604671, 3000: 15074048.936193772
+# # }
+# #Cluster 28: {
+# #   500: 389912.93736368464, 1000: 2085224.3000795022, 1500: 5092805.512293063,
+# #   2000: 9104471.990774022, 2500: 13428742.272372171, 3000: 17920921.40379775
+# # }
+
+# resultats_area_per_cluster = {
+#     cluster_id: accessibilitat.area_coberta_per_llindar(
+#         isoarees=isoarea,
+#         llindars=llindars_comparacio
+#     )
+#     for cluster_id, isoarea in isoarees_per_cluster.items()
+# }
+
+# grafics.grafic_area_accessibilitat(
+#     resultats_per_cluster=resultats_area_per_cluster,
+#     output_path=config.EXPORTACIO_GRAFICS["Grafic_area_isoarees"],
+#     noms_clusters={24: "Poblenou", 2: "Zona Franca", 27: "Bon Pastor", 28: "Sant Martí"}
+# )
+
+# # Assignar el valor d'accessibilitat de les isoàrees als edificis
+# edificis_amb_accessibilitat = accessibilitat.assignar_isoarees_a_edificis(
+#     edificis=edificis_base,
+#     isoarees=isoarees_industrial
+# )
+
+# # Assignació de ID clúster a cada edifici
+# edificis_industrial_amb_cluster = clusters.assignar_cluster_id_a_edificis(
+#     edificis=edificis_industrial_net,
+#     clusters=resultat_clusters_industrials["3_industrial"]["clusters"],
+#     camp_id_edifici="gml_id"
+# )
+
+# # Càlcul accessibilitat als edificis
+# edificis_industrial_final = accessibilitat.assignar_isoarees_a_edificis(
+#     edificis=edificis_industrial_amb_cluster,
+#     isoarees=isoarees_industrial
+# )
+
+# # Gràfic de dispersió accessibilitat-any de construcció
+# clusters_ids_origen = {24, 2, 27, 28}
+
+# grafics.grafic_scatter_any_accessibilitat(
+#     layer=edificis_industrial_final,
+#     cluster_ids_origen=clusters_ids_origen,
+#     output_path=config.EXPORTACIO_GRAFICS["Grafic_scatter_anyconstruccio_accessibilitat"]
+# )
+
+# # Estadística de la correlació
+# from scipy import stats
+
+# anys = []
+# accessibilitats = []
+
+# for feat in edificis_industrial_final.getFeatures():
+#     if feat["CLUSTER_ID"] in clusters_ids_origen:
+#         continue
+#     if feat["any_construccio"] is None or feat["accessibilitat"] is None:
+#         continue
+#     anys.append(feat["any_construccio"])
+#     accessibilitats.append(feat["accessibilitat"])
+
+# correlacio, p_valor = stats.pearsonr(anys, accessibilitats)
+# print(f"N = {len(anys)}")
+# print(f"Correlació de Pearson: {correlacio:.3f} (p={p_valor:.4f})")
+
+# # ------------------------------------------------------------------------------
+# # 6.4. Clústers i accessibilitat
+# # ------------------------------------------------------------------------------
+
+# layers_simbologia_accessibilitat_clusters = simbologia_general.simbologia_accessibilitat_clusters(
+#     capa_clusters=zones_clusters_seleccionats,
+#     capa_edificis=edificis_amb_accessibilitat,
+#     capa_terme=terme_base,
+#     capa_graf=dict_layers_clean["Graf"]["Graf_osm"]
+# )
+
+
+# # ------------------------------------------------------------------------------
+# # 6.4. Accessibilitat
+# # ------------------------------------------------------------------------------
+
+# layers_simbologia_accessibilitat = simbologia_general.simbologia_composicio_accessibilitat(
+#     edificis=edificis_accessibilitat,
+#     graf=dict_layers_clean["Graf"]["Graf_trams"],
+#     clusters=clusters_publicS,
+#     terme=dict_layers_clean["Limits_administratius"]["TermeMunicipal"]
+# )
+
+# # ------------------------------------------------------------------------------
+# # 7.4. Composició d'accessibilitat
+# # ------------------------------------------------------------------------------
+
+# layout_accessibilitat.composicio_accessibilitat(
+#     capes=[
+#         layers_simbologia_accessibilitat_clusters["graf"],
+#         layers_simbologia_accessibilitat_clusters["edificis"],
+#         layers_simbologia_accessibilitat_clusters["clusters"],
+#         layers_simbologia_accessibilitat_clusters["terme"]
+#     ],
+#     capa_extent=terme_base
+# )
