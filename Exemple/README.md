@@ -1,52 +1,37 @@
-# Posada en pràctica
+### Execució del projecte
 
-Scripts on es posa en pràctica la teoria exposada amb dades reals de Barcelona
+El projecte està dissenyat per executar-se des de la consola Python de QGIS.
 
-Els scripts es separen també per temàtica
+Per iniciar l'anàlisi:
 
-## 0_Inicialització
-Creació d'instàncies del projecte (*project*) i el panell de capes (*root*)
+1. Obriu QGIS i accediu a la consola Python.
+2. Obriu el fitxer `Exemple/main.py` des de l'editor de scripts de la consola.
+3. Executeu el fitxer des de l'editor.
 
-Importació de les diferents capes
+**Important:** no s'ha de copiar i enganxar el contingut de `main.py` directament a la consola Python. El projecte utilitza la variable `__file__` per identificar automàticament la ubicació dels scripts i construir les rutes relatives. Aquesta variable està disponible quan s'executa el fitxer com a script, però no necessàriament quan se n'enganxa el contingut a la consola.
 
-Comprovació dels sistemes de referència
+Cal executar el projecte en un entorn QGIS amb les dependències necessàries disponibles.
 
-## 1_Preparació de les dades
-Inspecció dels camps presents a les dades
+### Configuració de les dades
 
-Clonació de les capes i eliminació dels camps innecessaris
+El projecte utilitza dades externes que no s'inclouen al repositori.
 
-Addició de les capes al canvas
+Per executar-lo, cal disposar de la carpeta `Dades` amb l'estructura de directoris esperada pel projecte.
 
-## Simbologia única
-Creació de funcions de simbologia única per a elements poligonals i lineals, aptes per a ser usades com a mòduls
+La ubicació de les dades es configura mitjançant el fitxer `Exemple/config_local.py`:
 
-Test de les funcions amb dades de Barcelona, només executable en el propi script. Creació de simbologia única per a les unitats administratives, el graf viari i elements del cadastre
+1. Copieu el fitxer `Exemple/config_local.example.py` i anomeneu la còpia `config_local.py`.
+2. Editeu el valor de `PATH_DADES` perquè apunti a la ubicació de la vostra carpeta `Dades`.
+3. Deseu el fitxer.
 
-## Simbologia categòrica
-Creació de funcions de simbologia categòrica per a elements poligonals, apta per a ser usada com a mòdul
+Per exemple:
 
-Test de la funció amb dades de Barcelona, només executable en el propi script. Creació de simbologia categòrica per als barris i districtes
+```python
+from pathlib import Path
 
-## Simbologia graduada
-Creació de funcions de simbologia graduada utilitzant els mètodes de classificació propis de QGIS per a elements poligonals, apta per a ser usada com a mòdul
+PATH_DADES = Path(r"D:/GIS/Dades")
+```
 
-Test de la funció amb dades de Barcelona, només executable en el propi script. Creació de simbologia graduada per l'àrea dels barris i districtes, així com el nombre de pisos dels edificis
+Si no es crea aquest fitxer, el projecte assumeix que la carpeta `Dades` es troba al mateix nivell que el repositori.
 
-## Simbologia graduada manual
-Creació de funcions de simbologia graduada creant manualment els rangs de dades per a elements poligonals, apta per a ser usada com a mòdul
-
-Test de la funció amb dades de Barcelona, només executable en el propi script. Creació de simbologia graduada pel nombre de pisos dels edificis
-
-## Simbologia basada en regles
-Creació de cartografia dels barris basada en regles: àrea més petita i àrea més gran
-
-
-## Ús edificis
-Script individual que inicialitza QGIS, importa les dades i les funcions anteriors com a mòduls per a generar una composició
-
-S'utilitza la funció de simbologia única per generar una base cartogràfica de referència dels barris i districtes, juntament amb un mapa base de fons en format WMS CartoDB Dark
-
-S'utilitza la funció de simbologia categòrica per a representar els edificis en funció del seu ús
-
-Es genera un atles, amb un full per districte
+El fitxer `config_local.py` és personal i està exclòs del control de versions mitjançant `.gitignore`.

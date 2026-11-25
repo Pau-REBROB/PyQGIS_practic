@@ -1,18 +1,58 @@
-"""Arxiu de configuració"""
+"""Arxiu de configuració del projecte de PyQGIS"""
+
+from pathlib import Path
 
 # =============================================================================
-# RUTES
+# RUTES DEL PROJECTE
 # =============================================================================
 
-PATH_PROJECTE = "C:/projectes_git/PyQGIS_practic"
+# Directori on es troba aquest fitxer (Exemple/)
+PATH_EXEMPLE = Path(__file__).resolve().parent
 
-PATH_DADES = "C:/projectes_git/Dades"
-PATH_DADES_NETES = "C:/projectes_git/Dades/PyQGIS_Repo/Dades_netes"
-PATH_RESULTATS = f"{PATH_PROJECTE}/Resultats"
+# Directori principal del repositori PyQGIS_practic/
+PATH_PROJECTE = PATH_EXEMPLE.parent
 
-PATH_DADES_LIMITS = f"{PATH_DADES}/PyQGIS_Repo/Limits_administratius_BCN"
-PATH_DADES_CADASTRE = f"{PATH_DADES}/PyQGIS_Repo/Cadastre"
-PATH_DADES_GRAF = f"{PATH_DADES}/PyQGIS_Repo/Graf_viari"
+# Recursos gràfics del projecte
+PATH_RESOURCES = PATH_EXEMPLE / "resources"
+PATH_FLETXA_NORD = PATH_RESOURCES / "nord2.png"
+
+# Carpeta de resultats
+PATH_RESULTATS = PATH_PROJECTE / "resultats"
+
+
+# =============================================================================
+# CONFIGURACIÓ LOCAL
+# =============================================================================
+
+# Si existeix config_local.py, s'utilitzarà la ruta definida en aquest
+# Si no existeix, s'assumeix que Dades/ és al mateix nivell que el repositori
+
+try:
+    from config_local import PATH_DADES as _PATH_DADES
+
+except ModuleNotFoundError as exc:
+    if exc.name != "config_local":
+        raise
+
+    _PATH_DADES = PATH_PROJECTE.parent / "Dades"
+
+# Assegurem que la ruta sigui un objecte Path
+PATH_DADES = Path(_PATH_DADES)
+
+
+# =============================================================================
+# SUBCARPETES DE DADES
+# =============================================================================
+
+PATH_DADES_NETES = PATH_DADES / "PyQGIS_Repo" / "Dades_netes"
+
+PATH_DADES_LIMITS = PATH_DADES / "PyQGIS_Repo" / "Limits_administratius_BCN"
+
+PATH_DADES_CADASTRE = PATH_DADES / "PyQGIS_Repo" / "Cadastre"
+
+PATH_DADES_GRAF = PATH_DADES / "PyQGIS_Repo" / "Graf_viari"
+
+
 
 # =============================================================================
 # DADES D'ENTRADA
@@ -231,15 +271,6 @@ CONFIG_ANALISI = {
     "Clusters": {
         "eps": 200,
         "min_size": 10
-    },
-
-    "Isoarees_globals": {
-        "distancia_max": 20000,
-        "interval": 100
-    },
-    "Isoarees_individuals": {
-        "distancia_max": 15000,
-        "interval": 100
     }
 }
 
@@ -1362,7 +1393,7 @@ LAYOUTS = {
             "font_color": (0,0,0,255)
         },
         "Nord": {
-            "image_path": "C:/projectes_git/Dades/nord2.png"
+            "image_path": str(PATH_FLETXA_NORD)
         },
         "Exportacio": {
             "output_path": f"{PATH_RESULTATS}/Classificacio_edificis.pdf",
@@ -1397,7 +1428,7 @@ LAYOUTS = {
         #     "backg_color": (100,100,100,180)
         # },
         # "Nord": {
-        #     "image_path": "C:/projectes_git/Dades/nord2.png"
+        #     "image_path": str(PATH_FLETXA_NORD)
         # },
         # "Generacio": {
         #     "camp": '"NOM"'
@@ -1585,7 +1616,7 @@ LAYOUTS = {
                 "font_color": (0,0,0,255)
             },
             "Nord": {
-                "image_path": "C:/projectes_git/Dades/nord2.png"
+                "image_path": str(PATH_FLETXA_NORD)
             },
             "Exportacio": {
                 "output_path": f"{PATH_RESULTATS}/Antiguitat_edificis.pdf",
@@ -1626,7 +1657,7 @@ LAYOUTS = {
                     "font_color": (0,0,0,255)
                 },
                 "Nord": {
-                    "image_path": "C:/projectes_git/Dades/nord2.png"
+                    "image_path": str(PATH_FLETXA_NORD)
                 },
                 "Peu": {
                     "text": "Font: Cadastre, ICGC (CC-BY 4.0), OpenStreetMap contributors (ODbL) · Elaboració pròpia",
@@ -1681,7 +1712,7 @@ LAYOUTS = {
     #         "font_color": (255,255,255,255)
     #     },
     #     "Nord": {
-    #         "image_path": "C:/projectes_git/Dades/nord2.png"
+    #         "image_path": str(PATH_FLETXA_NORD)
     #     },
     #     "Peu": {
     #         "text": "Font: Cadastre, ICGC (CC-BY 4.0), OpenStreetMap contributors (ODbL) · Elaboració pròpia",
@@ -1719,7 +1750,7 @@ LAYOUTS = {
     #         "font_color": (0,0,0,255)
     #     },
     #     "Nord": {
-    #         "image_path": "C:/projectes_git/Dades/nord2.png"
+    #         "image_path": str(PATH_FLETXA_NORD)
     #     },
     #     "Grafic_total": {
     #         "path": f"{PATH_RESULTATS}/Grafic_nombreEdificis_districte.png",
@@ -1770,7 +1801,7 @@ LAYOUTS = {
             "font_color": (0,0,0,255)
         },
         "Nord": {
-            "image_path": "C:/projectes_git/Dades/nord2.png"
+            "image_path": str(PATH_FLETXA_NORD)
         },
         "Exportacio": {
             "output_path": f"{PATH_RESULTATS}/Analisi_clusters.pdf",
@@ -1946,7 +1977,7 @@ LAYOUTS = {
                 "font_color": (0,0,0,255)
             },
             "Nord": {
-                "image_path": "C:/projectes_git/Dades/nord2.png"
+                "image_path": str(PATH_FLETXA_NORD)
             },
             "Exportacio": {
                 "output_path": f"{PATH_RESULTATS}/Analisi_bivariant_districtes.pdf",
@@ -2001,7 +2032,7 @@ LAYOUTS = {
                 "font_color": (0,0,0,255)
             },
             "Nord": {
-                "image_path": "C:/projectes_git/Dades/nord2.png"
+                "image_path": str(PATH_FLETXA_NORD)
             },
             "Exportacio": {
                 "output_path": f"{PATH_RESULTATS}/Analisi_bivariant_barris.pdf",
@@ -2072,7 +2103,7 @@ LAYOUTS = {
                 "font_color": (0,0,0,255)
             },
             "Nord": {
-                "image_path": "C:/projectes_git/Dades/nord2.png"
+                "image_path": str(PATH_FLETXA_NORD)
             },
             "Exportacio": {
                 "output_path": f"{PATH_RESULTATS}/Analisi_bivariant_hexagons.pdf",
@@ -2146,7 +2177,7 @@ LAYOUTS = {
     #         "font_color": (0,0,0,255)
     #     },
     #     "Nord": {
-    #         "image_path": "C:/projectes_git/Dades/nord2.png"
+    #         "image_path": str(PATH_FLETXA_NORD)
     #     },
     #     "Exportacio": {
     #         "output_path": f"{PATH_RESULTATS}/Analisi_bivariant_hexagons.pdf",

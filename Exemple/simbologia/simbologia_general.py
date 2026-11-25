@@ -96,14 +96,16 @@ def simbologia_base(dict_layers):
 
 def simbologia_atles(edificis, districtes):
     """
-    Aplica la simbologia als edificis d'ús industrial i la simbologia a
-    la resta d'edificis.
+     Aplica la simbologia als edificis segons el seu ús actual
+    i una simbologia única als districtes.
 
     Paràmetres
     ----------
-    edificis: QgsVectorLayer
+    edificis : QgsVectorLayer
         Capa vectorial dels edificis.
-    
+    districtes : QgsVectorLayer
+        Capa vectorial dels districtes.
+
     Retorna
     -------
     dict
@@ -112,12 +114,28 @@ def simbologia_atles(edificis, districtes):
 
     layers_atles = {}
 
-    layers_atles["Edificis"] = simbologia_especialitzacio.simbologia_edificis_industrials(
-        edificis=edificis
+    # Edificis: simbologia categòrica segons l'ús actual
+    layer_edificis = simbologies.simbologia_categorica(
+        layer=edificis,
+        **config.SIMBOLOGIA["Atles"]["Edificis"]
     )
 
-    layers_atles["Districtes"] = simbologia_especialitzacio.simbologia_districtes_atles(
-        districtes=districtes
+    renderer = layer_edificis.renderer()
+
+    for i, categoria in enumerate(renderer.categories()):
+        valor = categoria.value()
+        etiqueta = config.ETIQUETES_USOS.get(valor, valor)
+        renderer.updateCategoryLabel(i, etiqueta)
+
+    layer_edificis.triggerRepaint()
+    layer_edificis.setName("Ús actual")
+
+    layers_atles["Edificis"] = layer_edificis
+
+    # Districtes: simbologia única
+    layers_atles["Districtes"] = simbologies.simbologia_unica(
+        layer=districtes,
+        **config.SIMBOLOGIA["Atles"]["Districtes"]
     )
 
     return layers_atles

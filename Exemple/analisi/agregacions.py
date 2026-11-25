@@ -2,19 +2,18 @@
 Agregacions estadístiques
 =========================
 
-Mòdul que agrupa les funcions d'agregació estadística del projecte.
+Mòdul que agrupa les funcions d'agregació i càlcul estadístic
+sobre edificis i zones territorials.
 
 Organització
 ------------
 
-- Agregació per zones
-    Funcions per calcular el nombre i el percentatge d'edificis
-    segons el seu ús dins de cada unitat administrativa.
-
-Les funcions s'organitzen en tres nivells:
-    - funcions bàsiques d'agregació;
-    - funcions de transformació dels resultats;
-    - funcions d'alt nivell que orquestren el procés complet.
+- Recompte d'edificis per zona.
+- Càlcul de superfícies construïdes per zona.
+- Càlcul de densitats d'edificis i de superfície construïda.
+- Classificació de zones segons intervals de valors.
+- Escriptura de resultats en capes vectorials.
+- Agrupació de valors i comparació de medianes per zona.
 """
 
 from qgis.core import (
@@ -27,17 +26,18 @@ from qgis.PyQt.QtCore import QVariant
 
 from statistics import median
 
-import config
 
 def calcular_edificis_per_zona(edificis, camp_id_edifici, zones, camp_id_zona):
     """
-    Compta el nombre d'edificis dins de cada zona.
+    Compta el nombre d'edificis assignats a cada zona.
 
-    Fa un join espacial entre els edificis i els polígons de zonificació:
-    primer descarta candidats per bounding box mitjançant l'índex espacial
-    (fase ràpida i aproximada) i després verifica la intersecció exacta amb
-    un geometry engine preparat (fase lenta i precisa). Compta els edificis
-    per identificador real (no per fid intern de QGIS), evitant duplicats.
+    Cada edifici s'assigna a la zona que conté el seu centroide.
+    Així, un edifici només es compta en una zona, encara que
+    la seva geometria travessi diversos polígons.
+
+    Els edificis amb geometria buida o sense centroide vàlid
+    s'ignoren. Si el camp identificador és nul, s'utilitza
+    el FID intern de QGIS com a identificador alternatiu.
 
     Paràmetres
     ----------
@@ -56,7 +56,7 @@ def calcular_edificis_per_zona(edificis, camp_id_edifici, zones, camp_id_zona):
     Retorna
     -------
     dict
-        Diccionari { id_zona: densitat_edificis_km2 }.
+        Diccionari { id_zona: nombre_edificis }.
         Les zones sense cap edifici assignat hi apareixen amb valor 0.
     """
     index_edificis = QgsSpatialIndex(edificis.getFeatures())
@@ -66,27 +66,51 @@ def calcular_edificis_per_zona(edificis, camp_id_edifici, zones, camp_id_zona):
     for zona in zones.getFeatures():
         id_zona = zona[camp_id_zona]
         geometria_zona = zona.geometry()
+
+        # Geometria de zona buida: no es poden fer assignacions
+        if geometria_zona.isNull() or geometria_zona.isEmpty():
+            recompte[id_zona] = 0
+            continue
         
-        # Fase ràpida: edificis candidats per bbox
-        candidats = index_edificis.intersects(geometria_zona.boundingBox())
+        # Índex espacial: selecció ràpida dels edificis candidats per bbox
+        candidats = index_edificis.intersects(
+            geometria_zona.boundingBox()
+        )
 
-        # Geometry engine preparat un sol cop per zona, reutilitzat per
-        # a cada candidat (més ràpid que geometria_zona.intersects(...)
-        # cridat repetidament dins del bucle)
-        engine = QgsGeometry.createGeometryEngine(geometria_zona.constGet())
-        engine.prepareGeometry()
-
-        # Recuperació en bloc dels candidats (una sola consulta a la capa,
-        # en lloc d'una crida a getFeature() per cada fid)
         request = QgsFeatureRequest().setFilterFids(candidats)
 
+        # Geometry engine preparat un sol cop per zona, reutilitzat per
+        # a cada candidat
+        engine = QgsGeometry.createGeometryEngine(
+            geometria_zona.constGet()
+        )
+        engine.prepareGeometry()
+
         # Fase precisa: verificació exacta + identificador real per evitar duplicats
-        ids_edificis_zona = {
-            feature[camp_id_edifici]
-            for feature in edificis.getFeatures(request)
-            if engine.intersects(feature.geometry().constGet())
-        }
-        
+        ids_edificis_zona = set()
+
+        for feature in edificis.getFeatures(request):
+            geometria_edifici = feature.geometry()
+
+            if geometria_edifici.isNull() or geometria_edifici.isEmpty():
+                continue
+
+            centroide = geometria_edifici.centroid()
+
+            if centroide.isNull() or centroide.isEmpty():
+                continue
+
+            # Assignació d'edifici a zona per centroide,
+            # no per intersecció de l'edifici
+            if engine.contains(centroide.constGet()):
+                id_edifici = feature[camp_id_edifici]
+
+                # Fallback al FID si l'identificador propi és nul
+                if id_edifici is None:
+                    id_edifici = ("fid", feature.id())
+
+                ids_edificis_zona.add(id_edifici)
+
         recompte[id_zona] = len(ids_edificis_zona)
 
     return recompte
@@ -94,22 +118,16 @@ def calcular_edificis_per_zona(edificis, camp_id_edifici, zones, camp_id_zona):
 
 def calcular_superficie_per_zona(edificis, zones, camp_id_zona):
     """
-    Calcula la superfície construïda d'edificis industrials dins de cada zona.
+    Calcula la superfície construïda d'edificis industrials dins
+    de cada zona.
 
-    Fa un join espacial entre els edificis i els polígons de zonificació:
-    primer descarta candidats per bounding box mitjançant l'índex espacial
-    (fase ràpida i aproximada) i després verifica la intersecció exacta amb
-    un geometry engine preparat (fase lenta i precisa). Compta els edificis
-    per identificador real (no per fid intern de QGIS), evitant duplicats.
+    La superfície s'assigna proporcionalment a la intersecció
+    entre la geometria de cada edifici i la geometria de la zona.
 
     Paràmetres
     ----------
     edificis : QgsVectorLayer
         Capa d'edificis a comptar.
-    camp_id_edifici : str
-        Nom del camp identificador de l'edifici dins de `edificis`
-        (p. ex. "gml_id" o "referenciaCadastral"), usat per identificar
-        cada edifici de manera estable, en lloc del fid intern de QGIS.
     zones : QgsVectorLayer
         Capa de polígons de zonificació (barris, districtes, etc.).
     camp_id_zona : str
@@ -119,64 +137,71 @@ def calcular_superficie_per_zona(edificis, zones, camp_id_zona):
     Retorna
     -------
     dict
-        Diccionari { id_zona: densitat_edificis_km2 }.
+        Diccionari { id_zona: superficie_m2 }.
         Les zones sense cap edifici assignat hi apareixen amb valor 0.
     """
+    # Comprovació del SRC
+    if edificis.crs() != zones.crs():
+        raise ValueError(
+            "Les capes d'edificis i zones han de tenir el mateix CRS (25831)"
+        )
+
+    if edificis.crs().isGeographic():
+        raise ValueError(
+            "Cal utilitzar un CRS projectat per calcular les superfícies"
+        )
+
+    # Índex espacial dels edificis
     index_edificis = QgsSpatialIndex(edificis.getFeatures())
 
-    recompte = {}
+    superficies = {}
 
     for zona in zones.getFeatures():
         id_zona = zona[camp_id_zona]
         geometria_zona = zona.geometry()
 
-        # Fase ràpida: edificis candidats per bbox
-        candidats = index_edificis.intersects(geometria_zona.boundingBox())
+        # Zona sense geometria vàlida
+        if geometria_zona.isNull() or geometria_zona.isEmpty():
+            superficies[id_zona] = 0.0
+            continue
 
-        # Geometry engine preparat un sol cop per zona, reutilitzat per
-        # a cada candidat (més ràpid que geometria_zona.intersects(...)
-        # cridat repetidament dins del bucle)
-        engine = QgsGeometry.createGeometryEngine(geometria_zona.constGet())
-        engine.prepareGeometry()
+        # Cerca d'edificis candidats per bbox
+        candidats = index_edificis.intersects(
+            geometria_zona.boundingBox()
+        )
 
-        # Recuperació en bloc dels candidats (una sola consulta a la capa,
-        # en lloc d'una crida a getFeature() per cada fid)
         request = QgsFeatureRequest().setFilterFids(candidats)
 
-        # Fase precisa: verificació exacta + identificador real per evitar duplicats
-        superficie_edificis_zona = {
-            feature.geometry().area() / 1000000
-            for feature in edificis.getFeatures(request)
-            if engine.intersects(feature.geometry().constGet())
-        }
-        
-        recompte[id_zona] = sum(superficie_edificis_zona)
+        superficie_total = 0.0
 
-        superficie_edificis_zona = 0
+        for edifici in edificis.getFeatures(request):
+            geometria_edifici = edifici.geometry()
 
-    # Tallar el feature per la part que realment és dins la zona
-    # for feature in edificis.getFeatures(request):
-    #     geometria = feature.geometry()
+            if geometria_edifici.isNull() or geometria_edifici.isEmpty():
+                continue
 
-    #     if engine.intersects(geometria.constGet()):
-    #         interseccio = geometria.intersection(geometria_zona)
-    #         superficie_edificis_zona += interseccio.area() / 1000000
+            # Calcular la part de l'edifici situada dins de la zona
+            interseccio = geometria_edifici.intersection(
+                geometria_zona
+            )
 
-    # recompte[id_zona] = superficie_edificis_zona
+            if interseccio.isNull() or interseccio.isEmpty():
+                continue
 
-    return recompte
+            superficie_total += interseccio.area()
+
+        superficies[id_zona] = superficie_total
+
+    return superficies
 
 
 def calcular_densitat_edificis_per_zona(edificis, camp_id_edifici, zones, camp_id_zona):
     """
-    Calcula la densitat d'edificis (edificis/km²) per cada zona.
+    Calcula la densitat d'edificis per km² per cada zona.
 
-    Fa un join espacial entre els edificis i els polígons de zonificació:
-    primer descarta candidats per bounding box mitjançant l'índex espacial
-    (fase ràpida i aproximada) i després verifica la intersecció exacta amb
-    un geometry engine preparat (fase lenta i precisa). Compta els edificis
-    per identificador real (no per fid intern de QGIS) i divideix pel valor
-    de la superfície de la zona en km².
+    Cada edifici s'assigna a la zona que conté el seu centroide.
+    Per tant, cada edifici només es compta en una zona, sempre
+    que les zones no se solapin.
 
     Paràmetres
     ----------
@@ -195,9 +220,21 @@ def calcular_densitat_edificis_per_zona(edificis, camp_id_edifici, zones, camp_i
     Retorna
     -------
     dict
-        Diccionari { id_zona: densitat_edificis_km2 }.
+        Diccionari { id_zona: edificis_per_km2 }.
         Les zones sense cap edifici assignat hi apareixen amb valor 0.
     """
+    # Comprovació del sistema de coordenades
+    if edificis.crs() != zones.crs():
+        raise ValueError(
+            "Les capes d'edificis i zones han de tenir el mateix CRS."
+        )
+
+    if edificis.crs().isGeographic():
+        raise ValueError(
+            "Cal utilitzar un CRS projectat per calcular densitats."
+        )
+
+    # Índex espacial dels edificis
     index_edificis = QgsSpatialIndex(edificis.getFeatures())
 
     densitats = {}
@@ -205,32 +242,59 @@ def calcular_densitat_edificis_per_zona(edificis, camp_id_edifici, zones, camp_i
     for zona in zones.getFeatures():
         id_zona = zona[camp_id_zona]
         geometria_zona = zona.geometry()
+
+        if geometria_zona.isNull() or geometria_zona.isEmpty():
+            densitats[id_zona] = 0.0
+            continue
+        
         # Superfície de la zona en km^2
         superficie_zona = geometria_zona.area() / 1000000
 
-        # Fase ràpida: edificis candidats per bbox
-        candidats = index_edificis.intersects(geometria_zona.boundingBox())
+        if superficie_zona <= 0:
+            raise ValueError(
+                f"La zona {id_zona} té una superfície nul·la o negativa."
+            )
 
-        # Geometry engine preparat un sol cop per zona, reutilitzat per
-        # a cada candidat (més ràpid que geometria_zona.intersects(...)
-        # cridat repetidament dins del bucle)
-        engine = QgsGeometry.createGeometryEngine(geometria_zona.constGet())
-        engine.prepareGeometry()
+        # Cerca d'edificis candidats per bbox
+        candidats = index_edificis.intersects(
+            geometria_zona.boundingBox()
+        )
 
-        # Recuperació en bloc dels candidats (una sola consulta a la capa,
-        # en lloc d'una crida a getFeature() per cada fid)
         request = QgsFeatureRequest().setFilterFids(candidats)
 
-        # Fase precisa: verificació exacta + identificador real per evitar duplicats
-        ids_edificis_zona = {
-            feature[camp_id_edifici]
-            for feature in edificis.getFeatures(request)
-            if engine.intersects(feature.geometry().constGet())
-        }
-        
-        recommpte = len(ids_edificis_zona)
+        # Geometry engine preparat un sol cop per zona, reutilitzat per
+        # a cada candidat
+        engine = QgsGeometry.createGeometryEngine(geometria_zona.constGet())
+        engine.prepareGeometry()  
 
-        densitats[id_zona] = recommpte / superficie_zona if superficie_zona > 0 else 0
+        # Verificació exacta + identificador real per evitar duplicats
+        ids_edificis_zona = set()
+
+        for edifici in edificis.getFeatures(request):
+            geometria_edifici = edifici.geometry()
+
+            if geometria_edifici.isNull() or geometria_edifici.isEmpty():
+                continue
+
+            centroide = geometria_edifici.centroid()
+
+            if centroide.isNull() or centroide.isEmpty():
+                continue
+
+            # Assignació per centroide
+            if engine.contains(centroide.constGet()):
+                id_edifici = edifici[camp_id_edifici]
+
+                # Fallback al FID si l'identificador és nul
+                if id_edifici is None:
+                    id_edifici = ("fid", edifici.id())
+
+                ids_edificis_zona.add(id_edifici)
+        
+        # Càlcul de la densitat
+        densitats[id_zona] = (
+            len(ids_edificis_zona) / superficie_zona
+        )
 
     return densitats
 
@@ -258,23 +322,16 @@ def calcular_densitat_edificis_per_zona(edificis, camp_id_edifici, zones, camp_i
 
 def calcular_densitat_superficie_per_zona(edificis, zones, camp_id_zona):
     """
-    Calcula la densitat de superfície construida per cada zona.
+    Calcula el percentatge de superfície de cada zona ocupat
+    per les petjades dels edificis.
 
-    Fa un join espacial entre els edificis i els polígons de zonificació:
-    primer descarta candidats per bounding box mitjançant l'índex espacial
-    (fase ràpida i aproximada) i després verifica la intersecció exacta amb
-    un geometry engine preparat (fase lenta i precisa). Compta els edificis
-    per identificador real (no per fid intern de QGIS) i divideix pel valor
-    de la superfície de la zona en km².
+    La superfície dels edificis s'assigna proporcionalment
+    a la intersecció amb cada zona.
 
     Paràmetres
     ----------
     edificis : QgsVectorLayer
         Capa d'edificis a comptar.
-    camp_id_edifici : str
-        Nom del camp identificador de l'edifici dins de `edificis`
-        (p. ex. "gml_id" o "referenciaCadastral"), usat per identificar
-        cada edifici de manera estable, en lloc del fid intern de QGIS.
     zones : QgsVectorLayer
         Capa de polígons de zonificació (barris, districtes, etc.).
     camp_id_zona : str
@@ -284,9 +341,20 @@ def calcular_densitat_superficie_per_zona(edificis, zones, camp_id_zona):
     Retorna
     -------
     dict
-        Diccionari { id_zona: densitat_edificis_km2 }.
-        Les zones sense cap edifici assignat hi apareixen amb valor 0.
+        Diccionari { id_zona: percentatge_superficie_ocupada }.
     """
+    # Comprovació del sistema de coordenades
+    if edificis.crs() != zones.crs():
+        raise ValueError(
+            "Les capes d'edificis i zones han de tenir el mateix CRS."
+        )
+
+    if edificis.crs().isGeographic():
+        raise ValueError(
+            "Cal utilitzar un CRS projectat per calcular superfícies."
+        )
+
+    # Índex espacial dels edificis
     index_edificis = QgsSpatialIndex(edificis.getFeatures())
 
     densitats = {}
@@ -294,32 +362,46 @@ def calcular_densitat_superficie_per_zona(edificis, zones, camp_id_zona):
     for zona in zones.getFeatures():
         id_zona = zona[camp_id_zona]
         geometria_zona = zona.geometry()
-        # Superfície de la zona en km^2
-        superficie_zona = geometria_zona.area() / 1000000
 
-        # Fase ràpida: edificis candidats per bbox
+        if geometria_zona.isNull() or geometria_zona.isEmpty():
+            densitats[id_zona] = 0.0
+            continue
+
+        # Superfície de la zona en m²
+        superficie_zona = geometria_zona.area()
+
+        if superficie_zona <= 0:
+            raise ValueError(
+                f"La zona {id_zona} té una superfície nul·la o negativa."
+            )
+
+        # Cerca d'edificis candidats per bbox
         candidats = index_edificis.intersects(geometria_zona.boundingBox())
 
-        # Geometry engine preparat un sol cop per zona, reutilitzat per
-        # a cada candidat (més ràpid que geometria_zona.intersects(...)
-        # cridat repetidament dins del bucle)
-        engine = QgsGeometry.createGeometryEngine(geometria_zona.constGet())
-        engine.prepareGeometry()
-
-        # Recuperació en bloc dels candidats (una sola consulta a la capa,
-        # en lloc d'una crida a getFeature() per cada fid)
         request = QgsFeatureRequest().setFilterFids(candidats)
 
-        # Fase precisa: verificació exacta + identificador real per evitar duplicats
-        superficie_edificis_zona = {
-            feature.geometry().area() / 1000000
-            for feature in edificis.getFeatures(request)
-            if engine.intersects(feature.geometry().constGet())
-        }
-        
-        recommpte = sum(superficie_edificis_zona)
+        superficie_edificis = 0.0
 
-        densitats[id_zona] = recommpte / superficie_zona if superficie_zona > 0 else 0
+        for edifici in edificis.getFeatures(request):
+            geometria_edifici = edifici.geometry()
+
+            if geometria_edifici.isNull() or geometria_edifici.isEmpty():
+                continue
+
+            # Superfície de l'edifici situada dins de la zona
+            interseccio = geometria_edifici.intersection(
+                geometria_zona
+            )
+
+            if interseccio.isNull() or interseccio.isEmpty():
+                continue
+
+            superficie_edificis += interseccio.area()
+       
+        # Percentatge de superfície ocupada
+        densitats[id_zona] = (
+            superficie_edificis / superficie_zona
+        ) * 100
 
     return densitats
 
@@ -338,9 +420,9 @@ def comptar_zones_per_classe(dict_valors, breaks):
 
     Paràmetres
     ----------
-    diccionari_valors : dict
-        Diccionari { id_zona: valor }, típicament la sortida de
-        calcular_densitat_per_zona per a un nivell d'agregació concret.
+    dict_valors : dict
+        Diccionari { id_zona: valor }, amb els valors que es volen
+        classificar per a cada zona.
     breaks : list[float]
         Llindars de classificació compartits (p. ex. config.BREAKS_DENSITAT_INDUSTRIAL).
 
@@ -375,6 +457,8 @@ def escriure_valors_zonals_a_capa(zones, dict_valors, camp_id_zona, nom_camp_res
     Escriu un diccionari de resultats { id_zona: valor } com a nou camp
     d'una còpia de la capa de zones, sense modificar la capa original.
 
+    Les zones sense entrada al diccionari queden amb valor NULL.
+
     Paràmetres
     ----------
     zones : QgsVectorLayer
@@ -383,35 +467,93 @@ def escriure_valors_zonals_a_capa(zones, dict_valors, camp_id_zona, nom_camp_res
         Diccionari { id_zona: valor }, típicament la sortida d'una funció
         d'agregació (p. ex. calcular_densitat_per_zona).
     camp_id_zona : str
-        Nom del camp identificador de la zona, usat per fer coincidir
-        cada feature amb la seva entrada al diccionari.
+        Nom del camp identificador de la zona.
     nom_camp_resultat : str
-        Nom del nou camp on s'escriurà el valor.
+        Nom del nou camp resultat on s'escriurà el valor.
 
     Retorna
     -------
     QgsVectorLayer
         Còpia en memòria de `zones` amb el nou camp afegit i emplenat.
-        Les zones sense entrada al diccionari queden amb el camp a NULL.
+    
+    Raises
+    ------
+    ValueError
+        Si la capa o els paràmetres no son vàlids.
+    RuntimeError
+        Si falla alguna operació del proveïdor de dades.
     """
+    # Validacions inicials
+    if not zones or not zones.isValid():
+        raise ValueError(
+            "La capa de zones no és vàlida."
+        )
+
+    if not isinstance(dict_valors, dict):
+        raise ValueError(
+            "dict_valors ha de ser un diccionari."
+        )
+
+    if not nom_camp_resultat:
+        raise ValueError(
+            "Cal indicar un nom per al camp de resultats."
+        )
+
+    if zones.fields().indexOf(camp_id_zona) == -1:
+        raise ValueError(
+            f"El camp identificador {camp_id_zona} no existeix a la capa."
+        )
+
+    if zones.fields().indexOf(nom_camp_resultat) != -1:
+        raise ValueError(
+            f"El camp '{nom_camp_resultat}' ja existeix a la capa."
+        )
+
+    # Creació d'una còpia en memòria
     capa_resultat = zones.materialize(QgsFeatureRequest())
+
+    if not capa_resultat.isValid():
+        raise RuntimeError(
+            "No s'ha pogut crear la còpia de la capa de zones."
+        )
+    
     capa_resultat.setName(f"{zones.name()}_{nom_camp_resultat}")
 
     provider = capa_resultat.dataProvider()
-    provider.addAttributes([
+
+    # Addició del camp resultat
+    resultat = provider.addAttributes([
         QgsField(nom_camp_resultat, QVariant.Double)
     ])
+
+    if not resultat:
+        raise RuntimeError(
+            f"No s'ha pogut afegir el camp '{nom_camp_resultat}'."
+        )
+    
     capa_resultat.updateFields()
 
     idx_camp = capa_resultat.fields().indexOf(nom_camp_resultat)
 
-    # Diccionari de canvis en bloc: { id_feature: {idx_camp: valor} }
+    if idx_camp == -1:
+        raise RuntimeError(
+            "El camp de resultat no apareix després d'afegir-lo."
+        )
+
+    # Preparació del diccionari de canvis en bloc
     canvis = {
         feature.id(): {idx_camp: dict_valors.get(feature[camp_id_zona])}
         for feature in capa_resultat.getFeatures()
     }
 
-    provider.changeAttributeValues(canvis)
+    # Escriptura dels valors en bloc
+    resultat = provider.changeAttributeValues(canvis)
+
+    if not resultat:
+        raise RuntimeError(
+            "No s'han pogut escriure els valors al camp de resultat."
+        )
+    
     capa_resultat.updateFields()
 
     return capa_resultat
@@ -431,9 +573,9 @@ def agrupar_valors_per_zona(edificis, camp_valor, zones, camp_id_zona):
     """
     Agrupa el valor d'un camp dels edificis per zona.
 
-    Cada edifici s'assigna a la zona que conté el seu centroide, de manera
-    que cap edifici compta dues vegades encara que toqui el límit entre
-    dues zones. Els edificis sense valor al camp s'ignoren.
+    Cada edifici s'assigna a la zona que conté el seu centroide.
+
+    Les zones sense edificis vàlids apareixen amb una llista buida.
 
     Paràmetres
     ----------
@@ -449,311 +591,147 @@ def agrupar_valors_per_zona(edificis, camp_valor, zones, camp_id_zona):
     Retorna
     -------
     dict
-        Diccionari { id_zona: [valors] }. Les zones sense cap edifici
-        hi apareixen amb una llista buida.
+        Diccionari { id_zona: [valors] }.
+    
+    Raises
+    ------
+    ValueError
+        Si les capes, els camps o els sistemes de referència
+        de coordenades no son vàlids.
     """
+    # Validacions inicials
+    if not edificis or not edificis.isValid():
+        raise ValueError(
+            "La capa d'edificis no és vàlida."
+        )
+
+    if not zones or not zones.isValid():
+        raise ValueError(
+            "La capa de zones no és vàlida."
+        )
+
+    if edificis.fields().indexOf(camp_valor) == -1:
+        raise ValueError(
+            f"El camp '{camp_valor}' no existeix a la capa d'edificis."
+        )
+
+    if zones.fields().indexOf(camp_id_zona) == -1:
+        raise ValueError(
+            f"El camp identificador '{camp_id_zona}' no existeix a la capa de zones."
+        )
+
+    if edificis.crs() != zones.crs():
+        raise ValueError(
+            "Les capes d'edificis i zones tenen SRC diferents."
+        )
+
+    # Índex espacial dels edificis
     index_edificis = QgsSpatialIndex(edificis.getFeatures())
+
     valors_per_zona = {}
 
+    # Recórrer les zones
     for zona in zones.getFeatures():
         geometria_zona = zona.geometry()
+
+        if geometria_zona.isNull() or geometria_zona.isEmpty():
+            raise ValueError(
+                f"La zona amb identificador '{zona[camp_id_zona]}' "
+                "té una geometria buida."
+            )
 
         engine = QgsGeometry.createGeometryEngine(geometria_zona.constGet())
         engine.prepareGeometry()
 
         candidats = index_edificis.intersects(geometria_zona.boundingBox())
+        
         request = QgsFeatureRequest().setFilterFids(candidats)
 
-        valors_per_zona[zona[camp_id_zona]] = [
-            feature[camp_valor]
-            for feature in edificis.getFeatures(request)
-            if feature[camp_valor] is not None
-            and engine.intersects(feature.geometry().centroid().constGet())
-        ]
+        valors = []
 
-    return valors_per_zona
+        for feature in edificis.getFeatures(request):
+            valor = feature[camp_valor]
 
+            # Ignorar valors nuls
+            if valor is None:
+                continue
 
-def agrupar_valors_per_zona(edificis, camp_valor, zones, camp_id_zona):
-    """
-    Agrupa el valor d'un camp dels edificis per zona.
+            geometria_edifici = feature.geometry()
+                        
+            # Ignorar geometries buides
+            if geometria_edifici.isNull() or geometria_edifici.isEmpty():
+                continue
 
-    Cada edifici s'assigna a la zona que conté el seu centroide, de manera
-    que cap edifici compta dues vegades encara que toqui el límit entre
-    dues zones. Els edificis sense valor al camp s'ignoren.
+            centroide = geometria_edifici.centroid()
 
-    Paràmetres
-    ----------
-    edificis : QgsVectorLayer
-        Capa d'edificis.
-    camp_valor : str
-        Camp dels edificis a agrupar (p. ex. "any_construccio").
-    zones : QgsVectorLayer
-        Capa de polígons de zonificació (barris, districtes, etc.).
-    camp_id_zona : str
-        Nom del camp identificador de la zona dins de `zones`.
+            if centroide.isNull() or centroide.isEmpty():
+                continue
 
-    Retorna
-    -------
-    dict
-        Diccionari { id_zona: [valors] }. Les zones sense cap edifici
-        hi apareixen amb una llista buida.
-    """
-    index_edificis = QgsSpatialIndex(edificis.getFeatures())
-    valors_per_zona = {}
+            # Assignació de l'edifici només si la zona conté estrictament el centroide
+            if engine.contains(centroide.constGet()):
+                valors.append(valor)
 
-    for zona in zones.getFeatures():
-        geometria_zona = zona.geometry()
-
-        engine = QgsGeometry.createGeometryEngine(geometria_zona.constGet())
-        engine.prepareGeometry()
-
-        candidats = index_edificis.intersects(geometria_zona.boundingBox())
-        request = QgsFeatureRequest().setFilterFids(candidats)
-
-        valors_per_zona[zona[camp_id_zona]] = [
-            feature[camp_valor]
-            for feature in edificis.getFeatures(request)
-            if feature[camp_valor] is not None
-            and engine.intersects(feature.geometry().centroid().constGet())
-        ]
+        valors_per_zona[zona[camp_id_zona]] = valors
 
     return valors_per_zona
 
 
 def calcular_diferencia_mediana_per_zona(valors_industrial, valors_resta, minim_edificis=5):
     """
-    Calcula la diferència entre la mediana d'un valor a dos conjunts
+    Calcula la diferència entre la mediana d'un valor de dos conjunts
     d'edificis (industrials i resta) per zona.
 
-    Un valor positiu indica que el conjunt industrial té valors més alts
-    (p. ex. anys de construcció més recents) que la resta.
+    La diferència es calcula com:
+        mediana industrial - mediana resta
+
+    Només es calcula quan tots dos grups tenen com a mínim
+    el nombre d'edificis indicat a minim_edificis.
+
+    Un valor positiu indica que el conjunt industrial té valors
+    més alts (p. ex. anys de construcció més recents) que la resta.
 
     Paràmetres
     ----------
     valors_industrial, valors_resta : dict
         Diccionaris { id_zona: [valors] }, sortida d'agrupar_valors_per_zona.
     minim_edificis : int
-        Nombre mínim d'edificis industrials perquè la mediana sigui
-        fiable; per sota, la zona queda amb valor None.
+        Nombre mínim d'edificis que ha de tenir cadascun dels dos grups
+        perquè es calculi la diferència de medianes.
 
     Retorna
     -------
     dict
         Diccionari { id_zona: diferencia_mediana o None }.
+    
+    Raises
+    ------
+    ValueError
+        Si el nombre mínim d'edificis no és un enter positiu.
     """
+    if not isinstance(minim_edificis, int) or isinstance(minim_edificis, bool) or minim_edificis < 1:
+        raise ValueError(
+            "minim_edificis ha de ser un enter positiu"
+        )
+    
     diferencia = {}
 
-    for id_zona, valors_ind in valors_industrial.items():
+    # Considerar totes les zones presents en qualsevol dels dos diccionaris
+    totes_les_zones = set(valors_industrial) | set(valors_resta)
+
+    for id_zona in totes_les_zones:
+        valors_ind = valors_industrial.get(id_zona, [])
         valors_res = valors_resta.get(id_zona, [])
 
-        if len(valors_ind) < minim_edificis or not valors_res:
+        # Exigir el mínim d'edificis en tots dos grups
+        if (
+            len(valors_ind) < minim_edificis or
+            len(valors_res) < minim_edificis
+        ):
             diferencia[id_zona] = None
+
         else:
-            diferencia[id_zona] = median(valors_ind) - median(valors_res)
+            diferencia[id_zona] = (
+                median(valors_ind) - median(valors_res)
+            )
 
     return diferencia
-
-
-def agregar_usos_zones(edificis, zones, idx_zones):
-    """
-    Agrupa el nombre d'edificis de cada ús per cada zona.
-
-    Per a cada edifici, determina la unitat administrativa a la qual
-    pertany a partir del centroide de la seva geometria i
-    incrementa el comptador de l'ús corresponent.
-
-    Utilitza l'índex espacial precalculat per optimitzar la
-    cerca de la zona corresponent a cada edifici.
-
-    Paràmetres
-    ----------
-    edificis: QgsVectorLayer
-        Capa vectorial dels edificis.
-    zona: QgsVectorLayer
-        Capa vectorial de les unitats administratives.
-    idx_zones: QgsSpatialIndex
-        Índex espacials de les unitats administratives.
-
-    Retorna
-    -------
-    dict
-        Diccionari amb el recompte d'edificis destinats a cada ús per zona
-        {
-            "Nom_UA": {
-                "1_residential": int,
-                "2_agriculture": int,
-                ...
-            },
-            ...
-        }
-    """
-
-    resultats = {}
-
-    zones_dict = {
-        feat.id(): feat
-        for feat in zones.getFeatures()
-    }
-
-    # Inicialitzar resultats
-    for zona in zones.getFeatures():
-        nom = str(zona["NOM"]).strip()
-        resultats[nom] = {
-            us: 0
-            for us in config.USOS
-        }
-
-    # Iteració sobre cada edifici
-    for edifici in edificis.getFeatures():
-        centroide = edifici.geometry().centroid()
-        us = str(edifici["currentUse"]).strip()
-
-        if us == "NULL":
-            continue
-
-        zones_candidats = idx_zones.intersects(centroide.boundingBox())
-        for c in zones_candidats:
-            zona = zones_dict[c]
-            if centroide.within(zona.geometry()):
-                nom = str(zona["NOM"]).strip()
-                resultats[nom][us] += 1
-                break
-
-    return resultats
-
-    # ######
-    # resultats = {}
-
-    # zones_llista = list(zones.getFeatures())
-
-    # # Iteració sobre cada zona
-    # for zona in zones_llista:
-        
-    #     nom = str(zona["NOM"]).strip()
-        
-    #     # Creació de valors 0 inicials per cada categoria d'ús a la zona
-    #     resultats[nom] = {
-    #         us: 0
-    #         for us in config.USOS
-    #     }
-
-    # # Iteració sobre cada edifici
-    # for edifici in edificis.getFeatures():
-    #     # Extracció geometria de l'edifici
-    #     geom_edifici = edifici.geometry()
-
-    #     # Obtenció de l'ús de l'edifici
-    #     us = str(edifici["currentUse"]).strip()
-
-    #     # descartar els usos nuls
-    #     if us == "NULL":
-    #         continue
-
-    #     # Cerca de la zona a la qual pertany l'edifici
-    #     # amb la comprovació d'on es troba el seu centroide
-    #     for zona in zones_llista:
-    #         if geom_edifici.centroid().within(zona.geometry()):
-    #             nom = zona["NOM"]
-    #             # Actualització del comptador d'usos
-    #             resultats[nom][us] += 1
-
-    #             break
-    
-    # return resultats
-
-
-def calcular_percentatges_usos(resultats):
-    """
-    Calcula el percentatge d'edificis de cada ús per unitat administrativa.
-
-    A partir de la taula amb el nombre d'edificis de cada ús,
-    calcula el pes percentual de cada categoria respecte el total
-    d'edificis de la unitat administrativa.
-
-    Paràmetres
-    ----------
-    resultats: dict
-        Diccionari amb el nombre d'edificis de cada ús per unitat administrativa.
-
-    Retorna
-    -------
-    dict
-        Mateixa estructura que el diccionari d'entrada,
-        però amb els valors expressats en percentatge.
-    """
-
-    percentatges = {}
-
-    for unitat, usos in resultats.items():
-
-        total = sum(usos.values())
-
-        if total == 0:
-            percentatges[unitat] = {
-                us: 0
-                for us in usos
-            }
-            continue
-
-        percentatges[unitat] = {
-            us: valor / total
-            for us, valor in usos.items()
-        }
-
-    return percentatges
-
-
-def analisi_usos_zones(edificis, zones, idx_zones):
-    """
-    Executa l'anàlisi dels usos dels edificis per unitats
-    administratives.
-
-    L'anàlisi genera, de forma consecutiva:
-        - el recompte d'edificis per ús i per zona,
-        - la taula resum amb els valors absoluts,
-        - la taula amb els percentatges corresponents.
-    
-    Paràmetres
-    ----------
-    edificis: QgsVectorLayer
-        Capa vectorial dels edificis.
-    zones: QgsVectorLayer
-        Capa vectorial de les unitats administratives.
-    idx_zones: QgsSpatialIndex
-            Índex espacials de les unitats administratives.
-    
-    Retorna
-    -------
-    dict
-        {
-            "dades": {
-                "Nom_UA": {
-                    "1_residential": int,
-                    "2_agriculture": int,
-                    "3_industrial": int,
-                    "4_1_office": int,
-                    "4_2_retail": int,
-                    "4_3_publicServices": int
-                },
-                ...
-            },
-
-            "percentatges": pandas.DataFrame
-        }
-    """
-
-    dades = agregar_usos_zones(
-        edificis=edificis,
-        zones=zones,
-        idx_zones=idx_zones
-    )
-
-    percentatges = calcular_percentatges_usos(
-        resultats=dades
-    )
-
-    return {
-        "dades": dades,
-        "percentatges": percentatges
-    }

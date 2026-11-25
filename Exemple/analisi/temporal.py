@@ -32,7 +32,6 @@ def extreure_any(valor):
     Extreu l'any d'un camp de data en format ISO 8601,
     és a dir yyyy-mm-ddThh:mm:ss.
     """
-
     if valor is None:
         return None
 
@@ -40,7 +39,7 @@ def extreure_any(valor):
         # Convertir string a datetime i extreure l'any
         data = datetime.strptime(str(valor)[:10], "%Y-%m-%d")
         return data.year
-    except:
+    except ValueError:
         return None
 
 
@@ -49,6 +48,16 @@ def extreure_any_edificis(edificis):
     Extreu l'any de la capa vectorials d'edificis
     per al seu anàlisi.
     """
+    # Validacions
+    if edificis is None or not edificis.isValid():
+        raise ValueError(
+            "La capa d'edificis no és vàlida."
+        )
+
+    if edificis.fields().indexFromName("end") == -1:
+        raise ValueError(
+            "La capa no conté el camp obligatori `end`."
+        )
 
     anys = [
         extreure_any(feat["end"])
@@ -106,24 +115,71 @@ def extreure_any_edificis(edificis):
 
 def afegir_any_construccio(edificis):
     """
-    Afegeix el camp any de construcció a la capa
-    d'edificis.
-    """
+    Crea una còpia de la capa d'edificis i hi incorpora l'any de construcció.
 
+    Extreu l'any del camp 'end' mitjançant extreure_any(). Els anys
+    anteriors a 1500 es consideren invàlids i s'assignen com a NULL.
+
+    Si el camp 'any_construccio' no existeix, el crea com a enter.
+    Si ja existeix, en recalcula els valors.
+
+    Parameters
+    ----------
+    edificis : QgsVectorLayer
+        Capa d'edificis amb el camp 'end'.
+
+    Returns
+    -------
+    QgsVectorLayer
+        Còpia de la capa d'entrada amb el camp 'any_construccio'
+        actualitzat.
+
+    Raises
+    ------
+    ValueError
+        Si la capa d'entrada no és vàlida o no conté el camp 'end'.
+    RuntimeError
+        Si no es pot crear la còpia, afegir el camp o actualitzar
+        els atributs.
+    """
+    # Validacions
+    if edificis is None or not edificis.isValid():
+        raise ValueError(
+            "La capa d'edificis no és vàlida."
+        )
+
+    if edificis.fields().indexFromName("end") == -1:
+        raise ValueError(
+            "La capa no conté el camp obligatori 'end'."
+        )
+
+    # Crear una còpia de la capa
     layer = edificis.materialize(QgsFeatureRequest())
+
+    if not layer.isValid():
+        raise RuntimeError("No s'ha pogut crear una còpia vàlida de la capa.")
 
     provider = layer.dataProvider()
 
-    provider.addAttributes([
-        QgsField("any_construccio", QVariant.Int)
-    ])
+    # Comprovar si el camp ja existeix
+    idx_any = layer.fields().indexFromName("any_construccio")
 
-    layer.updateFields()
+    # Crear el camp si no existeix
+    if idx_any == -1:
+        resultat = provider.addAttributes([
+            QgsField("any_construccio", QVariant.Int)
+        ])
 
-    idx_any = layer.fields().indexOf("any_construccio")
+        if not resultat:
+            raise RuntimeError(
+                "No s'ha pogut crear el camp 'any_construccio'."
+            )
 
-    layer.startEditing()
+        layer.updateFields()
 
+        idx_any = layer.fields().indexFromName("any_construccio")
+
+    # Calcul dels anys de construcció
     canvis = {}
 
     for feature in layer.getFeatures():
@@ -137,9 +193,10 @@ def afegir_any_construccio(edificis):
             idx_any: any_construccio
         }
 
-    provider.changeAttributeValues(canvis)
-
-    layer.commitChanges()
+    if not provider.changeAttributeValues(canvis):
+        raise RuntimeError(
+            "No s'han pogut actualitzar els anys de construcció."
+        )
 
     return layer
 

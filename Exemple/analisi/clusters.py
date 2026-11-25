@@ -20,16 +20,13 @@ Les funcions s'organitzen en tres nivells:
 
 from qgis.core import (
     QgsSpatialIndex,
-    QgsFeature,
     QgsFeatureRequest,
-    QgsField,
-    QgsVectorLayer
+    QgsExpression
 )
-from qgis.PyQt.QtCore import QVariant
 
-import hdbscan
-import numpy as np
 import processing
+
+import math
 
 import config
 
@@ -51,8 +48,34 @@ def distancia_veins_propers(layer):
     -------
     list[float]
         Llista de distàncies (una per entitat) al seu veí més proper.
-        Les entitats sense cap veí (capa d'una sola entitat) queden excloses.
+        Si la capa conté menys de dues entitats, retorna una llista buida.
     """
+    # Validacions
+    if not layer or not layer.isValid():
+        raise ValueError(
+            "La capa d'entrada no existeix o no és vàlida."
+        )
+
+    if layer.featureCount() < 2:
+        raise ValueError(
+            "Calen almenys dues entitats per calcular les distàncies"
+            " al veí més proper."
+        )
+
+    if any(
+        not feature.hasGeometry() or feature.geometry().isEmpty()
+        for feature in layer.getFeatures()
+    ):
+        raise ValueError(
+            "Totes les entitats han de tenir una geometria vàlida i no buida."
+        )
+
+    if not layer.crs().isValid() or layer.crs().isGeographic():
+        raise ValueError(
+            "La capa ha de tenir un SRC projectat per calcular les distàncies"
+        )
+
+    # Càlcul de distàncies
     index = QgsSpatialIndex(layer.getFeatures())
 
     distancies = []
@@ -75,24 +98,62 @@ def distancia_k_vei(layer, k):
     a partir dels centroides de la capa.
 
     Pensada per construir un gràfic de colze (k-distance plot) com a
-    mètode de suport per triar el paràmetre `eps` de DBSCAN: ordenant
-    les distàncies de petita a gran, el punt d'inflexió de la corba
-    indica la transició entre distàncies típiques dins d'un clúster
-    i distàncies típiques entre clústers o soroll.
+    mètode de suport per seleccionar el paràmetre `eps` de DBSCAN.
+    Ordenant les distàncies de menor a major, el punt d'inflexió de
+    la corba pot orientar la identificació d'un valor adequat de `eps`.
 
     Paràmetres
     ----------
     layer: QgsVectorLayer
         Capa vectorial sobre la qual es calculen les distàncies.
     k: int
-        Nombre de veïns a considerar (normalment igual a min_size de DBSCAN).
+        Nombre de veïns a considerar, normalment relacionat amb el
+        paràmetre `min_size` de DBSCAN.
 
     Retorna
     -------
     list[float]
-        Llista de distàncies al k-èsim veí, ordenada de petita a gran.
+        Llista de distàncies al k-èsim veí, ordenada de menor a major.
+        Les entitats sense prou veïns queden excloses.
     """
+    # Validacions
+    if not layer or not layer.isValid():
+        raise ValueError(
+            "La capa d'entrada no existeix o no és vàlida."
+        )
+
+    if layer.featureCount() < 2:
+        raise ValueError(
+            "Calen almenys dues entitats per calcular les distàncies"
+            " al veí més proper."
+        )
+
+    if any(
+            not feature.hasGeometry() or feature.geometry().isEmpty()
+            for feature in layer.getFeatures()
+        ):
+            raise ValueError(
+                "Totes les entitats han de tenir una geometria vàlida i no buida."
+            )
+
+    if not layer.crs().isValid() or layer.crs().isGeographic():
+        raise ValueError(
+            "La capa ha de tenir un SRC projectat per calcular les distàncies"
+        )
+
+    if not isinstance(k, int) or isinstance(k, bool) or k < 1:
+        raise ValueError(
+            "El paràmetre k ha de ser un enter positiu."
+        )
+
+    if k >= layer.featureCount():
+        raise ValueError(
+            "El valor de k no pot ser igual o superior al nombre d'entitats."
+        )
+
+    # Càlcul de distàncies
     index = QgsSpatialIndex(layer.getFeatures())
+    
     distancies = []
 
     for feat in layer.getFeatures():
@@ -109,7 +170,8 @@ def distancia_k_vei(layer, k):
 
 def filtrar_capa(layer, expressio):
     """
-    Genera una nova capa en memòria amb les entitats que compleixen una expressió.
+    Genera una nova capa en memòria amb les entitats que compleixen
+    una expressió de filtratge de QGIS.
 
     Paràmetres
     ----------
@@ -121,133 +183,152 @@ def filtrar_capa(layer, expressio):
     Retorna
     -------
     QgsVectorLayer
-        Nova capa en memòria que conté únicament les entitats seleccionades.
+        Nova capa en memòria amb les entitats seleccionades.
     """
-    
+    # Validacions
+    if not layer or not layer.isValid():
+        raise ValueError(
+            "La capa d'entrada no existeix o no és vàlida."
+        )
+
+    if not isinstance(expressio, str) or not expressio.strip():
+        raise ValueError(
+            "L'expressió de filtre no pot estar buida."
+        )
+
+    expressio_qgis = QgsExpression(expressio)
+
+    if expressio_qgis.hasParserError():
+        raise ValueError(
+            f"L'expressió de filtre no és vàlida: "
+            f"{expressio_qgis.parserErrorString()}"
+        )
+
+    camps_referenciats = expressio_qgis.referencedColumns()
+    camps_existents = {camp.name() for camp in layer.fields()}
+
+    camps_inexistents = camps_referenciats - camps_existents
+
+    if camps_inexistents:
+        raise ValueError(
+            f"L'expressió fa referència a camps inexistents: "
+            f"{', '.join(sorted(camps_inexistents))}"
+        )
+
+    # Aplicació del filtre
     request = QgsFeatureRequest().setFilterExpression(expressio)
 
-    return layer.materialize(request)
+    resultat = layer.materialize(request)
+
+    if not resultat or not resultat.isValid():
+        raise RuntimeError(
+            "No s'ha pogut generar la capa filtrada."
+        )
+
+    return resultat
 
 
 def clusters_dbscan(layer, eps, min_size):
     """
-    Genera una capa de clústers aplicant l'algoritme DBSCAN als centroides d'una capa.
-
-    La funció genera primer els centroides de les entitats de la capa d'entrada i
-    posteriorment aplica l'algoritme DBSCAN per identificar agrupacions espacials.
+    Aplica l'algoritme DBSCAN als centroides de les entitats d'una capa
+    vectorial per identificar agrupacions espacials.
 
     Paràmetres
     ----------
     layer: QgsVectorLayer
         Capa vectorial sobre la qual es calcula la clusterització
     eps: float
-        Distància màxima entre dos centroides perquè es considerin veïns.
+        Distància màxima entre dos centroides perquè es considerin veïns,
+        expressada en les unitats del sistema de referència de la capa.
     min_size: int
         Nombre mínim de centroides necessaris per a formar un clúster.
 
     Retorna
     -------
     QgsVectorLayer
-        Capa en memòria amb els centroides classificats en clústers.
+        Capa en memòria amb els centroides classificats en clústers i els
+        camps CLUSTER_ID i CLUSTER_SIZE.
     """
+    # Validacions de la capa
+    if not layer or not layer.isValid():
+        raise ValueError(
+            "La capa d'entrada no existeix o no és vàlida."
+        )
 
+    if layer.featureCount() < 1:
+        raise ValueError(
+            "La capa d'entrada no conté cap entitat."
+        )
+
+    if not layer.crs().isValid() or layer.crs().isGeographic():
+        raise ValueError(
+            "La capa ha de tenir un CRS projectat per calcular distàncies."
+        )
+
+    if any(
+        not feature.hasGeometry() or feature.geometry().isEmpty()
+        for feature in layer.getFeatures()
+    ):
+        raise ValueError(
+            "Totes les entitats han de tenir una geometria vàlida i no buida."
+        )
+
+    # Validacions dels paràmetres
+    if (
+        not isinstance(eps, (int, float))
+        or isinstance(eps, bool)
+        or not math.isfinite(eps)
+        or eps <= 0
+    ):
+        raise ValueError(
+            "El paràmetre eps ha de ser un nombre finit positiu."
+        )
+
+    if not isinstance(min_size, int) or isinstance(min_size, bool) or min_size < 1:
+        raise ValueError(
+            "El paràmetre min_size ha de ser un enter positiu."
+        )
+    
     # Generació dels centroides
     layer_centroides = processing.run("native:centroids", {
         'INPUT': layer,
         'ALL_PARTS': False,
         'OUTPUT': 'memory:'
     })["OUTPUT"]
+
+    if not layer_centroides or not layer_centroides.isValid():
+        raise RuntimeError(
+            "No s'ha pogut generar una capa vàlida de centroides."
+        )
     
     # Generació de clústers amb el mètode DBSCAN a partir dels centroides
     resultat_clusters = processing.run("native:dbscanclustering", {
         'INPUT': layer_centroides,
-        'EPS': eps,                 
-        'MINSIZE': min_size,        
+        'EPS': eps,        
+        'MIN_SIZE': min_size,   
         'FIELD_NAME': 'CLUSTER_ID',
         'SIZE_FIELD_NAME': 'CLUSTER_SIZE',
         'OUTPUT': 'memory:'
     })
+
+    capa_clusters = resultat_clusters["OUTPUT"]
+
+    if not capa_clusters or not capa_clusters.isValid():
+        raise RuntimeError(
+            "L'algoritme DBSCAN no ha generat una capa vàlida."
+        )
     
-    return resultat_clusters["OUTPUT"]
-
-
-# def clusters_hdbscan(layer, min_size, min_samples=None):
-#     """
-#     Genera una capa de clústers aplicant l'algoritme HDBSCAN als centroides d'una capa.
-
-#     La funció genera primer els centroides de les entitats de la capa d'entrada,
-#     aplica l'algoritme HDBSCAN per identificar agrupacions espacials i retorna
-#     una capa amb els centroides classificats.
-
-#     Paràmetres
-#     ----------
-#     layer: QgsVectorLayer
-#         Capa vectorial sobre la qual es calcula la clusterització.
-#     min_size: int
-#         Nombre mínim de centroides necessaris per a formar un clúster.
-#     min_samples: int, optional
-#         Nombre mínim de mostres al voltant d'un punt per considerar-lo nucli.
-#         Per defecte igual a min_size.
-
-#     Retorna
-#     -------
-#     QgsVectorLayer
-#         Capa en memòria amb els centroides classificats en clústers.
-#     """
-
-#     # Generació dels centroides
-#     layer_centroides = processing.run("native:centroids", {
-#         'INPUT': layer,
-#         'ALL_PARTS': False,
-#         'OUTPUT': 'memory:'
-#     })["OUTPUT"]
-    
-#     # Extreure coordenades i features
-#     features = list(layer_centroides.getFeatures())
-
-#     if not features:
-#         return layer_centroides
-
-#     coords = np.array([
-#         [f.geometry().asPoint().x(), f.geometry().asPoint().y()]
-#         for f in features
-#     ])
-
-#     # Aplicar HDBSCAN
-#     clusterer = hdbscan.HDBSCAN(
-#         min_cluster_size=min_size,
-#         min_samples=min_samples if min_samples else min_size,
-#         core_dist_n_jobs=1  # desactivar paral·lelisme
-#     )
-#     labels = clusterer.fit_predict(coords)
-
-#     # Capa mínima amb només CLUSTER_ID
-#     crs = layer_centroides.crs().authid()
-#     layer_result = QgsVectorLayer(f"Point?crs={crs}", "clusters_hdbscan", "memory")
-#     provider = layer_result.dataProvider()
-#     provider.addAttributes([QgsField("CLUSTER_ID", QVariant.Int)])
-#     layer_result.updateFields()
-
-#     # Afegir features amb el CLUSTER_ID assignat
-#     noves_features = []
-#     for feature, label in zip(features, labels):
-#         nova = QgsFeature(layer_result.fields())
-#         nova.setGeometry(feature.geometry())
-#         nova.setAttribute("CLUSTER_ID", int(label))
-#         noves_features.append(nova)
-
-#     provider.addFeatures(noves_features)
-
-#     return layer_result
+    return capa_clusters
 
 
 def envolvent_clusters(layer):
     """
-    Genera les zones - geometria mínima envolvent - que delimiten els clústers identificats.
+    Genera els polígons d'envolvent convexa que delimiten els clústers.
 
-    La funció elimina els elements que no pertanyen a cap clúster identificat,
-    calcula la geometria mínima envolvent de cada agrupació i dissol
-    les geometries resultants.
+    La funció exclou els elements que no pertanyen a cap clúster identificat
+    (classificats com a soroll per DBSCAN), calcula l'envolvent convexa de 
+    cada agrupació i dissol les geometries resultants per obtenir-ne les zones
+    delimitadores.
 
     Paràmetres
     ----------
@@ -257,15 +338,50 @@ def envolvent_clusters(layer):
     Retorna
     -------
     QgsVectorLayer
-        Capa en memòria amb les zones que delimiten els clústers.
+        Capa poligonal en memòria amb les envolvents convexes que 
+        delimiten els clústers.
     """
+    # Validacions de la capa
+    if not layer or not layer.isValid():
+        raise ValueError("La capa d'entrada no existeix o no és vàlida.")
 
+    if layer.featureCount() < 1:
+        raise ValueError("La capa d'entrada no conté cap entitat.")
+
+    if not layer.crs().isValid() or layer.crs().isGeographic():
+        raise ValueError(
+            "La capa ha de tenir un CRS projectat per calcular distàncies."
+        )
+
+    if any(
+        not feature.hasGeometry() or feature.geometry().isEmpty()
+        for feature in layer.getFeatures()
+    ):
+        raise ValueError(
+            "Totes les entitats han de tenir una geometria vàlida i no buida."
+        )
+
+    if layer.fields().indexFromName("CLUSTER_ID") == -1:
+        raise ValueError(
+            "La capa ha de contenir el camp CLUSTER_ID."
+        )
+    
     # Filtratge dels clústers
     request = QgsFeatureRequest().setFilterExpression('"CLUSTER_ID" IS NOT NULL AND "CLUSTER_ID" != -1')
     
     layer_clusters_valids = layer.materialize(request)
 
-    # Generacio geometria mínima envolvent per cada clúster
+    if not layer_clusters_valids or not layer_clusters_valids.isValid():
+        raise RuntimeError(
+            "No s'ha pogut generar la capa de clústers vàlids."
+        )
+
+    if layer_clusters_valids.featureCount() == 0:
+        raise ValueError(
+            "La capa no conté cap clúster identificat."
+        )
+
+    # Generació de les envolvents convexes per cada clúster
     resultat_hull = processing.run("qgis:minimumboundinggeometry", {
         'INPUT': layer_clusters_valids,
         'FIELD': 'CLUSTER_ID',
@@ -273,7 +389,14 @@ def envolvent_clusters(layer):
         'OUTPUT': 'memory:'
     })
 
-    # Dissolució de les geometria de les envolents per unificar-les
+    layer_hull = resultat_hull['OUTPUT']
+
+    if not layer_hull or not layer_hull.isValid():
+        raise RuntimeError(
+            "No s'ha pogut generar les envolvents convexes."
+        )
+
+    # Dissolució de les geometries de les envolents convexes per unificar-les
     resultat_dissolved = processing.run("native:dissolve", {
         'INPUT': resultat_hull['OUTPUT'],
         'FIELD': 'CLUSTER_ID',
@@ -283,27 +406,34 @@ def envolvent_clusters(layer):
     
     layer_zones = resultat_dissolved['OUTPUT']
 
+    if not layer_zones or not layer_zones.isValid():
+        raise RuntimeError(
+            "No s'ha pogut generar la capa final d'envolvents."
+        )
+
     return layer_zones
 
 
 def generar_cluster(layer, expressio, eps, min_size):
     """
-    Genera les agrupacions espacials corresponents a un ús determinat.
+    Genera els clústers espacials i les seves zones envolvents 
+    a partir dels centroides dels edificis i una expressió de filtratge.
 
     La funció filtra les entitats que compleixen amb una expressió,
-    aplica una clusterització mitjançant DBSCAN
-    i calcula les zones que delimiten cada agrupació.
+    aplica una clusterització mitjançant DBSCAN als seus centroides i
+    calcula les envolvents convexes dels clústers resultants.
 
     Paràmetres
     ----------
     layer: QgsVectorLayer
         Capa vectorial sobre la qual es realitza l'anàlisi.
     expressio: str
-        Expressió de filtratge.
+        Expressió de filtratge amb la sintaxi d'expressions de QGIS.
     eps: float
-        Distància màxima entre dos elements perquè es considerin veïns.
+        Distància màxima entre centroides perquè es considerin veïns, en
+        unitats del SRC.
     min_size: int
-        Nombre mínim d'elements per a formar un clúster.
+        Nombre mínim de centroides necessaris per a formar un clúster.
 
     Retorna
     -------
@@ -315,10 +445,9 @@ def generar_cluster(layer, expressio, eps, min_size):
         }
 
         on:
-            - "clusters": centroides classificats per clústers.
-            - "zones": zones envolvents dels clústers.
+            - "clusters": centroides classificats per DBSCAN.
+            - "zones": envolvents convexes dels clústers.
     """
-
     layer_filtrada = filtrar_capa(
         layer,
         expressio
@@ -330,12 +459,6 @@ def generar_cluster(layer, expressio, eps, min_size):
         min_size
     )
 
-    # layer_clusters = clusters_hdbscan(
-    #     layer=layer_filtrada,
-    #     min_size=min_size,
-    #     min_samples=min_samples
-    # )
-
     layer_zones = envolvent_clusters(layer_clusters)
 
     return {
@@ -344,216 +467,9 @@ def generar_cluster(layer, expressio, eps, min_size):
     }
 
 
-def resum_clusters(layer):
-    """
-    Retorna el resum estadístic dels clústers d'una capa.
-
-    A partir d'una capa de clústers obtinguda amb DBSCAN, calcula
-    el nombre de clústers identificats, el nombre total d'elements agrupats,
-    i la mida mínima, màxima i mitjana dels clústers.
-
-    Paràmetres
-    ----------
-    layer: QgsVectorLayer
-        Capa vectorial de centroides classificats en clústers.
-
-    Retorna
-    -------
-    dict
-        Diccionari amb les estadístiques resum dels clústers amb l'estructura:
-        {
-        "n_clusters": int,
-        "n_edificis_totals": int,
-        "max_edificis_cluster": int,
-        "min_edificis_cluster": int,
-        "mitjana_edificis_cluster": float
-        }
-
-        on:
-        "n_clusters": nombre total de clústers,
-        "n_edificis_totals": nombre total d'edificis inclosos en els clústers,
-        "max_edificis_cluster": nombre màxim d'edificis inclosos en un clúster,
-        "min_edificis_cluster": nombre mínim d'edificis inclosos en un clúster,
-        "mitjana_edificis_cluster": mitjana del nombre d'edificis inclosos en els clústers
-    """
-
-    cluster_sizes = {}
-
-    for feat in layer.getFeatures():
-        cluster_id = feat["CLUSTER_ID"]
-        cluster_size = feat["CLUSTER_SIZE"]
-
-        if cluster_id is None or cluster_size is None or cluster_id == -1:
-            continue
-        
-        cluster_sizes[cluster_id] = cluster_size
-    
-    if not cluster_sizes:
-        return {
-            "n_clusters": 0,
-            "n_edificis_totals": 0,
-            "max_edificis_cluster": 0,
-            "min_edificis_cluster": 0,
-            "mitjana_edificis_cluster": 0
-        }
-    
-    sizes = list(cluster_sizes.values())
-    
-    dict_resum = {
-        "n_clusters": len(cluster_sizes),
-        "n_edificis_totals": sum(sizes),
-        "max_edificis_cluster": max(sizes),
-        "min_edificis_cluster": min(sizes),
-        "mitjana_edificis_cluster": sum(sizes)/len(cluster_sizes)
-    }
-
-    return dict_resum
-
-
-def analisi_clusters(layer, usos):
-    """
-    Executa l'anàlisi de clústers per als diferents usos dels edificis.
-
-    Per a cada ús:
-        - filtra els edificis corresponents,
-        - calcula els clústers espacials mitjançant l'algoritme DBSCAN,
-        - genera les zones envolvents,
-        - calcula el resum estadístic.
-
-    Paràmetres
-    ----------
-    layer: QgsVectorLayer
-        Capa vectorial dels edificis.
-    usos: list[str]
-        Llista dels usos que s'han d'analitzar.
-
-    Retorna
-    -------
-    dict
-        Diccionari amb els resultats de cada ús.
-
-        {
-        "1_residential": {
-            "clusters": QgsVectorLayer,
-            "zones": QgsVectorLayer,
-            "resum": dict,
-        },
-
-        "2_agriculture": {
-            ...
-        },
-
-        ...
-        }
-    """
-    
-    resultats_clusters = {}
-
-    for us in usos:
-        resultats_clusters[us] = generar_cluster(
-            layer=layer,
-            expressio=f'"currentUse" = \'{us}\'',
-            eps=config.CONFIG_ANALISI["Clusters"]["eps"],
-            min_size=config.CONFIG_ANALISI["Clusters"]["min_size"]
-        )
-
-        # resultats_clusters[us] = generar_cluster(
-        #     layer=layer,
-        #     expressio=f'"currentUse" = \'{us}\'',
-        #     min_size=config.CONFIG_ANALISI["Clusters"]["min_size"],
-        #     min_samples=config.CONFIG_ANALISI["Clusters"]["min_samples"]
-        # )
-
-        resultats_clusters[us]["resum"] = resum_clusters(
-            layer=resultats_clusters[us]["clusters"]
-        )
-
-
-    return resultats_clusters
-
-
-def assignar_cluster_id_a_edificis(edificis, clusters, camp_id_edifici="gml_id"):
-    """
-    Assigna a cada edifici el CLUSTER_ID corresponent, a partir de la
-    capa de centroides classificats per DBSCAN.
-
-    Com que els centroides es generen directament a partir dels edificis
-    d'entrada, la relació es fa per identificador real de l'edifici
-    (no per posició espacial), evitant ambigüitats de join espacial.
-
-    Paràmetres
-    ----------
-    edificis: QgsVectorLayer
-        Capa d'edificis industrials.
-    clusters: QgsVectorLayer
-        Capa de centroides classificats (sortida de clusters_dbscan),
-        amb els camps CLUSTER_ID i camp_id_edifici.
-    camp_id_edifici: str
-        Nom del camp identificador comú entre totes dues capes.
-
-    Retorna
-    -------
-    QgsVectorLayer
-        Còpia dels edificis amb el nou camp CLUSTER_ID afegit
-        (valor -1 o NULL per als edificis sense clúster assignat).
-    """
-    dict_cluster_per_edifici = {
-        feat[camp_id_edifici]: feat["CLUSTER_ID"]
-        for feat in clusters.getFeatures()
-    }
-
-    layer = edificis.materialize(QgsFeatureRequest())
-
-    provider = layer.dataProvider()
-    provider.addAttributes([QgsField("CLUSTER_ID", QVariant.Int)])
-    layer.updateFields()
-
-    idx_cluster = layer.fields().indexOf("CLUSTER_ID")
-
-    canvis = {
-        feat.id(): {idx_cluster: dict_cluster_per_edifici[feat[camp_id_edifici]]}
-        for feat in layer.getFeatures()
-        if feat[camp_id_edifici] in dict_cluster_per_edifici
-    }
-
-    provider.changeAttributeValues(canvis)
-
-    return layer
-
-
-def identificar_clusters_per_mida(clusters, noms_ordenats):
-    """
-    Assigna un nom descriptiu a cada clúster segons la seva posició en
-    un rànquing de mida (àrea), en comptes de dependre del CLUSTER_ID
-    assignat per DBSCAN, que no és estable entre execucions.
-
-    Paràmetres
-    ----------
-    clusters: QgsVectorLayer
-        Capa d'envolupants de clústers, amb els camps CLUSTER_ID i area.
-    noms_ordenats: list[str]
-        Noms a assignar, en ordre de mida decreixent (el primer nom
-        correspon al clúster més gran, i així successivament).
-
-    Retorna
-    -------
-    dict
-        Diccionari { cluster_id: nom }, amb tants elements com
-        len(noms_ordenats), corresponents als clústers més grans.
-    """
-    clusters_per_mida = sorted(
-        ((feat["CLUSTER_ID"], feat["area"]) for feat in clusters.getFeatures()),
-        key=lambda x: x[1],
-        reverse=True
-    )
-
-    return {
-        cluster_id: nom
-        for (cluster_id, _), nom in zip(clusters_per_mida, noms_ordenats)
-    }
 
 # =================================================================================
-# Identificació de clústers industrials (DBSCAN)
+# Criteris de configuració de DBSCAN
 # -----------------------------------------------
 # Per identificar les zones de concentració industrial real (a diferència
 # de naus disperses o aïllades), s'aplica l'algorisme DBSCAN (Density-Based
@@ -579,11 +495,4 @@ def identificar_clusters_per_mida(clusters, noms_ordenats):
 #       fixat a 10, prioritzant la identificació de concentracions
 #       industrials consolidades per sobre de bosses petites o naus
 #       aïllades, d'acord amb l'objectiu de l'anàlisi.
-
-# Per a l'anàlisi d'accessibilitat posterior, es descarten els clústers
-# de mida reduïda (per sota d'un llindar mínim d'edificis), conservant
-# només les concentracions industrials més rellevants. Aquest llindar es
-# defineix sobre el camp CLUSTER_SIZE (informat només als punts nucli de
-# cada clúster) i s'aplica com a filtre sobre CLUSTER_ID (present a tots
-# els punts, nucli i frontera), per no descartar per error els edificis
-# perifèrics de cada zona industrial seleccionada.
+ 

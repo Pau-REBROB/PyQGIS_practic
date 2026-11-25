@@ -53,8 +53,142 @@ Simplificar retorns.
 Evitar duplicació.
 """
 
+"""
+ESTRUCTURA GENERAL:
+main.py
+│
+├── 1. Imports i configuració
+│
+├── 2. Inicialització del projecte QGIS
+│
+├── 3. Importació de capes
+│
+├── 4. Preparació de dades
+│
+├── 5. Anàlisi
+│   ├── Capes base i malla hexagonal
+│   ├── Filtratge d'usos
+│   ├── Anàlisi temporal
+│   ├── Agregacions territorials
+│   └── Clústers industrials
+│
+├── 6. Simbologia
+│   ├── Base
+│   ├── Edificis industrials
+│   ├── Agregacions
+│   └── Anàlisi temporal
+│
+├── 7. Composicions
+│   ├── General
+│   ├── Atles
+│   ├── Comparació d'agregacions
+│   ├── MAUP
+│   └── Temporal
+│
+└── 8. Exportació i desament
+
+----
+
+Configuració i inicialització
+
+Imports, configuració de rutes, QGIS i projecte.
+
+
+
+Importació i preparació de dades
+
+Càrrega, preparació de capes i obtenció de les capes base.
+
+
+
+Preparació de les unitats d'anàlisi
+
+Malla hexagonal i classificació dels edificis per ús.
+
+
+
+Anàlisi temporal
+
+Any de construcció, distribucions i antiguitat relativa.
+
+
+
+Agregacions territorials
+
+Nombre d'edificis, superfície i densitats a les tres escales.
+
+
+
+Anàlisi de clústers
+
+Distàncies, DBSCAN, selecció i identificació de concentracions.
+
+
+
+Simbologia
+
+Cartografia base, atles, agregacions, MAUP i temporal.
+
+
+
+Composicions i exportació
+
+Mapes generals, atles, comparació d'agregacions, MAUP i temporal.
+"""
+
+"""
+PyQGIS_practic/
+│
+├── README.md
+├── requirements.txt
+├── .gitignore
+│
+├── Scripts/
+│   └── ...
+│
+├── Exemple/
+│   ├── main.py
+│   ├── config.py
+│   ├── importacio.py
+│   ├── inicialitzacio.py
+│   ├── preparacio_dades.py
+│   │
+│   ├── analisi/
+│   │   ├── agregacions.py
+│   │   ├── clusters.py
+│   │   ├── hexagons.py
+│   │   ├── temporal.py
+│   │   └── grafics.py
+│   │
+│   ├── simbologia/
+│   │   ├── simbologies.py
+│   │   ├── simbologia_general.py
+│   │   ├── simbologia_agregacions.py
+│   │   └── simbologia_temporal.py
+│   │
+│   ├── layouts/
+│   │   ├── layout_common.py
+│   │   ├── layout_general.py
+│   │   ├── layout_atles.py
+│   │   ├── layout_comparacio_agregacions.py
+│   │   ├── layout_maup.py
+│   │   ├── layout_temporal.py
+│   │   └── fusionar_layouts.py
+│   │
+│   ├── resources/
+│   │   └── ...
+│   │
+│   └── experimental/
+│       └── ...
+│
+└── docs/
+    ├── metodologia.md
+    ├── dades.md
+    └── decisions_analitiques.md
+"""
+
 # ==============================================================================
-# 1. MÒDULS
+# 1. CONFIGURACIÓ DE L'ENTORN
 # ==============================================================================
 
 # ------------------------------------------------------------------------------
@@ -62,56 +196,48 @@ Evitar duplicació.
 # ------------------------------------------------------------------------------
 
 import importlib
-from pathlib import Path
+import statistics
 import sys
+from pathlib import Path
 
-# Carpeta del main.py i altres scripts
-# Intentar obtenir la ruta de l'arxiu, sinó utilitzar rutes absolutes
-try:
-    _base = Path(__file__).parent
-except NameError:
-    _base = Path("C:/projectes_git/PyQGIS_practic/Exemple")
+# Carpeta del projecte (Exemple/)
+_base = Path(__file__).resolve().parent
 
-# Rutes relatives als mòduls i scripts
-sys.path.append(str(_base))
-sys.path.append(str(_base / "analisi"))
-sys.path.append(str(_base / "simbologia"))
-sys.path.append(str(_base / "layouts"))
+# Afegim l'arrel del projecte a les rutes d'importació
+if str(_base) not in sys.path:
+    sys.path.insert(0, str(_base))
 
+# Configuració general
+import config
 
+# Mòduls del projecte
+## Inicialització i dades
 import inicialitzacio
 import importacio
 import preparacio_dades
+
+## Anàlisi
 import analisi.temporal as temporal
 import analisi.agregacions as agregacions
 import analisi.grafics as grafics
 import analisi.clusters as clusters
-import analisi.accessibilitat as accessibilitat 
 import analisi.especialitzacio as especialitzacio
 import analisi.hexagons as hexagons
-import simbologia.simbologies as simbologies
+
+## Simbologia
+#import simbologia.simbologies as simbologies
 import simbologia.simbologia_agregacions as simbologia_agregacions
 import simbologia.simbologia_temporal as simbologia_temporal
-#import simbologia.simbologia_especialitzacio as simbologia_especialitzacio
-#import simbologia.simbologia_hexagons as simbologia_hexagons
-#import simbologia.simbologia_accessibilitat as simbologia_accessibilitat
 import simbologia.simbologia_general as simbologia_general
+
+## Composicions
 import layouts.layout_common as layout_common
 import layouts.layout_general as layout_general
 import layouts.layout_atles as layout_atles
 import layouts.layout_comparacio_agregacions as layout_comparacio_agregacions
 import layouts.layout_maup as layout_maup
 import layouts.layout_temporal as layout_temporal
-#import layouts.layout_analisi as layout_analisi
-#import layouts.layout_clusters as layout_clusters
-#import layouts.layout_especialitzacio as layout_especialitzacio
-#import layouts.layout_bivariant_zones as layout_bivariant_zones
-#import layouts.layout_accessibilitat as layout_accessibilitat 
 import layouts.fusionar_layouts as fusionar_layouts
-
-import config #Arxiu de configuració
-
-import processing
 
 
 # ------------------------------------------------------------------------------
@@ -120,12 +246,17 @@ import processing
 
 _moduls = [
     config, inicialitzacio, importacio, preparacio_dades, temporal,
-    agregacions, grafics, clusters, accessibilitat, especialitzacio,
-    hexagons, simbologies, simbologia_agregacions, simbologia_temporal,
+    agregacions, grafics, clusters, 
+    #accessibilitat,
+    especialitzacio,
+    hexagons, 
+    #simbologies, 
+    simbologia_agregacions, simbologia_temporal,
     #simbologia_especialitzacio, simbologia_hexagons, simbologia_accessibilitat,
     simbologia_general, layout_common, layout_general, layout_atles,
     layout_comparacio_agregacions, layout_maup, layout_temporal, 
-    #layout_analisi, layout_clusters,layout_especialitzacio, layout_bivariant_zones, layout_accessibilitat, fusionar_layouts
+    #layout_analisi, layout_clusters,layout_especialitzacio, layout_bivariant_zones, layout_accessibilitat, 
+    fusionar_layouts
 ]
 
 for _modul in _moduls:
@@ -298,6 +429,7 @@ edificis_per_districte = agregacions.calcular_edificis_per_zona(
     zones=districtes_base,
     camp_id_zona="NOM"
 )
+print(edificis_per_districte)
 
 districtes_edificis_industrials = agregacions.escriure_valors_zonals_a_capa(
     zones=districtes_base,
@@ -313,6 +445,7 @@ edificis_per_barri = agregacions.calcular_edificis_per_zona(
     zones=barris_base,
     camp_id_zona="NOM"
 )
+print(edificis_per_barri)
 
 barris_edificis_industrials = agregacions.escriure_valors_zonals_a_capa(
     zones=barris_base,
@@ -328,6 +461,7 @@ edificis_per_hexagon = agregacions.calcular_edificis_per_zona(
     zones=malla_base,
     camp_id_zona="id"
 )
+print(edificis_per_hexagon)
 
 hexagons_edificis_industrials = agregacions.escriure_valors_zonals_a_capa(
     zones=malla_base,
@@ -349,6 +483,7 @@ superficie_industrial_per_districte = agregacions.calcular_superficie_per_zona(
     zones=districtes_base,
     camp_id_zona="NOM"
 )
+print(superficie_industrial_per_districte)
 
 districtes_superficie_industrial = agregacions.escriure_valors_zonals_a_capa(
     zones=districtes_edificis_industrials,
@@ -363,6 +498,7 @@ superficie_industrial_per_barri = agregacions.calcular_superficie_per_zona(
     zones=barris_base,
     camp_id_zona="NOM"
 )
+print(superficie_industrial_per_barri)
 
 barris_superficie_industrial = agregacions.escriure_valors_zonals_a_capa(
     zones=barris_edificis_industrials,
@@ -377,6 +513,7 @@ superficie_industrial_per_hexagon = agregacions.calcular_superficie_per_zona(
     zones=malla_base,
     camp_id_zona="id"
 )
+print(superficie_industrial_per_hexagon)
 
 hexagons_superficie_industrial = agregacions.escriure_valors_zonals_a_capa(
     zones=hexagons_edificis_industrials,
@@ -398,6 +535,7 @@ densitat_superficie_industrial_districtes = agregacions.calcular_densitat_superf
     zones=districtes_base,
     camp_id_zona="NOM"
 )
+print(densitat_superficie_industrial_districtes)
 
 districtes_densitat_superficie_industrial = agregacions.escriure_valors_zonals_a_capa(
     zones=districtes_superficie_industrial,
@@ -412,6 +550,7 @@ densitat_superficie_industrial_barris = agregacions.calcular_densitat_superficie
     zones=barris_base,
     camp_id_zona="NOM"
 )
+print(densitat_superficie_industrial_barris)
 
 barris_densitat_superficie_industrial = agregacions.escriure_valors_zonals_a_capa(
     zones=barris_superficie_industrial,
@@ -426,6 +565,7 @@ densitat_superficie_industrial_hexagons = agregacions.calcular_densitat_superfic
     zones=malla_base,
     camp_id_zona="id"
 )
+print(densitat_superficie_industrial_hexagons)
 
 hexagons_densitat_superficie_industrial = agregacions.escriure_valors_zonals_a_capa(
     zones=hexagons_superficie_industrial,
@@ -448,6 +588,7 @@ densitat_edificis_industrials_districtes = agregacions.calcular_densitat_edifici
     zones=districtes_base,
     camp_id_zona="NOM"
 )
+print(densitat_edificis_industrials_districtes)
 
 districtes_densitat_edificis_industrials = agregacions.escriure_valors_zonals_a_capa(
     zones=districtes_densitat_superficie_industrial,
@@ -463,6 +604,7 @@ densitat_edificis_industrials_barris = agregacions.calcular_densitat_edificis_pe
     zones=barris_base,
     camp_id_zona="NOM"
 )
+print(densitat_edificis_industrials_barris)
 
 barris_densitat_edificis_industrials = agregacions.escriure_valors_zonals_a_capa(
     zones=barris_densitat_superficie_industrial,
@@ -478,6 +620,7 @@ densitat_edificis_industrials_hexagons = agregacions.calcular_densitat_edificis_
     zones=malla_base,
     camp_id_zona="id"
 )
+print(densitat_edificis_industrials_hexagons)
 
 hexagons_densitat_edificis_industrials = agregacions.escriure_valors_zonals_a_capa(
     zones=hexagons_densitat_superficie_industrial,
@@ -528,22 +671,93 @@ print(breaks_densitat_superficie_industrial)
 # Classificació dels valors de densitat en intervals
 # Ús de les dades d'hexàgons - l'agregació més petita
 # Comprovació de la distribució de les dades al contenir gran quantitat de valors 0
+## Densitat de superfície industrial
 recompte_classes_districtes = agregacions.comptar_zones_per_classe(
     dict_valors=densitat_superficie_industrial_districtes,
     breaks=breaks_densitat_superficie_industrial
 )
+print("Districtes:")
 print(recompte_classes_districtes)
 
 recompte_classes_barris = agregacions.comptar_zones_per_classe(
     dict_valors=densitat_superficie_industrial_barris,
     breaks=breaks_densitat_superficie_industrial
 )
+print("Barris:")
 print(recompte_classes_barris)
 
 recompte_classes_hexagons = agregacions.comptar_zones_per_classe(
     dict_valors=densitat_superficie_industrial_hexagons,
     breaks=breaks_densitat_superficie_industrial
 )
+print("Hexàgons:")
+print(recompte_classes_hexagons)
+
+## Nombre d'edificis industrials
+recompte_classes_districtes_2 = agregacions.comptar_zones_per_classe(
+    dict_valors=edificis_per_districte,
+    breaks=breaks_nombre_edificis_industrial
+)
+print("Districtes:")
+print(recompte_classes_districtes_2)
+
+recompte_classes_barris_2 = agregacions.comptar_zones_per_classe(
+    dict_valors=edificis_per_barri,
+    breaks=breaks_nombre_edificis_industrial
+)
+print("Barris:")
+print(recompte_classes_barris_2)
+
+recompte_classes_hexagons_2 = agregacions.comptar_zones_per_classe(
+    dict_valors=edificis_per_hexagon,
+    breaks=breaks_nombre_edificis_industrial
+)
+print("Hexàgons:")
+print(recompte_classes_hexagons_2)
+
+## Densitat d'edificis industrials
+recompte_classes_districtes_3 = agregacions.comptar_zones_per_classe(
+    dict_valors=densitat_edificis_industrials_districtes,
+    breaks=breaks_densitat_edificis_industrial
+)
+print("Districtes:")
+print(recompte_classes_districtes_3)
+
+recompte_classes_barris_3 = agregacions.comptar_zones_per_classe(
+    dict_valors=densitat_edificis_industrials_barris,
+    breaks=breaks_densitat_edificis_industrial
+)
+print("Barris:")
+print(recompte_classes_barris_3)
+
+recompte_classes_hexagons_3 = agregacions.comptar_zones_per_classe(
+    dict_valors=densitat_edificis_industrials_hexagons,
+    breaks=breaks_densitat_edificis_industrial
+)
+print("Hexàgons:")
+print(recompte_classes_hexagons_3)
+
+## Superfície industrial
+recompte_classes_districtes_4 = agregacions.comptar_zones_per_classe(
+    dict_valors=superficie_industrial_per_districte,
+    breaks=breaks_superficie_industrial
+)
+print("Districtes:")
+print(recompte_classes_districtes_4)
+
+recompte_classes_barris_4 = agregacions.comptar_zones_per_classe(
+    dict_valors=superficie_industrial_per_barri,
+    breaks=breaks_superficie_industrial
+)
+print("Barris:")
+print(recompte_classes_barris_4)
+
+recompte_classes_hexagons_4 = agregacions.comptar_zones_per_classe(
+    dict_valors=superficie_industrial_per_hexagon,
+    breaks=breaks_superficie_industrial
+)
+print("Hexàgons:")
+print(recompte_classes_hexagons_4)
 
 # ------------------------------------------------------------------------------
 # 5.5.1. Anàlisi temporal - Visió general
@@ -588,10 +802,8 @@ barris_diferencia_mediana = agregacions.escriure_valors_zonals_a_capa(
 )
 
 # Càlcul de la diferència mediana de cada edifici industrial respecte el barri 
-from statistics import median
-
 mediana_resta_per_zona = {
-    id_zona: median(valors)
+    id_zona: statistics.median(valors)
     for id_zona, valors in anys_resta_usos_barris.items()
     if valors
 }
@@ -616,7 +828,6 @@ distancies_industrial = clusters.distancia_veins_propers(
 )
 
 # Resultats distàncies
-import statistics
 print("Mitjana:", statistics.mean(distancies_industrial)) # 67,4
 print("Mediana:", statistics.median(distancies_industrial)) # 34,6
 
@@ -636,67 +847,33 @@ grafics.grafic_k_distance(
 )
 
 # No existeix una zona de transició clara
-# Es proven diferents valors d'eps
+# Paràmetres definitius
+config_clusters = config.CONFIG_ANALISI["Clusters"].copy()
+
+# Proves amb diferents valors d'eps
 resultats_eps = {}
 
 for eps_prova in [100, 150, 200]:
     config.CONFIG_ANALISI["Clusters"]["eps"] = eps_prova
+
     resultat = clusters.analisi_clusters(
         layer=edificis_industrial_net,
         usos=["3_industrial"]
     )
+
     resultats_eps[eps_prova] = resultat["3_industrial"]["resum"]
 
 for eps_prova, resum in resultats_eps.items():
     print(f"eps={eps_prova}:", resum)
 
-# A la vista dels resultats:
-# eps = 200 
-# min_size = 10
+# Restauració dels paràmetres definitius
+config.CONFIG_ANALISI["Clusters"].update(config_clusters)
 
+# Anàlisi definitiva
 resultat_clusters_industrials = clusters.analisi_clusters(
     layer=edificis_industrial_net,
     usos=["3_industrial"]
 )
-
-# Filtratge dels clústers
-## Diccionari de mides segons ID del clúster
-mides_per_cluster = {
-    feat["CLUSTER_ID"]: feat["CLUSTER_SIZE"]
-    for feat in resultat_clusters_industrials["3_industrial"]["clusters"].getFeatures()
-    if feat["CLUSTER_ID"] != -1 and feat["CLUSTER_SIZE"] is not None
-}
-
-## Valor de tall per obtenir els ID vàlids
-mida_minima = 50
-
-ids_seleccionats = [
-    cluster_id
-    for cluster_id, mida in mides_per_cluster.items()
-    if mida >= mida_minima
-]
-
-## Filtre per pertinença a la llista de IDs - no segons SIZE
-expressio = f'"CLUSTER_ID" IN ({", ".join(map(str, ids_seleccionats))})'
-
-clusters_seleccionats = clusters.filtrar_capa(
-    resultat_clusters_industrials["3_industrial"]["clusters"],
-    expressio
-)
-
-# Identificació dels clústers
-clusters_industrials = ["Sant Andreu","Sant Martí","Poblenou","Zona Franca"]
-
-dict_clusters_industrials = clusters.identificar_clusters_per_mida(
-    clusters=resultat_clusters_industrials["3_industrial"]["zones"],
-    noms_ordenats=clusters_industrials
-)
-
-# zones_clusters_seleccionats = clusters.envolvent_clusters(
-#     layer=clusters_seleccionats
-# )
-
-
 
 # Extent ajustat manualment per cobrir tota l'àrea de Sant Martí, fragmentada en 3 clústers DBSCAN
 coordenades_clusters = {
@@ -716,114 +893,114 @@ extents_clusters_uniformes = layout_common.uniformitzar_extents(
 
 
 
-##########################################3
-# ------------------------------------------------------------------------------
-# 5.6. Accessibilitat
-# ------------------------------------------------------------------------------
+# ##########################################
+# # ------------------------------------------------------------------------------
+# # 5.6. Accessibilitat
+# # ------------------------------------------------------------------------------
 
-# Càlcul d'isoàrees d'accessibilitat multi-origen
-isoarees_industrial = accessibilitat.analisi_accessibilitat(
-    graf=dict_layers_clean["Graf"]["Graf_osm"],
-    origen=clusters_seleccionats,
-    **config.CONFIG_ANALISI["Isoarees_globals"]
-)
+# # Càlcul d'isoàrees d'accessibilitat multi-origen
+# isoarees_industrial = accessibilitat.analisi_accessibilitat(
+#     graf=dict_layers_clean["Graf"]["Graf_osm"],
+#     origen=clusters_seleccionats,
+#     **config.CONFIG_ANALISI["Isoarees_globals"]
+# )
 
-# Càlcul d'isoàrees d'accessibilitat individualment
-isoarees_per_cluster = accessibilitat.analisi_accessibilitat_individual(
-    graf=dict_layers_clean["Graf"]["Graf_osm"],
-    origen=clusters_seleccionats,
-    **config.CONFIG_ANALISI["Isoarees_individuals"]
-)
+# # Càlcul d'isoàrees d'accessibilitat individualment
+# isoarees_per_cluster = accessibilitat.analisi_accessibilitat_individual(
+#     graf=dict_layers_clean["Graf"]["Graf_osm"],
+#     origen=clusters_seleccionats,
+#     **config.CONFIG_ANALISI["Isoarees_individuals"]
+# )
 
-# Comparació de la cobertura de les isoàrees
-llindars_comparacio = [500, 1000, 1500, 2000, 2500, 3000]
+# # Comparació de la cobertura de les isoàrees
+# llindars_comparacio = [500, 1000, 1500, 2000, 2500, 3000]
 
-for cluster_id, isoarea in isoarees_per_cluster.items():
-    resultat = accessibilitat.area_coberta_per_llindar(
-        isoarees=isoarea,
-        llindars=llindars_comparacio
-    )
-    print(f"Cluster {cluster_id}:", resultat)
+# for cluster_id, isoarea in isoarees_per_cluster.items():
+#     resultat = accessibilitat.area_coberta_per_llindar(
+#         isoarees=isoarea,
+#         llindars=llindars_comparacio
+#     )
+#     print(f"Cluster {cluster_id}:", resultat)
 
-# Resultats
-#Cluster 24: {
-#   500: 326306.46482907515, 1000: 1982951.445349127, 1500: 4909606.273723032,
-#   2000: 8576268.59377075, 2500: 13031288.592719823, 3000: 18227628.431523204
+# # Resultats
+# #Cluster 24: {
+# #   500: 326306.46482907515, 1000: 1982951.445349127, 1500: 4909606.273723032,
+# #   2000: 8576268.59377075, 2500: 13031288.592719823, 3000: 18227628.431523204
+# # }
+# #Cluster 2: {
+# #   500: 359224.40429566335, 1000: 1489299.1504833587, 1500: 2872486.7499795556,
+# #   2000: 4775327.897160877, 2500: 6652060.368146252, 3000: 8405186.772574663
+# # }
+# #Cluster 27: {
+# #   500: 407035.93737074174, 1000: 1955767.351290375, 1500: 4139887.3407575935,
+# #   2000: 7201950.9986871155, 2500: 10785305.45604671, 3000: 15074048.936193772
+# # }
+# #Cluster 28: {
+# #   500: 389912.93736368464, 1000: 2085224.3000795022, 1500: 5092805.512293063,
+# #   2000: 9104471.990774022, 2500: 13428742.272372171, 3000: 17920921.40379775
+# # }
+
+# resultats_area_per_cluster = {
+#     cluster_id: accessibilitat.area_coberta_per_llindar(
+#         isoarees=isoarea,
+#         llindars=llindars_comparacio
+#     )
+#     for cluster_id, isoarea in isoarees_per_cluster.items()
 # }
-#Cluster 2: {
-#   500: 359224.40429566335, 1000: 1489299.1504833587, 1500: 2872486.7499795556,
-#   2000: 4775327.897160877, 2500: 6652060.368146252, 3000: 8405186.772574663
-# }
-#Cluster 27: {
-#   500: 407035.93737074174, 1000: 1955767.351290375, 1500: 4139887.3407575935,
-#   2000: 7201950.9986871155, 2500: 10785305.45604671, 3000: 15074048.936193772
-# }
-#Cluster 28: {
-#   500: 389912.93736368464, 1000: 2085224.3000795022, 1500: 5092805.512293063,
-#   2000: 9104471.990774022, 2500: 13428742.272372171, 3000: 17920921.40379775
-# }
 
-resultats_area_per_cluster = {
-    cluster_id: accessibilitat.area_coberta_per_llindar(
-        isoarees=isoarea,
-        llindars=llindars_comparacio
-    )
-    for cluster_id, isoarea in isoarees_per_cluster.items()
-}
+# grafics.grafic_area_accessibilitat(
+#     resultats_per_cluster=resultats_area_per_cluster,
+#     output_path=config.EXPORTACIO_GRAFICS["Grafic_area_isoarees"],
+#     noms_clusters={24: "Poblenou", 2: "Zona Franca", 27: "Bon Pastor", 28: "Sant Martí"}
+# )
 
-grafics.grafic_area_accessibilitat(
-    resultats_per_cluster=resultats_area_per_cluster,
-    output_path=config.EXPORTACIO_GRAFICS["Grafic_area_isoarees"],
-    noms_clusters={24: "Poblenou", 2: "Zona Franca", 27: "Bon Pastor", 28: "Sant Martí"}
-)
+# # Assignar el valor d'accessibilitat de les isoàrees als edificis
+# edificis_amb_accessibilitat = accessibilitat.assignar_isoarees_a_edificis(
+#     edificis=edificis_base,
+#     isoarees=isoarees_industrial
+# )
 
-# Assignar el valor d'accessibilitat de les isoàrees als edificis
-edificis_amb_accessibilitat = accessibilitat.assignar_isoarees_a_edificis(
-    edificis=edificis_base,
-    isoarees=isoarees_industrial
-)
+# # Assignació de ID clúster a cada edifici
+# edificis_industrial_amb_cluster = clusters.assignar_cluster_id_a_edificis(
+#     edificis=edificis_industrial_net,
+#     clusters=resultat_clusters_industrials["3_industrial"]["clusters"],
+#     camp_id_edifici="gml_id"
+# )
 
-# Assignació de ID clúster a cada edifici
-edificis_industrial_amb_cluster = clusters.assignar_cluster_id_a_edificis(
-    edificis=edificis_industrial_net,
-    clusters=resultat_clusters_industrials["3_industrial"]["clusters"],
-    camp_id_edifici="gml_id"
-)
+# # Càlcul accessibilitat als edificis
+# edificis_industrial_final = accessibilitat.assignar_isoarees_a_edificis(
+#     edificis=edificis_industrial_amb_cluster,
+#     isoarees=isoarees_industrial
+# )
 
-# Càlcul accessibilitat als edificis
-edificis_industrial_final = accessibilitat.assignar_isoarees_a_edificis(
-    edificis=edificis_industrial_amb_cluster,
-    isoarees=isoarees_industrial
-)
+# # Gràfic de dispersió accessibilitat-any de construcció
+# clusters_ids_origen = {24, 2, 27, 28}
 
-# Gràfic de dispersió accessibilitat-any de construcció
-clusters_ids_origen = {24, 2, 27, 28}
+# grafics.grafic_scatter_any_accessibilitat(
+#     layer=edificis_industrial_final,
+#     cluster_ids_origen=clusters_ids_origen,
+#     output_path=config.EXPORTACIO_GRAFICS["Grafic_scatter_anyconstruccio_accessibilitat"]
+# )
 
-grafics.grafic_scatter_any_accessibilitat(
-    layer=edificis_industrial_final,
-    cluster_ids_origen=clusters_ids_origen,
-    output_path=config.EXPORTACIO_GRAFICS["Grafic_scatter_anyconstruccio_accessibilitat"]
-)
+# # Estadística de la correlació
+# from scipy import stats
 
-# Estadística de la correlació
-from scipy import stats
+# anys = []
+# accessibilitats = []
 
-anys = []
-accessibilitats = []
+# for feat in edificis_industrial_final.getFeatures():
+#     if feat["CLUSTER_ID"] in clusters_ids_origen:
+#         continue
+#     if feat["any_construccio"] is None or feat["accessibilitat"] is None:
+#         continue
+#     anys.append(feat["any_construccio"])
+#     accessibilitats.append(feat["accessibilitat"])
 
-for feat in edificis_industrial_final.getFeatures():
-    if feat["CLUSTER_ID"] in clusters_ids_origen:
-        continue
-    if feat["any_construccio"] is None or feat["accessibilitat"] is None:
-        continue
-    anys.append(feat["any_construccio"])
-    accessibilitats.append(feat["accessibilitat"])
+# correlacio, p_valor = stats.pearsonr(anys, accessibilitats)
+# print(f"N = {len(anys)}")
+# print(f"Correlació de Pearson: {correlacio:.3f} (p={p_valor:.4f})")
 
-correlacio, p_valor = stats.pearsonr(anys, accessibilitats)
-print(f"N = {len(anys)}")
-print(f"Correlació de Pearson: {correlacio:.3f} (p={p_valor:.4f})")
-
-
+########################################
 
 
 #----------------
@@ -984,66 +1161,69 @@ layers_simbologia_antiguitat_relativa_edificis = simbologia_general.simbologia_t
 
 
 ########################################
-# ------------------------------------------------------------------------------
-# 6.4. Clústers i accessibilitat
-# ------------------------------------------------------------------------------
+# # ------------------------------------------------------------------------------
+# # 6.4. Clústers i accessibilitat
+# # ------------------------------------------------------------------------------
 
-layers_simbologia_accessibilitat_clusters = simbologia_general.simbologia_accessibilitat_clusters(
-    capa_clusters=zones_clusters_seleccionats,
-    capa_edificis=edificis_amb_accessibilitat,
-    capa_terme=terme_base,
-    capa_graf=dict_layers_clean["Graf"]["Graf_osm"]
-)
+# layers_simbologia_accessibilitat_clusters = simbologia_general.simbologia_accessibilitat_clusters(
+#     capa_clusters=zones_clusters_seleccionats,
+#     capa_edificis=edificis_amb_accessibilitat,
+#     capa_terme=terme_base,
+#     capa_graf=dict_layers_clean["Graf"]["Graf_osm"]
+# )
+#####################################
 
-# ------------------------------------------------------------------------------
-# 6.3. Especialització funcional - Dominància / Diversitat funcional
-# ------------------------------------------------------------------------------
+# # ------------------------------------------------------------------------------
+# # 6.3. Especialització funcional - Dominància / Diversitat funcional
+# # ------------------------------------------------------------------------------
 
-# Omissió dels usos residencial i agricultura
+# # Omissió dels usos residencial i agricultura
 
-## Districtes
-layers_simbologia_especialitzacio_districtes = simbologia_general.simbologia_especialitzacio_funcional(
-    zones=districtes_especialitzacio,
-    ua="Districtes"
-)
+# ## Districtes
+# layers_simbologia_especialitzacio_districtes = simbologia_general.simbologia_especialitzacio_funcional(
+#     zones=districtes_especialitzacio,
+#     ua="Districtes"
+# )
 
-## Barris
-layers_simbologia_especialitzacio_barris = simbologia_general.simbologia_especialitzacio_funcional(
-    zones=barris_especialitzacio,
-    ua="Barris"
-)
+# ## Barris
+# layers_simbologia_especialitzacio_barris = simbologia_general.simbologia_especialitzacio_funcional(
+#     zones=barris_especialitzacio,
+#     ua="Barris"
+# )
 
-## Malla hexagonal
-layers_simbologia_especialitzacio_hexagons = simbologia_general.simbologia_hexagons_especialitzacio_funcional(
-    hexagons=malla_especialitzacio_bivariantDDF,
-    terme=dict_layers_clean["Limits_administratius"]["TermeMunicipal"]
-)
+# ## Malla hexagonal
+# layers_simbologia_especialitzacio_hexagons = simbologia_general.simbologia_hexagons_especialitzacio_funcional(
+#     hexagons=malla_especialitzacio_bivariantDDF,
+#     terme=dict_layers_clean["Limits_administratius"]["TermeMunicipal"]
+# )
 
-# ------------------------------------------------------------------------------
-# 6.4. Accessibilitat
-# ------------------------------------------------------------------------------
+###############
+# # ------------------------------------------------------------------------------
+# # 6.4. Accessibilitat
+# # ------------------------------------------------------------------------------
 
-layers_simbologia_accessibilitat = simbologia_general.simbologia_composicio_accessibilitat(
-    edificis=edificis_accessibilitat,
-    graf=dict_layers_clean["Graf"]["Graf_trams"],
-    clusters=clusters_publicS,
-    terme=dict_layers_clean["Limits_administratius"]["TermeMunicipal"]
-)
+# layers_simbologia_accessibilitat = simbologia_general.simbologia_composicio_accessibilitat(
+#     edificis=edificis_accessibilitat,
+#     graf=dict_layers_clean["Graf"]["Graf_trams"],
+#     clusters=clusters_publicS,
+#     terme=dict_layers_clean["Limits_administratius"]["TermeMunicipal"]
+# )
+###################
 
-# ------------------------------------------------------------------------------
-# 6.4. Anàlisi bivariant Diversitat funcional - Accessibilitat
-# ------------------------------------------------------------------------------
+# # ------------------------------------------------------------------------------
+# # 6.4. Anàlisi bivariant Diversitat funcional - Accessibilitat
+# # ------------------------------------------------------------------------------
 
-## Malla hexagonal - hexàgons vàlids
-layers_simbologia_bivariant_valids = simbologia_general.simbologia_hexagons_especialitzacio_funcional(
-    hexagons=hexagons_valids_DF_A
-)
+# ## Malla hexagonal - hexàgons vàlids
+# layers_simbologia_bivariant_valids = simbologia_general.simbologia_hexagons_especialitzacio_funcional(
+#     hexagons=hexagons_valids_DF_A
+# )
 
-## Malla hexagonal - hexàgons no vàlids
-layer_simbologia_bivariant_no_valids = simbologies.simbologia_unica(
-    layer=hexagons_no_valids_DF_A,
-    **config.SIMBOLOGIA["Hexagons_no_valids"]
-)
+# ## Malla hexagonal - hexàgons no vàlids
+# layer_simbologia_bivariant_no_valids = simbologies.simbologia_unica(
+#     layer=hexagons_no_valids_DF_A,
+#     **config.SIMBOLOGIA["Hexagons_no_valids"]
+# )
 
 # ------------------------------------------------------------------------------
 # 6.5. Addició de capes al projecte
@@ -1189,55 +1369,44 @@ layout_temporal.composicio_antiguitat_relativa_clusters(
 #     capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"]
 # )
 
-# ------------------------------------------------------------------------------
-# 7.4. Composicions especialització funcional
-# ------------------------------------------------------------------------------
+# # ------------------------------------------------------------------------------
+# # 7.4. Composicions especialització funcional
+# # ------------------------------------------------------------------------------
 
-layout_especialitzacio.composicio_especialitzacio(
-    capes=layers_simbologia_especialitzacio_hexagons["hexagons"],
-    capa_terme=layers_simbologia_especialitzacio_hexagons["terme_municipal"],
-    capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"]
-)
+# layout_especialitzacio.composicio_especialitzacio(
+#     capes=layers_simbologia_especialitzacio_hexagons["hexagons"],
+#     capa_terme=layers_simbologia_especialitzacio_hexagons["terme_municipal"],
+#     capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"]
+# )
 
-# ------------------------------------------------------------------------------
-# 7.6. Composició anàlisi bivariant
-# ------------------------------------------------------------------------------
+# # ------------------------------------------------------------------------------
+# # 7.6. Composició anàlisi bivariant
+# # ------------------------------------------------------------------------------
 
-## Malla hexagonal
-layout_bivariant_zones.composicio_bivariant_zones(
-    zona="Hexagons",
-    districtes=districtes_base,
-    capes=[
-        layers_simbologia_bivariant_valids["bivariant"],
-        layer_simbologia_bivariant_no_valids
-    ],
-    capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"],
-    amb_capçalera=False
-)
+# ## Malla hexagonal
+# layout_bivariant_zones.composicio_bivariant_zones(
+#     zona="Hexagons",
+#     districtes=districtes_base,
+#     capes=[
+#         layers_simbologia_bivariant_valids["bivariant"],
+#         layer_simbologia_bivariant_no_valids
+#     ],
+#     capa_extent=dict_layers_clean["Limits_administratius"]["TermeMunicipal"],
+#     amb_capçalera=False
+# )
+
 
 # ------------------------------------------------------------------------------
 # 7.7. Composició final
 # ------------------------------------------------------------------------------
 
-## Unió de composicions en un informe final
+# Unió de les composicions que es mantenen al projecte
 fusionar_layouts.fusionar_pdf(
     pdfs=[
         config.LAYOUTS["GENERAL"]["Exportacio"]["output_path"],
-        config.LAYOUTS["ATLES"]["Exportacio"]["output_path"],
-        config.LAYOUTS["CLUSTERS"]["Exportacio"]["output_path"],
-        config.LAYOUTS["ESPECIALITZACIO"]["Exportacio"]["output_path"],
-        config.LAYOUTS["ACCESSIBILITAT"]["Exportacio"]["output_path"],
-        config.LAYOUTS["BIVARIANT"]["Hexagons"]["Exportacio"]["output_path"]
+        config.LAYOUTS["ATLES"]["Exportacio_atles"]["output_path"],
+        #config.LAYOUTS["CLUSTERS"]["Exportacio"]["output_path"]
     ],
-    output_path=f"{config.PATH_RESULTATS}/Informe_final.pdf"
+    output_path=str(config.PATH_RESULTATS / "Informe_final.pdf")
 )
 
-
-
-
-
-# -------------------------------------
-
-
-accessibilitat.distribucio_distancia(layers_simbologia_accessibilitat["accessibilitat"])
-accessibilitat.frequencies(layers_simbologia_accessibilitat["accessibilitat"])

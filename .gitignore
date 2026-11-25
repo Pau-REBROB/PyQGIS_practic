@@ -6,9 +6,17 @@
 .vscode/
 
 # Resultats generats
-Resultats/
+**/resultats/
+**/Resultats/
 memory.gpkg
 
 # Fitxers temporals de QGIS
 *.qgz~
 *.qgs~
+
+# Entorns virtuals
+.venv/
+venv/
+
+# Configuració local
+Exemple/config_local.py
